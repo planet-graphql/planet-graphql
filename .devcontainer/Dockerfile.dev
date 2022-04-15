@@ -1,0 +1,37 @@
+FROM node:16-bullseye-slim
+
+# apt-get
+RUN apt-get update && \
+    apt-get install -y vim git openssl
+
+# Homebrew
+RUN apt-get install -y build-essential procps curl file && \
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+ENV PATH=$PATH:/home/linuxbrew/.linuxbrew/bin
+
+# zsh
+ENV TERM xterm
+ENV ZSH_THEME pure
+RUN apt-get install -y zsh && \
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && \
+    chsh -s $(which zsh)
+
+# locale
+RUN apt-get install -y locales && \
+    localedef -f UTF-8 -i en_US en_US.utf8
+ENV LANG en_US.UTF-8
+
+# Git, Repository Settings
+ARG REPOSITORY_URL=https://github.com/prismagql/prismagql.git
+COPY ./git-credential-github-token /usr/local/bin
+RUN git config --global credential.helper github-token && \
+    git config --global user.name `cat /usr/local/bin/git-credential-github-token | grep username | sed -e 's/.*=//'` && \
+    git config --global user.email `cat /usr/local/bin/git-credential-github-token | grep email | sed -e 's/.*=//'` && \
+    git clone $REPOSITORY_URL /prismagql
+
+# Docker
+RUN curl -fsSL https://get.docker.com -o get-docker.sh && \
+    sh get-docker.sh
+
+# Other libraries
+RUN brew install jesseduffield/lazygit/lazygit

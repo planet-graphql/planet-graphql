@@ -1,0 +1,39 @@
+{
+  "name": "prismagql",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "dev",
+  "workspaceFolder": "/prismagql",
+  "extensions": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "prisma.prisma",
+    "graphql.vscode-graphql"
+  ],
+  "settings": {
+    // remote-container
+    "remote.containers.copyGitConfig": false,
+    "remote.containers.gitCredentialHelperConfigLocation": "none",
+    // general
+    "editor.insertSpaces": true,
+    "editor.rulers": [90],
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true,
+    // typescript / javascript
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "prettier.configPath": "./server/.prettierrc.json",
+    "prettier.prettierPath": "./server/node_modules/prettier",
+    "eslint.workingDirectories": ["./"],
+    "[typescript]": {
+      "editor.codeActionsOnSave": ["source.fixAll.eslint"]
+    },
+    "typescript.tsdk": "./server/node_modules/typescript/lib",
+    "javascript": {
+      "editor.codeActionsOnSave": ["source.fixAll.eslint"]
+    },
+    // prisma
+    "[prisma]": {
+      "editor.defaultFormatter": "Prisma.prisma"
+    }
+  },
+  "postCreateCommand": "cd /prismagql && yarn"
+}
