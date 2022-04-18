@@ -20,13 +20,13 @@
     "editor.formatOnSave": true,
     // typescript / javascript
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "prettier.configPath": "./server/.prettierrc.json",
-    "prettier.prettierPath": "./server/node_modules/prettier",
+    "prettier.configPath": "./.prettierrc.json",
+    "prettier.prettierPath": "./node_modules/prettier",
     "eslint.workingDirectories": ["./"],
     "[typescript]": {
       "editor.codeActionsOnSave": ["source.fixAll.eslint"]
     },
-    "typescript.tsdk": "./server/node_modules/typescript/lib",
+    "typescript.tsdk": "./node_modules/typescript/lib",
     "javascript": {
       "editor.codeActionsOnSave": ["source.fixAll.eslint"]
     },
