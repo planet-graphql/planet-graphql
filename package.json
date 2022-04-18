@@ -1,12 +1,20 @@
 {
-  "name": "prismagql",
-  "version": "0.0.1",
+  "name": "@prismagql/prismagql",
+  "version": "0.0.0-alpha.3",
+  "description": "prismagql",
   "main": "./lib/index.js",
-  "repository": "https://github.com/prismagql/prismagql.git",
-  "author": {
-    "name": "PrismaGQL"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prismagql/prismagql.git"
   },
+  "homepage": "https://github.com/prismagql/prismagql#readme",
+  "author": "PrismaGQL",
   "license": "MIT",
+  "keywords": [
+    "prisma",
+    "graphql",
+    "typescript"
+  ],
   "scripts": {
     "test": "jest --runInBand",
     "build": "tsc --build"
