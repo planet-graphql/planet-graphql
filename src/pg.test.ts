@@ -17,23 +17,19 @@ import { expectType } from 'tsd'
 import { JsonValue, ReadonlyDeep, RequireAtLeastOne } from 'type-fest'
 import { z } from 'zod'
 import { parseResolveInfo } from './graphql-parse-resolve-info'
+import { getPGBuilder, PGError } from './pg'
+import { PGCache } from './types/builder'
 import {
-  PGSelectorType,
-  getPGBuilder,
-  PGEnum,
-  PGOutputField,
-  PGObject,
-  PGModel,
-  PGField,
-  PGInputField,
-  PGInput,
-  InputFieldBuilder,
-  TypeOfPGModelBase,
-  PGCache,
   PGFieldMap,
+  PGField,
+  PGModel,
+  PGSelectorType,
+  PGEnum,
+  TypeOfPGModelBase,
   ResolveParams,
-  PGError,
-} from './pg'
+} from './types/common'
+import { PGInputField, PGInput, InputFieldBuilder } from './types/input'
+import { PGOutputField, PGObject } from './types/output'
 
 function setOutputFieldMethods(
   value: PGOutputField<any, any>['value'],
