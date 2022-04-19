@@ -31,7 +31,7 @@ function getTSType(scalarType: string): string {
     case 'Bytes':
       return 'Buffer'
     case 'Decimal':
-      return 'Prisma.Decimal'
+      return 'Decimal'
     default:
       throw new PGError(`"${scalarType}" is not supported yet.`, 'GeneratorError')
   }
@@ -71,6 +71,10 @@ export async function generate(
   outputFile.addImportDeclaration({
     namedImports: ['Prisma'],
     moduleSpecifier: prismaImportPath,
+  })
+  outputFile.addImportDeclaration({
+    namedImports: ['Decimal'],
+    moduleSpecifier: `${prismaImportPath}/runtime`,
   })
   outputFile.addImportDeclaration({
     namedImports: ['PGEnum', 'PGField', 'PGModel'],

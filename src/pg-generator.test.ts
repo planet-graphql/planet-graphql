@@ -83,6 +83,7 @@ describe('generateFile', () => {
     const result = fs.readFileSync(outputPath, 'utf8')
 
     expect(result).toBe(`import { Prisma } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime";
 import { PGEnum, PGField, PGModel } from "./pg";
 
 type SomeEnumValuesType = ["AAA", "BBB", "CCC"];
@@ -98,7 +99,7 @@ type Model1FieldMapType = {
         bigInt: PGField<bigint>;
         dateTime: PGField<Date>;
         bytes: PGField<Buffer>;
-        decimal: PGField<Prisma.Decimal>;
+        decimal: PGField<Decimal>;
         nullable: PGField<string | null>;
         list: PGField<string[]>;
         enum: PGField<PGEnum<SomeEnumValuesType>>;

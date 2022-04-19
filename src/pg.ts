@@ -1,7 +1,6 @@
 import { AbilityBuilder, subject } from '@casl/ability'
 import { accessibleBy, PrismaAbility } from '@casl/prisma'
-import { Prisma } from '@prisma/client'
-import { DMMF } from '@prisma/client/runtime'
+import { DMMF, Decimal } from '@prisma/client/runtime'
 import DataLoader from 'dataloader'
 import {
   GraphQLArgumentConfig,
@@ -75,7 +74,7 @@ type PGFieldType =
   | bigint
   | Date
   | Buffer
-  | Prisma.Decimal
+  | Decimal
   | PGEnum<any>
   | PGModelBase<any>
   | Function // NOTE: 実際は、() => PGModel<any>
@@ -332,7 +331,7 @@ type IsObject<T> = T extends any[]
   ? false
   : T extends Buffer
   ? false
-  : T extends Prisma.Decimal
+  : T extends Decimal
   ? false
   : T extends object
   ? true
@@ -350,7 +349,7 @@ type TypeToScalarName<T> = T extends string
   ? 'DateTime'
   : T extends Buffer
   ? 'Bytes'
-  : T extends Prisma.Decimal
+  : T extends Decimal
   ? 'Decimal'
   : never
 
@@ -367,7 +366,7 @@ type ScalarNameToType<T> = T extends 'String' | 'Json'
   : T extends 'Bytes'
   ? Buffer
   : T extends 'Decimal'
-  ? Prisma.Decimal
+  ? Decimal
   : never
 
 export interface InputFieldBuilder<TContext> {
@@ -380,7 +379,7 @@ export interface InputFieldBuilder<TContext> {
   dateTime: () => PGInputField<Date, TContext>
   json: () => PGInputField<string, TContext>
   byte: () => PGInputField<Buffer, TContext>
-  decimal: () => PGInputField<Prisma.Decimal, TContext>
+  decimal: () => PGInputField<Decimal, TContext>
   input: <T extends Function>(type: T) => PGInputField<T, TContext>
   enum: <T extends PGEnum<any>>(type: T) => PGInputField<T, TContext>
 }
@@ -395,7 +394,7 @@ export interface OutputFieldBuilder<TContext> {
   dateTime: () => PGOutputField<Date, undefined, TContext>
   json: () => PGOutputField<string, undefined, TContext>
   byte: () => PGOutputField<Buffer, undefined, TContext>
-  decimal: () => PGOutputField<Prisma.Decimal, undefined, TContext>
+  decimal: () => PGOutputField<Decimal, undefined, TContext>
   object: <T extends Function>(type: T) => PGOutputField<T, undefined, TContext>
   enum: <T extends PGEnum<any>>(type: T) => PGOutputField<T, undefined, TContext>
 }
@@ -684,7 +683,7 @@ export const inputFieldBuilder: InputFieldBuilder<any> = {
   dateTime: () => createInputField<Date>('DateTime'),
   json: () => createInputField<string>('Json'),
   byte: () => createInputField<Buffer>('Bytes'),
-  decimal: () => createInputField<Prisma.Decimal>('Decimal'),
+  decimal: () => createInputField<Decimal>('Decimal'),
   input: <T extends Function>(type: T) => createInputField<T>(type),
   enum: <T extends PGEnum<any>>(type: T) => createInputField<T>(type),
 }
@@ -699,7 +698,7 @@ export const outputFieldBuilder: OutputFieldBuilder<any> = {
   dateTime: () => createOutputField<Date>('DateTime'),
   json: () => createOutputField<string>('Json'),
   byte: () => createOutputField<Buffer>('Bytes'),
-  decimal: () => createOutputField<Prisma.Decimal>('Decimal'),
+  decimal: () => createOutputField<Decimal>('Decimal'),
   object: <T extends Function>(type: T) => createOutputField<T>(type),
   enum: <T extends PGEnum<any>>(type: T) => createOutputField<T>(type),
 }
