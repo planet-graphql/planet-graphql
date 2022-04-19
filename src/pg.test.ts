@@ -1,6 +1,6 @@
 import { AbilityBuilder, subject } from '@casl/ability'
 import { PrismaAbility } from '@casl/prisma'
-import { Prisma } from '@prisma/client'
+import { Decimal } from '@prisma/client/runtime'
 import { DMMF } from '@prisma/generator-helper'
 import { getDMMF } from '@prisma/sdk'
 import {
@@ -140,13 +140,13 @@ describe('PGSelectorType', () => {
         bigint: bigint
         date: Date
         buffer: Buffer
-        decimal: Prisma.Decimal
+        decimal: Decimal
       }
       array: {
         scalarArray: string[]
       }
       union: {
-        scalarUnion: string | number | boolean | bigint | Date | Buffer | Prisma.Decimal
+        scalarUnion: string | number | boolean | bigint | Date | Buffer | Decimal
         nullUnion: string | null
       }
       json: {
@@ -274,7 +274,7 @@ describe('getPGBuilder', () => {
         bigint: bigint
         date: Date
         buffer: Buffer
-        decimal: Prisma.Decimal
+        decimal: Decimal
         json: JsonValue
         object: {
           string: string
@@ -497,7 +497,7 @@ describe('getPGBuilder', () => {
         bigint: PGInputField<bigint | null | undefined>
         date: PGInputField<Date | null | undefined>
         buffer: PGInputField<Buffer | null | undefined>
-        decimal: PGInputField<Prisma.Decimal | null | undefined>
+        decimal: PGInputField<Decimal | null | undefined>
         json: PGInputField<string | null | undefined>
         object: PGInputField<
           | PGInput<{
@@ -794,7 +794,7 @@ describe('getPGBuilder', () => {
           someDateTime: PGOutputField<Date, ExpectArgsType>
           someJson: PGOutputField<string, ExpectArgsType>
           someByte: PGOutputField<Buffer, ExpectArgsType>
-          someDecimal: PGOutputField<Prisma.Decimal, ExpectArgsType>
+          someDecimal: PGOutputField<Decimal, ExpectArgsType>
           someObject: PGOutputField<() => typeof post, ExpectArgsType>
           someEnum: PGOutputField<typeof userRole, ExpectArgsType>
           someScalarList: PGOutputField<string[], any>
@@ -1271,7 +1271,7 @@ describe('getPGBuilder', () => {
           someDateTime: PGInputField<Date>
           someJson: PGInputField<string>
           someByte: PGInputField<Buffer>
-          someDecimal: PGInputField<Prisma.Decimal>
+          someDecimal: PGInputField<Decimal>
           someScalarList: PGInputField<string[]>
           someNullableScalar: PGInputField<string | null | undefined>
           someNullableScalarList: PGInputField<string[] | null | undefined>
@@ -1765,7 +1765,7 @@ describe('getPGBuilder', () => {
       type UserFieldMapType = {
         id: PGField<bigint>
         name: PGField<string>
-        income: PGField<Prisma.Decimal>
+        income: PGField<Decimal>
         posts: PGField<Array<PGModel<PostFieldMapType>>>
         role: PGField<PGEnum<UserRoleValuesType>>
       }
@@ -1797,7 +1797,7 @@ describe('getPGBuilder', () => {
         {
           id: 1n,
           name: 'xxx',
-          income: new Prisma.Decimal(100),
+          income: new Decimal(100),
           posts: [
             {
               id: 1,
@@ -1806,7 +1806,7 @@ describe('getPGBuilder', () => {
               user: {
                 id: 1n,
                 name: 'xxx',
-                income: new Prisma.Decimal(100),
+                income: new Decimal(100),
                 posts: [],
                 role: 'USER',
               },
@@ -1817,7 +1817,7 @@ describe('getPGBuilder', () => {
         {
           id: 2n,
           name: 'yyy',
-          income: new Prisma.Decimal(1000),
+          income: new Decimal(1000),
           posts: [],
           role: 'MANAGER',
         },
@@ -1847,7 +1847,7 @@ describe('getPGBuilder', () => {
           .resolve(({ args }) => {
             const user = {
               id: BigInt(_.maxBy(users, (x) => x.id)?.id ?? '0') + 1n,
-              income: new Prisma.Decimal(0),
+              income: new Decimal(0),
               name: args.input.name,
               posts: [],
               role: 'USER' as const,
@@ -1911,7 +1911,7 @@ describe('getPGBuilder', () => {
           findUser: {
             id: '1',
             name: 'xxx',
-            income: new Prisma.Decimal(100),
+            income: new Decimal(100),
             posts: [
               {
                 id: '1',
@@ -1927,7 +1927,7 @@ describe('getPGBuilder', () => {
           createUser: {
             id: '3',
             name: 'zzz',
-            income: new Prisma.Decimal(0),
+            income: new Decimal(0),
             posts: [],
             role: 'USER',
           },
@@ -2070,7 +2070,7 @@ describe('getPGBuilder', () => {
       bigInt: PGField<bigint>
       dateTime: PGField<Date>
       bytes: PGField<Buffer>
-      decimal: PGField<Prisma.Decimal>
+      decimal: PGField<Decimal>
       nullable: PGField<string | null>
       list: PGField<string[]>
       enum: PGField<PGEnum<SomeEnumValuesType>>
