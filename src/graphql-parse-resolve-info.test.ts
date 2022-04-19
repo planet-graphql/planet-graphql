@@ -61,8 +61,8 @@ const query = `
 
 const Cursor = new GraphQLScalarType({
   name: 'Cursor',
-  serialize: (value) => String(value),
-  parseValue: (value) => String(value),
+  serialize: String,
+  parseValue: String,
   parseLiteral: (ast) => {
     if (ast.kind !== Kind.STRING) {
       throw new Error('Can only parse string values')
