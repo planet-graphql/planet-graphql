@@ -1,6 +1,6 @@
 import { AbilityBuilder, subject } from '@casl/ability'
 import { PrismaAbility } from '@casl/prisma'
-import { Prisma } from '@prisma/client'
+import { Decimal } from '@prisma/client/runtime'
 import { DMMF } from '@prisma/generator-helper'
 import { getDMMF } from '@prisma/sdk'
 import {
@@ -14,26 +14,21 @@ import {
 import { PubSub } from 'graphql-subscriptions'
 import _ from 'lodash'
 import { expectType } from 'tsd'
-import { JsonValue, ReadonlyDeep, RequireAtLeastOne } from 'type-fest'
+import { JsonValue, ReadonlyDeep } from 'type-fest'
 import { z } from 'zod'
 import { parseResolveInfo } from './graphql-parse-resolve-info'
+import { getPGBuilder, PGError } from './pg'
+import { PGCache } from './types/builder'
 import {
-  PGSelectorType,
-  getPGBuilder,
-  PGEnum,
-  PGOutputField,
-  PGObject,
-  PGModel,
-  PGField,
-  PGInputField,
-  PGInput,
-  InputFieldBuilder,
-  TypeOfPGModelBase,
-  PGCache,
   PGFieldMap,
+  PGField,
+  PGModel,
+  PGEnum,
+  TypeOfPGModelBase,
   ResolveParams,
-  PGError,
-} from './pg'
+} from './types/common'
+import { PGInputField, PGInput, InputFieldBuilder } from './types/input'
+import { PGOutputField, PGObject } from './types/output'
 
 function setOutputFieldMethods(
   value: PGOutputField<any, any>['value'],
@@ -104,168 +99,6 @@ function pgObjectToPGModel<TPrismaFindArgs = any>(): <
   }
 }
 
-describe('PGSelectorType', () => {
-  it("'Json'型の変換に他の型が影響されない", () => {
-    const selector: PGSelectorType<{
-      json: JsonValue
-      jsonArray: JsonValue[]
-      jsonScalarUnion: JsonValue | Date | Buffer
-      // NOTE: JsonValueがJsonValue[]を含むため考慮しなくて良い
-      // jsonJsonArrayUnion: JsonValue | JsonValue[]
-      jsonObjectUnion: JsonValue | { date: Date }
-    }> = {
-      json: 'Json',
-      jsonArray: ['Json'],
-      jsonScalarUnion: 'Json',
-      jsonObjectUnion: { date: 'DateTime' },
-    }
-
-    expectType<
-      RequireAtLeastOne<{
-        json: 'Json'
-        jsonArray: ['Json']
-        jsonScalarUnion: 'Json' | 'DateTime' | 'Bytes'
-        jsonObjectUnion: 'Json' | { date: 'DateTime' }
-      }>
-    >(selector)
-  })
-
-  it("各Scalar型と'Json'型に変換される", () => {
-    const selector: PGSelectorType<{
-      base: {
-        required: boolean
-        optional?: boolean
-        null: null
-      }
-      scalar: {
-        string: string
-        number: number
-        boolean: boolean
-        bigint: bigint
-        date: Date
-        buffer: Buffer
-        decimal: Prisma.Decimal
-      }
-      array: {
-        scalarArray: string[]
-      }
-      union: {
-        scalarUnion: string | number | boolean | bigint | Date | Buffer | Prisma.Decimal
-        nullUnion: string | null
-      }
-      json: {
-        json: JsonValue
-        jsonArray: JsonValue[]
-        jsonScalarUnion: JsonValue | Date | Buffer
-        // NOTE: JsonValue自体がJsonValue[]を含むため考慮しなくて良い
-        // jsonJsonArrayUnion: JsonValue | JsonValue[]
-        jsonObjectUnion: JsonValue | { date: Date }
-      }
-      object: {
-        depth1: {
-          string: string
-        }
-        depth2: {
-          inner: {
-            string: string
-          }
-        }
-      }
-      complex: {
-        arrayObject: Array<{ string: string }>
-        scalarArrayUnion: string | string[]
-        scalarObjectUnion: string | { string: string }
-        objectArrayUnion: { string: string } | string[]
-        objectObjectUnion: { string: string } | { number: number }
-        objectArrayObjectUnion: { string: string } | Array<{ string: string }>
-      }
-    }> = {
-      json: {
-        json: 'Json',
-        jsonArray: ['Json'],
-        jsonScalarUnion: 'DateTime',
-        jsonObjectUnion: { date: 'DateTime' },
-      },
-      complex: {
-        arrayObject: [
-          {
-            string: 'String',
-          },
-        ],
-        scalarArrayUnion: ['String'],
-        scalarObjectUnion: {
-          string: 'String',
-        },
-        objectArrayUnion: ['String'],
-        objectObjectUnion: { number: 'Int' },
-        objectArrayObjectUnion: [
-          {
-            string: 'String',
-          },
-        ],
-      },
-    }
-
-    expectType<
-      RequireAtLeastOne<{
-        base: RequireAtLeastOne<{
-          required: 'Boolean'
-          optional?: 'Boolean'
-          null: never
-        }>
-        scalar: RequireAtLeastOne<{
-          string: 'String'
-          number: 'Int' | 'Float'
-          boolean: 'Boolean'
-          bigint: 'BigInt'
-          date: 'DateTime'
-          buffer: 'Bytes'
-          decimal: 'Decimal'
-        }>
-        array: RequireAtLeastOne<{
-          scalarArray: ['String']
-        }>
-        union: RequireAtLeastOne<{
-          scalarUnion:
-            | 'String'
-            | 'Int'
-            | 'Float'
-            | 'Boolean'
-            | 'BigInt'
-            | 'DateTime'
-            | 'Bytes'
-            | 'Decimal'
-          nullUnion: 'String'
-        }>
-        json: RequireAtLeastOne<{
-          json: 'Json'
-          jsonArray: ['Json']
-          jsonScalarUnion: 'Json' | 'DateTime' | 'Bytes'
-          jsonObjectUnion: 'Json' | { date: 'DateTime' }
-        }>
-        object: RequireAtLeastOne<{
-          depth1: {
-            string: 'String'
-          }
-          depth2: {
-            inner: {
-              string: 'String'
-            }
-          }
-        }>
-        complex: RequireAtLeastOne<{
-          arrayObject: [{ string: 'String' }]
-          scalarArrayUnion: 'String' | ['String']
-          scalarObjectUnion: 'String' | { string: 'String' }
-          objectArrayUnion: { string: 'String' } | ['String']
-          objectObjectUnion: { string: 'String' } | { number: 'Int' | 'Float' }
-          objectArrayObjectUnion: { string: 'String' } | [{ string: 'String' }]
-        }>
-      }>
-    >(selector)
-  })
-})
-
 describe('getPGBuilder', () => {
   describe('queryArgsBuilder', () => {
     it('指定した型に沿ったSelectorが指定でき、Selectorの内容に従ったPGFieldMapが返る', () => {
@@ -278,7 +111,7 @@ describe('getPGBuilder', () => {
         bigint: bigint
         date: Date
         buffer: Buffer
-        decimal: Prisma.Decimal
+        decimal: Decimal
         json: JsonValue
         object: {
           string: string
@@ -501,7 +334,7 @@ describe('getPGBuilder', () => {
         bigint: PGInputField<bigint | null | undefined>
         date: PGInputField<Date | null | undefined>
         buffer: PGInputField<Buffer | null | undefined>
-        decimal: PGInputField<Prisma.Decimal | null | undefined>
+        decimal: PGInputField<Decimal | null | undefined>
         json: PGInputField<string | null | undefined>
         object: PGInputField<
           | PGInput<{
@@ -798,7 +631,7 @@ describe('getPGBuilder', () => {
           someDateTime: PGOutputField<Date, ExpectArgsType>
           someJson: PGOutputField<string, ExpectArgsType>
           someByte: PGOutputField<Buffer, ExpectArgsType>
-          someDecimal: PGOutputField<Prisma.Decimal, ExpectArgsType>
+          someDecimal: PGOutputField<Decimal, ExpectArgsType>
           someObject: PGOutputField<() => typeof post, ExpectArgsType>
           someEnum: PGOutputField<typeof userRole, ExpectArgsType>
           someScalarList: PGOutputField<string[], any>
@@ -1275,7 +1108,7 @@ describe('getPGBuilder', () => {
           someDateTime: PGInputField<Date>
           someJson: PGInputField<string>
           someByte: PGInputField<Buffer>
-          someDecimal: PGInputField<Prisma.Decimal>
+          someDecimal: PGInputField<Decimal>
           someScalarList: PGInputField<string[]>
           someNullableScalar: PGInputField<string | null | undefined>
           someNullableScalarList: PGInputField<string[] | null | undefined>
@@ -1769,7 +1602,7 @@ describe('getPGBuilder', () => {
       type UserFieldMapType = {
         id: PGField<bigint>
         name: PGField<string>
-        income: PGField<Prisma.Decimal>
+        income: PGField<Decimal>
         posts: PGField<Array<PGModel<PostFieldMapType>>>
         role: PGField<PGEnum<UserRoleValuesType>>
       }
@@ -1801,7 +1634,7 @@ describe('getPGBuilder', () => {
         {
           id: 1n,
           name: 'xxx',
-          income: new Prisma.Decimal(100),
+          income: new Decimal(100),
           posts: [
             {
               id: 1,
@@ -1810,7 +1643,7 @@ describe('getPGBuilder', () => {
               user: {
                 id: 1n,
                 name: 'xxx',
-                income: new Prisma.Decimal(100),
+                income: new Decimal(100),
                 posts: [],
                 role: 'USER',
               },
@@ -1821,7 +1654,7 @@ describe('getPGBuilder', () => {
         {
           id: 2n,
           name: 'yyy',
-          income: new Prisma.Decimal(1000),
+          income: new Decimal(1000),
           posts: [],
           role: 'MANAGER',
         },
@@ -1851,7 +1684,7 @@ describe('getPGBuilder', () => {
           .resolve(({ args }) => {
             const user = {
               id: BigInt(_.maxBy(users, (x) => x.id)?.id ?? '0') + 1n,
-              income: new Prisma.Decimal(0),
+              income: new Decimal(0),
               name: args.input.name,
               posts: [],
               role: 'USER' as const,
@@ -1915,7 +1748,7 @@ describe('getPGBuilder', () => {
           findUser: {
             id: '1',
             name: 'xxx',
-            income: new Prisma.Decimal(100),
+            income: new Decimal(100),
             posts: [
               {
                 id: '1',
@@ -1931,7 +1764,7 @@ describe('getPGBuilder', () => {
           createUser: {
             id: '3',
             name: 'zzz',
-            income: new Prisma.Decimal(0),
+            income: new Decimal(0),
             posts: [],
             role: 'USER',
           },
@@ -2074,7 +1907,7 @@ describe('getPGBuilder', () => {
       bigInt: PGField<bigint>
       dateTime: PGField<Date>
       bytes: PGField<Buffer>
-      decimal: PGField<Prisma.Decimal>
+      decimal: PGField<Decimal>
       nullable: PGField<string | null>
       list: PGField<string[]>
       enum: PGField<PGEnum<SomeEnumValuesType>>
