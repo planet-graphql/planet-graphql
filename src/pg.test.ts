@@ -14,7 +14,7 @@ import {
 import { PubSub } from 'graphql-subscriptions'
 import _ from 'lodash'
 import { expectType } from 'tsd'
-import { JsonValue, ReadonlyDeep, RequireAtLeastOne } from 'type-fest'
+import { JsonValue, ReadonlyDeep } from 'type-fest'
 import { z } from 'zod'
 import { parseResolveInfo } from './graphql-parse-resolve-info'
 import { getPGBuilder, PGError } from './pg'
@@ -23,7 +23,6 @@ import {
   PGFieldMap,
   PGField,
   PGModel,
-  PGSelectorType,
   PGEnum,
   TypeOfPGModelBase,
   ResolveParams,
@@ -99,168 +98,6 @@ function pgObjectToPGModel<TPrismaFindArgs = any>(): <
     return model
   }
 }
-
-describe('PGSelectorType', () => {
-  it("'Json'型の変換に他の型が影響されない", () => {
-    const selector: PGSelectorType<{
-      json: JsonValue
-      jsonArray: JsonValue[]
-      jsonScalarUnion: JsonValue | Date | Buffer
-      // NOTE: JsonValueがJsonValue[]を含むため考慮しなくて良い
-      // jsonJsonArrayUnion: JsonValue | JsonValue[]
-      jsonObjectUnion: JsonValue | { date: Date }
-    }> = {
-      json: 'Json',
-      jsonArray: ['Json'],
-      jsonScalarUnion: 'Json',
-      jsonObjectUnion: { date: 'DateTime' },
-    }
-
-    expectType<
-      RequireAtLeastOne<{
-        json: 'Json'
-        jsonArray: ['Json']
-        jsonScalarUnion: 'Json' | 'DateTime' | 'Bytes'
-        jsonObjectUnion: 'Json' | { date: 'DateTime' }
-      }>
-    >(selector)
-  })
-
-  it("各Scalar型と'Json'型に変換される", () => {
-    const selector: PGSelectorType<{
-      base: {
-        required: boolean
-        optional?: boolean
-        null: null
-      }
-      scalar: {
-        string: string
-        number: number
-        boolean: boolean
-        bigint: bigint
-        date: Date
-        buffer: Buffer
-        decimal: Decimal
-      }
-      array: {
-        scalarArray: string[]
-      }
-      union: {
-        scalarUnion: string | number | boolean | bigint | Date | Buffer | Decimal
-        nullUnion: string | null
-      }
-      json: {
-        json: JsonValue
-        jsonArray: JsonValue[]
-        jsonScalarUnion: JsonValue | Date | Buffer
-        // NOTE: JsonValue自体がJsonValue[]を含むため考慮しなくて良い
-        // jsonJsonArrayUnion: JsonValue | JsonValue[]
-        jsonObjectUnion: JsonValue | { date: Date }
-      }
-      object: {
-        depth1: {
-          string: string
-        }
-        depth2: {
-          inner: {
-            string: string
-          }
-        }
-      }
-      complex: {
-        arrayObject: Array<{ string: string }>
-        scalarArrayUnion: string | string[]
-        scalarObjectUnion: string | { string: string }
-        objectArrayUnion: { string: string } | string[]
-        objectObjectUnion: { string: string } | { number: number }
-        objectArrayObjectUnion: { string: string } | Array<{ string: string }>
-      }
-    }> = {
-      json: {
-        json: 'Json',
-        jsonArray: ['Json'],
-        jsonScalarUnion: 'DateTime',
-        jsonObjectUnion: { date: 'DateTime' },
-      },
-      complex: {
-        arrayObject: [
-          {
-            string: 'String',
-          },
-        ],
-        scalarArrayUnion: ['String'],
-        scalarObjectUnion: {
-          string: 'String',
-        },
-        objectArrayUnion: ['String'],
-        objectObjectUnion: { number: 'Int' },
-        objectArrayObjectUnion: [
-          {
-            string: 'String',
-          },
-        ],
-      },
-    }
-
-    expectType<
-      RequireAtLeastOne<{
-        base: RequireAtLeastOne<{
-          required: 'Boolean'
-          optional?: 'Boolean'
-          null: never
-        }>
-        scalar: RequireAtLeastOne<{
-          string: 'String'
-          number: 'Int' | 'Float'
-          boolean: 'Boolean'
-          bigint: 'BigInt'
-          date: 'DateTime'
-          buffer: 'Bytes'
-          decimal: 'Decimal'
-        }>
-        array: RequireAtLeastOne<{
-          scalarArray: ['String']
-        }>
-        union: RequireAtLeastOne<{
-          scalarUnion:
-            | 'String'
-            | 'Int'
-            | 'Float'
-            | 'Boolean'
-            | 'BigInt'
-            | 'DateTime'
-            | 'Bytes'
-            | 'Decimal'
-          nullUnion: 'String'
-        }>
-        json: RequireAtLeastOne<{
-          json: 'Json'
-          jsonArray: ['Json']
-          jsonScalarUnion: 'Json' | 'DateTime' | 'Bytes'
-          jsonObjectUnion: 'Json' | { date: 'DateTime' }
-        }>
-        object: RequireAtLeastOne<{
-          depth1: {
-            string: 'String'
-          }
-          depth2: {
-            inner: {
-              string: 'String'
-            }
-          }
-        }>
-        complex: RequireAtLeastOne<{
-          arrayObject: [{ string: 'String' }]
-          scalarArrayUnion: 'String' | ['String']
-          scalarObjectUnion: 'String' | { string: 'String' }
-          objectArrayUnion: { string: 'String' } | ['String']
-          objectObjectUnion: { string: 'String' } | { number: 'Int' | 'Float' }
-          objectArrayObjectUnion: { string: 'String' } | [{ string: 'String' }]
-        }>
-      }>
-    >(selector)
-  })
-})
 
 describe('getPGBuilder', () => {
   describe('queryArgsBuilder', () => {
