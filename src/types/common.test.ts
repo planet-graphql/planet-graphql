@@ -1,7 +1,57 @@
 import { Decimal } from '@prisma/client/runtime'
 import { expectType } from 'tsd'
 import { JsonValue, RequireAtLeastOne } from 'type-fest'
-import { PGSelectorType } from './common'
+import { IsAny } from 'type-fest/source/set-return-type'
+import { getPGBuilder } from '..'
+import { PGSelectorType, TypeOfPGModelBase } from './common'
+
+describe('TypeOfPGModelBase', () => {
+  it('Type is evaluated correctly even if it contains circular references', () => {
+    const pg = getPGBuilder()
+    const user = pg.object('user', (f) => ({
+      id: f.string(),
+      posts: f.object(() => post).list(),
+    }))
+    const post = pg.object('post', (f) => ({
+      id: f.string(),
+      user: f.object(() => user),
+    }))
+
+    const tuser: TypeOfPGModelBase<typeof user> = null as any
+    const tpost: TypeOfPGModelBase<typeof post> = null as any
+
+    // NOTE:
+    // Adding this because even if tuser or tpost type is the "any",
+    // the 'expectType' does not throw errors.
+    const tuserIsAny: IsAny<typeof tuser> = null as any
+    const tpostIsAny: IsAny<typeof tpost> = null as any
+
+    expectType<{
+      id: string
+      posts: Array<{
+        id: string
+        user: {
+          id: string
+          posts: any
+        }
+      }>
+    }>(tuser)
+
+    expectType<{
+      id: string
+      user: {
+        id: string
+        posts: Array<{
+          id: string
+          user: any
+        }>
+      }
+    }>(tpost)
+
+    expectType<false>(tuserIsAny)
+    expectType<false>(tpostIsAny)
+  })
+})
 
 describe('PGSelectorType', () => {
   it("JsonValue type is converted to 'Json'", () => {
