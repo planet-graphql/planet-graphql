@@ -2,7 +2,7 @@ import { Decimal } from '@prisma/client/runtime'
 import { GraphQLResolveInfo } from 'graphql'
 import { JsonValue, RequireAtLeastOne } from 'type-fest'
 import { PGInput, PGInputField } from './input'
-import { PGConnectionObject } from './output'
+import { PGConnectionObject, PGObject } from './output'
 
 export type PGScalar =
   | 'ID'
@@ -15,8 +15,6 @@ export type PGScalar =
   | 'Json'
   | 'Bytes'
   | 'Decimal'
-
-export type CreatePGFieldTypeArg = PGScalar | Function | PGEnum<any> | PGInput<any>
 
 export type PGFieldType =
   | string
@@ -144,6 +142,11 @@ export type ScalarNameToType<T> = T extends 'String' | 'Json'
   : T extends 'Decimal'
   ? Decimal
   : never
+
+export type FieldBuilderArgsType =
+  | PGScalar
+  | PGEnum<any>
+  | (() => PGObject<any> | PGInput<any>)
 
 // NOTE:
 // 1. JsonValueを'Json'に変換するためにTがJsonValueを含むかどうか`JsonValue extends T`で判定する。

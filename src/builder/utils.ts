@@ -5,7 +5,7 @@ import { withFilter } from 'graphql-subscriptions'
 import _ from 'lodash'
 import { ContextCache, PGCache, PGRootFieldConfig } from '../types/builder'
 import {
-  CreatePGFieldTypeArg,
+  FieldBuilderArgsType,
   PGEnum,
   PGFieldType,
   PGModel,
@@ -94,12 +94,12 @@ export function getPrismaAbility(
   return ability
 }
 
-export function getPGFieldKind(type: CreatePGFieldTypeArg): DMMF.FieldKind {
+export function getPGFieldKind(type: FieldBuilderArgsType): DMMF.FieldKind {
   if (typeof type === 'string') {
     return 'scalar'
   }
   if (typeof type === 'object') {
-    return type.kind === 'enum' ? 'enum' : 'object'
+    return 'enum'
   }
   if (typeof type === 'function') {
     return 'object'
@@ -108,7 +108,7 @@ export function getPGFieldKind(type: CreatePGFieldTypeArg): DMMF.FieldKind {
 }
 
 export function createOutputField<T extends PGFieldType | null>(
-  type: CreatePGFieldTypeArg,
+  type: FieldBuilderArgsType,
 ): PGOutputField<T> {
   const field: PGOutputField<any, any> = {
     value: {
@@ -165,7 +165,7 @@ export function createOutputField<T extends PGFieldType | null>(
 }
 
 export function createInputField<T extends PGFieldType>(
-  type: CreatePGFieldTypeArg,
+  type: FieldBuilderArgsType,
 ): PGInputField<T> {
   const field: PGInputField<any> = {
     value: {
@@ -287,7 +287,7 @@ export const inputFieldBuilder: InputFieldBuilder<any> = {
   json: () => createInputField<string>('Json'),
   byte: () => createInputField<Buffer>('Bytes'),
   decimal: () => createInputField<Decimal>('Decimal'),
-  input: <T extends Function>(type: T) => createInputField<T>(type),
+  input: <T extends Function>(type: T) => createInputField<T>(type as any),
   enum: <T extends PGEnum<any>>(type: T) => createInputField<T>(type),
 }
 
@@ -302,6 +302,6 @@ export const outputFieldBuilder: OutputFieldBuilder<any> = {
   json: () => createOutputField<string>('Json'),
   byte: () => createOutputField<Buffer>('Bytes'),
   decimal: () => createOutputField<Decimal>('Decimal'),
-  object: <T extends Function>(type: T) => createOutputField<T>(type),
+  object: <T extends Function>(type: T) => createOutputField<T>(type as any),
   enum: <T extends PGEnum<any>>(type: T) => createOutputField<T>(type),
 }
