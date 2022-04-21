@@ -1,7 +1,13 @@
 import { PrismaAbility } from '@casl/prisma'
 import { DMMF } from '@prisma/client/runtime'
 import DataLoader from 'dataloader'
-import { GraphQLResolveInfo, GraphQLSchema } from 'graphql'
+import {
+  GraphQLEnumType,
+  GraphQLInputObjectType,
+  GraphQLObjectType,
+  GraphQLResolveInfo,
+  GraphQLSchema,
+} from 'graphql'
 import { ReadonlyDeep } from 'type-fest'
 import { ResolveTree } from '../graphql-parse-resolve-info'
 import {
@@ -34,7 +40,7 @@ import {
   PrismaFindManyArgsBase,
 } from './output'
 
-export interface PGSchemaObject {
+export interface PGRootFieldConfig {
   name: string
   field: PGOutputField<any, PGInputFieldMap | undefined>
   kind: 'query' | 'mutation' | 'subscription'
@@ -44,6 +50,11 @@ export interface PGfyResponseType {
   models: Record<string, PGModel<any>>
   enums: Record<string, PGEnum<any>>
 }
+
+export type PGRootFieldBuilder<TContext, TOutput extends PGOutputField<any, any>> = (
+  name: string,
+  field: (f: OutputFieldBuilder<TContext>) => TOutput,
+) => PGRootFieldConfig
 
 export interface PGBuilder<TContext> {
   object: <T extends PGOutputFieldMap>(
@@ -100,15 +111,15 @@ export interface PGBuilder<TContext> {
   query: <TOutput extends PGOutputField<any, any>>(
     name: string,
     field: (f: OutputFieldBuilder<TContext>) => TOutput,
-  ) => PGSchemaObject
+  ) => PGRootFieldConfig
   mutation: <TOutput extends PGOutputField<any, any>>(
     name: string,
     field: (f: OutputFieldBuilder<TContext>) => TOutput,
-  ) => PGSchemaObject
+  ) => PGRootFieldConfig
   subscription: <TOutput extends PGOutputField<any, any>>(
     name: string,
     fields: (f: OutputFieldBuilder<TContext>) => TOutput,
-  ) => PGSchemaObject
+  ) => PGRootFieldConfig
   build: () => GraphQLSchema
   pgfy: <T extends PGfyResponseType = PGfyResponseType>(datamodel: DMMF.Datamodel) => T
   queryArgsBuilder: <T extends { [key: string]: any }>(
@@ -160,9 +171,9 @@ export interface PGCache {
   object: { [name: string]: PGObject<PGOutputFieldMap> }
   input: { [name: string]: PGInput<PGInputFieldMap> }
   enum: { [name: string]: PGEnum<string[]> }
-  query: { [name: string]: PGSchemaObject }
-  mutation: { [name: string]: PGSchemaObject }
-  subscription: { [name: string]: PGSchemaObject }
+  query: { [name: string]: PGRootFieldConfig }
+  mutation: { [name: string]: PGRootFieldConfig }
+  subscription: { [name: string]: PGRootFieldConfig }
 }
 
 export interface ContextCache {
@@ -187,4 +198,10 @@ export interface ContextCache {
   prismaFindArgs: {
     [loc: string]: any | undefined
   }
+}
+
+export type GetGraphqlTypeRefFn = () => {
+  enums: { [name: string]: GraphQLEnumType }
+  objects: { [name: string]: GraphQLObjectType }
+  inputs: { [name: string]: GraphQLInputObjectType }
 }

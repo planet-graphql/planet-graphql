@@ -2,7 +2,7 @@ import path from 'path'
 import { DMMF } from '@prisma/client/runtime'
 import { generatorHandler } from '@prisma/generator-helper'
 import { Project, Writers } from 'ts-morph'
-import { PGError } from './pg'
+import { PGError } from './builder/utils'
 
 const { objectType } = Writers
 
