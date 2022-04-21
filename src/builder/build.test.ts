@@ -3,7 +3,7 @@ import { getDMMF } from '@prisma/sdk'
 import { graphql, GraphQLError } from 'graphql'
 import _ from 'lodash'
 import { getPGBuilder } from '..'
-import { parseResolveInfo } from '../graphql-parse-resolve-info'
+import { parseResolveInfo } from '../lib/graphql-parse-resolve-info'
 import { PGEnum, PGField, PGModel, TypeOfPGModelBase } from '../types/common'
 
 describe('build', () => {

@@ -4,7 +4,7 @@ import {
   FieldsByTypeName,
   ResolveTree,
   parseResolveInfo,
-} from '../graphql-parse-resolve-info'
+} from '../lib/graphql-parse-resolve-info'
 import { PGBuilder, PGCache } from '../types/builder'
 import { ResolveParams, PGField } from '../types/common'
 import { PGObject } from '../types/output'

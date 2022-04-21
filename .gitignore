@@ -1,3 +1,4 @@
 .devcontainer/git-credential-github-token
 node_modules
 lib
+!src/lib

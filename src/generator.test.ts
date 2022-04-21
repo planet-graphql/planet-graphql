@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { getDMMF } from '@prisma/sdk'
-import { generate, getPrismaImportPath } from './pg-generator'
+import { generate, getPrismaImportPath } from './generator'
 
 const datamodel = /* Prisma */ `
 datasource db {

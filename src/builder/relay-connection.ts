@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo } from 'graphql'
-import { ResolveTree, FieldsByTypeName } from '../graphql-parse-resolve-info'
+import { ResolveTree, FieldsByTypeName } from '../lib/graphql-parse-resolve-info'
 import { PGBuilder, PGCache } from '../types/builder'
 import { PGOutputFieldMap } from '../types/output'
 import { object } from './object'

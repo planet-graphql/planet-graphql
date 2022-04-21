@@ -9,7 +9,7 @@ import {
   GraphQLSchema,
 } from 'graphql'
 import { ReadonlyDeep } from 'type-fest'
-import { ResolveTree } from '../graphql-parse-resolve-info'
+import { ResolveTree } from '../lib/graphql-parse-resolve-info'
 import {
   PGEnum,
   PGField,
