@@ -1,6 +1,6 @@
 import { DMMF } from '@prisma/generator-helper'
 import { PGBuilder, PGCache, PGfyResponseType } from '../types/builder'
-import { CreatePGFieldTypeArg, PGEnum, PGModel, PGScalar } from '../types/common'
+import { FieldBuilderArgsType, PGEnum, PGModel, PGScalar } from '../types/common'
 import { PGObject, PGOutputFieldMap } from '../types/output'
 import { createEnum } from './enum'
 import { createOutputField, createPGObject, PGError, setCache } from './utils'
@@ -14,7 +14,7 @@ export const pgfy: (cache: PGCache) => PGBuilder<any>['pgfy'] =
       objectRef: { [name: string]: PGObject<any> },
     ): PGObject<any> {
       const fieldMap = model.fields.reduce<PGOutputFieldMap>((acc, x) => {
-        let type: CreatePGFieldTypeArg
+        let type: FieldBuilderArgsType
         switch (x.kind) {
           case 'scalar':
             type = x.isId ? 'ID' : (x.type as PGScalar)

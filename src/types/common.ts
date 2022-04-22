@@ -1,8 +1,9 @@
 import { Decimal } from '@prisma/client/runtime'
 import { GraphQLResolveInfo } from 'graphql'
 import { JsonValue, RequireAtLeastOne } from 'type-fest'
+import { IsAny } from 'type-fest/source/set-return-type'
 import { PGInput, PGInputField } from './input'
-import { PGConnectionObject } from './output'
+import { PGConnectionObject, PGObject } from './output'
 
 export type PGScalar =
   | 'ID'
@@ -15,8 +16,6 @@ export type PGScalar =
   | 'Json'
   | 'Bytes'
   | 'Decimal'
-
-export type CreatePGFieldTypeArg = PGScalar | Function | PGEnum<any> | PGInput<any>
 
 export type PGFieldType =
   | string
@@ -31,26 +30,20 @@ export type PGFieldType =
   | Function // NOTE: 実際は、() => PGModel<any>
   | PGFieldType[]
 
-export type TypeOfPGFieldType<
-  T extends PGFieldType | null | undefined,
-  // NOTE:
-  // 3回で再帰を中断するようにCountを持つことで以下のエラーの発生を抑制している。
-  // `Type instantiation is excessively deep and possibly infinite.ts(2589)`
-  // なぜ効果があるのか詳細は不明。VSCodeの型補完の速度にも良い影響がある気がする。
-  Count extends any[] = [],
-> = Count['length'] extends 3
-  ? never
-  : T extends () => any
-  ? TypeOfPGFieldType<ReturnType<T>, [...Count, 1]>
-  : T extends any[]
-  ? Array<TypeOfPGFieldType<T[0], [...Count, 1]>>
-  : T extends PGEnum<any>
-  ? TypeOfPGEnum<T>
-  : T extends PGModelBase<any>
-  ? T extends PGConnectionObject<infer U>
-    ? Array<TypeOfPGModelBase<U>>
-    : TypeOfPGModelBase<T>
-  : T
+export type TypeOfPGFieldType<T extends PGFieldType | null | undefined> =
+  IsAny<T> extends true
+    ? any
+    : T extends () => any
+    ? TypeOfPGFieldType<ReturnType<T>>
+    : T extends any[]
+    ? Array<TypeOfPGFieldType<T[0]>>
+    : T extends PGEnum<any>
+    ? TypeOfPGEnum<T>
+    : T extends PGModelBase<any>
+    ? T extends PGConnectionObject<infer U>
+      ? Array<TypeOfPGModelBase<U>>
+      : TypeOfPGModelBase<T>
+    : T
 
 export interface PGFieldValue {
   kind: string
@@ -144,6 +137,11 @@ export type ScalarNameToType<T> = T extends 'String' | 'Json'
   : T extends 'Decimal'
   ? Decimal
   : never
+
+export type FieldBuilderArgsType =
+  | PGScalar
+  | PGEnum<any>
+  | (() => PGObject<any> | PGInput<any>)
 
 // NOTE:
 // 1. JsonValueを'Json'に変換するためにTがJsonValueを含むかどうか`JsonValue extends T`で判定する。
