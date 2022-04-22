@@ -17,39 +17,40 @@ describe('TypeOfPGModelBase', () => {
       user: f.object(() => user),
     }))
 
-    const tuser: TypeOfPGModelBase<typeof user> = null as any
-    const tpost: TypeOfPGModelBase<typeof post> = null as any
+    expectType<TypeOfPGModelBase<typeof user>>({
+      id: '',
+      posts: [
+        {
+          id: '',
+          user: {
+            id: '',
+            posts: [],
+          },
+        },
+      ],
+    })
+
+    expectType<TypeOfPGModelBase<typeof post>>({
+      id: '',
+      user: {
+        id: '',
+        posts: [
+          {
+            id: '',
+            user: {
+              id: '',
+              posts: [],
+            },
+          },
+        ],
+      },
+    })
 
     // NOTE:
     // Adding this because even if tuser or tpost type is the "any",
     // the 'expectType' does not throw errors.
-    const tuserIsAny: IsAny<typeof tuser> = null as any
-    const tpostIsAny: IsAny<typeof tpost> = null as any
-
-    expectType<{
-      id: string
-      posts: Array<{
-        id: string
-        user: {
-          id: string
-          posts: any
-        }
-      }>
-    }>(tuser)
-
-    expectType<{
-      id: string
-      user: {
-        id: string
-        posts: Array<{
-          id: string
-          user: any
-        }>
-      }
-    }>(tpost)
-
-    expectType<false>(tuserIsAny)
-    expectType<false>(tpostIsAny)
+    expectType<IsAny<TypeOfPGModelBase<typeof user>>>(false)
+    expectType<IsAny<TypeOfPGModelBase<typeof post>>>(false)
   })
 })
 
