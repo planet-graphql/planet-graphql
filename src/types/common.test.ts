@@ -3,7 +3,7 @@ import { expectType } from 'tsd'
 import { JsonValue, RequireAtLeastOne } from 'type-fest'
 import { IsAny } from 'type-fest/source/set-return-type'
 import { getPGBuilder } from '..'
-import { PGSelectorType, TypeOfPGModelBase } from './common'
+import { PGSelectorType, ResolveResponse, TypeOfPGModelBase } from './common'
 
 describe('TypeOfPGModelBase', () => {
   it('Type is evaluated correctly even if it contains circular references', () => {
@@ -189,5 +189,66 @@ describe('PGSelectorType', () => {
         }>
       }>
     >(selector)
+  })
+})
+
+describe('ResolveResponse', () => {
+  it('Converted to deeply partial and promisable', () => {
+    type T = ResolveResponse<{
+      name: string
+      posts: Array<{
+        title: string
+      }>
+    }>
+
+    expectType<T>({
+      name: '',
+      posts: [
+        {
+          title: '',
+        },
+      ],
+    })
+
+    expectType<T>({
+      posts: [{}],
+    })
+
+    expectType<T>({})
+
+    expectType<T>(Promise.resolve({}))
+  })
+
+  describe('Array case', () => {
+    it('The inside of the array is converted to deeply partial and promisable', () => {
+      type T = ResolveResponse<
+        Array<{
+          name: string
+          posts: Array<{
+            title: string
+          }>
+        }>
+      >
+      expectType<T>([
+        {
+          name: '',
+          posts: [
+            {
+              title: '',
+            },
+          ],
+        },
+      ])
+
+      expectType<T>([
+        {
+          posts: [{}],
+        },
+      ])
+
+      expectType<T>([{}])
+
+      expectType<T>(Promise.resolve([{}]))
+    })
   })
 })
