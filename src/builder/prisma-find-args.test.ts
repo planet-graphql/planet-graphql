@@ -15,11 +15,9 @@ describe('prismaFindArgs', () => {
       const pgCache = pg.cache()
 
       const userModel = pgObjectToPGModel<{
-        where?: {
-          isDeleted?: boolean
-          profile?: {
-            isPublic?: boolean
-          }
+        isDeleted?: boolean
+        profile?: {
+          isPublic?: boolean
         }
       }>()(
         pg.object('User', (f) => ({
@@ -51,10 +49,8 @@ describe('prismaFindArgs', () => {
       )
 
       const commentModel = pgObjectToPGModel<{
-        where?: {
-          message?: {
-            contains?: string
-          }
+        message?: {
+          contains?: string
         }
       }>()(
         pg.object('Comment', (f) => ({

@@ -12,7 +12,7 @@ describe('PGObject', () => {
   describe('prismaAuth', () => {
     it('TPrismaFindManyArgsで指定された型でPrismaの権限ルールを設定できる', () => {
       type TContext = { role: 'Admin' | 'Manager' }
-      type TPrismaFindManyArgs = { where?: { status: string } }
+      type TPrismaWhere = { status: string }
 
       const pg = getPGBuilder<TContext>()
       const object: PGObject<
@@ -22,7 +22,7 @@ describe('PGObject', () => {
           status: PGOutputField<string>
         },
         TContext,
-        TPrismaFindManyArgs
+        TPrismaWhere
       > = pg
         .object('Post', (f) => ({
           title: f.string(),
@@ -42,7 +42,7 @@ describe('PGObject', () => {
         const allowFn = (
           action: string,
           conditionOrFields: any,
-          condition?: TPrismaFindManyArgs['where'],
+          condition?: TPrismaWhere,
         ): void => {
           if (Array.isArray(conditionOrFields)) {
             can(action, 'Post' as any, conditionOrFields, condition as any)
@@ -53,7 +53,7 @@ describe('PGObject', () => {
         const denyFun = (
           action: string,
           conditionOrFields: any,
-          condition?: TPrismaFindManyArgs['where'],
+          condition?: TPrismaWhere,
         ): void => {
           if (Array.isArray(conditionOrFields)) {
             cannot(action, 'Post' as any, conditionOrFields, condition as any)
@@ -107,7 +107,7 @@ describe('PGObject', () => {
   describe('checkPrismaPermission', () => {
     it('Prismaの権限ルールに沿って参照権限があるか確認する。', async () => {
       type TContext = { role: 'Admin' | 'LoginUser' }
-      type TPrismaFindManyArgs = { where: { status: string } }
+      type TPrismaWhere = { status: string }
 
       const pg = getPGBuilder<TContext>()
       const loginUserContext: TContext = { role: 'LoginUser' }
@@ -139,7 +139,7 @@ describe('PGObject', () => {
           }
         })
 
-      const model = pgObjectToPGModel<TPrismaFindManyArgs>()(
+      const model = pgObjectToPGModel<TPrismaWhere>()(
         pg.object('Post', (f) => ({
           id: f.id(),
           title: f.string(),

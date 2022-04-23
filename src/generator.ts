@@ -112,7 +112,7 @@ export async function generate(
     type: objectType({
       properties: datamodel.models.map((x) => ({
         name: x.name,
-        type: `PGModel<${getModelTypeName(x.name)}, Prisma.${x.name}FindManyArgs>`,
+        type: `PGModel<${getModelTypeName(x.name)}, Prisma.${x.name}WhereInput>`,
       })),
     }),
   })

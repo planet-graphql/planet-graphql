@@ -48,7 +48,7 @@ export function setOutputFieldMethods(
   }
 }
 
-export function pgObjectToPGModel<TPrismaFindArgs = any>(): <
+export function pgObjectToPGModel<TPrismaWhere = any>(): <
   T extends PGObject<any>,
   TFieldMap extends PGFieldMap = T extends PGObject<infer TOutputFieldMap>
     ? {
@@ -60,7 +60,7 @@ export function pgObjectToPGModel<TPrismaFindArgs = any>(): <
 >(
   object: T,
   pgCache?: ReadonlyDeep<PGCache>,
-) => PGModel<TFieldMap, TPrismaFindArgs> {
+) => PGModel<TFieldMap, TPrismaWhere> {
   return (object, pgCache) => {
     const model = {
       name: object.name,
