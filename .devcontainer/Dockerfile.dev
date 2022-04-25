@@ -27,7 +27,10 @@ COPY ./git-credential-github-token /usr/local/bin
 RUN git config --global credential.helper github-token && \
     git config --global user.name `cat /usr/local/bin/git-credential-github-token | grep username | sed -e 's/.*=//'` && \
     git config --global user.email `cat /usr/local/bin/git-credential-github-token | grep email | sed -e 's/.*=//'` && \
-    git clone $REPOSITORY_URL /prismagql
+    git clone $REPOSITORY_URL /prismagql/prismagql
+
+ARG REPOSITORY_URL_2=https://github.com/prismagql/prismagql-example.git
+RUN git clone $REPOSITORY_URL_2 /prismagql/prismagql-example
 
 # Docker
 RUN curl -fsSL https://get.docker.com -o get-docker.sh && \
