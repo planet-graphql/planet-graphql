@@ -124,9 +124,9 @@ type PGfyResponseEnums = {
         SomeEnum3: PGEnum<SomeEnum3ValuesType>;
     };
 type PGfyResponseModels = {
-        Model1: PGModel<Model1FieldMapType, Prisma.Model1FindManyArgs>;
-        Model2: PGModel<Model2FieldMapType, Prisma.Model2FindManyArgs>;
-        Model3: PGModel<Model3FieldMapType, Prisma.Model3FindManyArgs>;
+        Model1: PGModel<Model1FieldMapType, Prisma.Model1WhereInput>;
+        Model2: PGModel<Model2FieldMapType, Prisma.Model2WhereInput>;
+        Model3: PGModel<Model3FieldMapType, Prisma.Model3WhereInput>;
     };
 
 export interface PGfyResponse {

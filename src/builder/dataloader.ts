@@ -1,5 +1,6 @@
 import DataLoader from 'dataloader'
 import { GraphQLResolveInfo } from 'graphql'
+import { PartialDeep } from 'type-fest'
 import { PGBuilder } from '../types/builder'
 import { getCtxCache } from './utils'
 
@@ -15,9 +16,10 @@ export const dataloader: PGBuilder<any>['dataloader'] = async (params, batchLoad
   const loaderKey = getLoaderKey(params.info.path)
   let loader = loaderCache.loader[loaderKey]
   if (loader === undefined) {
-    loader = new DataLoader<typeof params['source'], Partial<typeof params['__type']>>(
-      async (sourceList) => await batchLoadFn(sourceList),
-    )
+    loader = new DataLoader<
+      typeof params['source'],
+      PartialDeep<typeof params['__type']>
+    >(async (sourceList) => await batchLoadFn(sourceList))
     loaderCache.loader[loaderKey] = loader
   }
   return await loader.load(params.source)

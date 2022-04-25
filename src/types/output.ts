@@ -16,11 +16,6 @@ import {
 } from './common'
 import { InputFieldBuilder, PGInputFieldMap } from './input'
 
-type PrismaAuthFn<TPrismaWhere, TFields> = {
-  (action: string, condition?: TPrismaWhere): void
-  (action: string, fields: TFields, condition?: TPrismaWhere): void
-}
-
 type CheckPrismaPermissionFn<TContext, TValue> = {
   (ctx: TContext, action: string, value: TValue, condition?: TValue): {
     hasPermission: boolean
@@ -43,26 +38,40 @@ export interface PrismaFindManyArgsBase {
   distinct?: any | any[]
 }
 
+type NamesOfPGFieldMap<T extends PGOutputFieldMap> = Array<
+  IsAny<T> extends true ? any : keyof T
+>
+
+type PrismaAuthFn<TPrismaWhere, TField> = {
+  (action: string, condition?: TPrismaWhere): void
+  (action: string, fields: TField, condition?: TPrismaWhere): void
+}
+
+type PrismaAuthBuilder<TContext, TPrismaWhere, TField> = (params: {
+  ctx: TContext
+  allow: PrismaAuthFn<TPrismaWhere, TField>
+  deny: PrismaAuthFn<TPrismaWhere, TField>
+}) => void
+
 export interface PGObject<
   TFieldMap extends PGOutputFieldMap,
   TContext = any,
-  TPrismaFindMany extends PrismaFindManyArgsBase = PrismaFindManyArgsBase,
-  TPrismaWhere = Exclude<TPrismaFindMany['where'], undefined>,
-  TField = IsAny<TFieldMap> extends true ? any : keyof TFieldMap,
-  TAuthBuilder = (params: {
-    ctx: TContext
-    allow: PrismaAuthFn<TPrismaWhere, TField[]>
-    deny: PrismaAuthFn<TPrismaWhere, TField[]>
-  }) => void,
+  TPrismaWhere = any,
 > {
   name: string
   fieldMap: TFieldMap
   kind: 'object'
   value: {
-    prismaAuthBuilder?: TAuthBuilder
+    prismaAuthBuilder?: PrismaAuthBuilder<
+      TContext,
+      TPrismaWhere,
+      NamesOfPGFieldMap<TFieldMap>
+    >
     isRelayConnection?: boolean
   }
-  prismaAuth: (builder: TAuthBuilder) => PGObject<TFieldMap, TContext, TPrismaWhere>
+  prismaAuth: (
+    builder: PrismaAuthBuilder<TContext, TPrismaWhere, NamesOfPGFieldMap<TFieldMap>>,
+  ) => PGObject<TFieldMap, TContext, TPrismaWhere>
   checkPrismaPermission: CheckPrismaPermissionFn<
     TContext,
     PartialDeep<TypeOfPGFieldMap<TFieldMap>>

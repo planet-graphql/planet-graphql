@@ -1,6 +1,6 @@
 import { Decimal } from '@prisma/client/runtime'
 import { GraphQLResolveInfo } from 'graphql'
-import { JsonValue, RequireAtLeastOne } from 'type-fest'
+import { JsonValue, PartialDeep, Promisable, RequireAtLeastOne } from 'type-fest'
 import { IsAny } from 'type-fest/source/set-return-type'
 import { PGInput, PGInputField } from './input'
 import { PGConnectionObject, PGObject } from './output'
@@ -190,7 +190,6 @@ export interface ResolveParams<TResolve, TSource, TArgs, TContext> {
   __type: TResolve
 }
 
-export type ResolveResponse<
-  T,
-  Partialized = T extends Array<infer U> ? Array<Partial<U>> : Partial<T>,
-> = Partialized | Promise<Partialized>
+export type ResolveResponse<T> = Promisable<
+  T extends Array<infer U> ? Array<PartialDeep<U>> : PartialDeep<T>
+>
