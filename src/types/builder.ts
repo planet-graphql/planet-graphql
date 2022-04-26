@@ -33,11 +33,13 @@ import {
 import {
   OutputFieldBuilder,
   PGConnectionObject,
+  PGConnectionObjectWithTotalCount,
   PGEditOutputFieldMap,
   PGObject,
   PGOutputField,
   PGOutputFieldMap,
   PrismaFindManyArgsBase,
+  RelayConnectionTotalCountFn,
 } from './output'
 
 export interface PGRootFieldConfig {
@@ -134,29 +136,29 @@ export interface PGBuilder<TContext> {
     params: ResolveParams<TResolve, TSource, TArgs, TContext>,
     batchLoadFn: (sourceList: readonly TSource[]) => ResolveResponse<TResolve[]>,
   ) => ResolveResponse<TResolve>
-  // FIXME: options.totalCountが指定された場合は、PGConnectionObjectのFieldMapのTotalCountのオプショナルを外すようにしたい
   relayConnection: <
     T extends PGOutputFieldMap,
     TPrismaFindMany extends PrismaFindManyArgsBase,
     TConnectionSource extends PGOutputFieldMap,
+    TotalCountFn extends
+      | RelayConnectionTotalCountFn<
+          TypeOfPGFieldMap<TConnectionSource>,
+          TContext,
+          TPrismaFindMany
+        >
+      | undefined,
   >(
     object: PGObject<T, TContext, TPrismaFindMany>,
     options?: {
       connectionSource?: PGObject<TConnectionSource>
-      totalCount?: (
-        params: ResolveParams<
-          number,
-          TypeOfPGFieldMap<TConnectionSource>,
-          never,
-          TContext
-        >,
-        nodeFindArgs: TPrismaFindMany,
-      ) => number
+      totalCount?: TotalCountFn
       cursor?: (
         node: TypeOfPGFieldMap<T>,
       ) => Exclude<TPrismaFindMany['cursor'], undefined>
     },
-  ) => PGConnectionObject<PGObject<T, TContext, TPrismaFindMany>>
+  ) => TotalCountFn extends undefined
+    ? PGConnectionObject<PGObject<T, TContext, TPrismaFindMany>>
+    : PGConnectionObjectWithTotalCount<PGObject<T, TContext, TPrismaFindMany>>
   relayArgs: (options?: { default?: number; max?: number }) => {
     first: PGInputField<number | null | undefined, TContext>
     after: PGInputField<string | null | undefined, TContext>
