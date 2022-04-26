@@ -108,25 +108,7 @@ export const relayConnection: (cache: PGCache) => PGBuilder<any>['relayConnectio
         )
         .resolve((params) => {
           const args = getParentFieldArgs(params.info, params.context)
-          // FIXME: 関数化して外に出して単体テストを行う
-          if (args.raw.first !== undefined || args.raw.after !== undefined) {
-            return {
-              hasNextPage:
-                args.raw.first !== undefined && params.source.length > args.raw.first,
-              hasPreviousPage: args.raw.after !== undefined,
-            }
-          }
-          if (args.raw.last !== undefined || args.raw.before !== undefined) {
-            return {
-              hasNextPage: args.raw.before !== undefined,
-              hasPreviousPage:
-                args.raw.last !== undefined && params.source.length > args.raw.last,
-            }
-          }
-          return {
-            hasNextPage: false,
-            hasPreviousPage: false,
-          }
+          return getPageInfo(params.source.length, args.raw)
         }),
       ...(options?.totalCount !== undefined
         ? {
@@ -136,8 +118,38 @@ export const relayConnection: (cache: PGCache) => PGBuilder<any>['relayConnectio
               return options.totalCount!(params, args.prisma)
             }),
           }
-        : {}),
+        : ({} as any)),
     }))
     connection.value.isRelayConnection = true
     return connection
   }
+
+export function getPageInfo(
+  sourceLength: number,
+  args: {
+    first?: number
+    after?: string
+    last?: number
+    before?: string
+  },
+): {
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+} {
+  if (args.first !== undefined || args.after !== undefined) {
+    return {
+      hasNextPage: args.first !== undefined && sourceLength > args.first,
+      hasPreviousPage: args.after !== undefined,
+    }
+  }
+  if (args.last !== undefined || args.before !== undefined) {
+    return {
+      hasNextPage: args.before !== undefined,
+      hasPreviousPage: args.last !== undefined && sourceLength > args.last,
+    }
+  }
+  return {
+    hasNextPage: false,
+    hasPreviousPage: false,
+  }
+}

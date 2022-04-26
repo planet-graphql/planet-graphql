@@ -1,5 +1,6 @@
 import { GraphQLSchema, graphql } from 'graphql'
 import { getPGBuilder } from '..'
+import { getPageInfo } from './relay-connection'
 import {
   pgObjectToPGModel,
   setOutputFieldMethods,
@@ -405,6 +406,88 @@ describe('relayConnection', () => {
       expect(edge).toEqual(expectPostEdge)
       const cursorResolve = edge.fieldMap.cursor.value.resolve
       expect(cursorResolve({ uuid: 1 })).toEqual('eyJ1dWlkIjoxfQ==')
+    })
+  })
+
+  describe('getPageInfo', () => {
+    it('expect to return appropriate values according to the function', async () => {
+      /*
+        data = [
+          {
+            id: '1',
+            title: 'title1',
+          },
+          {
+            id: '2',
+            title: 'title2', <- cursor: "Y3Vyc29yMg==" ( = cursor2 )
+          },
+          {
+            id: '3',
+            title: 'title3',
+          },
+        ]
+      */
+
+      expect(
+        getPageInfo(3, {
+          first: 2,
+        }),
+      ).toEqual({
+        hasNextPage: true,
+        hasPreviousPage: false,
+      })
+
+      expect(
+        getPageInfo(1, {
+          after: 'Y3Vyc29yMg==',
+        }),
+      ).toEqual({
+        hasNextPage: false,
+        hasPreviousPage: true,
+      })
+
+      expect(
+        getPageInfo(1, {
+          first: 1,
+          after: 'Y3Vyc29yMg==',
+        }),
+      ).toEqual({
+        hasNextPage: false,
+        hasPreviousPage: true,
+      })
+
+      expect(
+        getPageInfo(3, {
+          last: 2,
+        }),
+      ).toEqual({
+        hasNextPage: false,
+        hasPreviousPage: true,
+      })
+
+      expect(
+        getPageInfo(3, {
+          before: 'Y3Vyc29yMg==',
+        }),
+      ).toEqual({
+        hasNextPage: true,
+        hasPreviousPage: false,
+      })
+
+      expect(
+        getPageInfo(1, {
+          last: 1,
+          before: 'Y3Vyc29yMg==',
+        }),
+      ).toEqual({
+        hasNextPage: true,
+        hasPreviousPage: false,
+      })
+
+      expect(getPageInfo(3, {})).toEqual({
+        hasNextPage: false,
+        hasPreviousPage: false,
+      })
     })
   })
 })
