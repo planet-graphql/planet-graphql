@@ -78,23 +78,39 @@ export interface PGObject<
   >
 }
 
-export type PGConnectionObject<TObject extends PGObject<any>, TContext = any> = PGObject<
-  {
-    totalCount?: PGOutputField<number>
-    edges: PGOutputField<
-      Array<
-        () => PGObject<{
-          cursor: PGOutputField<string>
-          node: PGOutputField<() => TObject>
-        }>
-      >
-    >
-    pageInfo: PGOutputField<
+export type RelayConnectionTotalCountFn<TSource, TContext, TPrismaFindMany> = (
+  params: ResolveParams<number, TSource, never, TContext>,
+  nodeFindArgs: TPrismaFindMany,
+) => number
+
+type PGConnectionObjectFieldBase<TObject extends PGObject<any>> = {
+  edges: PGOutputField<
+    Array<
       () => PGObject<{
-        hasNextPage: PGOutputField<boolean>
-        hasPreviousPage: PGOutputField<boolean>
+        cursor: PGOutputField<string>
+        node: PGOutputField<() => TObject>
       }>
     >
+  >
+  pageInfo: PGOutputField<
+    () => PGObject<{
+      hasNextPage: PGOutputField<boolean>
+      hasPreviousPage: PGOutputField<boolean>
+    }>
+  >
+}
+
+export type PGConnectionObject<TObject extends PGObject<any>, TContext = any> = PGObject<
+  PGConnectionObjectFieldBase<TObject>,
+  TContext
+>
+
+export type PGConnectionObjectWithTotalCount<
+  TObject extends PGObject<any>,
+  TContext = any,
+> = PGObject<
+  PGConnectionObjectFieldBase<TObject> & {
+    totalCount: PGOutputField<number>
   },
   TContext
 >

@@ -3,7 +3,7 @@ import { GraphQLResolveInfo } from 'graphql'
 import { JsonValue, PartialDeep, Promisable, RequireAtLeastOne } from 'type-fest'
 import { IsAny } from 'type-fest/source/set-return-type'
 import { PGInput, PGInputField } from './input'
-import { PGConnectionObject, PGObject } from './output'
+import { PGConnectionObject, PGConnectionObjectWithTotalCount, PGObject } from './output'
 
 export type PGScalar =
   | 'ID'
@@ -40,7 +40,7 @@ export type TypeOfPGFieldType<T extends PGFieldType | null | undefined> =
     : T extends PGEnum<any>
     ? TypeOfPGEnum<T>
     : T extends PGModelBase<any>
-    ? T extends PGConnectionObject<infer U>
+    ? T extends PGConnectionObjectWithTotalCount<infer U> | PGConnectionObject<infer U>
       ? Array<TypeOfPGModelBase<U>>
       : TypeOfPGModelBase<T>
     : T
