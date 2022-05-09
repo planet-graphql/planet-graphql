@@ -21,7 +21,7 @@ model Model1 {
   decimal       Decimal
   nullable      String?
   list          String[]
-  // NOTE: PrismaにはnullableなListという概念がないため省略
+  // NOTE: Omitted because Prisma does not have the concept of a nullable List.
   // nullableList
   enum          SomeEnum
   enumList      SomeEnum2[]
@@ -62,10 +62,9 @@ enum SomeEnum3 {
 `
 
 // NOTE:
-// @prisma/generator-helperをmockしておかないと
-// generatorHandlerがprocessを握ったままになってjestが終了しなくなってしまうためmockして何も処理をさせないようにしている。
-// pg-generatorをパッケージ化するときは、generatorHandlerを呼び出すファイルと実際の処理を行う関数(generate)を配置するファイルとを
-// 別々にしても良いかもしれない。今回は1ファイルにまとめたいのでmockする。
+// If we don't mock @prisma/generator-helper, the generatorHandler will hold the process
+// and jest will not terminate, so I have to mock it and not let it process anything.
+// It might be better to keep the files separate.
 jest.mock('@prisma/generator-helper')
 
 describe('generateFile', () => {

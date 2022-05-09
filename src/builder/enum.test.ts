@@ -3,7 +3,7 @@ import { getPGBuilder } from '..'
 import { PGEnum } from '../types/common'
 
 describe('enum', () => {
-  it('Enumが作られて、cacheにEnumValueが設定される', () => {
+  it('Creates an Enum & Set it to the Build Cache', () => {
     const pg = getPGBuilder<any>()
     const result = pg.enum('UserRole', 'USER', 'MANAGER', 'ADMIN')
     const expectValue = {
@@ -18,7 +18,7 @@ describe('enum', () => {
     expect(cache).toEqual(expectValue)
   })
 
-  it('同じ名前のPGEnumは作成できず既存のリソースを返却する', () => {
+  it('Returns an existing resource because a resource with the same name cannot be created', () => {
     const pg = getPGBuilder<any>()
     pg.enum('SomeRole', 'A', 'B')
 

@@ -85,9 +85,8 @@ export interface PGBuilder<TContext> {
     editFieldMap: (
       keep: {
         // NOTE:
-        // nullableなfieldはinputに変換する際にundefined型も付与する必要がある
-        // (クエリで値が設定されないfieldはgraphql.js上undefinedになるため)
-        // そのためPGFieldのTにnullが含まれるかどうかで分岐をして、nullが含まれる場合はundefined型を付与している
+        // A nullable fields must also be given an undefined type when converted to input.
+        // This is because an Input field which value is not specified in a query is undefined in graphql.js.
         [P in keyof TModel]: TModel[P] extends PGField<infer U>
           ? null extends U
             ? PGInputField<U | undefined>

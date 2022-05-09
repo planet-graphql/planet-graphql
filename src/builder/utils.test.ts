@@ -10,7 +10,7 @@ import { PGError } from './utils'
 
 describe('PGObject', () => {
   describe('prismaAuth', () => {
-    it('TPrismaFindManyArgsで指定された型でPrismaの権限ルールを設定できる', () => {
+    it('Sets Prisma authorization rules', () => {
       type TContext = { role: 'Admin' | 'Manager' }
       type TPrismaWhere = { status: string }
 
@@ -105,7 +105,7 @@ describe('PGObject', () => {
   })
 
   describe('checkPrismaPermission', () => {
-    it('Prismaの権限ルールに沿って参照権限があるか確認する。', async () => {
+    it('Checks for authorization according to the set Prisma authorization rules', async () => {
       type TContext = { role: 'Admin' | 'LoginUser' }
       type TPrismaWhere = { status: string }
 
@@ -285,7 +285,7 @@ describe('PGObject', () => {
 
 describe('PGOutputField', () => {
   describe('auth', () => {
-    it('定義した関数がauthCheckerにセットされる', () => {
+    it('Sets the passed function to authChecker', () => {
       const pg = getPGBuilder<{ user: { roles: Array<'Admin' | 'LoginUser'> } }>()
 
       const post = pg.object('Post', (f) => ({
@@ -305,7 +305,7 @@ describe('PGOutputField', () => {
     })
   })
   describe('accessControlWrapper', () => {
-    it('authCheckerにセットされたルールに沿った権限制御がされる', async () => {
+    it('Controls authorization according to the rules set in authChecker', async () => {
       const users = [
         {
           id: '1',
@@ -478,7 +478,7 @@ describe('PGOutputField', () => {
       })
     })
 
-    it('権限がないnon-nullableなfieldを参照できずエラーが返る', async () => {
+    it('Returns an error if there is a non-nullable field that cannot be referenced', async () => {
       const users = [
         {
           id: '1',
@@ -531,7 +531,7 @@ describe('PGOutputField', () => {
 
 describe('PGInput', () => {
   describe('validation', () => {
-    it('定義した関数がvalidatorBuilderにセットされる', () => {
+    it('Sets the passed function to validationBuilder', () => {
       const pg = getPGBuilder<{ user: { roles: Array<'Admin' | 'LoginUser'> } }>()
 
       const findUser = pg
@@ -569,7 +569,7 @@ describe('PGInput', () => {
       ).toThrow()
     })
 
-    it('validationBuilderにセットされたルールに沿ったバリデートがされる', async () => {
+    it('Validates according to the rules set in the validationBuilder', async () => {
       const pg = getPGBuilder<{ user: { roles: Array<'Admin' | 'LoginUser'> } }>()
 
       const contents = [
@@ -827,7 +827,7 @@ describe('PGInput', () => {
 
 describe('PGInputField', () => {
   describe('validation', () => {
-    it('定義した関数がvalidatorBuilderにセットされる', () => {
+    it('Sets the passed function to validationBuilder', () => {
       const pg = getPGBuilder<{ user: { roles: Array<'Admin' | 'LoginUser'> } }>()
 
       const someInput = pg.input('SomeInput', (f) => ({
@@ -849,7 +849,7 @@ describe('PGInputField', () => {
       expect(() => validator?.parse('abcd')).toThrow()
     })
 
-    it('validationBuilderにセットされたルールに沿ったバリデートがされる', async () => {
+    it('Validates according to the rules set in the validationBuilder', async () => {
       const pg = getPGBuilder<{ user: { roles: Array<'Admin' | 'LoginUser'> } }>()
       const users = [
         {

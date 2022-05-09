@@ -4,7 +4,7 @@ import { getPGBuilder } from '..'
 import { setInputFieldMethods, setOutputFieldMethods } from './test-utils'
 
 describe('rootFieldBuilder', () => {
-  it('指定したkindのPGRootFieldConfigが作られて、cacheに設定される', () => {
+  it('Creates a new PGRootFieldConfig & Set it to the Build Cache', () => {
     const pg = getPGBuilder<any>()
     const someObject = pg.object('SomeObject', (f) => ({
       id: f.id(),
@@ -64,7 +64,7 @@ describe('rootFieldBuilder', () => {
     expect(pg.cache().query.someQuery).toEqual(expectValue)
   })
 
-  it('同じ名前のQueryは作成できず既存のリソースを返却する', () => {
+  it('Returns an existing resource because a resource with the same name cannot be created', () => {
     const pg = getPGBuilder<any>()
 
     pg.query('SomeQuery', (f) => f.string().resolve(() => ''))
@@ -84,7 +84,7 @@ describe('rootFieldBuilder', () => {
   })
 
   describe('subscription', () => {
-    it('subscribeに設定した条件で、publishに応じて発火して値が返る', async () => {
+    it('Returns a value in response to a publish according to the conditions set in the filter', async () => {
       const pubsub = new PubSub()
       const pg = getPGBuilder<any>()
 
@@ -124,7 +124,7 @@ describe('rootFieldBuilder', () => {
       const result = await (await subscriptionResp.next()).value
       expect(result).toEqual({ data: { SomeSubscription: 'hi' } })
     })
-    it('同じ名前のSubscriptionは作成できず既存のリソースを返却する', () => {
+    it('Returns an existing resource because a resource with the same name cannot be created', () => {
       const pg = getPGBuilder<any>()
       const pubsub = new PubSub()
       pg.subscription('SomeSubscription', (f) =>

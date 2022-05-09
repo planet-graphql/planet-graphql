@@ -120,7 +120,7 @@ describe('pgfy', () => {
     models: PGfyResponseModels
   }
 
-  it('PrismaのEnumとModelに対応するPGEnumとPGModelが生成される。またbuild時に参照されるようにcacheに設定される。', async () => {
+  it('Generates PGEnum, PGModel, and PGObject based on the Prisma schema & Set them in the Build Cache', async () => {
     const pg = getPGBuilder<any>()
     const result = pg.pgfy<PGfyResponse>(dmmf.datamodel)
 

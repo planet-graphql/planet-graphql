@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { getPGBuilder } from '..'
 
 describe('dataloader', () => {
-  it('dataloderによって処理がバッチ化される。', async () => {
+  it('Batches executions', async () => {
     const users = [
       {
         id: '1',

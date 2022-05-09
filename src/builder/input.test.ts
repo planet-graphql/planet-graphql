@@ -5,7 +5,7 @@ import { PGInput, PGInputField } from '../types/input'
 import { setInputFieldMethods } from './test-utils'
 
 describe('input', () => {
-  it('PGInputが作られて、cacheにinputとして設定される', () => {
+  it('Creates a new PGInput & Set it to the Build Cache', () => {
     const pg = getPGBuilder<any>()
     const someEnum = pg.enum('SomeEnum', 'VALUE1', 'VALUE2', 'VALUE3')
 
@@ -365,7 +365,7 @@ describe('input', () => {
     >(someInput)
   })
 
-  it('同じ名前のPGinputは作成できず既存のリソースを返却する', () => {
+  it('Returns an existing resource because a resource with the same name cannot be created', () => {
     const pg = getPGBuilder<any>()
     pg.input('SomeInput', (f) => ({
       id: f.id(),

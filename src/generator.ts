@@ -89,7 +89,9 @@ export async function generate(
   outputFile.addTypeAliases(
     datamodel.models.map((x) => ({
       name: getModelTypeName(x.name),
-      // FIXME: indentがおかしくなってしまうので直したい。パット見はts-morph側の問題に見える。
+      // FIXME:
+      // I would like to fix the indent that is going wrong.
+      // At first glance, it looks like a problem on the ts-morph side.
       type: objectType({
         properties: x.fields.map((f) => ({
           name: f.name,
@@ -125,8 +127,8 @@ export async function generate(
     isExported: true,
   })
   // FIXME:
-  // 以下のようにgenerate内では`emitToMemory()`だけして、
-  // 呼び出し元でsaveFilesすればテストが楽になりそうなのだが、なぜかうまく動かない。
+  // I think it would be easier to test if I just do `emitToMemory()` in generate
+  // and saveFiles in the caller as shown below, but for some reason it doesn't work.
   // ```ts
   // const result = project.emitToMemory()
   // await result.saveFiles()

@@ -2,7 +2,7 @@ import { parseValue } from 'graphql'
 import { PGGraphQLID } from './pg-id-scalar'
 
 describe('PGGraphQLID', () => {
-  describe('BigInt対応', () => {
+  describe('BigInt', () => {
     it('serialize', () => {
       function serialize(value: unknown): string {
         return PGGraphQLID.serialize(value)
@@ -15,7 +15,7 @@ describe('PGGraphQLID', () => {
   })
 
   // NOTE:
-  // 以下からコピーしてchaiからjest形式に調整
+  // The original is below. Adjusted for Jest.
   // https://github.com/graphql/graphql-js/blob/main/src/type/__tests__/scalars-test.ts#L533
   describe('Original', () => {
     it('parseValue', () => {

@@ -10,7 +10,7 @@ import {
 } from './test-utils'
 
 describe('object', () => {
-  it('PGObjectが作られて、cacheにobjectとして設定される', () => {
+  it('Creates a new PGObject & Set it to the Build Cache', () => {
     const pg = getPGBuilder<any>()
     const userRole = pg.enum('UserRole', 'USER', 'MANAGER', 'ADMIN')
 
@@ -258,7 +258,7 @@ describe('object', () => {
     >(someObject)
   })
 
-  it('同じ名前のPGObjectは作成できず既存のリソースを返却する', () => {
+  it('Returns an existing resource because a resource with the same name cannot be created', () => {
     const pg = getPGBuilder<any>()
     pg.object('SomeObject', (f) => ({
       id: f.id(),

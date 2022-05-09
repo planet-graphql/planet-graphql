@@ -3,7 +3,7 @@ import { getPGBuilder } from '..'
 import { setInputFieldMethods } from './test-utils'
 
 describe('relayArgs', () => {
-  it('Relay方式に必要なArgsが返る', () => {
+  it('Returns an InputFieldMap required for Relay', () => {
     const pg = getPGBuilder<any>()
     const args = pg.relayArgs()
 
@@ -39,8 +39,8 @@ describe('relayArgs', () => {
     })
   })
 
-  describe('optionsを指定した場合', () => {
-    it('defaultとvalidationが設定されたArgsが返る', () => {
+  describe('Options are specified', () => {
+    it('Returns an InputFieldMap configured with default and validation', () => {
       const pg = getPGBuilder<any>()
       const args = pg.relayArgs({
         default: 10,

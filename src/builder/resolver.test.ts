@@ -4,7 +4,7 @@ import { PGObject, PGOutputField } from '../types/output'
 import { setOutputFieldMethods, setPGObjectProperties } from './test-utils'
 
 describe('resolver', () => {
-  it('objectにresolveがセットされる', () => {
+  it('Sets resolves to each field of the PGObject', () => {
     const pg = getPGBuilder<any>()
 
     const post = pg.object('Post', (f) => ({

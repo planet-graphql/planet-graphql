@@ -164,8 +164,9 @@ function getGraphQLFieldConfigOnlyType<
       const pgInputOrPgOutput = field.value.type()
       if ('default' in field) {
         // NOTE:
-        // ?? でundefinedを考慮しているのは、`field.value.type()`を実行して
-        // 初めて作成されるPGObject/PGInputを考慮している。具体的には以下のようなパターン
+        // The reason for considering the case where `inputs[name]` and `outputs[name]` are
+        // undefined is that PGOutput/PGInput may be generated only after field.value.type() is executed.
+        // An example is the following pattern:
         // ```ts
         // pg.mutation('createUser', (f) =>
         //   f
@@ -232,7 +233,7 @@ async function argsValidationChecker(
         const e: ValidateError[] = []
         const field = fieldMap[fieldName]
 
-        // NOTE: fieldに直接設定されたvalidation
+        // NOTE: PGInputField validation
         const validator = field.value.validatorBuilder?.(Zod, ctx)
         const parsed = validator?.safeParse(argValue)
         if (parsed?.success === false) {
@@ -242,12 +243,10 @@ async function argsValidationChecker(
           })
         }
 
-        // NOTE: fieldにPGInputが設定されている場合のvalidation
-        // TODO: argValue === nullの場合のテストを追加する
+        // NOTE: PGInput validation
+        // TODO: Fixed to consider null
         if (typeof field?.value.type === 'function' && argValue !== null) {
           const pgInput = field.value.type() as PGInput<any>
-
-          // NOTE: PGInputに設定されているvalidation
           const validator = pgInput.value.validatorBuilder?.(Zod, ctx)
           const listedArgValue = Array.isArray(argValue) ? argValue : [argValue]
           for (const value of listedArgValue) {
@@ -260,7 +259,6 @@ async function argsValidationChecker(
               })
             }
 
-            // NOTE: PGInputの各Fieldに設定されているvalidation
             e.push(
               ...(await validateArgsCore(
                 value,
