@@ -1,4 +1,5 @@
 import {
+  defaultFieldResolver,
   GraphQLArgumentConfig,
   GraphQLBoolean,
   GraphQLEnumType,
@@ -210,10 +211,6 @@ function getGraphQLFieldConfigOnlyType<
   return { type, defaultValue: getInputFieldDefaultValue(field) } as any
 }
 
-const defaultResolver: GraphQLFieldResolver<any, any> = (source, args, context, info) => {
-  return source[info.fieldName]
-}
-
 async function argsValidationChecker(
   resolveArgs: [any, any, any, GraphQLResolveInfo],
   cache: PGCache,
@@ -405,7 +402,7 @@ function getGraphQLFieldConfig(
     return await accessControlWrapper(
       params,
       cache,
-      field.value.resolve ?? defaultResolver,
+      field.value.resolve ?? defaultFieldResolver,
     )
   }
   fieldConfig.subscribe = field.value.subscribe

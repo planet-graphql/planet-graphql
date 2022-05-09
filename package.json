@@ -1,6 +1,6 @@
 {
   "name": "@prismagql/prismagql",
-  "version": "0.0.0-alpha.6",
+  "version": "0.0.0-alpha.8",
   "description": "prismagql",
   "main": "./lib/index.js",
   "repository": {
