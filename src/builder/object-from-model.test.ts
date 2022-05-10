@@ -6,7 +6,7 @@ import { PGObject, PGOutputField } from '../types/output'
 import { setOutputFieldMethods, setPGObjectProperties } from './test-utils'
 
 describe('objectFromModel', () => {
-  it('PGModelのfieldと新規のfieldを持つ、新規のPGObjectが作られる', () => {
+  it('Updates an existing PGObject in the Build Cache & returns it', () => {
     const user: PGModel<
       { id: PGField<string>; age: PGField<number> },
       { where?: { id: string } }

@@ -33,7 +33,7 @@ describe('inputFromModel', () => {
       __type: undefined as any,
     }
   })
-  it('PGModelのfieldと新規のfieldを持つ、新規のPGInputが作られる', () => {
+  it('Creates a new PGInput & Set it to the Build Cache', () => {
     const pg = getPGBuilder<any>()
 
     const post = pg.input('Post', (f) => ({
@@ -90,7 +90,7 @@ describe('inputFromModel', () => {
     >(someInput)
   })
 
-  it('同じPGModelから二度PGInputは作成できず既存のリソースを返却する', () => {
+  it('Returns an existing resource because a resource with the same name cannot be created', () => {
     const pg = getPGBuilder<any>()
     pg.inputFromModel('CreateUser', user, (keep, f) => ({
       id: keep.id,

@@ -8,7 +8,7 @@ import {
 } from './test-utils'
 
 describe('relayConnection', () => {
-  it('Relay方式に対応したPGObjectが作成される', () => {
+  it('Creates a PGObject that supports Relay', () => {
     const pg = getPGBuilder<any>()
     const post = pg.object('Post', (f) => ({
       id: f.id(),
@@ -94,7 +94,7 @@ describe('relayConnection', () => {
     expect(pg.cache().object.PostConnection).toEqual(expectConnection)
   })
 
-  it('内部のFieldに設定されたresolverが期待通りに動作する', async () => {
+  it('Sets resolvers for each field to support Relay', async () => {
     function getSchema(resolveValue: any): {
       schema: GraphQLSchema
       totalCountFindArgs: {
@@ -317,8 +317,8 @@ describe('relayConnection', () => {
     })
   })
 
-  describe('optionsを指定した場合', () => {
-    it('totalCountフィールドが追加され、指定したメソッドでcursorが計算される', () => {
+  describe('Options are specified', () => {
+    it('Adds totalCount field & Calculates cursors with specified method', () => {
       const pg = getPGBuilder<any>()
       const user = pg.object('User', (f) => ({
         id: f.id(),
@@ -410,7 +410,7 @@ describe('relayConnection', () => {
   })
 
   describe('getPageInfo', () => {
-    it('expect to return appropriate values according to the function', async () => {
+    it('Returns appropriate values according to the function', async () => {
       /*
         data = [
           {

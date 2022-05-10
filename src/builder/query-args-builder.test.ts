@@ -6,7 +6,7 @@ import { PGInputField, PGInput } from '../types/input'
 import { setInputFieldMethods } from './test-utils'
 
 describe('queryArgsBuilder', () => {
-  it('指定した型に沿ったSelectorが指定でき、Selectorの内容に従ったPGFieldMapが返る', () => {
+  it('Allows specifying selectors according to the specified type & Returns a PGInputFieldMap according to the contents of the Selector', () => {
     const pg = getPGBuilder<any>()
     type SomeType = {
       string: string

@@ -2,9 +2,9 @@ import { inspect } from 'util'
 import { GraphQLError, GraphQLScalarType, Kind, print } from 'graphql'
 
 // NOTE:
+// Based on the following  & Support for bigint serialization.
 // https://github.com/graphql/graphql-js/blob/main/src/type/scalars.ts#L214
-// のGraphQLIDに対して、bigintのserializeに対応させるようにしている。
-// FIXME: graphql.jsに取り込まれたら不要になるので削除したい
+// FIXME: Once it is imported into graphql.js, it is no longer needed, so remove it.
 export const PGGraphQLID = new GraphQLScalarType<string>({
   name: 'ID',
   description:

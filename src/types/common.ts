@@ -143,15 +143,6 @@ export type FieldBuilderArgsType =
   | PGEnum<any>
   | (() => PGObject<any> | PGInput<any>)
 
-// NOTE:
-// 1. JsonValueを'Json'に変換するためにTがJsonValueを含むかどうか`JsonValue extends T`で判定する。
-//   - 特別扱いするために一番最初に判定を行う必要がある。
-//   - その上でJsonValue以外の型を含んでいるかどうかを`Exclude<T, JsonValue> extends never`で判定する。
-//   - neverでなければJsonValue以外の型を含んでいるので`'Json' | PGSelectorType<Exclude<T, JsonValue>>`で再帰する
-// 2. TがArrayかどうかを`T extends any[]`で判定する
-// 3. TがObjectかどうかを`IsObject<T>`で判定する
-//   - 真の場合は`RequireAtLeastOne`で囲うことで、1つ以上のプロパティの指定を必須にする
-// 4. JsonValueでもなく、ArrayでもObjectでもない場合は、型に対応するScalarに変換する
 export type PGSelectorType<T> = JsonValue extends T
   ? Exclude<T, JsonValue> extends never
     ? 'Json'

@@ -38,7 +38,7 @@ describe('build', () => {
     `
     dmmf = await getDMMF({ datamodel })
   })
-  it('GraphQLSchemaがbuildされる', async () => {
+  it('Builds a GraphQLSchema', async () => {
     const pg = getPGBuilder<any>()
     type UserFieldMapType = {
       id: PGField<bigint>
@@ -213,7 +213,7 @@ describe('build', () => {
     })
   })
 
-  it('graphqlResolveInfoがctxCacheにセットされる', async () => {
+  it('Set the GraphqlResolveInfo in ContextCache', async () => {
     let ctxCache: any
     let resolveInfo: any
     const pg = getPGBuilder<any>()
@@ -238,8 +238,8 @@ describe('build', () => {
     })
   })
 
-  describe('Mutationが未定義の場合', () => {
-    it('Mutationが未定義でも正常なSchemaがビルドされる', async () => {
+  describe('No Mutation is defined', () => {
+    it('Builds a GraphQLSchema', async () => {
       const pg = getPGBuilder()
       pg.query('someQuery', (f) => f.string().resolve(() => 'hi'))
       const schema = pg.build()
@@ -253,8 +253,8 @@ describe('build', () => {
     })
   })
 
-  describe('Queryが未定義の場合', () => {
-    it('GraphQL.jsの実装上Queryは最低1つ必要なのでエラーが返る。', async () => {
+  describe('No Query is defined', () => {
+    it('Returns errors because GraphQL.js requires at least one Query', async () => {
       const pg = getPGBuilder()
       pg.mutation('someMutation', (f) => f.string().resolve(() => 'hi'))
       const schema = pg.build()

@@ -5,7 +5,7 @@ import { ResolveParams } from '../types/common'
 import { getResolveParamsRef, pgObjectToPGModel } from './test-utils'
 
 describe('prismaFindArgs', () => {
-  describe('通常のqueryの場合', () => {
+  describe('Regular queries', () => {
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     function getObjects() {
       type Context = {
@@ -184,7 +184,7 @@ describe('prismaFindArgs', () => {
 
       return { pg, schema, paramsRef, user, profile, post, comment }
     }
-    it('GraphQLResolveInfoからPrismaのFindManyArgsなどに渡す引数が生成され、指定した型で返る', async () => {
+    it('Generates args that can be passed to Prisma with the specified type', async () => {
       const query = `
       query(
         $usersIncludeInput: UsersIncludeInput,
@@ -299,7 +299,7 @@ describe('prismaFindArgs', () => {
       }>(result)
     })
 
-    it('各Fieldで設定されたdefault値を考慮したargsが設定される', async () => {
+    it('Generates args considering the default value of each PGInputFields', async () => {
       type Context = {
         role: 'Admin' | 'User'
       }
@@ -581,7 +581,7 @@ describe('prismaFindArgs', () => {
       })
     })
 
-    it('PGObjectに設定されたPrisma用の権限ルールに従ってPrismaのwhere句が設定される', async () => {
+    it('Generates a Prisma where clause according to the Prisma authorization rules defined for the PGObject', async () => {
       const query = `
       query {
         users (
@@ -708,7 +708,7 @@ describe('prismaFindArgs', () => {
       })
     })
 
-    it('QueryのReturnTypeとrootとして指定されたPGObjectが異なる場合例外が発生する', async () => {
+    it('Raises an exception because the ReturnType of the Query and the PGObject specified as root are different', async () => {
       const query = `
       query {
         users {
@@ -729,8 +729,8 @@ describe('prismaFindArgs', () => {
     })
   })
 
-  describe('第三引数にdefaultのargsを指定した場合', () => {
-    it('defaultのargsがマージされて返る', async () => {
+  describe('Default args is specified as the third argument', () => {
+    it('Merges the specified default args', async () => {
       const pg = getPGBuilder<any>()
       const pgCache = pg.cache()
 
@@ -951,8 +951,8 @@ describe('prismaFindArgs', () => {
     })
   })
 
-  describe('PGConnectionObjectがqueryに含まれている場合', () => {
-    it('PGConnectionObjectを考慮してargsが生成され、resolve時に必要な情報がContextのCacheに設定される', async () => {
+  describe('PGConnectionObject is included in the query', () => {
+    it('Generates args considering PGConnectionObject & Set necessary info needed at resolve time to the Context Cache', async () => {
       const query = `
         query {
           users ( where: { name: { equals: "xxx" } } ) {
@@ -1168,8 +1168,8 @@ describe('prismaFindArgs', () => {
     })
   })
 
-  describe('relayArgsを指定した場合', () => {
-    it('relayArgsのfirst, afterに対応した結果が返る', async () => {
+  describe('RelayArgs is specified', () => {
+    it('Returns results corresponding to the first and after', async () => {
       const query = `
       query {
         users ( 
@@ -1253,7 +1253,7 @@ describe('prismaFindArgs', () => {
       })
     })
 
-    it('relayArgsのlast, beforeに対応した結果が返る', async () => {
+    it('Returns results corresponding to the last and before', async () => {
       const query = `
       query {
         users ( 
@@ -1336,7 +1336,7 @@ describe('prismaFindArgs', () => {
       })
     })
 
-    it('relayArgsのfirstのみに対応した結果が返る', async () => {
+    it('Returns results corresponding only to the first', async () => {
       const query = `
       query {
         users ( 
@@ -1405,7 +1405,8 @@ describe('prismaFindArgs', () => {
         },
       })
     })
-    it('relayArgsのlastのみに対応した結果が返る', async () => {
+
+    it('Returns results corresponding only to the last', async () => {
       const query = `
       query {
         users ( 
@@ -1474,7 +1475,8 @@ describe('prismaFindArgs', () => {
         },
       })
     })
-    it('relayArgsのorderByが未定義の場合にエラーが返る', async () => {
+
+    it('Returns an error if orderBy is undefined', async () => {
       const query = `
       query {
         users ( 
