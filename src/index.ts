@@ -14,6 +14,8 @@ import { resolver } from './builder/resolver'
 import { rootFieldBuilder } from './builder/root-field'
 import { PGBuilder, PGCache } from './types/builder'
 
+export * from './lib/generated'
+
 export function getPGBuilder<TContext>(): PGBuilder<TContext> {
   const cache: PGCache = {
     model: {},
