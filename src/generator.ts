@@ -78,7 +78,7 @@ export async function generate(
   })
   outputFile.addImportDeclaration({
     namedImports: ['PGEnum', 'PGField', 'PGModel'],
-    moduleSpecifier: './pg',
+    moduleSpecifier: '@prismagql/prismagql/lib/types/common',
   })
   outputFile.addTypeAliases(
     datamodel.enums.map((x) => ({
@@ -152,7 +152,7 @@ export function getPrismaImportPath(
 generatorHandler({
   onManifest: () => ({
     prettyName: 'PrismaGQL Generator',
-    defaultOutput: 'prismagql/generated.ts',
+    defaultOutput: 'node_modules/@prismagql/prismagql/lib/generated/generated.d.ts',
   }),
   onGenerate: async (options) => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

@@ -83,7 +83,7 @@ describe('generateFile', () => {
 
     expect(result).toBe(`import { Prisma } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime";
-import { PGEnum, PGField, PGModel } from "./pg";
+import { PGEnum, PGField, PGModel } from "@prismagql/prismagql/lib/types/common";
 
 type SomeEnumValuesType = ["AAA", "BBB", "CCC"];
 type SomeEnum2ValuesType = ["Aaa", "Bbb", "Ccc"];
