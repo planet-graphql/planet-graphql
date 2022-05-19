@@ -3,7 +3,7 @@ import { GraphQLResolveInfo } from 'graphql'
 import { JsonValue, PartialDeep, Promisable, RequireAtLeastOne } from 'type-fest'
 import { IsAny } from 'type-fest/source/set-return-type'
 import { PGInput, PGInputField } from './input'
-import { PGConnectionObject, PGConnectionObjectWithTotalCount, PGObject } from './output'
+import { PGObject, PGRelayOutputFieldMap } from './output'
 
 export type PGScalar =
   | 'ID'
@@ -39,10 +39,10 @@ export type TypeOfPGFieldType<T extends PGFieldType | null | undefined> =
     ? Array<TypeOfPGFieldType<T[0]>>
     : T extends PGEnum<any>
     ? TypeOfPGEnum<T>
+    : T extends PGModelBase<PGRelayOutputFieldMap<infer U>>
+    ? Array<TypeOfPGFieldType<U>>
     : T extends PGModelBase<any>
-    ? T extends PGConnectionObjectWithTotalCount<infer U> | PGConnectionObject<infer U>
-      ? Array<TypeOfPGModelBase<U>>
-      : TypeOfPGModelBase<T>
+    ? TypeOfPGModelBase<T>
     : T
 
 export interface PGFieldValue {
@@ -182,11 +182,12 @@ export type PGQueryArgsType<T> = IsObject<T> extends true
     }
   : InnerPGQueryArgsType<T>
 
-export interface ResolveParams<TResolve, TSource, TArgs, TContext> {
+export interface ResolveParams<TResolve, TSource, TArgs, TContext, TPrismaArgs> {
   source: TSource
   args: TArgs
   context: TContext
   info: GraphQLResolveInfo
+  prismaArgs: TPrismaArgs
   __type: TResolve
 }
 

@@ -13,8 +13,9 @@ import {
   ResolveResponse,
   TypeOfPGField,
   TypeOfPGFieldMap,
+  TypeOfPGFieldType,
 } from './common'
-import { InputFieldBuilder, PGInputFieldMap } from './input'
+import { InputFieldBuilder, PGInputField, PGInputFieldMap } from './input'
 
 type CheckPrismaPermissionFn<TContext, TValue> = {
   (ctx: TContext, action: string, value: TValue, condition?: TValue): {
@@ -53,10 +54,14 @@ type PrismaAuthBuilder<TContext, TPrismaWhere, TField> = (params: {
   deny: PrismaAuthFn<TPrismaWhere, TField>
 }) => void
 
+interface PGModel<TPrismaArgs extends PrismaFindManyArgsBase = PrismaFindManyArgsBase> {
+  prismaArgs: TPrismaArgs
+}
+
 export interface PGObject<
   TFieldMap extends PGOutputFieldMap,
+  TPGModel extends PGModel | undefined,
   TContext = any,
-  TPrismaWhere = any,
 > {
   name: string
   fieldMap: TFieldMap
@@ -64,61 +69,56 @@ export interface PGObject<
   value: {
     prismaAuthBuilder?: PrismaAuthBuilder<
       TContext,
-      TPrismaWhere,
+      Exclude<TPGModel, undefined>['prismaArgs']['where'],
       NamesOfPGFieldMap<TFieldMap>
     >
     isRelayConnection?: boolean
+    prismaModel?: TPGModel
   }
   prismaAuth: (
-    builder: PrismaAuthBuilder<TContext, TPrismaWhere, NamesOfPGFieldMap<TFieldMap>>,
-  ) => PGObject<TFieldMap, TContext, TPrismaWhere>
+    builder: PrismaAuthBuilder<
+      TContext,
+      Exclude<TPGModel, undefined>['prismaArgs']['where'],
+      NamesOfPGFieldMap<TFieldMap>
+    >,
+  ) => PGObject<TFieldMap, TPGModel, TContext>
   checkPrismaPermission: CheckPrismaPermissionFn<
     TContext,
     PartialDeep<TypeOfPGFieldMap<TFieldMap>>
   >
-}
-
-export type RelayConnectionTotalCountFn<TSource, TContext, TPrismaFindMany> = (
-  params: ResolveParams<number, TSource, never, TContext>,
-  nodeFindArgs: TPrismaFindMany,
-) => number
-
-type PGConnectionObjectFieldBase<TObject extends PGObject<any>> = {
-  edges: PGOutputField<
-    Array<
-      () => PGObject<{
-        cursor: PGOutputField<string>
-        node: PGOutputField<() => TObject>
-      }>
-    >
+  copy: (name: string) => this
+  update: <SetTField extends PGEditOutputFieldMap<TFieldMap>>(
+    editFieldMap: (f: TFieldMap, b: OutputFieldBuilder<TContext>) => SetTField,
+  ) => PGObject<
+    { [P in keyof SetTField]: Exclude<SetTField[P], undefined> },
+    TPGModel,
+    TContext
   >
-  pageInfo: PGOutputField<
-    () => PGObject<{
-      hasNextPage: PGOutputField<boolean>
-      hasPreviousPage: PGOutputField<boolean>
-    }>
-  >
+  modify: <
+    MTFieldMap extends {
+      [P in keyof TFieldMap]: TFieldMap[P] extends PGOutputField<
+        infer U,
+        any,
+        infer V,
+        infer W,
+        infer X,
+        infer Y
+      >
+        ? PGOutputField<U, TypeOfPGFieldMap<TFieldMap>, V, W, X, Y>
+        : never
+    },
+  >(
+    fieldMap: (f: MTFieldMap) => MTFieldMap,
+  ) => PGObject<MTFieldMap, TPGModel, TContext>
 }
-
-export type PGConnectionObject<TObject extends PGObject<any>, TContext = any> = PGObject<
-  PGConnectionObjectFieldBase<TObject>,
-  TContext
->
-
-export type PGConnectionObjectWithTotalCount<
-  TObject extends PGObject<any>,
-  TContext = any,
-> = PGObject<
-  PGConnectionObjectFieldBase<TObject> & {
-    totalCount: PGOutputField<number>
-  },
-  TContext
->
 
 export interface PGOutputField<
   T extends PGFieldType | null,
+  TSource = any,
+  TPrismaArgs extends PGInputFieldMap | undefined = undefined,
   TArgs extends PGInputFieldMap | undefined = undefined,
   TContext = any,
+  TPGModel extends PGModel | undefined = undefined,
 > extends PGField<T> {
   value: PGFieldValue & {
     args?: TArgs
@@ -128,63 +128,221 @@ export interface PGOutputField<
       ctx: TContext
       args: TypeOfPGFieldMap<Exclude<CheckerTArgs, undefined>>
     }) => boolean | Promise<boolean>
+    prismaFieldName: string
   }
-  nullable: () => PGOutputField<T | null, TArgs, TContext>
-  list: () => PGOutputField<T extends null ? null : T[], TArgs, TContext>
+  nullable: () => this extends PGRelayOutputField<any>
+    ? PGRelayOutputField<T | null, TSource, TPrismaArgs, TArgs, TContext, TPGModel>
+    : PGOutputField<T | null, TSource, TPrismaArgs, TArgs, TContext, TPGModel>
+  list: () => PGOutputField<
+    T extends null ? null : T[],
+    TSource,
+    TPrismaArgs,
+    TArgs,
+    TContext,
+    TPGModel
+  >
   args: <SetTArgs extends PGInputFieldMap>(
     x: (f: InputFieldBuilder<TContext>) => SetTArgs,
-  ) => PGOutputField<T, SetTArgs, TContext>
+  ) => this extends PGRelayOutputField<any>
+    ? PGRelayOutputField<T, TSource, TPrismaArgs, SetTArgs, TContext, TPGModel>
+    : PGOutputField<T, TSource, TPrismaArgs, SetTArgs, TContext, TPGModel>
+  relay: () => PGRelayOutputField<
+    T extends Array<infer U>
+      ? U extends () => any
+        ? () => PGObject<PGRelayOutputFieldMap<U>, TPGModel>
+        : never
+      : T extends () => any
+      ? () => PGObject<PGRelayOutputFieldMap<T>, TPGModel>
+      : never,
+    TSource,
+    TPrismaArgs & {
+      take: PGInputField<number, TContext>
+      skip: PGInputField<number, TContext>
+      cursor: PGInputField<Exclude<TPGModel, undefined>['prismaArgs']['cursor'], TContext>
+      orderBy: PGInputField<
+        Exclude<TPGModel, undefined>['prismaArgs']['orderby'],
+        TContext
+      >
+    },
+    TArgs,
+    TContext,
+    TPGModel
+  >
+  type: <SetT extends () => any>(
+    type: SetT,
+  ) => this extends PGRelayOutputField<any>
+    ? PGRelayOutputField<SetT, TSource, undefined, undefined, TContext, TPGModel>
+    : PGOutputField<SetT, TSource, undefined, undefined, TContext, TPGModel>
+  prismaArgs: <SetTPrismaArgs extends PGInputFieldMap>(
+    x: (b: InputFieldBuilder<TContext>) => SetTPrismaArgs,
+  ) => this extends PGRelayOutputField<any>
+    ? PGRelayOutputField<T, TSource, SetTPrismaArgs, TArgs, TContext, TPGModel>
+    : PGOutputField<T, TSource, SetTPrismaArgs, TArgs, TContext, TPGModel>
+  relayPrismaArgs: (
+    x: (f: {
+      first: PGInputField<number | null | undefined, TContext>
+      after: PGInputField<string | null | undefined, TContext>
+      last: PGInputField<number | null | undefined, TContext>
+      before: PGInputField<string | null | undefined, TContext>
+    }) => {
+      first: PGInputField<number | null | undefined, TContext>
+      after: PGInputField<string | null | undefined, TContext>
+      last: PGInputField<number | null | undefined, TContext>
+      before: PGInputField<string | null | undefined, TContext>
+    },
+  ) => this extends PGRelayOutputField<any>
+    ? PGRelayOutputField<
+        T,
+        TSource,
+        TPrismaArgs & {
+          take: PGInputField<number, TContext>
+          skip: PGInputField<number, TContext>
+          cursor: PGInputField<
+            Exclude<TPGModel, undefined>['prismaArgs']['cursor'],
+            TContext
+          >
+          orderBy: PGInputField<
+            Exclude<TPGModel, undefined>['prismaArgs']['orderby'],
+            TContext
+          >
+        },
+        TArgs,
+        TContext,
+        TPGModel
+      >
+    : PGOutputField<
+        T,
+        TSource,
+        TPrismaArgs & {
+          take: PGInputField<number, TContext>
+          skip: PGInputField<number, TContext>
+          cursor: PGInputField<
+            Exclude<TPGModel, undefined>['prismaArgs']['cursor'],
+            TContext
+          >
+          orderBy: PGInputField<
+            Exclude<TPGModel, undefined>['prismaArgs']['orderby'],
+            TContext
+          >
+        },
+        TArgs,
+        TContext,
+        TPGModel
+      >
   resolve: (
     x: (
       params: ResolveParams<
-        TypeOfPGField<PGField<T>>,
-        any,
+        TypeOfPGFieldType<T>,
+        TSource,
         TypeOfPGFieldMap<Exclude<TArgs, undefined>>,
-        TContext
+        TContext,
+        <T>(defaultArgs: T) => TypeOfPGFieldMap<Exclude<TPrismaArgs, undefined>> & T
       >,
     ) => ResolveResponse<TypeOfPGField<PGField<T>>>,
-  ) => PGOutputField<T, TArgs, TContext>
+  ) => this
   subscribe: (
     x: (
       params: ResolveParams<
-        TypeOfPGField<PGField<T>>,
-        any,
+        TypeOfPGFieldType<T>,
+        TSource,
         TypeOfPGFieldMap<Exclude<TArgs, undefined>>,
-        TContext
+        TContext,
+        <T>(defaultArgs: T) => TypeOfPGFieldMap<Exclude<TPrismaArgs, undefined>> & T
       >,
     ) => {
       pubSubIter: AsyncIterator<any>
       filter?: () => boolean | Promise<boolean>
     },
-  ) => PGOutputField<T, TArgs, TContext>
+  ) => this
   auth: (
-    // NOTE: 直接TArgsを使うと型エラーが発生するため、CheckTArgsを挟んでいる
     checker: <CheckerTArgs extends TArgs>(x: {
       ctx: TContext
       args: TypeOfPGFieldMap<Exclude<CheckerTArgs, undefined>>
     }) => boolean | Promise<boolean>,
-  ) => PGOutputField<T, TArgs, TContext>
+  ) => this
+}
+
+export type PGRelayOutputFieldMap<T extends () => any> = {
+  edges: PGOutputField<
+    Array<
+      () => PGObject<
+        {
+          cursor: PGOutputField<string>
+          node: PGOutputField<T>
+        },
+        undefined
+      >
+    >
+  >
+  pageInfo: PGOutputField<
+    () => PGObject<
+      {
+        hasNextPage: PGOutputField<boolean>
+        hasPreviousPage: PGOutputField<boolean>
+      },
+      undefined
+    >
+  >
+}
+
+export interface PGRelayOutputField<
+  T extends PGFieldType | null,
+  TSource = any,
+  TPrismaArgs extends PGInputFieldMap | undefined = undefined,
+  TArgs extends PGInputFieldMap | undefined = undefined,
+  TContext = any,
+  TPGModel extends PGModel | undefined = undefined,
+> extends PGOutputField<T, TSource, TPrismaArgs, TArgs, TContext, TPGModel> {
+  totalCount: (
+    x: (
+      params: ResolveParams<
+        number,
+        TSource,
+        never,
+        TContext,
+        <T>(defaultArgs: T) => TypeOfPGFieldMap<Exclude<TPrismaArgs, undefined>> & T
+      >,
+      nodeFindArgs: TypeOfPGFieldMap<Exclude<TPrismaArgs, undefined>>,
+    ) => number,
+  ) => PGRelayOutputField<
+    T & { totalCount: PGOutputField<number> },
+    TSource,
+    TPrismaArgs,
+    TArgs,
+    TContext,
+    TPGModel
+  >
+  cursor: (
+    x: (
+      node: TypeOfPGFieldType<T extends PGRelayOutputFieldMap<infer U> ? U : never>,
+    ) => Exclude<TPGModel, undefined>['prismaArgs']['cursor'],
+  ) => this
+  orderBy: (orderByArgs: Exclude<TPGModel, undefined>['prismaArgs']['orderby']) => this
 }
 
 export interface PGOutputFieldMap {
-  [name: string]: PGOutputField<any, PGInputFieldMap | undefined>
+  [name: string]: PGOutputField<any, any, any, any, any, any>
 }
 
 export type PGEditOutputFieldMap<TModel extends PGFieldMap> =
-  | { [P in keyof TModel]?: PGOutputField<any, any> }
-  | { [name: string]: PGOutputField<any, any> }
+  | { [P in keyof TModel]?: PGOutputField<any, any, any, any, any, any> }
+  | { [name: string]: PGOutputField<any, any, any, any, any, any> }
 
 export interface OutputFieldBuilder<TContext> {
-  id: () => PGOutputField<string, undefined, TContext>
-  string: () => PGOutputField<string, undefined, TContext>
-  boolean: () => PGOutputField<boolean, undefined, TContext>
-  int: () => PGOutputField<number, undefined, TContext>
-  bigInt: () => PGOutputField<bigint, undefined, TContext>
-  float: () => PGOutputField<number, undefined, TContext>
-  dateTime: () => PGOutputField<Date, undefined, TContext>
-  json: () => PGOutputField<string, undefined, TContext>
-  byte: () => PGOutputField<Buffer, undefined, TContext>
-  decimal: () => PGOutputField<Decimal, undefined, TContext>
-  object: <T extends Function>(type: T) => PGOutputField<T, undefined, TContext>
-  enum: <T extends PGEnum<any>>(type: T) => PGOutputField<T, undefined, TContext>
+  id: () => PGOutputField<string, any, undefined, undefined, TContext>
+  string: () => PGOutputField<string, any, undefined, undefined, TContext>
+  boolean: () => PGOutputField<boolean, any, undefined, undefined, TContext>
+  int: () => PGOutputField<number, any, undefined, undefined, TContext>
+  bigInt: () => PGOutputField<bigint, any, undefined, undefined, TContext>
+  float: () => PGOutputField<number, any, undefined, undefined, TContext>
+  dateTime: () => PGOutputField<Date, any, undefined, undefined, TContext>
+  json: () => PGOutputField<string, any, undefined, undefined, TContext>
+  byte: () => PGOutputField<Buffer, any, undefined, undefined, TContext>
+  decimal: () => PGOutputField<Decimal, any, undefined, undefined, TContext>
+  object: <T extends Function>(
+    type: T,
+  ) => PGOutputField<T, any, undefined, undefined, TContext>
+  enum: <T extends PGEnum<any>>(
+    type: T,
+  ) => PGOutputField<T, any, undefined, undefined, TContext>
 }

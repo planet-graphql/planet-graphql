@@ -19,6 +19,10 @@ export interface PGInput<TFieldMap extends PGInputFieldMap, TContext = any> {
   validation: (
     validatorBuilder?: (z: typeof Zod, context: TContext) => Zod.ZodTypeAny,
   ) => PGInput<TFieldMap, TContext>
+  copy: (name: string) => this
+  update: <SetTField extends PGEditInputFieldMap<TFieldMap>>(
+    editFieldMap: (f: TFieldMap, b: InputFieldBuilder<TContext>) => SetTField,
+  ) => PGInput<{ [P in keyof SetTField]: Exclude<SetTField[P], undefined> }, TContext>
 }
 
 export interface PGInputField<T extends PGFieldType | null | undefined, TContext = any>
