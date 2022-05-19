@@ -4,6 +4,7 @@ import { graphql } from 'graphql'
 import _ from 'lodash'
 import { z } from 'zod'
 import { getPGBuilder } from '..'
+import { PGTypes } from '../types/builder'
 import { PGObject, PGOutputField } from '../types/output'
 import { pgObjectToPGModel } from './test-utils'
 import { PGError } from './utils'
@@ -12,16 +13,20 @@ describe('PGObject', () => {
   describe('prismaAuth', () => {
     it('Sets Prisma authorization rules', () => {
       type TContext = { role: 'Admin' | 'Manager' }
+      type TPGTypeConfig = {
+        Context: TContext
+        PGGeneratedType: any
+      }
       type TPrismaWhere = { status: string }
 
-      const pg = getPGBuilder<TContext>()
+      const pg = getPGBuilder<TPGTypeConfig>()()
       const object: PGObject<
         {
           title: PGOutputField<string>
           detail: PGOutputField<string>
           status: PGOutputField<string>
         },
-        TContext,
+        PGTypes<TPGTypeConfig>,
         TPrismaWhere
       > = pg
         .object('Post', (f) => ({
@@ -109,7 +114,7 @@ describe('PGObject', () => {
       type TContext = { role: 'Admin' | 'LoginUser' }
       type TPrismaWhere = { status: string }
 
-      const pg = getPGBuilder<TContext>()
+      const pg = getPGBuilder<{ Context: TContext; PGGeneratedType: any }>()()
       const loginUserContext: TContext = { role: 'LoginUser' }
       const adminContext: TContext = { role: 'Admin' }
 
@@ -286,7 +291,10 @@ describe('PGObject', () => {
 describe('PGOutputField', () => {
   describe('auth', () => {
     it('Sets the passed function to authChecker', () => {
-      const pg = getPGBuilder<{ user: { roles: Array<'Admin' | 'LoginUser'> } }>()
+      const pg = getPGBuilder<{
+        Context: { user: { roles: Array<'Admin' | 'LoginUser'> } }
+        PGGeneratedType: any
+      }>()()
 
       const post = pg.object('Post', (f) => ({
         id: f.id().auth(({ ctx }) => ctx.user.roles.includes('Admin')),
@@ -334,7 +342,10 @@ describe('PGOutputField', () => {
         },
       ]
 
-      const pg = getPGBuilder<{ user: { roles: Array<'LoginUser' | 'Admin'> } }>()
+      const pg = getPGBuilder<{
+        Context: { user: { roles: Array<'LoginUser' | 'Admin'> } }
+        PGGeneratedType: any
+      }>()()
 
       const user = pg.object('User', (f) => ({
         id: f.id(),
@@ -486,7 +497,10 @@ describe('PGOutputField', () => {
         },
       ]
 
-      const pg = getPGBuilder<{ user: { roles: Array<'LoginUser' | 'Admin'> } }>()
+      const pg = getPGBuilder<{
+        Context: { user: { roles: Array<'LoginUser' | 'Admin'> } }
+        PGGeneratedType: any
+      }>()()
 
       const user = pg.object('User', (f) => ({
         id: f.id(),
@@ -532,7 +546,10 @@ describe('PGOutputField', () => {
 describe('PGInput', () => {
   describe('validation', () => {
     it('Sets the passed function to validationBuilder', () => {
-      const pg = getPGBuilder<{ user: { roles: Array<'Admin' | 'LoginUser'> } }>()
+      const pg = getPGBuilder<{
+        Context: { user: { roles: Array<'Admin' | 'LoginUser'> } }
+        PGGeneratedType: any
+      }>()()
 
       const findUser = pg
         .input('FindUser', (f) => ({
@@ -570,7 +587,10 @@ describe('PGInput', () => {
     })
 
     it('Validates according to the rules set in the validationBuilder', async () => {
-      const pg = getPGBuilder<{ user: { roles: Array<'Admin' | 'LoginUser'> } }>()
+      const pg = getPGBuilder<{
+        Context: { user: { roles: Array<'Admin' | 'LoginUser'> } }
+        PGGeneratedType: any
+      }>()()
 
       const contents = [
         {
@@ -828,7 +848,10 @@ describe('PGInput', () => {
 describe('PGInputField', () => {
   describe('validation', () => {
     it('Sets the passed function to validationBuilder', () => {
-      const pg = getPGBuilder<{ user: { roles: Array<'Admin' | 'LoginUser'> } }>()
+      const pg = getPGBuilder<{
+        Context: { user: { roles: Array<'Admin' | 'LoginUser'> } }
+        PGGeneratedType: any
+      }>()()
 
       const someInput = pg.input('SomeInput', (f) => ({
         id: f
@@ -850,7 +873,10 @@ describe('PGInputField', () => {
     })
 
     it('Validates according to the rules set in the validationBuilder', async () => {
-      const pg = getPGBuilder<{ user: { roles: Array<'Admin' | 'LoginUser'> } }>()
+      const pg = getPGBuilder<{
+        Context: { user: { roles: Array<'Admin' | 'LoginUser'> } }
+        PGGeneratedType: any
+      }>()()
       const users = [
         {
           id: '1',

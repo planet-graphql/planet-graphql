@@ -1,6 +1,6 @@
 import { ReadonlyDeep } from 'type-fest'
 import { PGCache } from '../types/builder'
-import { PGField, PGFieldMap, PGModel, ResolveParams } from '../types/common'
+import { PGField, PGModel, ResolveParams } from '../types/common'
 import { PGInputField } from '../types/input'
 import { PGObject, PGOutputField } from '../types/output'
 
@@ -49,18 +49,18 @@ export function setOutputFieldMethods(
 }
 
 export function pgObjectToPGModel<TPrismaWhere = any>(): <
-  T extends PGObject<any>,
-  TFieldMap extends PGFieldMap = T extends PGObject<infer TOutputFieldMap>
-    ? {
-        [P in keyof TOutputFieldMap]: TOutputFieldMap[P] extends PGOutputField<infer U>
-          ? PGField<U>
-          : never
-      }
-    : never,
+  T extends PGObject<any, any, any>,
 >(
   object: T,
   pgCache?: ReadonlyDeep<PGCache>,
-) => PGModel<TFieldMap, TPrismaWhere> {
+) => PGModel<
+  T extends PGObject<infer U>
+    ? {
+        [P in keyof U]: U[P] extends PGOutputField<infer V, any, any> ? PGField<V> : never
+      }
+    : never,
+  TPrismaWhere
+> {
   return (object, pgCache) => {
     const model = {
       name: object.name,

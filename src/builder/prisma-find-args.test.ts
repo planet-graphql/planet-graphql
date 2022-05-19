@@ -11,7 +11,7 @@ describe('prismaFindArgs', () => {
       type Context = {
         role: 'Admin' | 'User'
       }
-      const pg = getPGBuilder<Context>()
+      const pg = getPGBuilder<{ Context: Context; PGGeneratedType: any }>()()
       const pgCache = pg.cache()
 
       const userModel = pgObjectToPGModel<{
@@ -107,13 +107,10 @@ describe('prismaFindArgs', () => {
 
       const post = pg.objectFromModel(postModel, (keep, f) => ({
         ...keep,
-        comments: f
-          .object(() => comment)
-          .list()
-          .args((f) => ({
-            take: f.int().nullable(),
-            unrelated3: f.boolean().nullable(),
-          })),
+        comments: keep.comments.args((f) => ({
+          take: f.int().nullable(),
+          unrelated3: f.boolean().nullable(),
+        })),
       }))
 
       const comment = pg.objectFromModel(commentModel, (keep) => keep)
@@ -300,10 +297,10 @@ describe('prismaFindArgs', () => {
     })
 
     it('Generates args considering the default value of each PGInputFields', async () => {
-      type Context = {
-        role: 'Admin' | 'User'
-      }
-      const pg = getPGBuilder<Context>()
+      // type Context = {
+      //   role: 'Admin' | 'User'
+      // }
+      const pg = getPGBuilder()()
       const pgCache = pg.cache()
 
       let paramsValue: ResolveParams<any, any, any, any> = null as any
@@ -731,7 +728,7 @@ describe('prismaFindArgs', () => {
 
   describe('Default args is specified as the third argument', () => {
     it('Merges the specified default args', async () => {
-      const pg = getPGBuilder<any>()
+      const pg = getPGBuilder()()
       const pgCache = pg.cache()
 
       let paramsValue: ResolveParams<any, any, any, any> = null as any
@@ -982,7 +979,10 @@ describe('prismaFindArgs', () => {
         }
       `
 
-      const pg = getPGBuilder<{ role: 'Admin' | 'User' }>()
+      const pg = getPGBuilder<{
+        Context: { role: 'Admin' | 'User' }
+        PGGeneratedType: any
+      }>()()
       const pgCache = pg.cache()
 
       let paramsValue: ResolveParams<any, any, any, any> = null as any
@@ -1187,7 +1187,10 @@ describe('prismaFindArgs', () => {
         }
       }`
 
-      const pg = getPGBuilder<{ role: 'Admin' | 'User' }>()
+      const pg = getPGBuilder<{
+        Context: { role: 'Admin' | 'User' }
+        PGGeneratedType: any
+      }>()()
       const pgCache = pg.cache()
 
       let paramsValue: ResolveParams<any, any, any, any> = null as any
@@ -1271,7 +1274,10 @@ describe('prismaFindArgs', () => {
         }
       }`
 
-      const pg = getPGBuilder<{ role: 'Admin' | 'User' }>()
+      const pg = getPGBuilder<{
+        Context: { role: 'Admin' | 'User' }
+        PGGeneratedType: any
+      }>()()
       const pgCache = pg.cache()
 
       let paramsValue: ResolveParams<any, any, any, any> = null as any
@@ -1353,7 +1359,10 @@ describe('prismaFindArgs', () => {
         }
       }`
 
-      const pg = getPGBuilder<{ role: 'Admin' | 'User' }>()
+      const pg = getPGBuilder<{
+        Context: { role: 'Admin' | 'User' }
+        PGGeneratedType: any
+      }>()()
       const pgCache = pg.cache()
 
       let paramsValue: ResolveParams<any, any, any, any> = null as any
@@ -1423,7 +1432,10 @@ describe('prismaFindArgs', () => {
         }
       }`
 
-      const pg = getPGBuilder<{ role: 'Admin' | 'User' }>()
+      const pg = getPGBuilder<{
+        Context: { role: 'Admin' | 'User' }
+        PGGeneratedType: any
+      }>()()
       const pgCache = pg.cache()
 
       let paramsValue: ResolveParams<any, any, any, any> = null as any
@@ -1493,7 +1505,10 @@ describe('prismaFindArgs', () => {
         }
       }`
 
-      const pg = getPGBuilder<{ role: 'Admin' | 'User' }>()
+      const pg = getPGBuilder<{
+        Context: { role: 'Admin' | 'User' }
+        PGGeneratedType: any
+      }>()()
       const pgCache = pg.cache()
 
       let paramsValue: ResolveParams<any, any, any, any> = null as any

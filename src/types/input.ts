@@ -1,43 +1,35 @@
-import { Decimal } from '@prisma/client/runtime'
 import { z as Zod } from 'zod'
-import {
-  PGEnum,
-  PGField,
-  PGFieldMap,
-  PGFieldType,
-  PGFieldValue,
-  TypeOfPGFieldType,
-} from './common'
+import { PGConfig, PGTypeConfig, PGTypes } from './builder'
+import { PGEnum, PGField, PGFieldMap, PGFieldValue, TypeOfPGFieldType } from './common'
 
-export interface PGInput<TFieldMap extends PGInputFieldMap, TContext = any> {
+export interface PGInput<TFieldMap extends PGInputFieldMap, Types extends PGTypes = any> {
   name: string
   fieldMap: TFieldMap
   kind: 'input'
   value: {
-    validatorBuilder?: (z: typeof Zod, context: TContext) => Zod.ZodTypeAny
+    validatorBuilder?: (z: typeof Zod, context: Types['Context']) => Zod.ZodTypeAny
   }
   validation: (
-    validatorBuilder?: (z: typeof Zod, context: TContext) => Zod.ZodTypeAny,
-  ) => PGInput<TFieldMap, TContext>
+    validatorBuilder?: (z: typeof Zod, context: Types['Context']) => Zod.ZodTypeAny,
+  ) => this
 }
 
-export interface PGInputField<T extends PGFieldType | null | undefined, TContext = any>
-  extends PGField<T> {
+export interface PGInputField<T, Types extends PGTypes = any> extends PGField<T> {
   value: PGFieldValue & {
-    validatorBuilder?: (z: typeof Zod, context: TContext) => Zod.ZodTypeAny
+    validatorBuilder?: (z: typeof Zod, context: Types['Context']) => Zod.ZodTypeAny
   }
-  nullable: () => PGInputField<T | null | undefined, TContext>
-  list: () => PGInputField<T extends null | undefined ? null | undefined : T[], TContext>
+  nullable: () => PGInputField<T | null | undefined, Types>
+  list: () => PGInputField<T extends null | undefined ? null | undefined : T[], Types>
   default: (
     value: T extends PGInput<any> | Function
       ? never
       : T extends Array<PGInput<any>> | Function[]
       ? []
       : Exclude<TypeOfPGFieldType<T>, undefined>,
-  ) => PGInputField<T, TContext>
+  ) => PGInputField<T, Types>
   validation: (
-    validatorBuilder: (z: typeof Zod, context: TContext) => Zod.ZodTypeAny,
-  ) => PGInputField<T, TContext>
+    validatorBuilder: (z: typeof Zod, context: Types['Context']) => Zod.ZodTypeAny,
+  ) => PGInputField<T, Types>
 }
 
 export interface PGInputFieldMap {
@@ -48,17 +40,12 @@ export type PGEditInputFieldMap<TModel extends PGFieldMap> =
   | { [P in keyof TModel]?: PGInputField<any> }
   | { [name: string]: PGInputField<any> }
 
-export interface InputFieldBuilder<TContext> {
-  id: () => PGInputField<string, TContext>
-  string: () => PGInputField<string, TContext>
-  boolean: () => PGInputField<boolean, TContext>
-  int: () => PGInputField<number, TContext>
-  bigInt: () => PGInputField<bigint, TContext>
-  float: () => PGInputField<number, TContext>
-  dateTime: () => PGInputField<Date, TContext>
-  json: () => PGInputField<string, TContext>
-  byte: () => PGInputField<Buffer, TContext>
-  decimal: () => PGInputField<Decimal, TContext>
-  input: <T extends Function>(type: T) => PGInputField<T, TContext>
-  enum: <T extends PGEnum<any>>(type: T) => PGInputField<T, TContext>
+export type PGInputFieldBuilder<Types extends PGTypes<PGTypeConfig, PGConfig>> = {
+  [P in keyof Types['ScalarMap']]: () => PGInputField<
+    Types['ScalarMap'][P]['input'],
+    Types
+  >
+} & {
+  input: <T extends Function>(type: T) => PGInputField<T, Types>
+  enum: <T extends PGEnum<any>>(type: T) => PGInputField<T, Types>
 }

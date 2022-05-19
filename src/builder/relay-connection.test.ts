@@ -1,4 +1,10 @@
-import { GraphQLSchema, graphql } from 'graphql'
+import {
+  GraphQLSchema,
+  graphql,
+  GraphQLBoolean,
+  GraphQLInt,
+  GraphQLString,
+} from 'graphql'
 import { getPGBuilder } from '..'
 import { getPageInfo } from './relay-connection'
 import {
@@ -9,7 +15,7 @@ import {
 
 describe('relayConnection', () => {
   it('Creates a PGObject that supports Relay', () => {
-    const pg = getPGBuilder<any>()
+    const pg = getPGBuilder()()
     const post = pg.object('Post', (f) => ({
       id: f.id(),
       uuid: f.id(),
@@ -24,7 +30,7 @@ describe('relayConnection', () => {
           kind: 'object',
           isRequired: true,
           isList: true,
-          isId: false,
+
           resolve: expect.any(Function),
           type: expect.any(Function),
         }),
@@ -32,7 +38,7 @@ describe('relayConnection', () => {
           kind: 'object',
           isRequired: true,
           isList: false,
-          isId: false,
+
           resolve: expect.any(Function),
           type: expect.any(Function),
         }),
@@ -49,15 +55,15 @@ describe('relayConnection', () => {
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: false,
+
           resolve: expect.any(Function),
-          type: 'String',
+          type: GraphQLString,
         }),
         node: setOutputFieldMethods({
           kind: 'object',
           isRequired: true,
           isList: false,
-          isId: false,
+
           resolve: expect.any(Function),
           type: expect.any(Function),
         }),
@@ -71,15 +77,15 @@ describe('relayConnection', () => {
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: false,
-          type: 'Boolean',
+
+          type: GraphQLBoolean,
         }),
         hasPreviousPage: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: false,
-          type: 'Boolean',
+
+          type: GraphQLBoolean,
         }),
       },
     })
@@ -106,7 +112,10 @@ describe('relayConnection', () => {
         users: null,
         posts: null,
       }
-      const pg = getPGBuilder<{ role: 'Admin' | 'User' }>()
+      const pg = getPGBuilder<{
+        Context: { role: 'Admin' | 'User' }
+        PGGeneratedType: any
+      }>()()
       const pgCache = pg.cache()
 
       const userModel = pgObjectToPGModel()(
@@ -319,7 +328,7 @@ describe('relayConnection', () => {
 
   describe('Options are specified', () => {
     it('Adds totalCount field & Calculates cursors with specified method', () => {
-      const pg = getPGBuilder<any>()
+      const pg = getPGBuilder()()
       const user = pg.object('User', (f) => ({
         id: f.id(),
         posts: f.object(() => postConnection),
@@ -344,15 +353,15 @@ describe('relayConnection', () => {
             kind: 'scalar',
             isRequired: true,
             isList: false,
-            isId: false,
+
             resolve: expect.any(Function),
-            type: 'Int',
+            type: GraphQLInt,
           }),
           edges: setOutputFieldMethods({
             kind: 'object',
             isRequired: true,
             isList: true,
-            isId: false,
+
             resolve: expect.any(Function),
             type: expect.any(Function),
           }),
@@ -360,7 +369,7 @@ describe('relayConnection', () => {
             kind: 'object',
             isRequired: true,
             isList: false,
-            isId: false,
+
             resolve: expect.any(Function),
             type: expect.any(Function),
           }),
@@ -377,15 +386,15 @@ describe('relayConnection', () => {
             kind: 'scalar',
             isRequired: true,
             isList: false,
-            isId: false,
+
             resolve: expect.any(Function),
-            type: 'String',
+            type: GraphQLString,
           }),
           node: setOutputFieldMethods({
             kind: 'object',
             isRequired: true,
             isList: false,
-            isId: false,
+
             resolve: expect.any(Function),
             type: expect.any(Function),
           }),

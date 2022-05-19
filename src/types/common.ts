@@ -1,60 +1,62 @@
 import { Decimal } from '@prisma/client/runtime'
-import { GraphQLResolveInfo } from 'graphql'
+import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql'
 import { JsonValue, PartialDeep, Promisable, RequireAtLeastOne } from 'type-fest'
 import { IsAny } from 'type-fest/source/set-return-type'
+import { z } from 'zod'
 import { PGInput, PGInputField } from './input'
-import { PGConnectionObject, PGConnectionObjectWithTotalCount, PGObject } from './output'
+import { PGConnectionObject, PGConnectionObjectWithTotalCount } from './output'
 
-export type PGScalar =
-  | 'ID'
-  | 'String'
-  | 'Boolean'
-  | 'Int'
-  | 'BigInt'
-  | 'Float'
-  | 'DateTime'
-  | 'Json'
-  | 'Bytes'
-  | 'Decimal'
-
-export type PGFieldType =
-  | string
-  | boolean
-  | number
-  | bigint
-  | Date
-  | Buffer
-  | Decimal
-  | PGEnum<any>
-  | PGModelBase<any>
-  | Function // NOTE: 実際は、() => PGModel<any>
-  | PGFieldType[]
-
-export type TypeOfPGFieldType<T extends PGFieldType | null | undefined> =
-  IsAny<T> extends true
-    ? any
-    : T extends () => any
-    ? TypeOfPGFieldType<ReturnType<T>>
-    : T extends any[]
-    ? Array<TypeOfPGFieldType<T[0]>>
-    : T extends PGEnum<any>
-    ? TypeOfPGEnum<T>
-    : T extends PGModelBase<any>
-    ? T extends PGConnectionObjectWithTotalCount<infer U> | PGConnectionObject<infer U>
-      ? Array<TypeOfPGModelBase<U>>
-      : TypeOfPGModelBase<T>
-    : T
-
-export interface PGFieldValue {
-  kind: string
-  isRequired: boolean
-  isList: boolean
-  isId: boolean
-  type: string | Function
-  default?: any
+export interface PGScalarLike {
+  scalar: GraphQLScalarType<any>
+  schema: () => z.ZodSchema
 }
 
-export interface PGField<T extends PGFieldType | null | undefined> {
+export interface PGScalar<
+  TSchema extends z.ZodSchema,
+  TInput = z.infer<TSchema>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  TOutput = TInput,
+> {
+  scalar: GraphQLScalarType<any>
+  schema: () => TSchema
+}
+
+export type PGFieldKindAndType =
+  | {
+      kind: 'scalar'
+      type: GraphQLScalarType<any>
+    }
+  | {
+      kind: 'enum'
+      type: PGEnum<any>
+    }
+  | {
+      kind: 'object'
+      // NOTE: () => PGObject<any> | PGInput<any>
+      type: Function
+    }
+
+export type TypeOfPGFieldType<T> = IsAny<T> extends true
+  ? any
+  : T extends () => any
+  ? TypeOfPGFieldType<ReturnType<T>>
+  : T extends any[]
+  ? Array<TypeOfPGFieldType<T[0]>>
+  : T extends PGEnum<any>
+  ? TypeOfPGEnum<T>
+  : T extends PGModelBase<any>
+  ? T extends PGConnectionObjectWithTotalCount<infer U> | PGConnectionObject<infer U>
+    ? Array<TypeOfPGModelBase<U>>
+    : TypeOfPGModelBase<T>
+  : T
+
+export type PGFieldValue = {
+  isRequired: boolean
+  isList: boolean
+  default?: any
+} & PGFieldKindAndType
+
+export interface PGField<T> {
   value: PGFieldValue
   __type: T
 }
@@ -137,11 +139,6 @@ export type ScalarNameToType<T> = T extends 'String' | 'Json'
   : T extends 'Decimal'
   ? Decimal
   : never
-
-export type FieldBuilderArgsType =
-  | PGScalar
-  | PGEnum<any>
-  | (() => PGObject<any> | PGInput<any>)
 
 export type PGSelectorType<T> = JsonValue extends T
   ? Exclude<T, JsonValue> extends never

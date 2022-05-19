@@ -5,12 +5,14 @@ import {
   ResolveTree,
   parseResolveInfo,
 } from '../lib/graphql-parse-resolve-info'
-import { PGBuilder, PGCache } from '../types/builder'
+import { PGBuilder, PGCache, PGTypes } from '../types/builder'
 import { ResolveParams, PGField } from '../types/common'
 import { PGObject } from '../types/output'
 import { getPrismaAbility, getCtxCache, PGError } from './utils'
 
-export const prismaFindArgs: (cache: PGCache) => PGBuilder<any>['prismaFindArgs'] =
+export const prismaFindArgs: <Types extends PGTypes>(
+  cache: PGCache,
+) => PGBuilder<Types>['prismaFindArgs'] =
   (cache) =>
   <T>(root: PGObject<any>, params: ResolveParams<any, any, any, any>, defaultArgs: T) => {
     function getPrismaAuthWhere(pgObject: PGObject<any>, ctx: any): object | null {

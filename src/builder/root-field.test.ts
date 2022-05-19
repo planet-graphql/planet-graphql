@@ -1,11 +1,11 @@
-import { ExecutionResult, parse, subscribe } from 'graphql'
+import { ExecutionResult, GraphQLString, parse, subscribe } from 'graphql'
 import { PubSub } from 'graphql-subscriptions'
 import { getPGBuilder } from '..'
 import { setInputFieldMethods, setOutputFieldMethods } from './test-utils'
 
 describe('rootFieldBuilder', () => {
   it('Creates a new PGRootFieldConfig & Set it to the Build Cache', () => {
-    const pg = getPGBuilder<any>()
+    const pg = getPGBuilder()()
     const someObject = pg.object('SomeObject', (f) => ({
       id: f.id(),
       name: f.string(),
@@ -37,21 +37,18 @@ describe('rootFieldBuilder', () => {
         kind: 'object',
         isRequired: true,
         isList: false,
-        isId: false,
         type: expect.any(Function),
         args: {
           name: setInputFieldMethods({
             kind: 'scalar',
             isRequired: true,
             isList: false,
-            isId: false,
-            type: 'String',
+            type: GraphQLString,
           }),
           profile: setInputFieldMethods({
             kind: 'object',
             isRequired: true,
             isList: false,
-            isId: false,
             type: expect.any(Function),
           }),
         },
@@ -65,7 +62,7 @@ describe('rootFieldBuilder', () => {
   })
 
   it('Returns an existing resource because a resource with the same name cannot be created', () => {
-    const pg = getPGBuilder<any>()
+    const pg = getPGBuilder()()
 
     pg.query('SomeQuery', (f) => f.string().resolve(() => ''))
 
@@ -75,8 +72,7 @@ describe('rootFieldBuilder', () => {
         kind: 'scalar',
         isRequired: true,
         isList: false,
-        isId: false,
-        type: 'String',
+        type: GraphQLString,
         resolve: expect.any(Function),
       }),
       kind: 'query',
@@ -86,7 +82,7 @@ describe('rootFieldBuilder', () => {
   describe('subscription', () => {
     it('Returns a value in response to a publish according to the conditions set in the filter', async () => {
       const pubsub = new PubSub()
-      const pg = getPGBuilder<any>()
+      const pg = getPGBuilder()()
 
       pg.query('SomeQuery', (f) => f.string())
       pg.subscription('SomeSubscription', (f) =>
@@ -125,7 +121,7 @@ describe('rootFieldBuilder', () => {
       expect(result).toEqual({ data: { SomeSubscription: 'hi' } })
     })
     it('Returns an existing resource because a resource with the same name cannot be created', () => {
-      const pg = getPGBuilder<any>()
+      const pg = getPGBuilder()()
       const pubsub = new PubSub()
       pg.subscription('SomeSubscription', (f) =>
         f
@@ -151,8 +147,7 @@ describe('rootFieldBuilder', () => {
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: false,
-          type: 'String',
+          type: GraphQLString,
           resolve: expect.any(Function),
           subscribe: expect.any(Function),
         }),

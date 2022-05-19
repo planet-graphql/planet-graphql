@@ -1,15 +1,20 @@
 import { GraphQLResolveInfo } from 'graphql'
 import { ResolveTree, FieldsByTypeName } from '../lib/graphql-parse-resolve-info'
-import { PGBuilder, PGCache } from '../types/builder'
-import { PGOutputFieldMap } from '../types/output'
+import { PGGraphQLID } from '../lib/pg-id-scalar'
+import { PGBuilder, PGCache, PGTypes } from '../types/builder'
+import { PGOutputFieldBuilder, PGOutputFieldMap } from '../types/output'
 import { object } from './object'
 import { PGError, getCtxCache } from './utils'
 
-export const relayConnection: (cache: PGCache) => PGBuilder<any>['relayConnection'] =
-  (cache) => (pgObject, options) => {
+export const relayConnection: <Types extends PGTypes>(
+  cache: PGCache,
+  outputFieldBuilder: PGOutputFieldBuilder<Types>,
+) => PGBuilder<Types>['relayConnection'] =
+  (cache, outputFieldBuilder) => (pgObject, options) => {
     function getDefaultCursor(fieldMap: PGOutputFieldMap): (node: any) => any {
       const idFieldEntry = Object.entries(fieldMap).find(
-        ([_name, field]) => field.value.isId,
+        ([_name, field]) =>
+          field.value.kind === 'scalar' && field.value.type.name === PGGraphQLID.name,
       )
       if (idFieldEntry === undefined) {
         throw new PGError('ID field does not exists.', 'Error')
@@ -80,13 +85,13 @@ export const relayConnection: (cache: PGCache) => PGBuilder<any>['relayConnectio
 
     const getCusorFn = options?.cursor ?? getDefaultCursor(pgObject.fieldMap)
 
-    const pgBuilderObject = object(cache)
+    const pgBuilderObject = object(cache, outputFieldBuilder)
     const connection = pgBuilderObject(`${pgObject.name}Connection`, (f) => ({
       edges: f
         .object(() =>
           pgBuilderObject(`${pgObject.name}Edge`, (f) => ({
             cursor: f.string().resolve((params) => {
-              return encodeCursor(getCusorFn(params.source))
+              return encodeCursor(getCusorFn(params.source)) as any
             }),
             node: f.object(() => pgObject).resolve((params) => params.source),
           })),
@@ -108,14 +113,14 @@ export const relayConnection: (cache: PGCache) => PGBuilder<any>['relayConnectio
         )
         .resolve((params) => {
           const args = getParentFieldArgs(params.info, params.context)
-          return getPageInfo(params.source.length, args.raw)
+          return getPageInfo(params.source.length, args.raw) as any
         }),
       ...(options?.totalCount !== undefined
         ? {
             totalCount: f.int().resolve((params) => {
               const args = getParentFieldArgs(params.info, params.context)
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return options.totalCount!(params, args.prisma)
+              return options.totalCount!(params, args.prisma) as any
             }),
           }
         : ({} as any)),

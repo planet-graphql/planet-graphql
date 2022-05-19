@@ -1,8 +1,12 @@
-import { PGBuilder, PGCache } from '../types/builder'
-import { createPGObject, outputFieldBuilder, setCache } from './utils'
+import { PGBuilder, PGCache, PGTypes } from '../types/builder'
+import { PGOutputFieldBuilder } from '../types/output'
+import { createPGObject, setCache } from './utils'
 
-export const objectFromModel: (cache: PGCache) => PGBuilder<any>['objectFromModel'] =
-  (cache) => (model, editFieldMap) => {
+export const objectFromModel: <Types extends PGTypes>(
+  cache: PGCache,
+  outputFieldBuilder: PGOutputFieldBuilder<Types>,
+) => PGBuilder<Types>['objectFromModel'] =
+  (cache, outputFieldBuilder) => (model, editFieldMap) => {
     const pgFieldMap = editFieldMap(
       cache.object[model.name].fieldMap as any,
       outputFieldBuilder,

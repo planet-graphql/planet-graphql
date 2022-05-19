@@ -1,34 +1,42 @@
 import { DMMF } from '@prisma/generator-helper'
-import { PGBuilder, PGCache, PGfyResponseType } from '../types/builder'
-import { FieldBuilderArgsType, PGEnum, PGModel, PGScalar } from '../types/common'
+import { PGBuilder, PGCache, PGfyResponseType, PGTypes } from '../types/builder'
+import { PGEnum, PGFieldKindAndType, PGModel, PGScalarLike } from '../types/common'
+import { PGInputFieldBuilder } from '../types/input'
 import { PGObject, PGOutputFieldMap } from '../types/output'
+import { getGraphQLScalar } from './build'
 import { createEnum } from './enum'
 import { createOutputField, createPGObject, PGError, setCache } from './utils'
 
-export const pgfy: (cache: PGCache) => PGBuilder<any>['pgfy'] =
-  (cache) =>
-  <T extends PGfyResponseType = PGfyResponseType>(datamodel: DMMF.Datamodel) => {
+export const pgfy: <Types extends PGTypes>(
+  cache: PGCache,
+  inputFieldBuilder: PGInputFieldBuilder<Types>,
+  scalarMap: { [name: string]: PGScalarLike },
+) => PGBuilder<Types>['pgfy'] =
+  (cache, inputFieldBuilder, scalarMap) => (datamodel: DMMF.Datamodel) => {
     function convertToPGObject(
       model: DMMF.Model,
       enums: { [name: string]: PGEnum<any> },
       objectRef: { [name: string]: PGObject<any> },
     ): PGObject<any> {
       const fieldMap = model.fields.reduce<PGOutputFieldMap>((acc, x) => {
-        let type: FieldBuilderArgsType
+        let kindAndType: PGFieldKindAndType
         switch (x.kind) {
           case 'scalar':
-            type = x.isId ? 'ID' : (x.type as PGScalar)
+            kindAndType = {
+              kind: x.kind,
+              type: getGraphQLScalar(x.type, x.isId, scalarMap),
+            }
             break
           case 'enum':
-            type = enums[x.type]
+            kindAndType = { kind: x.kind, type: enums[x.type] }
             break
           case 'object':
-            type = () => objectRef[x.type]
+            kindAndType = { kind: x.kind, type: () => objectRef[x.type] }
             break
           default:
             throw new PGError(`Unexpected kind '${x.kind}''.`, 'Error')
         }
-        let field = createOutputField<any>(type)
+        let field = createOutputField<any, any>(kindAndType, inputFieldBuilder)
         if (x.isList) {
           field = field.list()
         }
@@ -63,5 +71,5 @@ export const pgfy: (cache: PGCache) => PGBuilder<any>['pgfy'] =
       enums,
       models,
     }
-    return resp as T
+    return resp
   }

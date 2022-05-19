@@ -1,8 +1,10 @@
-import { PGBuilder, PGCache } from '../types/builder'
+import { PGBuilder, PGCache, PGTypes } from '../types/builder'
 import { PGEnum } from '../types/common'
 import { setCache } from './utils'
 
-export const createEnum: (cache: PGCache) => PGBuilder<any>['enum'] =
+export const createEnum: <Types extends PGTypes>(
+  cache: PGCache,
+) => PGBuilder<Types>['enum'] =
   (cache) =>
   (name, ...values) => {
     if (cache.enum[name] !== undefined) return cache.enum[name] as PGEnum<any>

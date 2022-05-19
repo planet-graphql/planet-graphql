@@ -35,7 +35,7 @@ describe('dataloader', () => {
       },
     ]
 
-    const pg = getPGBuilder<any>()
+    const pg = getPGBuilder()()
 
     const user = pg.object('User', (f) => ({
       id: f.id(),

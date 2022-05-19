@@ -1,78 +1,50 @@
 import {
   defaultFieldResolver,
   GraphQLArgumentConfig,
-  GraphQLBoolean,
   GraphQLEnumType,
   GraphQLEnumValueConfigMap,
   GraphQLFieldConfig,
   GraphQLFieldConfigArgumentMap,
   GraphQLFieldConfigMap,
   GraphQLFieldResolver,
-  GraphQLFloat,
   GraphQLInputFieldConfig,
   GraphQLInputFieldConfigMap,
   GraphQLInputObjectType,
-  GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLResolveInfo,
   GraphQLScalarType,
   GraphQLSchema,
-  GraphQLString,
 } from 'graphql'
-import { GraphQLBigInt, GraphQLDateTime, GraphQLJSON, GraphQLByte } from 'graphql-scalars'
+import _ from 'lodash'
 import { z as Zod } from 'zod'
 import { parseResolveInfo, ResolveTree } from '../lib/graphql-parse-resolve-info'
-import { PGGraphQLDecimal } from '../lib/pg-decimal-scalar'
 import { PGGraphQLID } from '../lib/pg-id-scalar'
-import { GetGraphqlTypeRefFn, PGBuilder, PGCache } from '../types/builder'
-import { PGEnum, PGField } from '../types/common'
+import { GetGraphqlTypeRefFn, PGBuilder, PGCache, PGTypes } from '../types/builder'
+import { PGEnum, PGField, PGScalarLike } from '../types/common'
 import { PGInput, PGInputField, PGInputFieldMap } from '../types/input'
 import { PGObject, PGOutputField, PGOutputFieldMap } from '../types/output'
 import { getCtxCache, PGError } from './utils'
 
-function getGraphQLScalar(type: string, isId: boolean): GraphQLScalarType {
+export function getGraphQLScalar(
+  type: string,
+  isId: boolean,
+  scalarMap: { [name: string]: PGScalarLike },
+): GraphQLScalarType {
   if (isId) return PGGraphQLID
-  switch (type) {
-    case 'String': {
-      return GraphQLString
-    }
-    case 'Boolean': {
-      return GraphQLBoolean
-    }
-    case 'Int': {
-      return GraphQLInt
-    }
-    case 'BigInt': {
-      return GraphQLBigInt
-    }
-    case 'Float': {
-      return GraphQLFloat
-    }
-    case 'DateTime': {
-      return GraphQLDateTime
-    }
-    case 'Json': {
-      return GraphQLJSON
-    }
-    case 'Bytes': {
-      return GraphQLByte
-    }
-    case 'Decimal': {
-      return PGGraphQLDecimal
-    }
-    default: {
-      throw new PGError('Unsupported type.', 'BuildError')
-    }
+  const scalarConfig = scalarMap[_.lowerFirst(type)]
+  if (scalarConfig === undefined) {
+    throw new PGError(`Unsupported type: ${type}`, 'BuildError')
   }
+  return scalarConfig.scalar
 }
 
 function getInputFieldDefaultValue(field: PGField<any>): any {
   if (!('default' in field)) return undefined
   if (field.value.default !== undefined) return field.value.default
   if (field.value.kind !== 'object') return undefined
-  const pgInput = (field.value.type as Function)()
+  const pgInput = field.value.type()
   const defaultValue = Object.entries(pgInput.fieldMap).reduce<{ [name: string]: any }>(
     (acc, [key, field]) => {
       acc[key] = getInputFieldDefaultValue(field as PGInputField<any, any>)
@@ -147,14 +119,14 @@ function getGraphQLFieldConfigOnlyType<
       if (typeof field.value.type === 'function') {
         throw new TypeError('Unexpected type with enum.')
       }
-      type = enums[field.value.type]
+      type = enums[field.value.type.name]
       break
     }
     case 'scalar': {
       if (typeof field.value.type === 'function') {
         throw new TypeError('Unexpected type with scalar.')
       }
-      type = getGraphQLScalar(field.value.type, field.value.isId)
+      type = field.value.type
       break
     }
     case 'object': {
@@ -407,7 +379,9 @@ function getGraphQLFieldConfig(
   return fieldConfig
 }
 
-export const build: (cache: PGCache) => PGBuilder<any>['build'] = (cache) => () => {
+export const build: <Types extends PGTypes>(
+  cache: PGCache,
+) => PGBuilder<Types>['build'] = (cache) => () => {
   const typeRefFn: GetGraphqlTypeRefFn = () => ({
     enums,
     objects,

@@ -1,11 +1,13 @@
+import { GraphQLString } from 'graphql'
 import { expectType } from 'tsd'
 import { getPGBuilder } from '..'
+import { PGGraphQLID } from '../lib/pg-id-scalar'
 import { PGObject, PGOutputField } from '../types/output'
 import { setOutputFieldMethods, setPGObjectProperties } from './test-utils'
 
 describe('resolver', () => {
   it('Sets resolves to each field of the PGObject', () => {
-    const pg = getPGBuilder<any>()
+    const pg = getPGBuilder()()
 
     const post = pg.object('Post', (f) => ({
       id: f.id(),
@@ -35,22 +37,19 @@ describe('resolver', () => {
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: true,
-          type: 'String',
+          type: PGGraphQLID,
         }),
         someString: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: false,
-          type: 'String',
+          type: GraphQLString,
           resolve: expect.any(Function),
         }),
         someObject: setOutputFieldMethods({
           kind: 'object',
           isRequired: true,
           isList: false,
-          isId: false,
           type: expect.any(Function),
           resolve: expect.any(Function),
         }),
