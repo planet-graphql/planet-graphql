@@ -1,5 +1,7 @@
+import { GraphQLFloat, GraphQLInt } from 'graphql'
 import { expectType } from 'tsd'
 import { getPGBuilder } from '..'
+import { PGGraphQLID } from '../lib/pg-id-scalar'
 import { PGCache } from '../types/builder'
 import { PGField, PGModel } from '../types/common'
 import { PGObject, PGOutputField } from '../types/output'
@@ -18,8 +20,7 @@ describe('objectFromModel', () => {
             kind: 'scalar',
             isRequired: true,
             isList: false,
-            isId: true,
-            type: 'String',
+            type: PGGraphQLID,
           },
           args: () => {},
           list: () => {},
@@ -33,8 +34,7 @@ describe('objectFromModel', () => {
             kind: 'scalar',
             isRequired: true,
             isList: false,
-            isId: false,
-            type: 'Int',
+            type: GraphQLInt,
           },
           args: () => {},
           list: () => {},
@@ -48,7 +48,7 @@ describe('objectFromModel', () => {
       __type: undefined as any,
     }
 
-    const pg = getPGBuilder<any>()
+    const pg = getPGBuilder()()
     const editableCache = pg.cache() as unknown as PGCache
     editableCache.model[user.name] = user
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -76,21 +76,18 @@ describe('objectFromModel', () => {
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: true,
-          type: 'String',
+          type: PGGraphQLID,
         }),
         age: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: false,
-          type: 'Float',
+          type: GraphQLFloat,
         }),
         post: setOutputFieldMethods({
           kind: 'object',
           isRequired: true,
           isList: false,
-          isId: false,
           type: expect.any(Function),
         }),
       },
@@ -101,8 +98,8 @@ describe('objectFromModel', () => {
 
     expectType<
       PGObject<{
-        id: PGOutputField<string, any, { id: string }>
-        age: PGOutputField<number, any>
+        id: PGOutputField<string>
+        age: PGOutputField<number>
         post: PGOutputField<() => typeof post, any>
       }>
     >(someObject)

@@ -6,16 +6,22 @@ import {
   GraphQLInputObjectType,
   GraphQLObjectType,
   GraphQLResolveInfo,
+  GraphQLScalarType,
   GraphQLSchema,
 } from 'graphql'
 import { ReadonlyDeep } from 'type-fest'
+import { IsUnknown } from 'type-fest/source/set-return-type'
+import { z } from 'zod'
 import { ResolveTree } from '../lib/graphql-parse-resolve-info'
+import { DefaultScalars } from '../lib/scalars'
 import {
   PGEnum,
   PGField,
   PGFieldMap,
   PGModel,
   PGQueryArgsType,
+  PGScalar,
+  PGScalarLike,
   PGSelectorType,
   ResolveParams,
   ResolveResponse,
@@ -24,28 +30,26 @@ import {
   TypeOfPGModelBase,
 } from './common'
 import {
-  InputFieldBuilder,
   PGEditInputFieldMap,
   PGInput,
   PGInputField,
+  PGInputFieldBuilder,
   PGInputFieldMap,
 } from './input'
 import {
-  OutputFieldBuilder,
   PGConnectionObject,
   PGConnectionObjectWithTotalCount,
   PGEditOutputFieldMap,
   PGObject,
   PGOutputField,
+  PGOutputFieldBuilder,
   PGOutputFieldMap,
   PrismaFindManyArgsBase,
   RelayConnectionTotalCountFn,
 } from './output'
 
-export interface PGRootFieldConfig {
-  name: string
-  field: PGOutputField<any, PGInputFieldMap | undefined>
-  kind: 'query' | 'mutation' | 'subscription'
+export interface PGConfig {
+  scalars: { [name: string]: PGScalarLike }
 }
 
 export interface PGfyResponseType {
@@ -53,16 +57,48 @@ export interface PGfyResponseType {
   enums: Record<string, PGEnum<any>>
 }
 
-export type PGRootFieldBuilder<TContext, TOutput extends PGOutputField<any, any>> = (
-  name: string,
-  field: (f: OutputFieldBuilder<TContext>) => TOutput,
-) => PGRootFieldConfig
+export interface PGTypeConfig {
+  Context: object
+  PGGeneratedType: PGfyResponseType
+}
 
-export interface PGBuilder<TContext> {
+export type PGScalarMap<T extends PGConfig['scalars']> = {
+  [P in keyof T]: T[P] extends PGScalar<infer TSchema, infer TInput, infer TOutput>
+    ? {
+        schema: TSchema
+        input: IsUnknown<TInput> extends true ? z.infer<TSchema> : TInput
+        output: IsUnknown<TOutput> extends true ? z.infer<TSchema> : TOutput
+        scalar: GraphQLScalarType<any>
+      }
+    : never
+}
+
+export type PGTypes<
+  TypeConfig extends PGTypeConfig = PGTypeConfig,
+  Config extends PGConfig = PGConfig,
+> = TypeConfig & {
+  ScalarMap: PGScalarMap<typeof DefaultScalars & Config['scalars']>
+}
+
+export type InitPGBuilder = <TypeConfig extends PGTypeConfig>() => <
+  Config extends PGConfig,
+>(
+  config?: Config,
+) => PGBuilder<PGTypes<TypeConfig, Config>>
+
+export interface PGRootFieldConfig {
+  name: string
+  field: PGOutputField<any, PGInputFieldMap | undefined>
+  kind: 'query' | 'mutation' | 'subscription'
+}
+
+export interface PGBuilder<
+  Types extends PGTypes<PGTypeConfig, PGConfig> = PGTypes<PGTypeConfig, PGConfig>,
+> {
   object: <T extends PGOutputFieldMap>(
     name: string,
-    fieldMap: (x: OutputFieldBuilder<TContext>) => T,
-  ) => PGObject<T, TContext>
+    fieldMap: (x: PGOutputFieldBuilder<Types>) => T,
+  ) => PGObject<T, Types>
   objectFromModel: <
     TModel extends PGFieldMap,
     TPrismaFindMany,
@@ -71,14 +107,14 @@ export interface PGBuilder<TContext> {
     model: PGModel<TModel, TPrismaFindMany>,
     editFieldMap: (
       keep: { [P in keyof TModel]: PGOutputField<TypeOfPGField<TModel[P]>> },
-      f: OutputFieldBuilder<TContext>,
+      f: PGOutputFieldBuilder<Types>,
     ) => T,
-  ) => PGObject<{ [P in keyof T]: Exclude<T[P], undefined> }, TContext, TPrismaFindMany>
+  ) => PGObject<{ [P in keyof T]: Exclude<T[P], undefined> }, Types, TPrismaFindMany>
   enum: <T extends string[]>(name: string, ...values: T) => PGEnum<T>
   input: <T extends PGInputFieldMap>(
     name: string,
-    fieldMap: (x: InputFieldBuilder<TContext>) => T,
-  ) => PGInput<T, TContext>
+    fieldMap: (x: PGInputFieldBuilder<Types>) => T,
+  ) => PGInput<T, Types>
   inputFromModel: <TModel extends PGFieldMap, T extends PGEditInputFieldMap<TModel>>(
     name: string,
     model: PGModel<TModel>,
@@ -93,9 +129,9 @@ export interface PGBuilder<TContext> {
             : PGInputField<U>
           : never
       },
-      x: InputFieldBuilder<TContext>,
+      x: PGInputFieldBuilder<Types>,
     ) => T,
-  ) => PGInput<{ [P in keyof T]: Exclude<T[P], undefined> }, TContext>
+  ) => PGInput<{ [P in keyof T]: Exclude<T[P], undefined> }, Types>
   resolver: <T extends PGOutputFieldMap>(
     object: PGObject<T>,
     fieldMap: {
@@ -104,25 +140,25 @@ export interface PGBuilder<TContext> {
           TypeOfPGField<T[P]>,
           TypeOfPGModelBase<PGObject<T>>,
           TypeOfPGFieldMap<Exclude<T[P]['value']['args'], undefined>>,
-          TContext
+          Types['Context']
         >,
       ) => ResolveResponse<TypeOfPGField<T[P]>>
     },
-  ) => PGObject<T, TContext>
+  ) => PGObject<T, Types>
   query: <TOutput extends PGOutputField<any, any>>(
     name: string,
-    field: (f: OutputFieldBuilder<TContext>) => TOutput,
+    field: (f: PGOutputFieldBuilder<Types>) => TOutput,
   ) => PGRootFieldConfig
   mutation: <TOutput extends PGOutputField<any, any>>(
     name: string,
-    field: (f: OutputFieldBuilder<TContext>) => TOutput,
+    field: (f: PGOutputFieldBuilder<Types>) => TOutput,
   ) => PGRootFieldConfig
   subscription: <TOutput extends PGOutputField<any, any>>(
     name: string,
-    fields: (f: OutputFieldBuilder<TContext>) => TOutput,
+    fields: (f: PGOutputFieldBuilder<Types>) => TOutput,
   ) => PGRootFieldConfig
   build: () => GraphQLSchema
-  pgfy: <T extends PGfyResponseType = PGfyResponseType>(datamodel: DMMF.Datamodel) => T
+  pgfy: (datamodel: DMMF.Datamodel) => Types['PGGeneratedType']
   queryArgsBuilder: <T extends { [key: string]: any }>(
     inputNamePrefix: string,
   ) => <U extends PGSelectorType<T>>(selector: U) => PGQueryArgsType<U>
@@ -132,7 +168,7 @@ export interface PGBuilder<TContext> {
     defaultArgs?: Partial<T>,
   ) => T
   dataloader: <TResolve, TSource, TArgs>(
-    params: ResolveParams<TResolve, TSource, TArgs, TContext>,
+    params: ResolveParams<TResolve, TSource, TArgs, Types['Context']>,
     batchLoadFn: (sourceList: readonly TSource[]) => ResolveResponse<TResolve[]>,
   ) => ResolveResponse<TResolve>
   relayConnection: <
@@ -142,12 +178,12 @@ export interface PGBuilder<TContext> {
     TotalCountFn extends
       | RelayConnectionTotalCountFn<
           TypeOfPGFieldMap<TConnectionSource>,
-          TContext,
+          Types['Context'],
           TPrismaFindMany
         >
       | undefined,
   >(
-    object: PGObject<T, TContext, TPrismaFindMany>,
+    object: PGObject<T, Types, TPrismaFindMany>,
     options?: {
       connectionSource?: PGObject<TConnectionSource>
       totalCount?: TotalCountFn
@@ -156,13 +192,13 @@ export interface PGBuilder<TContext> {
       ) => Exclude<TPrismaFindMany['cursor'], undefined>
     },
   ) => TotalCountFn extends undefined
-    ? PGConnectionObject<PGObject<T, TContext, TPrismaFindMany>>
-    : PGConnectionObjectWithTotalCount<PGObject<T, TContext, TPrismaFindMany>>
+    ? PGConnectionObject<PGObject<T, Types, TPrismaFindMany>>
+    : PGConnectionObjectWithTotalCount<PGObject<T, Types, TPrismaFindMany>>
   relayArgs: (options?: { default?: number; max?: number }) => {
-    first: PGInputField<number | null | undefined, TContext>
-    after: PGInputField<string | null | undefined, TContext>
-    last: PGInputField<number | null | undefined, TContext>
-    before: PGInputField<string | null | undefined, TContext>
+    first: PGInputField<number | null | undefined, Types>
+    after: PGInputField<string | null | undefined, Types>
+    last: PGInputField<number | null | undefined, Types>
+    before: PGInputField<string | null | undefined, Types>
   }
   cache: () => ReadonlyDeep<PGCache>
 }

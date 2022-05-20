@@ -39,7 +39,6 @@ describe('build', () => {
     dmmf = await getDMMF({ datamodel })
   })
   it('Builds a GraphQLSchema', async () => {
-    const pg = getPGBuilder<any>()
     type UserFieldMapType = {
       id: PGField<bigint>
       name: PGField<string>
@@ -67,7 +66,9 @@ describe('build', () => {
       enums: PGfyResponseEnums
       models: PGfyResponseModels
     }
-    const pgfyResult = pg.pgfy<PGfyResponse>(dmmf.datamodel)
+
+    const pg = getPGBuilder<{ Context: any; PGGeneratedType: PGfyResponse }>()()
+    const pgfyResult = pg.pgfy(dmmf.datamodel)
 
     const user = pgfyResult.models.User
 
@@ -216,10 +217,10 @@ describe('build', () => {
   it('Set the GraphqlResolveInfo in ContextCache', async () => {
     let ctxCache: any
     let resolveInfo: any
-    const pg = getPGBuilder<any>()
+    const pg = getPGBuilder()()
     pg.query('someQuery', (f) =>
       f.string().resolve((params) => {
-        ctxCache = params.context.__cache
+        ctxCache = (params.context as any).__cache
         resolveInfo = params.info
         return 'hi'
       }),
@@ -240,7 +241,7 @@ describe('build', () => {
 
   describe('No Mutation is defined', () => {
     it('Builds a GraphQLSchema', async () => {
-      const pg = getPGBuilder()
+      const pg = getPGBuilder()()
       pg.query('someQuery', (f) => f.string().resolve(() => 'hi'))
       const schema = pg.build()
       const query = `
@@ -255,7 +256,7 @@ describe('build', () => {
 
   describe('No Query is defined', () => {
     it('Returns errors because GraphQL.js requires at least one Query', async () => {
-      const pg = getPGBuilder()
+      const pg = getPGBuilder()()
       pg.mutation('someMutation', (f) => f.string().resolve(() => 'hi'))
       const schema = pg.build()
       const query = `

@@ -1,7 +1,16 @@
 import { Decimal } from '@prisma/client/runtime'
 import { DMMF } from '@prisma/generator-helper'
 import { getDMMF } from '@prisma/sdk'
+import { GraphQLString, GraphQLInt, GraphQLFloat, GraphQLBoolean } from 'graphql'
+import {
+  GraphQLBigInt,
+  GraphQLByte,
+  GraphQLDateTime,
+  GraphQLJSONObject,
+} from 'graphql-scalars'
 import { getPGBuilder } from '..'
+import { PGGraphQLDecimal } from '../lib/pg-decimal-scalar'
+import { PGGraphQLID } from '../lib/pg-id-scalar'
 import { PGField, PGEnum, PGModel } from '../types/common'
 import { PGObject } from '../types/output'
 import { setPGObjectProperties, setOutputFieldMethods } from './test-utils'
@@ -121,20 +130,20 @@ describe('pgfy', () => {
   }
 
   it('Generates PGEnum, PGModel, and PGObject based on the Prisma schema & Set them in the Build Cache', async () => {
-    const pg = getPGBuilder<any>()
-    const result = pg.pgfy<PGfyResponse>(dmmf.datamodel)
+    const pg = getPGBuilder<{ Context: any; PGGeneratedType: PGfyResponse }>()()
+    const result = pg.pgfy(dmmf.datamodel)
 
-    const expectSomeEnum = {
+    const expectSomeEnum: PGEnum<['AAA', 'BBB', 'CCC']> = {
       kind: 'enum',
       name: 'SomeEnum',
       values: ['AAA', 'BBB', 'CCC'],
     }
-    const expectSomeEnum2 = {
+    const expectSomeEnum2: PGEnum<['Aaa', 'Bbb', 'Ccc']> = {
       kind: 'enum',
       name: 'SomeEnum2',
       values: ['Aaa', 'Bbb', 'Ccc'],
     }
-    const expectSomeEnum3 = {
+    const expectSomeEnum3: PGEnum<['aaa', 'bbb', 'ccc']> = {
       kind: 'enum',
       name: 'SomeEnum3',
       values: ['aaa', 'bbb', 'ccc'],
@@ -143,119 +152,102 @@ describe('pgfy', () => {
       name: 'Model1',
       fieldMap: {
         id: setOutputFieldMethods({
-          isId: true,
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: 'String',
+          type: PGGraphQLID,
         }),
         string: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: 'String',
+          type: GraphQLString,
         }),
         json: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: 'Json',
+          type: GraphQLJSONObject,
         }),
         int: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: 'Int',
+          type: GraphQLInt,
         }),
         float: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: 'Float',
+          type: GraphQLFloat,
         }),
         boolean: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: 'Boolean',
+          type: GraphQLBoolean,
         }),
         bigInt: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: 'BigInt',
+          type: GraphQLBigInt,
         }),
         dateTime: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: 'DateTime',
+          type: GraphQLDateTime,
         }),
         bytes: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: 'Bytes',
+          type: GraphQLByte,
         }),
         decimal: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: 'Decimal',
+          type: PGGraphQLDecimal,
         }),
         nullable: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: false,
           kind: 'scalar',
-          type: 'String',
+          type: GraphQLString,
         }),
         list: setOutputFieldMethods({
-          isId: false,
           isList: true,
           isRequired: true,
           kind: 'scalar',
-          type: 'String',
+          type: GraphQLString,
         }),
         enum: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: true,
           kind: 'enum',
-          type: 'SomeEnum',
+          type: expectSomeEnum,
         }),
         enumList: setOutputFieldMethods({
-          isId: false,
           isList: true,
           isRequired: true,
           kind: 'enum',
-          type: 'SomeEnum2',
+          type: expectSomeEnum2,
         }),
         enumNullable: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: false,
           kind: 'enum',
-          type: 'SomeEnum3',
+          type: expectSomeEnum3,
         }),
         oneToOne: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: false,
           kind: 'object',
           type: expect.any(Function),
         }),
         oneToMany: setOutputFieldMethods({
-          isId: false,
           isList: true,
           isRequired: true,
           kind: 'object',
@@ -267,25 +259,22 @@ describe('pgfy', () => {
       name: 'Model2',
       fieldMap: {
         id: setOutputFieldMethods({
-          isId: true,
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: 'String',
+          type: PGGraphQLID,
         }),
         model1: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: true,
           kind: 'object',
           type: expect.any(Function),
         }),
         model1Id: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: 'Int',
+          type: GraphQLInt,
         }),
       },
     })
@@ -293,25 +282,22 @@ describe('pgfy', () => {
       name: 'Model3',
       fieldMap: {
         id: setOutputFieldMethods({
-          isId: true,
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: 'String',
+          type: PGGraphQLID,
         }),
         model1: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: true,
           kind: 'object',
           type: expect.any(Function),
         }),
         model1Id: setOutputFieldMethods({
-          isId: false,
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: 'Int',
+          type: GraphQLInt,
         }),
       },
     })

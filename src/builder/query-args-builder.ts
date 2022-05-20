@@ -1,17 +1,24 @@
 import _ from 'lodash'
 import { PGBuilder, PGCache } from '../types/builder'
-import { PGScalar } from '../types/common'
+import { PGScalarLike } from '../types/common'
 import { PGInput, PGInputFieldMap } from '../types/input'
+import { getGraphQLScalar } from './build'
 import { createInputField, setCache } from './utils'
 
-export const queryArgsBuilder: (cache: PGCache) => PGBuilder<any>['queryArgsBuilder'] =
-  (cache) => (inputNamePrefix) => (selector) => {
+export const queryArgsBuilder: (
+  cache: PGCache,
+  scalarMap: { [name: string]: PGScalarLike },
+) => PGBuilder['queryArgsBuilder'] =
+  (cache, scalarMap) => (inputNamePrefix) => (selector) => {
     function createInputFieldMap(prefix: string, s: any): PGInputFieldMap {
       const inputFieldMap = Object.entries(s).reduce<PGInputFieldMap>(
         (acc, [key, value]) => {
           const deArrayValue = Array.isArray(value) ? value[0] : value
           if (typeof deArrayValue === 'string') {
-            acc[key] = createInputField<any>(deArrayValue as PGScalar).nullable()
+            acc[key] = createInputField<any>({
+              kind: 'scalar',
+              type: getGraphQLScalar(deArrayValue, false, scalarMap),
+            }).nullable()
           } else {
             const p = `${prefix}${_.upperFirst(key)}`
             const pgInput: PGInput<any> = {
@@ -25,7 +32,10 @@ export const queryArgsBuilder: (cache: PGCache) => PGBuilder<any>['queryArgsBuil
               },
             }
             setCache(cache, pgInput)
-            acc[key] = createInputField<any>(() => pgInput).nullable()
+            acc[key] = createInputField<any>({
+              kind: 'object',
+              type: () => pgInput,
+            }).nullable()
           }
           if (Array.isArray(value)) acc[key] = acc[key].list()
           return acc

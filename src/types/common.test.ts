@@ -7,7 +7,7 @@ import { PGSelectorType, ResolveResponse, TypeOfPGModelBase } from './common'
 
 describe('TypeOfPGModelBase', () => {
   it('Type is evaluated correctly even if it contains circular references', () => {
-    const pg = getPGBuilder()
+    const pg = getPGBuilder()()
     const user = pg.object('user', (f) => ({
       id: f.string(),
       posts: f.object(() => post).list(),

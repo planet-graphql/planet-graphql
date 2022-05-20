@@ -4,7 +4,7 @@ import { PGEnum } from '../types/common'
 
 describe('enum', () => {
   it('Creates an Enum & Set it to the Build Cache', () => {
-    const pg = getPGBuilder<any>()
+    const pg = getPGBuilder()()
     const result = pg.enum('UserRole', 'USER', 'MANAGER', 'ADMIN')
     const expectValue = {
       name: 'UserRole',
@@ -19,7 +19,7 @@ describe('enum', () => {
   })
 
   it('Returns an existing resource because a resource with the same name cannot be created', () => {
-    const pg = getPGBuilder<any>()
+    const pg = getPGBuilder()()
     pg.enum('SomeRole', 'A', 'B')
 
     expect(pg.enum('SomeRole', 'A', 'B', 'C')).toEqual({

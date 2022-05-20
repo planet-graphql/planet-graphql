@@ -1,21 +1,20 @@
 import { AbilityBuilder, subject } from '@casl/ability'
 import { PrismaAbility } from '@casl/prisma'
-import { Decimal, DMMF } from '@prisma/client/runtime'
 import { withFilter } from 'graphql-subscriptions'
 import _ from 'lodash'
-import { ContextCache, PGCache, PGRootFieldConfig } from '../types/builder'
+import { ContextCache, PGCache, PGRootFieldConfig, PGTypes } from '../types/builder'
 import {
-  FieldBuilderArgsType,
   PGEnum,
-  PGFieldType,
+  PGFieldKindAndType,
   PGModel,
+  PGScalarLike,
   TypeOfPGFieldMap,
 } from '../types/common'
-import { InputFieldBuilder, PGInput, PGInputField } from '../types/input'
+import { PGInput, PGInputField, PGInputFieldBuilder } from '../types/input'
 import {
-  OutputFieldBuilder,
   PGObject,
   PGOutputField,
+  PGOutputFieldBuilder,
   PGOutputFieldMap,
 } from '../types/output'
 
@@ -94,36 +93,15 @@ export function getPrismaAbility(
   return ability
 }
 
-export function getPGFieldKind(type: FieldBuilderArgsType): DMMF.FieldKind {
-  if (typeof type === 'string') {
-    return 'scalar'
-  }
-  if (typeof type === 'object') {
-    return 'enum'
-  }
-  if (typeof type === 'function') {
-    return 'object'
-  }
-  throw new PGError('Unsupported type.', 'Error')
-}
-
-export function createOutputField<T extends PGFieldType | null>(
-  type: FieldBuilderArgsType,
-): PGOutputField<T> {
-  const field: PGOutputField<any, any> = {
+export function createOutputField<T, Types extends PGTypes>(
+  kindAndType: PGFieldKindAndType,
+  inputFieldBuilder: PGInputFieldBuilder<Types>,
+): PGOutputField<T, undefined, Types> {
+  const field: PGOutputField<any, any, Types> = {
     value: {
-      kind: getPGFieldKind(type),
+      ...kindAndType,
       isRequired: true,
       isList: false,
-      isId: type === 'ID',
-      type:
-        typeof type === 'string'
-          ? type === 'ID'
-            ? 'String'
-            : type
-          : typeof type === 'function'
-          ? type
-          : type.name,
     },
     list: () => {
       field.value.isList = true
@@ -164,23 +142,12 @@ export function createOutputField<T extends PGFieldType | null>(
   return field
 }
 
-export function createInputField<T extends PGFieldType>(
-  type: FieldBuilderArgsType,
-): PGInputField<T> {
+export function createInputField<T>(kindAndType: PGFieldKindAndType): PGInputField<T> {
   const field: PGInputField<any> = {
     value: {
-      kind: getPGFieldKind(type),
+      ...kindAndType,
       isRequired: true,
       isList: false,
-      isId: type === 'ID',
-      type:
-        typeof type === 'string'
-          ? type === 'ID'
-            ? 'String'
-            : type
-          : typeof type === 'function'
-          ? type
-          : type.name,
     },
     list: () => {
       field.value.isList = true
@@ -276,32 +243,35 @@ export function createPGObject<TFieldMap extends PGOutputFieldMap>(
   return pgObject
 }
 
-export const inputFieldBuilder: InputFieldBuilder<any> = {
-  id: () => createInputField<string>('ID'),
-  string: () => createInputField<string>('String'),
-  boolean: () => createInputField<boolean>('Boolean'),
-  int: () => createInputField<number>('Int'),
-  bigInt: () => createInputField<bigint>('BigInt'),
-  float: () => createInputField<number>('Float'),
-  dateTime: () => createInputField<Date>('DateTime'),
-  json: () => createInputField<string>('Json'),
-  byte: () => createInputField<Buffer>('Bytes'),
-  decimal: () => createInputField<Decimal>('Decimal'),
-  input: <T extends Function>(type: T) => createInputField<T>(type as any),
-  enum: <T extends PGEnum<any>>(type: T) => createInputField<T>(type),
+// TODO: test
+export function createPGInputFieldBuilder<Types extends PGTypes>(scalarMap: {
+  [name: string]: PGScalarLike
+}): PGInputFieldBuilder<Types> {
+  const scalarFieldBuilder = _.mapValues(scalarMap, (value) => () => {
+    return createInputField({ kind: 'scalar', type: value.scalar })
+  })
+  return {
+    ...(scalarFieldBuilder as any),
+    enum: (type: PGEnum<any>) => createInputField({ kind: 'enum', type }),
+    input: (type: Function) => createInputField({ kind: 'object', type }),
+  }
 }
 
-export const outputFieldBuilder: OutputFieldBuilder<any> = {
-  id: () => createOutputField<string>('ID'),
-  string: () => createOutputField<string>('String'),
-  boolean: () => createOutputField<boolean>('Boolean'),
-  int: () => createOutputField<number>('Int'),
-  bigInt: () => createOutputField<bigint>('BigInt'),
-  float: () => createOutputField<number>('Float'),
-  dateTime: () => createOutputField<Date>('DateTime'),
-  json: () => createOutputField<string>('Json'),
-  byte: () => createOutputField<Buffer>('Bytes'),
-  decimal: () => createOutputField<Decimal>('Decimal'),
-  object: <T extends Function>(type: T) => createOutputField<T>(type as any),
-  enum: <T extends PGEnum<any>>(type: T) => createOutputField<T>(type),
+// TODO: test
+export function createPGOutputFieldBuilder<Types extends PGTypes>(
+  scalarMap: {
+    [name: string]: PGScalarLike
+  },
+  inputFieldBuilder: PGInputFieldBuilder<Types>,
+): PGOutputFieldBuilder<Types> {
+  const scalarFieldBuilder = _.mapValues(scalarMap, (value) => () => {
+    return createOutputField({ kind: 'scalar', type: value.scalar }, inputFieldBuilder)
+  })
+  return {
+    ...(scalarFieldBuilder as any),
+    enum: (type: PGEnum<any>) =>
+      createOutputField({ kind: 'enum', type }, inputFieldBuilder),
+    object: (type: Function) =>
+      createOutputField({ kind: 'object', type }, inputFieldBuilder),
+  }
 }

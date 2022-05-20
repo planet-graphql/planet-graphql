@@ -1,10 +1,11 @@
+import { GraphQLInt, GraphQLString } from 'graphql'
 import { z } from 'zod'
 import { getPGBuilder } from '..'
 import { setInputFieldMethods } from './test-utils'
 
 describe('relayArgs', () => {
   it('Returns an InputFieldMap required for Relay', () => {
-    const pg = getPGBuilder<any>()
+    const pg = getPGBuilder()()
     const args = pg.relayArgs()
 
     expect(args).toEqual({
@@ -12,36 +13,32 @@ describe('relayArgs', () => {
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        isId: false,
-        type: 'Int',
+        type: GraphQLInt,
       }),
       after: setInputFieldMethods({
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        isId: false,
-        type: 'String',
+        type: GraphQLString,
       }),
       last: setInputFieldMethods({
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        isId: false,
-        type: 'Int',
+        type: GraphQLInt,
       }),
       before: setInputFieldMethods({
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        isId: false,
-        type: 'String',
+        type: GraphQLString,
       }),
     })
   })
 
   describe('Options are specified', () => {
     it('Returns an InputFieldMap configured with default and validation', () => {
-      const pg = getPGBuilder<any>()
+      const pg = getPGBuilder()()
       const args = pg.relayArgs({
         default: 10,
         max: 1000,
@@ -52,8 +49,7 @@ describe('relayArgs', () => {
           kind: 'scalar',
           isRequired: false,
           isList: false,
-          isId: false,
-          type: 'Int',
+          type: GraphQLInt,
           default: 10,
           validatorBuilder: expect.any(Function),
         }),
@@ -61,15 +57,13 @@ describe('relayArgs', () => {
           kind: 'scalar',
           isRequired: false,
           isList: false,
-          isId: false,
-          type: 'String',
+          type: GraphQLString,
         }),
         last: setInputFieldMethods({
           kind: 'scalar',
           isRequired: false,
           isList: false,
-          isId: false,
-          type: 'Int',
+          type: GraphQLInt,
           default: 10,
           validatorBuilder: expect.any(Function),
         }),
@@ -77,8 +71,7 @@ describe('relayArgs', () => {
           kind: 'scalar',
           isRequired: false,
           isList: false,
-          isId: false,
-          type: 'String',
+          type: GraphQLString,
         }),
       })
 

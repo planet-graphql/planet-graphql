@@ -12,40 +12,64 @@ import { relayArgs } from './builder/relay-args'
 import { relayConnection } from './builder/relay-connection'
 import { resolver } from './builder/resolver'
 import { rootFieldBuilder } from './builder/root-field'
-import { PGBuilder, PGCache } from './types/builder'
+import { createPGInputFieldBuilder, createPGOutputFieldBuilder } from './builder/utils'
+import { DefaultScalars } from './lib/scalars'
+import {
+  InitPGBuilder,
+  PGBuilder,
+  PGCache,
+  PGConfig,
+  PGTypeConfig,
+  PGTypes,
+} from './types/builder'
 
 export * from './lib/generated'
 
-export function getPGBuilder<TContext>(): PGBuilder<TContext> {
-  const cache: PGCache = {
-    model: {},
-    object: {},
-    input: {},
-    enum: {},
-    query: {},
-    mutation: {},
-    subscription: {},
-  }
+export const getPGBuilder: InitPGBuilder =
+  <TypeConfig extends PGTypeConfig = PGTypeConfig>() =>
+  <Config extends PGConfig>(config?: Config) => {
+    type Types = PGTypes<TypeConfig, Config>
 
-  const builder: PGBuilder<TContext> = {
-    object: object(cache),
-    objectFromModel: objectFromModel(cache),
-    enum: createEnum(cache),
-    input: input(cache),
-    inputFromModel: inputFromModel(cache),
-    resolver: resolver(cache),
-    query: rootFieldBuilder(cache, 'query'),
-    mutation: rootFieldBuilder(cache, 'mutation'),
-    subscription: rootFieldBuilder(cache, 'subscription'),
-    build: build(cache),
-    pgfy: pgfy(cache),
-    queryArgsBuilder: queryArgsBuilder(cache),
-    prismaFindArgs: prismaFindArgs(cache),
-    dataloader,
-    relayConnection: relayConnection(cache),
-    relayArgs,
-    cache: () => cache,
-  }
+    const scalarMap = {
+      ...DefaultScalars,
+      ...config?.scalars,
+    }
 
-  return builder
-}
+    const inputFieldBuilder = createPGInputFieldBuilder<Types>(scalarMap)
+    const outputFieldBuilder = createPGOutputFieldBuilder<Types>(
+      scalarMap,
+      inputFieldBuilder,
+    )
+
+    const cache: PGCache = {
+      model: {},
+      object: {},
+      input: {},
+      enum: {},
+      query: {},
+      mutation: {},
+      subscription: {},
+    }
+
+    const builder: PGBuilder<Types> = {
+      object: object(cache, outputFieldBuilder),
+      objectFromModel: objectFromModel(cache, outputFieldBuilder),
+      enum: createEnum(cache),
+      input: input(cache, inputFieldBuilder),
+      inputFromModel: inputFromModel(cache, inputFieldBuilder),
+      resolver: resolver(cache),
+      query: rootFieldBuilder(cache, outputFieldBuilder, 'query'),
+      mutation: rootFieldBuilder(cache, outputFieldBuilder, 'mutation'),
+      subscription: rootFieldBuilder(cache, outputFieldBuilder, 'subscription'),
+      build: build(cache),
+      pgfy: pgfy(cache, inputFieldBuilder, scalarMap),
+      queryArgsBuilder: queryArgsBuilder(cache, scalarMap),
+      prismaFindArgs: prismaFindArgs(cache),
+      dataloader,
+      relayConnection: relayConnection(cache, outputFieldBuilder),
+      relayArgs: relayArgs(),
+      cache: () => cache,
+    }
+
+    return builder
+  }

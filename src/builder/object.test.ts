@@ -1,7 +1,16 @@
 import { Decimal } from '@prisma/client/runtime'
+import { GraphQLString, GraphQLBoolean, GraphQLInt, GraphQLFloat } from 'graphql'
+import {
+  GraphQLBigInt,
+  GraphQLByte,
+  GraphQLDateTime,
+  GraphQLJSONObject,
+} from 'graphql-scalars'
 import { expectType } from 'tsd'
 import { getPGBuilder } from '..'
-import { InputFieldBuilder, PGInputField } from '../types/input'
+import { PGGraphQLDecimal } from '../lib/pg-decimal-scalar'
+import { PGGraphQLID } from '../lib/pg-id-scalar'
+import { PGInputField } from '../types/input'
 import { PGObject, PGOutputField } from '../types/output'
 import {
   setInputFieldMethods,
@@ -11,7 +20,7 @@ import {
 
 describe('object', () => {
   it('Creates a new PGObject & Set it to the Build Cache', () => {
-    const pg = getPGBuilder<any>()
+    const pg = getPGBuilder()()
     const userRole = pg.enum('UserRole', 'USER', 'MANAGER', 'ADMIN')
 
     const post = pg.object('Post', (f) => ({
@@ -20,24 +29,19 @@ describe('object', () => {
       ref: f.object(() => someObject),
     }))
 
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    const someArgsBuilder = (f: InputFieldBuilder<any>) => ({
-      arg: f.string(),
-    })
-
     const someObject = pg.object('SomeObject', (f) => ({
-      someID: f.id().args(someArgsBuilder),
-      someString: f.string().args(someArgsBuilder),
-      someBoolean: f.boolean().args(someArgsBuilder),
-      someInt: f.int().args(someArgsBuilder),
-      someBigInt: f.bigInt().args(someArgsBuilder),
-      someFloat: f.float().args(someArgsBuilder),
-      someDateTime: f.dateTime().args(someArgsBuilder),
-      someJson: f.json().args(someArgsBuilder),
-      someByte: f.byte().args(someArgsBuilder),
-      someDecimal: f.decimal().args(someArgsBuilder),
-      someObject: f.object(() => post).args(someArgsBuilder),
-      someEnum: f.enum(userRole).args(someArgsBuilder),
+      someID: f.id().args((f) => ({ arg: f.string() })),
+      someString: f.string().args((f) => ({ arg: f.string() })),
+      someBoolean: f.boolean().args((f) => ({ arg: f.string() })),
+      someInt: f.int().args((f) => ({ arg: f.string() })),
+      someBigInt: f.bigInt().args((f) => ({ arg: f.string() })),
+      someFloat: f.float().args((f) => ({ arg: f.string() })),
+      someDateTime: f.dateTime().args((f) => ({ arg: f.string() })),
+      someJson: f.json().args((f) => ({ arg: f.string() })),
+      someByte: f.bytes().args((f) => ({ arg: f.string() })),
+      someDecimal: f.decimal().args((f) => ({ arg: f.string() })),
+      someObject: f.object(() => post).args((f) => ({ arg: f.string() })),
+      someEnum: f.enum(userRole).args((f) => ({ arg: f.string() })),
       someScalarList: f.string().list(),
       someNullableScalar: f.string().nullable(),
       someNullableScalarList: f.string().list().nullable(),
@@ -57,8 +61,7 @@ describe('object', () => {
         kind: 'scalar',
         isRequired: true,
         isList: false,
-        isId: false,
-        type: 'String',
+        type: GraphQLString,
       }),
     }
 
@@ -69,87 +72,76 @@ describe('object', () => {
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: true,
-          type: 'String',
+          type: PGGraphQLID,
           args: expectSomeArgs,
         }),
         someString: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: false,
-          type: 'String',
+          type: GraphQLString,
           args: expectSomeArgs,
         }),
         someBoolean: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: false,
-          type: 'Boolean',
+          type: GraphQLBoolean,
           args: expectSomeArgs,
         }),
         someInt: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: false,
-          type: 'Int',
+          type: GraphQLInt,
           args: expectSomeArgs,
         }),
         someBigInt: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: false,
-          type: 'BigInt',
+          type: GraphQLBigInt,
           args: expectSomeArgs,
         }),
         someFloat: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: false,
-          type: 'Float',
+          type: GraphQLFloat,
           args: expectSomeArgs,
         }),
         someDateTime: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: false,
-          type: 'DateTime',
+          type: GraphQLDateTime,
           args: expectSomeArgs,
         }),
         someJson: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: false,
-          type: 'Json',
+          type: GraphQLJSONObject,
           args: expectSomeArgs,
         }),
         someByte: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: false,
-          type: 'Bytes',
+          type: GraphQLByte,
           args: expectSomeArgs,
         }),
         someDecimal: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: false,
-          type: 'Decimal',
+          type: PGGraphQLDecimal,
           args: expectSomeArgs,
         }),
         someObject: setOutputFieldMethods({
           kind: 'object',
           isRequired: true,
           isList: false,
-          isId: false,
           type: expect.any(Function),
           args: expectSomeArgs,
         }),
@@ -157,71 +149,61 @@ describe('object', () => {
           kind: 'enum',
           isRequired: true,
           isList: false,
-          isId: false,
-          type: 'UserRole',
+          type: userRole,
           args: expectSomeArgs,
         }),
         someScalarList: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: true,
-          isId: false,
-          type: 'String',
+          type: GraphQLString,
         }),
         someNullableScalar: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: false,
           isList: false,
-          isId: false,
-          type: 'String',
+          type: GraphQLString,
         }),
         someNullableScalarList: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: false,
           isList: true,
-          isId: false,
-          type: 'String',
+          type: GraphQLString,
         }),
         someEnumList: setOutputFieldMethods({
           kind: 'enum',
           isRequired: true,
           isList: true,
-          isId: false,
-          type: 'UserRole',
+          type: userRole,
         }),
         someNullableEnum: setOutputFieldMethods({
           kind: 'enum',
           isRequired: false,
           isList: false,
-          isId: false,
-          type: 'UserRole',
+          type: userRole,
         }),
         someNullableEnumList: setOutputFieldMethods({
           kind: 'enum',
           isRequired: false,
           isList: true,
-          isId: false,
-          type: 'UserRole',
+          type: userRole,
         }),
         someObjectList: setOutputFieldMethods({
           kind: 'object',
           isRequired: true,
           isList: true,
-          isId: false,
           type: expect.any(Function),
         }),
         someNullableObject: setOutputFieldMethods({
           kind: 'object',
           isRequired: false,
           isList: false,
-          isId: false,
           type: expect.any(Function),
         }),
         someNullableObjectList: setOutputFieldMethods({
           kind: 'object',
           isRequired: false,
           isList: true,
-          isId: false,
           type: expect.any(Function),
         }),
       },
@@ -259,7 +241,7 @@ describe('object', () => {
   })
 
   it('Returns an existing resource because a resource with the same name cannot be created', () => {
-    const pg = getPGBuilder<any>()
+    const pg = getPGBuilder()()
     pg.object('SomeObject', (f) => ({
       id: f.id(),
     }))
@@ -276,8 +258,7 @@ describe('object', () => {
             kind: 'scalar',
             isRequired: true,
             isList: false,
-            isId: true,
-            type: 'String',
+            type: PGGraphQLID,
           }),
         },
       }),

@@ -1,5 +1,7 @@
+import { GraphQLFloat, GraphQLInt } from 'graphql'
 import { expectType } from 'tsd'
 import { getPGBuilder } from '..'
+import { PGGraphQLID } from '../lib/pg-id-scalar'
 import { PGField, PGModel } from '../types/common'
 import { PGInput, PGInputField } from '../types/input'
 import { setInputFieldMethods } from './test-utils'
@@ -15,8 +17,7 @@ describe('inputFromModel', () => {
             kind: 'scalar',
             isRequired: true,
             isList: false,
-            isId: true,
-            type: 'String',
+            type: PGGraphQLID,
           },
         } as any,
         age: {
@@ -24,8 +25,7 @@ describe('inputFromModel', () => {
             kind: 'scalar',
             isRequired: true,
             isList: false,
-            isId: false,
-            type: 'Int',
+            type: GraphQLInt,
           },
         } as any,
       },
@@ -34,13 +34,15 @@ describe('inputFromModel', () => {
     }
   })
   it('Creates a new PGInput & Set it to the Build Cache', () => {
-    const pg = getPGBuilder<any>()
+    const pg = getPGBuilder()()
 
-    const post = pg.input('Post', (f) => ({
-      id: f.id(),
-      title: f.string(),
-      ref: f.input(() => someInput),
-    }))
+    const post = pg.input('Post', (f) => {
+      return {
+        id: f.id(),
+        title: f.string(),
+        ref: f.input(() => someInput),
+      }
+    })
 
     const someInput = pg.inputFromModel('CreateUser', user, (keep, f) => ({
       id: keep.id,
@@ -55,21 +57,18 @@ describe('inputFromModel', () => {
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: true,
-          type: 'String',
+          type: PGGraphQLID,
         }),
         age: setInputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: false,
-          type: 'Float',
+          type: GraphQLFloat,
         }),
         post: setInputFieldMethods({
           kind: 'object',
           isRequired: true,
           isList: false,
-          isId: false,
           type: expect.any(Function),
         }),
       },
@@ -91,7 +90,7 @@ describe('inputFromModel', () => {
   })
 
   it('Returns an existing resource because a resource with the same name cannot be created', () => {
-    const pg = getPGBuilder<any>()
+    const pg = getPGBuilder()()
     pg.inputFromModel('CreateUser', user, (keep, f) => ({
       id: keep.id,
     }))
@@ -107,8 +106,7 @@ describe('inputFromModel', () => {
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          isId: true,
-          type: 'String',
+          type: PGGraphQLID,
         }),
       },
       kind: 'input',
