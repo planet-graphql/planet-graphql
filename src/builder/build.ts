@@ -14,30 +14,20 @@ import {
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLResolveInfo,
-  GraphQLScalarType,
   GraphQLSchema,
 } from 'graphql'
 import _ from 'lodash'
-import { z as Zod } from 'zod'
+import { z } from 'zod'
 import { parseResolveInfo, ResolveTree } from '../lib/graphql-parse-resolve-info'
-import { PGGraphQLID } from '../lib/pg-id-scalar'
 import { GetGraphqlTypeRefFn, PGBuilder, PGCache, PGTypes } from '../types/builder'
-import { PGEnum, PGField, PGScalarLike } from '../types/common'
+import { PGEnum, PGField } from '../types/common'
 import { PGInput, PGInputField, PGInputFieldMap } from '../types/input'
 import { PGObject, PGOutputField, PGOutputFieldMap } from '../types/output'
 import { getCtxCache, PGError } from './utils'
 
-export function getGraphQLScalar(
-  type: string,
-  isId: boolean,
-  scalarMap: { [name: string]: PGScalarLike },
-): GraphQLScalarType {
-  if (isId) return PGGraphQLID
-  const scalarConfig = scalarMap[_.lowerFirst(type)]
-  if (scalarConfig === undefined) {
-    throw new PGError(`Unsupported type: ${type}`, 'BuildError')
-  }
-  return scalarConfig.scalar
+export function getScalarTypeName(prismaTypeName: string, isPrismaId: boolean): string {
+  if (isPrismaId) return 'id'
+  return _.lowerFirst(prismaTypeName)
 }
 
 function getInputFieldDefaultValue(field: PGField<any>): any {
@@ -116,23 +106,14 @@ function getGraphQLFieldConfigOnlyType<
   let type
   switch (field.value.kind) {
     case 'enum': {
-      if (typeof field.value.type === 'function') {
-        throw new TypeError('Unexpected type with enum.')
-      }
       type = enums[field.value.type.name]
       break
     }
     case 'scalar': {
-      if (typeof field.value.type === 'function') {
-        throw new TypeError('Unexpected type with scalar.')
-      }
-      type = field.value.type
+      type = cache.scalar[field.value.type].scalar
       break
     }
     case 'object': {
-      if (typeof field.value.type === 'string') {
-        throw new TypeError('Unexpected type with object.')
-      }
       const pgInputOrPgOutput = field.value.type()
       if ('default' in field) {
         // NOTE:
@@ -190,7 +171,7 @@ async function argsValidationChecker(
 ): Promise<void> {
   type ValidateError = {
     path: string
-    issues: Zod.ZodIssue[]
+    issues?: z.ZodIssue[]
   }
 
   async function validateArgsCore(
@@ -206,7 +187,11 @@ async function argsValidationChecker(
         const field = fieldMap[fieldName]
 
         // NOTE: PGInputField validation
-        const validator = field.value.validatorBuilder?.(Zod, ctx)
+        const schemaBuilder =
+          field.value.kind === 'scalar'
+            ? cache.scalar[field.value.type].schema
+            : () => z.any()
+        const validator = field.value.validatorBuilder?.(schemaBuilder() as z.ZodAny, ctx)
         const parsed = validator?.safeParse(argValue)
         if (parsed?.success === false) {
           e.push({
@@ -219,15 +204,13 @@ async function argsValidationChecker(
         // TODO: Fixed to consider null
         if (typeof field?.value.type === 'function' && argValue !== null) {
           const pgInput = field.value.type() as PGInput<any>
-          const validator = pgInput.value.validatorBuilder?.(Zod, ctx)
           const listedArgValue = Array.isArray(argValue) ? argValue : [argValue]
           for (const value of listedArgValue) {
-            const parsed = await validator?.safeParseAsync(value)
+            const result = await pgInput.value.validatorBuilder?.(value, ctx)
 
-            if (parsed?.success === false) {
+            if (result === false) {
               e.push({
                 path: `${pathPrefix}.${fieldName}`,
-                issues: parsed.error.issues,
               })
             }
 

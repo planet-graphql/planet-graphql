@@ -1,7 +1,5 @@
-import { GraphQLFloat, GraphQLInt } from 'graphql'
 import { expectType } from 'tsd'
 import { getPGBuilder } from '..'
-import { PGGraphQLID } from '../lib/pg-id-scalar'
 import { PGCache } from '../types/builder'
 import { PGField, PGModel } from '../types/common'
 import { PGObject, PGOutputField } from '../types/output'
@@ -20,7 +18,7 @@ describe('objectFromModel', () => {
             kind: 'scalar',
             isRequired: true,
             isList: false,
-            type: PGGraphQLID,
+            type: 'id',
           },
           args: () => {},
           list: () => {},
@@ -34,7 +32,7 @@ describe('objectFromModel', () => {
             kind: 'scalar',
             isRequired: true,
             isList: false,
-            type: GraphQLInt,
+            type: 'int',
           },
           args: () => {},
           list: () => {},
@@ -76,13 +74,13 @@ describe('objectFromModel', () => {
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: PGGraphQLID,
+          type: 'id',
         }),
         age: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLFloat,
+          type: 'float',
         }),
         post: setOutputFieldMethods({
           kind: 'object',

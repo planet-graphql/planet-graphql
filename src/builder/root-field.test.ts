@@ -1,4 +1,4 @@
-import { ExecutionResult, GraphQLString, parse, subscribe } from 'graphql'
+import { ExecutionResult, parse, subscribe } from 'graphql'
 import { PubSub } from 'graphql-subscriptions'
 import { getPGBuilder } from '..'
 import { setInputFieldMethods, setOutputFieldMethods } from './test-utils'
@@ -43,7 +43,7 @@ describe('rootFieldBuilder', () => {
             kind: 'scalar',
             isRequired: true,
             isList: false,
-            type: GraphQLString,
+            type: 'string',
           }),
           profile: setInputFieldMethods({
             kind: 'object',
@@ -72,7 +72,7 @@ describe('rootFieldBuilder', () => {
         kind: 'scalar',
         isRequired: true,
         isList: false,
-        type: GraphQLString,
+        type: 'string',
         resolve: expect.any(Function),
       }),
       kind: 'query',
@@ -147,7 +147,7 @@ describe('rootFieldBuilder', () => {
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLString,
+          type: 'string',
           resolve: expect.any(Function),
           subscribe: expect.any(Function),
         }),

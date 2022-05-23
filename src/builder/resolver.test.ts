@@ -1,7 +1,5 @@
-import { GraphQLString } from 'graphql'
 import { expectType } from 'tsd'
 import { getPGBuilder } from '..'
-import { PGGraphQLID } from '../lib/pg-id-scalar'
 import { PGObject, PGOutputField } from '../types/output'
 import { setOutputFieldMethods, setPGObjectProperties } from './test-utils'
 
@@ -37,13 +35,13 @@ describe('resolver', () => {
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: PGGraphQLID,
+          type: 'id',
         }),
         someString: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLString,
+          type: 'string',
           resolve: expect.any(Function),
         }),
         someObject: setOutputFieldMethods({

@@ -1,15 +1,6 @@
 import { Decimal } from '@prisma/client/runtime'
-import { GraphQLString, GraphQLBoolean, GraphQLInt, GraphQLFloat } from 'graphql'
-import {
-  GraphQLBigInt,
-  GraphQLByte,
-  GraphQLDateTime,
-  GraphQLJSONObject,
-} from 'graphql-scalars'
 import { expectType } from 'tsd'
 import { getPGBuilder } from '..'
-import { PGGraphQLDecimal } from '../lib/pg-decimal-scalar'
-import { PGGraphQLID } from '../lib/pg-id-scalar'
 import { PGInputField } from '../types/input'
 import { PGObject, PGOutputField } from '../types/output'
 import {
@@ -61,7 +52,7 @@ describe('object', () => {
         kind: 'scalar',
         isRequired: true,
         isList: false,
-        type: GraphQLString,
+        type: 'string',
       }),
     }
 
@@ -72,70 +63,70 @@ describe('object', () => {
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: PGGraphQLID,
+          type: 'id',
           args: expectSomeArgs,
         }),
         someString: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLString,
+          type: 'string',
           args: expectSomeArgs,
         }),
         someBoolean: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLBoolean,
+          type: 'boolean',
           args: expectSomeArgs,
         }),
         someInt: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLInt,
+          type: 'int',
           args: expectSomeArgs,
         }),
         someBigInt: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLBigInt,
+          type: 'bigInt',
           args: expectSomeArgs,
         }),
         someFloat: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLFloat,
+          type: 'float',
           args: expectSomeArgs,
         }),
         someDateTime: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLDateTime,
+          type: 'dateTime',
           args: expectSomeArgs,
         }),
         someJson: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLJSONObject,
+          type: 'json',
           args: expectSomeArgs,
         }),
         someByte: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLByte,
+          type: 'bytes',
           args: expectSomeArgs,
         }),
         someDecimal: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: PGGraphQLDecimal,
+          type: 'decimal',
           args: expectSomeArgs,
         }),
         someObject: setOutputFieldMethods({
@@ -156,19 +147,19 @@ describe('object', () => {
           kind: 'scalar',
           isRequired: true,
           isList: true,
-          type: GraphQLString,
+          type: 'string',
         }),
         someNullableScalar: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: false,
           isList: false,
-          type: GraphQLString,
+          type: 'string',
         }),
         someNullableScalarList: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: false,
           isList: true,
-          type: GraphQLString,
+          type: 'string',
         }),
         someEnumList: setOutputFieldMethods({
           kind: 'enum',
@@ -258,7 +249,7 @@ describe('object', () => {
             kind: 'scalar',
             isRequired: true,
             isList: false,
-            type: PGGraphQLID,
+            type: 'id',
           }),
         },
       }),

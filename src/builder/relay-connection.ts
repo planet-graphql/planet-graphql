@@ -1,6 +1,5 @@
 import { GraphQLResolveInfo } from 'graphql'
 import { ResolveTree, FieldsByTypeName } from '../lib/graphql-parse-resolve-info'
-import { PGGraphQLID } from '../lib/pg-id-scalar'
 import { PGBuilder, PGCache, PGTypes } from '../types/builder'
 import { PGOutputFieldBuilder, PGOutputFieldMap } from '../types/output'
 import { object } from './object'
@@ -13,8 +12,7 @@ export const relayConnection: <Types extends PGTypes>(
   (cache, outputFieldBuilder) => (pgObject, options) => {
     function getDefaultCursor(fieldMap: PGOutputFieldMap): (node: any) => any {
       const idFieldEntry = Object.entries(fieldMap).find(
-        ([_name, field]) =>
-          field.value.kind === 'scalar' && field.value.type.name === PGGraphQLID.name,
+        ([_name, field]) => field.value.kind === 'scalar' && field.value.type === 'id',
       )
       if (idFieldEntry === undefined) {
         throw new PGError('ID field does not exists.', 'Error')

@@ -1,7 +1,5 @@
-import { GraphQLFloat, GraphQLInt } from 'graphql'
 import { expectType } from 'tsd'
 import { getPGBuilder } from '..'
-import { PGGraphQLID } from '../lib/pg-id-scalar'
 import { PGField, PGModel } from '../types/common'
 import { PGInput, PGInputField } from '../types/input'
 import { setInputFieldMethods } from './test-utils'
@@ -17,7 +15,7 @@ describe('inputFromModel', () => {
             kind: 'scalar',
             isRequired: true,
             isList: false,
-            type: PGGraphQLID,
+            type: 'id',
           },
         } as any,
         age: {
@@ -25,7 +23,7 @@ describe('inputFromModel', () => {
             kind: 'scalar',
             isRequired: true,
             isList: false,
-            type: GraphQLInt,
+            type: 'int',
           },
         } as any,
       },
@@ -57,13 +55,13 @@ describe('inputFromModel', () => {
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: PGGraphQLID,
+          type: 'id',
         }),
         age: setInputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLFloat,
+          type: 'float',
         }),
         post: setInputFieldMethods({
           kind: 'object',
@@ -106,7 +104,7 @@ describe('inputFromModel', () => {
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: PGGraphQLID,
+          type: 'id',
         }),
       },
       kind: 'input',

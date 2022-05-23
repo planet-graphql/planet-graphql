@@ -1,15 +1,6 @@
 import { Decimal } from '@prisma/client/runtime'
-import { GraphQLString, GraphQLBoolean, GraphQLInt, GraphQLFloat } from 'graphql'
-import {
-  GraphQLBigInt,
-  GraphQLByte,
-  GraphQLDateTime,
-  GraphQLJSONObject,
-} from 'graphql-scalars'
 import { expectType } from 'tsd'
 import { getPGBuilder } from '..'
-import { PGGraphQLDecimal } from '../lib/pg-decimal-scalar'
-import { PGGraphQLID } from '../lib/pg-id-scalar'
 import { PGInput, PGInputField } from '../types/input'
 import { setInputFieldMethods } from './test-utils'
 
@@ -92,106 +83,106 @@ describe('input', () => {
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: PGGraphQLID,
+          type: 'id',
         }),
         someString: setInputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLString,
+          type: 'string',
         }),
         someBoolean: setInputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLBoolean,
+          type: 'boolean',
         }),
         someInt: setInputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLInt,
+          type: 'int',
         }),
         someBigInt: setInputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLBigInt,
+          type: 'bigInt',
         }),
         someFloat: setInputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLFloat,
+          type: 'float',
         }),
         someDateTime: setInputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLDateTime,
+          type: 'dateTime',
         }),
         someJson: setInputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLJSONObject,
+          type: 'json',
         }),
         someByte: setInputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLByte,
+          type: 'bytes',
         }),
         someDecimal: setInputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: PGGraphQLDecimal,
+          type: 'decimal',
         }),
         someScalarList: setInputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: true,
-          type: GraphQLString,
+          type: 'string',
         }),
         someNullableScalar: setInputFieldMethods({
           kind: 'scalar',
           isRequired: false,
           isList: false,
-          type: GraphQLString,
+          type: 'string',
         }),
         someNullableScalarList: setInputFieldMethods({
           kind: 'scalar',
           isRequired: false,
           isList: true,
-          type: GraphQLString,
+          type: 'string',
         }),
         someNullableScalarDefault: setInputFieldMethods({
           kind: 'scalar',
           isRequired: false,
           isList: false,
-          type: GraphQLString,
+          type: 'string',
           default: null,
         }),
         someNullableScalarListDefault: setInputFieldMethods({
           kind: 'scalar',
           isRequired: false,
           isList: true,
-          type: GraphQLString,
+          type: 'string',
           default: null,
         }),
         someScalarDefault: setInputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: GraphQLString,
+          type: 'string',
           default: '',
         }),
         someScalarListDefault: setInputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: true,
-          type: GraphQLString,
+          type: 'string',
           default: [''],
         }),
         someEnum: setInputFieldMethods({
@@ -359,7 +350,7 @@ describe('input', () => {
           kind: 'scalar',
           isRequired: true,
           isList: false,
-          type: PGGraphQLID,
+          type: 'id',
         }),
       },
       kind: 'input',
