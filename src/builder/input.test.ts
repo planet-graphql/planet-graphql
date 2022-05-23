@@ -1,283 +1,247 @@
 import { Decimal } from '@prisma/client/runtime'
 import { expectType } from 'tsd'
+import { JsonValue } from 'type-fest'
 import { getPGBuilder } from '..'
 import { PGInput, PGInputField } from '../types/input'
-import { setInputFieldMethods } from './test-utils'
+import { mergeDefaultInputField } from './test-utils'
 
 describe('input', () => {
   it('Creates a new PGInput & Set it to the Build Cache', () => {
     const pg = getPGBuilder()()
-    const someEnum = pg.enum('SomeEnum', 'VALUE1', 'VALUE2', 'VALUE3')
+    const anEnum = pg.enum('enum', 'VALUE1', 'VALUE2', 'VALUE3')
 
-    const inner = pg.input('SomeInnerInput', (f) => ({
+    const inner = pg.input('InnerInput', (f) => ({
       id: f.id(),
     }))
 
-    const someInput = pg.input('SomeInput', (f) => ({
-      someID: f.id(),
-      someString: f.string(),
-      someBoolean: f.boolean(),
-      someInt: f.int(),
-      someBigInt: f.bigInt(),
-      someFloat: f.float(),
-      someDateTime: f.dateTime(),
-      someJson: f.json(),
-      someByte: f.bytes(),
-      someDecimal: f.decimal(),
-      someScalarList: f.string().list(),
-      someNullableScalar: f.string().nullable(),
-      someNullableScalarList: f.string().list().nullable(),
-      someScalarDefault: f.string().default(''),
-      someScalarListDefault: f.string().list().default(['']),
-      someNullableScalarDefault: f.string().nullable().default('').default(null),
-      someNullableScalarListDefault: f
-        .string()
+    const input = pg.input('Input', (f) => ({
+      id: f.id(),
+      string: f.string(),
+      boolean: f.boolean(),
+      int: f.int(),
+      bigInt: f.bigInt(),
+      float: f.float(),
+      dateTime: f.dateTime(),
+      json: f.json(),
+      byte: f.bytes(),
+      decimal: f.decimal(),
+      scalarList: f.string().list(),
+      nullableScalar: f.string().nullish(),
+      nullableScalarList: f.string().list().nullish(),
+      scalarDefault: f.string().default(''),
+      scalarListDefault: f.string().list().default(['']),
+      nullableScalarDefault: f.string().nullish().default('').default(null),
+      nullableScalarListDefault: f.string().list().nullish().default(['']).default(null),
+      enum: f.enum(anEnum),
+      enumList: f.enum(anEnum).list(),
+      nullableEnum: f.enum(anEnum).nullish(),
+      nullableEnumList: f.enum(anEnum).list().nullish(),
+      enumDefault: f.enum(anEnum).default('VALUE3'),
+      enumListDefault: f.enum(anEnum).list().default(['VALUE3']),
+      nullableEnumDefault: f.enum(anEnum).nullish().default('VALUE3').default(null),
+      nullableEnumListDefault: f
+        .enum(anEnum)
         .list()
-        .nullable()
-        .default([''])
-        .default(null),
-      someEnum: f.enum(someEnum),
-      someEnumList: f.enum(someEnum).list(),
-      someNullableEnum: f.enum(someEnum).nullable(),
-      someNullableEnumList: f.enum(someEnum).list().nullable(),
-      someEnumDefault: f.enum(someEnum).default('VALUE3'),
-      someEnumListDefault: f.enum(someEnum).list().default(['VALUE3']),
-      someNullableEnumDefault: f
-        .enum(someEnum)
-        .nullable()
-        .default('VALUE3')
-        .default(null),
-      someNullableEnumListDefault: f
-        .enum(someEnum)
-        .list()
-        .nullable()
+        .nullish()
         .default(['VALUE3'])
         .default(null),
-      someObject: f.input(() => inner),
-      someObjectList: f.input(() => inner).list(),
-      someNullableObject: f.input(() => inner).nullable(),
-      someNullableObjectList: f
+      object: f.input(() => inner),
+      objectList: f.input(() => inner).list(),
+      nullableObject: f.input(() => inner).nullish(),
+      nullableObjectList: f
         .input(() => inner)
-        .nullable()
+        .nullish()
         .list(),
-      someObjectListDefault: f
+      objectListDefault: f
         .input(() => inner)
         .list()
         .default([]),
-      someNullableObjectDefault: f
+      nullableObjectDefault: f
         .input(() => inner)
-        .nullable()
+        .nullish()
         .default(null),
-      someNullableObjectListDefault: f
+      nullableObjectListDefault: f
         .input(() => inner)
         .list()
-        .nullable()
+        .nullish()
         .default([])
         .default(null),
     }))
 
     const expectValue = {
-      name: 'SomeInput',
+      name: 'Input',
       fieldMap: {
-        someID: setInputFieldMethods({
+        id: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'id',
         }),
-        someString: setInputFieldMethods({
+        string: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'string',
         }),
-        someBoolean: setInputFieldMethods({
+        boolean: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'boolean',
         }),
-        someInt: setInputFieldMethods({
+        int: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'int',
         }),
-        someBigInt: setInputFieldMethods({
+        bigInt: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'bigInt',
         }),
-        someFloat: setInputFieldMethods({
+        float: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'float',
         }),
-        someDateTime: setInputFieldMethods({
+        dateTime: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'dateTime',
         }),
-        someJson: setInputFieldMethods({
+        json: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'json',
         }),
-        someByte: setInputFieldMethods({
+        byte: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'bytes',
         }),
-        someDecimal: setInputFieldMethods({
+        decimal: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'decimal',
         }),
-        someScalarList: setInputFieldMethods({
+        scalarList: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
           isList: true,
           type: 'string',
         }),
-        someNullableScalar: setInputFieldMethods({
+        nullableScalar: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: false,
-          isList: false,
+          isOptional: true,
+          isNullable: true,
           type: 'string',
         }),
-        someNullableScalarList: setInputFieldMethods({
+        nullableScalarList: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: false,
+          isOptional: true,
+          isNullable: true,
           isList: true,
           type: 'string',
         }),
-        someNullableScalarDefault: setInputFieldMethods({
+        nullableScalarDefault: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: false,
-          isList: false,
+          isOptional: true,
+          isNullable: true,
           type: 'string',
           default: null,
         }),
-        someNullableScalarListDefault: setInputFieldMethods({
+        nullableScalarListDefault: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: false,
+          isOptional: true,
+          isNullable: true,
           isList: true,
           type: 'string',
           default: null,
         }),
-        someScalarDefault: setInputFieldMethods({
+        scalarDefault: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'string',
           default: '',
         }),
-        someScalarListDefault: setInputFieldMethods({
+        scalarListDefault: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
           isList: true,
           type: 'string',
           default: [''],
         }),
-        someEnum: setInputFieldMethods({
+        enum: mergeDefaultInputField({
           kind: 'enum',
-          isRequired: true,
-          isList: false,
-          type: someEnum,
+          type: anEnum,
         }),
-        someEnumList: setInputFieldMethods({
+        enumList: mergeDefaultInputField({
           kind: 'enum',
-          isRequired: true,
           isList: true,
-          type: someEnum,
+          type: anEnum,
         }),
-        someNullableEnum: setInputFieldMethods({
+        nullableEnum: mergeDefaultInputField({
           kind: 'enum',
-          isRequired: false,
-          isList: false,
-          type: someEnum,
+          isOptional: true,
+          isNullable: true,
+          type: anEnum,
         }),
-        someNullableEnumList: setInputFieldMethods({
+        nullableEnumList: mergeDefaultInputField({
           kind: 'enum',
-          isRequired: false,
+          isOptional: true,
+          isNullable: true,
           isList: true,
-          type: someEnum,
+          type: anEnum,
         }),
-        someEnumDefault: setInputFieldMethods({
+        enumDefault: mergeDefaultInputField({
           kind: 'enum',
-          isRequired: true,
-          isList: false,
-          type: someEnum,
+          type: anEnum,
           default: 'VALUE3',
         }),
-        someEnumListDefault: setInputFieldMethods({
+        enumListDefault: mergeDefaultInputField({
           kind: 'enum',
-          isRequired: true,
           isList: true,
-          type: someEnum,
+          type: anEnum,
           default: ['VALUE3'],
         }),
-        someNullableEnumDefault: setInputFieldMethods({
+        nullableEnumDefault: mergeDefaultInputField({
           kind: 'enum',
-          isRequired: false,
-          isList: false,
-          type: someEnum,
+          isOptional: true,
+          isNullable: true,
+          type: anEnum,
           default: null,
         }),
-        someNullableEnumListDefault: setInputFieldMethods({
+        nullableEnumListDefault: mergeDefaultInputField({
           kind: 'enum',
-          isRequired: false,
+          isOptional: true,
+          isNullable: true,
           isList: true,
-          type: someEnum,
+          type: anEnum,
           default: null,
         }),
-        someObject: setInputFieldMethods({
+        object: mergeDefaultInputField({
           kind: 'object',
-          isRequired: true,
-          isList: false,
           type: expect.any(Function),
         }),
-        someObjectList: setInputFieldMethods({
+        objectList: mergeDefaultInputField({
           kind: 'object',
-          isRequired: true,
           isList: true,
           type: expect.any(Function),
         }),
-        someNullableObject: setInputFieldMethods({
+        nullableObject: mergeDefaultInputField({
           kind: 'object',
-          isRequired: false,
-          isList: false,
+          isOptional: true,
+          isNullable: true,
           type: expect.any(Function),
         }),
-        someNullableObjectList: setInputFieldMethods({
+        nullableObjectList: mergeDefaultInputField({
           kind: 'object',
-          isRequired: false,
+          isOptional: true,
+          isNullable: true,
           isList: true,
           type: expect.any(Function),
         }),
-        someObjectListDefault: setInputFieldMethods({
+        objectListDefault: mergeDefaultInputField({
           kind: 'object',
-          isRequired: true,
           isList: true,
           type: expect.any(Function),
           default: [],
         }),
-        someNullableObjectDefault: setInputFieldMethods({
+        nullableObjectDefault: mergeDefaultInputField({
           kind: 'object',
-          isRequired: false,
-          isList: false,
+          isOptional: true,
+          isNullable: true,
           type: expect.any(Function),
           default: null,
         }),
-        someNullableObjectListDefault: setInputFieldMethods({
+        nullableObjectListDefault: mergeDefaultInputField({
           kind: 'object',
-          isRequired: false,
+          isOptional: true,
+          isNullable: true,
           isList: true,
           type: expect.any(Function),
           default: null,
@@ -288,68 +252,64 @@ describe('input', () => {
       validation: expect.any(Function),
     }
 
-    expect(someInput).toEqual(expectValue)
-    expect(pg.cache().input.SomeInput).toEqual(expectValue)
+    expect(input).toEqual(expectValue)
+    expect(pg.cache().input.Input).toEqual(expectValue)
 
     expectType<
       PGInput<{
-        someID: PGInputField<string>
-        someString: PGInputField<string>
-        someBoolean: PGInputField<boolean>
-        someInt: PGInputField<number>
-        someBigInt: PGInputField<bigint>
-        someFloat: PGInputField<number>
-        someDateTime: PGInputField<Date>
-        someJson: PGInputField<string>
-        someByte: PGInputField<Buffer>
-        someDecimal: PGInputField<Decimal>
-        someScalarList: PGInputField<string[]>
-        someNullableScalar: PGInputField<string | null | undefined>
-        someNullableScalarList: PGInputField<string[] | null | undefined>
-        someNullableScalarDefault: PGInputField<string | null | undefined>
-        someNullableScalarListDefault: PGInputField<string[] | null | undefined>
-        someScalarDefault: PGInputField<string>
-        someScalarListDefault: PGInputField<string[]>
-        someEnum: PGInputField<typeof someEnum>
-        someEnumList: PGInputField<Array<typeof someEnum>>
-        someNullableEnum: PGInputField<typeof someEnum | null | undefined>
-        someNullableEnumList: PGInputField<Array<typeof someEnum> | null | undefined>
-        someEnumDefault: PGInputField<typeof someEnum>
-        someEnumListDefault: PGInputField<Array<typeof someEnum>>
-        someNullableEnumDefault: PGInputField<typeof someEnum | null | undefined>
-        someNullableEnumListDefault: PGInputField<
-          Array<typeof someEnum> | null | undefined
-        >
-        someObject: PGInputField<() => typeof inner>
-        someObjectList: PGInputField<Array<() => typeof inner>>
-        someNullableObject: PGInputField<(() => typeof inner) | null | undefined>
-        someNullableObjectList: PGInputField<Array<() => typeof inner> | null | undefined>
-        someObjectListDefault: PGInputField<Array<() => typeof inner>>
-        someNullableObjectDefault: PGInputField<(() => typeof inner) | null | undefined>
-        someNullableObjectListDefault: PGInputField<
+        id: PGInputField<string>
+        string: PGInputField<string>
+        boolean: PGInputField<boolean>
+        int: PGInputField<number>
+        bigInt: PGInputField<bigint>
+        float: PGInputField<number>
+        dateTime: PGInputField<Date>
+        json: PGInputField<JsonValue>
+        byte: PGInputField<Buffer>
+        decimal: PGInputField<Decimal>
+        scalarList: PGInputField<string[]>
+        nullableScalar: PGInputField<string | null | undefined>
+        nullableScalarList: PGInputField<string[] | null | undefined>
+        nullableScalarDefault: PGInputField<string | null | undefined>
+        nullableScalarListDefault: PGInputField<string[] | null | undefined>
+        scalarDefault: PGInputField<string>
+        scalarListDefault: PGInputField<string[]>
+        enum: PGInputField<typeof anEnum>
+        enumList: PGInputField<Array<typeof anEnum>>
+        nullableEnum: PGInputField<typeof anEnum | null | undefined>
+        nullableEnumList: PGInputField<Array<typeof anEnum> | null | undefined>
+        enumDefault: PGInputField<typeof anEnum>
+        enumListDefault: PGInputField<Array<typeof anEnum>>
+        nullableEnumDefault: PGInputField<typeof anEnum | null | undefined>
+        nullableEnumListDefault: PGInputField<Array<typeof anEnum> | null | undefined>
+        object: PGInputField<() => typeof inner>
+        objectList: PGInputField<Array<() => typeof inner>>
+        nullableObject: PGInputField<(() => typeof inner) | null | undefined>
+        nullableObjectList: PGInputField<Array<() => typeof inner> | null | undefined>
+        objectListDefault: PGInputField<Array<() => typeof inner>>
+        nullableObjectDefault: PGInputField<(() => typeof inner) | null | undefined>
+        nullableObjectListDefault: PGInputField<
           Array<() => typeof inner> | null | undefined
         >
       }>
-    >(someInput)
+    >(input)
   })
 
   it('Returns an existing resource because a resource with the same name cannot be created', () => {
     const pg = getPGBuilder()()
-    pg.input('SomeInput', (f) => ({
+    pg.input('Input', (f) => ({
       id: f.id(),
     }))
     expect(
-      pg.input('SomeInput', (f) => ({
+      pg.input('Input', (f) => ({
         id: f.id(),
         title: f.string(),
       })),
     ).toEqual({
-      name: 'SomeInput',
+      name: 'Input',
       fieldMap: {
-        id: setInputFieldMethods({
+        id: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'id',
         }),
       },

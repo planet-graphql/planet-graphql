@@ -154,13 +154,14 @@ function getGraphQLFieldConfigOnlyType<
       throw new PGError('Unexpected kind.', 'BuildError')
     }
   }
-  if (field.value.isRequired) {
+  if (!field.value.isNullable || !field.value.isOptional) {
     type = new GraphQLNonNull(type)
   }
   if (field.value.isList) {
-    type = field.value.isRequired
-      ? new GraphQLNonNull(new GraphQLList(type))
-      : new GraphQLList(type)
+    type =
+      !field.value.isNullable || !field.value.isOptional
+        ? new GraphQLNonNull(new GraphQLList(type))
+        : new GraphQLList(type)
   }
   return { type, defaultValue: getInputFieldDefaultValue(field) } as any
 }

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { getPGBuilder } from '..'
-import { setInputFieldMethods } from './test-utils'
+import { mergeDefaultInputField } from './test-utils'
 
 describe('relayArgs', () => {
   it('Returns an InputFieldMap required for Relay', () => {
@@ -8,28 +8,28 @@ describe('relayArgs', () => {
     const args = pg.relayArgs()
 
     expect(args).toEqual({
-      first: setInputFieldMethods({
+      first: mergeDefaultInputField({
         kind: 'scalar',
-        isRequired: false,
-        isList: false,
+        isOptional: true,
+        isNullable: true,
         type: 'int',
       }),
-      after: setInputFieldMethods({
+      after: mergeDefaultInputField({
         kind: 'scalar',
-        isRequired: false,
-        isList: false,
+        isOptional: true,
+        isNullable: true,
         type: 'string',
       }),
-      last: setInputFieldMethods({
+      last: mergeDefaultInputField({
         kind: 'scalar',
-        isRequired: false,
-        isList: false,
+        isOptional: true,
+        isNullable: true,
         type: 'int',
       }),
-      before: setInputFieldMethods({
+      before: mergeDefaultInputField({
         kind: 'scalar',
-        isRequired: false,
-        isList: false,
+        isOptional: true,
+        isNullable: true,
         type: 'string',
       }),
     })
@@ -44,32 +44,32 @@ describe('relayArgs', () => {
       })
 
       expect(args).toEqual({
-        first: setInputFieldMethods({
+        first: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: false,
-          isList: false,
+          isOptional: true,
+          isNullable: true,
           type: 'int',
           default: 10,
           validatorBuilder: expect.any(Function),
         }),
-        after: setInputFieldMethods({
+        after: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: false,
-          isList: false,
+          isOptional: true,
+          isNullable: true,
           type: 'string',
         }),
-        last: setInputFieldMethods({
+        last: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: false,
-          isList: false,
+          isOptional: true,
+          isNullable: true,
           type: 'int',
           default: 10,
           validatorBuilder: expect.any(Function),
         }),
-        before: setInputFieldMethods({
+        before: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: false,
-          isList: false,
+          isOptional: true,
+          isNullable: true,
           type: 'string',
         }),
       })

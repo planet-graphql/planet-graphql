@@ -14,7 +14,7 @@ export const queryArgsBuilder: (cache: PGCache) => PGBuilder['queryArgsBuilder']
             acc[key] = createInputField({
               kind: 'scalar',
               type: getScalarTypeName(deArrayValue, false),
-            }).nullable()
+            }).nullish()
           } else {
             const p = `${prefix}${_.upperFirst(key)}`
             const pgInput: PGInput<any> = {
@@ -31,7 +31,7 @@ export const queryArgsBuilder: (cache: PGCache) => PGBuilder['queryArgsBuilder']
             acc[key] = createInputField({
               kind: 'object',
               type: () => pgInput,
-            }).nullable()
+            }).nullish()
           }
           if (Array.isArray(value)) acc[key] = acc[key].list()
           return acc

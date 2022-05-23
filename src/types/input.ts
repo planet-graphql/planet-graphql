@@ -48,7 +48,9 @@ export interface PGInputField<
       context: Types['Context'],
     ) => z.ZodSchema
   }
-  nullable: () => PGInputField<T | null | undefined, TypeName, Types>
+  nullable: () => PGInputField<T | null, TypeName, Types>
+  optional: () => PGInputField<T | undefined, TypeName, Types>
+  nullish: () => PGInputField<T | null | undefined, TypeName, Types>
   list: () => PGInputField<
     T extends null | undefined ? null | undefined : T[],
     TypeName,

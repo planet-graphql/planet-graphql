@@ -100,7 +100,8 @@ export function createOutputField<T, Types extends PGTypes>(
   const field: PGOutputField<any, any, Types> = {
     value: {
       ...kindAndType,
-      isRequired: true,
+      isOptional: false,
+      isNullable: false,
       isList: false,
     },
     list: () => {
@@ -108,7 +109,8 @@ export function createOutputField<T, Types extends PGTypes>(
       return field
     },
     nullable: () => {
-      field.value.isRequired = false
+      field.value.isOptional = true
+      field.value.isNullable = true
       return field
     },
     args: (x) => {
@@ -148,7 +150,8 @@ export function createInputField<T, TypeName extends string>(
   const field: PGInputField<any> = {
     value: {
       ...kindAndType,
-      isRequired: true,
+      isOptional: false,
+      isNullable: false,
       isList: false,
     },
     list: () => {
@@ -156,7 +159,16 @@ export function createInputField<T, TypeName extends string>(
       return field
     },
     nullable: () => {
-      field.value.isRequired = false
+      field.value.isNullable = true
+      return field
+    },
+    optional: () => {
+      field.value.isOptional = true
+      return field
+    },
+    nullish: () => {
+      field.value.isOptional = true
+      field.value.isNullable = true
       return field
     },
     default: (value: any) => {
@@ -201,7 +213,10 @@ export function createPGObject<TFieldMap extends PGOutputFieldMap>(
         return Object.entries(listedValueElement).reduce<{ [key: string]: any }>(
           (acc, [key, fieldValue]) => {
             if (!ability.can(action, subject(name, listedCondition[index]), key)) {
-              if (!pgObject.fieldMap[key].value.isRequired) {
+              if (
+                pgObject.fieldMap[key].value.isOptional ||
+                pgObject.fieldMap[key].value.isNullable
+              ) {
                 hasPermission = false
                 acc[key] = null
                 return acc

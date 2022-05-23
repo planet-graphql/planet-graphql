@@ -3,7 +3,7 @@ import { getPGBuilder } from '..'
 import { PGCache } from '../types/builder'
 import { PGField, PGModel } from '../types/common'
 import { PGObject, PGOutputField } from '../types/output'
-import { setOutputFieldMethods, setPGObjectProperties } from './test-utils'
+import { mergeDefaultOutputField, setPGObjectProperties } from './test-utils'
 
 describe('objectFromModel', () => {
   it('Updates an existing PGObject in the Build Cache & returns it', () => {
@@ -16,7 +16,8 @@ describe('objectFromModel', () => {
         id: {
           value: {
             kind: 'scalar',
-            isRequired: true,
+            isOptional: false,
+            isNullable: false,
             isList: false,
             type: 'id',
           },
@@ -30,7 +31,8 @@ describe('objectFromModel', () => {
         age: {
           value: {
             kind: 'scalar',
-            isRequired: true,
+            isOptional: false,
+            isNullable: false,
             isList: false,
             type: 'int',
           },
@@ -70,22 +72,16 @@ describe('objectFromModel', () => {
     const expectValue = setPGObjectProperties({
       name: 'User',
       fieldMap: {
-        id: setOutputFieldMethods({
+        id: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'id',
         }),
-        age: setOutputFieldMethods({
+        age: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'float',
         }),
-        post: setOutputFieldMethods({
+        post: mergeDefaultOutputField({
           kind: 'object',
-          isRequired: true,
-          isList: false,
           type: expect.any(Function),
         }),
       },

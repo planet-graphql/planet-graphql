@@ -51,7 +51,8 @@ export type TypeOfPGFieldType<T> = IsAny<T> extends true
   : T
 
 export type PGFieldValue = {
-  isRequired: boolean
+  isOptional: boolean
+  isNullable: boolean
   isList: boolean
   default?: any
 } & PGFieldKindAndType

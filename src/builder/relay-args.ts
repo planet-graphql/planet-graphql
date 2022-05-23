@@ -4,16 +4,16 @@ import { createInputField } from './utils'
 export const relayArgs: <Types extends PGTypes>() => PGBuilder<Types>['relayArgs'] =
   () => (options) => {
     const relayArgs = {
-      first: createInputField<number, 'int'>({ kind: 'scalar', type: 'int' }).nullable(),
+      first: createInputField<number, 'int'>({ kind: 'scalar', type: 'int' }).nullish(),
       after: createInputField<string, 'string'>({
         kind: 'scalar',
         type: 'string',
-      }).nullable(),
-      last: createInputField<number, 'int'>({ kind: 'scalar', type: 'int' }).nullable(),
+      }).nullish(),
+      last: createInputField<number, 'int'>({ kind: 'scalar', type: 'int' }).nullish(),
       before: createInputField<string, 'string'>({
         kind: 'scalar',
         type: 'string',
-      }).nullable(),
+      }).nullish(),
     }
     if (options?.default !== undefined) {
       relayArgs.first.default(options.default)

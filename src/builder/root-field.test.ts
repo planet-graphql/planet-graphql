@@ -1,7 +1,7 @@
 import { ExecutionResult, parse, subscribe } from 'graphql'
 import { PubSub } from 'graphql-subscriptions'
 import { getPGBuilder } from '..'
-import { setInputFieldMethods, setOutputFieldMethods } from './test-utils'
+import { mergeDefaultInputField, mergeDefaultOutputField } from './test-utils'
 
 describe('rootFieldBuilder', () => {
   it('Creates a new PGRootFieldConfig & Set it to the Build Cache', () => {
@@ -33,22 +33,16 @@ describe('rootFieldBuilder', () => {
 
     const expectValue = {
       name: 'someQuery',
-      field: setOutputFieldMethods({
+      field: mergeDefaultOutputField({
         kind: 'object',
-        isRequired: true,
-        isList: false,
         type: expect.any(Function),
         args: {
-          name: setInputFieldMethods({
+          name: mergeDefaultInputField({
             kind: 'scalar',
-            isRequired: true,
-            isList: false,
             type: 'string',
           }),
-          profile: setInputFieldMethods({
+          profile: mergeDefaultInputField({
             kind: 'object',
-            isRequired: true,
-            isList: false,
             type: expect.any(Function),
           }),
         },
@@ -68,10 +62,8 @@ describe('rootFieldBuilder', () => {
 
     expect(pg.query('SomeQuery', (f) => f.int().resolve(() => 1))).toEqual({
       name: 'SomeQuery',
-      field: setOutputFieldMethods({
+      field: mergeDefaultOutputField({
         kind: 'scalar',
-        isRequired: true,
-        isList: false,
         type: 'string',
         resolve: expect.any(Function),
       }),
@@ -143,10 +135,8 @@ describe('rootFieldBuilder', () => {
         ),
       ).toEqual({
         name: 'SomeSubscription',
-        field: setOutputFieldMethods({
+        field: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'string',
           resolve: expect.any(Function),
           subscribe: expect.any(Function),

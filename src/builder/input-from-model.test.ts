@@ -2,7 +2,7 @@ import { expectType } from 'tsd'
 import { getPGBuilder } from '..'
 import { PGField, PGModel } from '../types/common'
 import { PGInput, PGInputField } from '../types/input'
-import { setInputFieldMethods } from './test-utils'
+import { mergeDefaultInputField } from './test-utils'
 
 describe('inputFromModel', () => {
   let user: PGModel<{ id: PGField<string>; age: PGField<number> }>
@@ -13,7 +13,8 @@ describe('inputFromModel', () => {
         id: {
           value: {
             kind: 'scalar',
-            isRequired: true,
+            isOptional: false,
+            isNullable: false,
             isList: false,
             type: 'id',
           },
@@ -21,7 +22,8 @@ describe('inputFromModel', () => {
         age: {
           value: {
             kind: 'scalar',
-            isRequired: true,
+            isOptional: false,
+            isNullable: false,
             isList: false,
             type: 'int',
           },
@@ -51,22 +53,16 @@ describe('inputFromModel', () => {
     const expectValue = {
       name: 'CreateUser',
       fieldMap: {
-        id: setInputFieldMethods({
+        id: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'id',
         }),
-        age: setInputFieldMethods({
+        age: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'float',
         }),
-        post: setInputFieldMethods({
+        post: mergeDefaultInputField({
           kind: 'object',
-          isRequired: true,
-          isList: false,
           type: expect.any(Function),
         }),
       },
@@ -100,10 +96,8 @@ describe('inputFromModel', () => {
     ).toEqual({
       name: 'CreateUser',
       fieldMap: {
-        id: setInputFieldMethods({
+        id: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'id',
         }),
       },

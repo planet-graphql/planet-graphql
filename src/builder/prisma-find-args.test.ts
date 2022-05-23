@@ -66,39 +66,39 @@ describe('prismaFindArgs', () => {
           include: f
             .input(() =>
               pg.input('PostsIncludeInput', (f) => ({
-                _count: f.boolean().nullable(),
+                _count: f.boolean().nullish(),
               })),
             )
-            .nullable(),
+            .nullish(),
           where: f
             .input(() =>
               pg.input('PostsWhereInput', (f) => ({
                 title: f.input(() =>
                   pg.input('PostsWhereTitleInput', (f) => ({
-                    equals: f.string().nullable(),
+                    equals: f.string().nullish(),
                   })),
                 ),
               })),
             )
-            .nullable(),
+            .nullish(),
           orderBy: f
             .input(() =>
               pg.input('PostsOrderByInput', (f) => ({
-                updatedAt: f.string().nullable(),
+                updatedAt: f.string().nullish(),
               })),
             )
-            .nullable(),
+            .nullish(),
           cursor: f
             .input(() =>
               pg.input('PostsCursorInput', (f) => ({
-                id: f.int().nullable(),
+                id: f.int().nullish(),
               })),
             )
-            .nullable(),
-          take: f.int().nullable(),
-          skip: f.int().nullable(),
-          distinct: f.string().nullable(),
-          unrelated2: f.boolean().nullable(),
+            .nullish(),
+          take: f.int().nullish(),
+          skip: f.int().nullish(),
+          distinct: f.string().nullish(),
+          unrelated2: f.boolean().nullish(),
         })),
         latestPost: f.object(() => postModel),
       }))
@@ -108,8 +108,8 @@ describe('prismaFindArgs', () => {
       const post = pg.objectFromModel(postModel, (keep, f) => ({
         ...keep,
         comments: keep.comments.args((f) => ({
-          take: f.int().nullable(),
-          unrelated3: f.boolean().nullable(),
+          take: f.int().nullish(),
+          unrelated3: f.boolean().nullish(),
         })),
       }))
 
@@ -120,45 +120,45 @@ describe('prismaFindArgs', () => {
           .object(() => user)
           .list()
           .args((f) => ({
-            select: f.string().list().nullable(),
+            select: f.string().list().nullish(),
             include: f
               .input(() =>
                 pg.input('UsersIncludeInput', (f) => ({
-                  _count: f.boolean().nullable(),
+                  _count: f.boolean().nullish(),
                 })),
               )
-              .nullable(),
+              .nullish(),
             where: f
               .input(() =>
                 pg.input('UsersWhereInput', (f) => ({
                   email: f.input(() =>
                     pg.input('PostsWhereEmailInput', (f) => ({
-                      contains: f.string().nullable(),
+                      contains: f.string().nullish(),
                     })),
                   ),
                 })),
               )
-              .nullable(),
+              .nullish(),
             orderBy: f
               .input(() =>
                 pg.input('UsersOrderByInput', (f) => ({
-                  name: f.string().nullable(),
-                  email: f.string().nullable(),
+                  name: f.string().nullish(),
+                  email: f.string().nullish(),
                 })),
               )
               .list()
-              .nullable(),
+              .nullish(),
             cursor: f
               .input(() =>
                 pg.input('UsersCursorInput', (f) => ({
-                  id: f.int().nullable(),
+                  id: f.int().nullish(),
                 })),
               )
-              .nullable(),
-            take: f.int().nullable(),
-            skip: f.int().nullable(),
-            distinct: f.string().nullable(),
-            unrelated: f.boolean().nullable(),
+              .nullish(),
+            take: f.int().nullish(),
+            skip: f.int().nullish(),
+            distinct: f.string().nullish(),
+            unrelated: f.boolean().nullish(),
           }))
           .resolve(() => {
             return [
@@ -366,7 +366,7 @@ describe('prismaFindArgs', () => {
                         equals: f.string(),
                       })),
                     )
-                    .nullable(),
+                    .nullish(),
                   someOverride: f.input(() =>
                     pg.input('CommentWhereOverrideInput', (f) => ({
                       equals: f.string().default('default'),
@@ -374,7 +374,7 @@ describe('prismaFindArgs', () => {
                   ),
                 })),
               )
-              .nullable(),
+              .nullish(),
           })),
       }))
 
@@ -409,7 +409,7 @@ describe('prismaFindArgs', () => {
                         equals: f.string(),
                       })),
                     )
-                    .nullable(),
+                    .nullish(),
                   someOverride: f.input(() =>
                     pg.input('PostWhereOverrideInput', (f) => ({
                       equals: f.string().default('default'),
@@ -417,7 +417,7 @@ describe('prismaFindArgs', () => {
                   ),
                 })),
               )
-              .nullable(),
+              .nullish(),
           }))
           .list(),
       }))
@@ -453,7 +453,7 @@ describe('prismaFindArgs', () => {
                         equals: f.string(),
                       })),
                     )
-                    .nullable(),
+                    .nullish(),
                   someOverride: f.input(() =>
                     pg.input('UserWhereOverrideInput', (f) => ({
                       equals: f.string().default('default'),
@@ -461,7 +461,7 @@ describe('prismaFindArgs', () => {
                   ),
                 })),
               )
-              .nullable(),
+              .nullish(),
           }))
           .resolve((params) => {
             paramsValue = params
@@ -765,10 +765,10 @@ describe('prismaFindArgs', () => {
           orderBy: f
             .input(() =>
               pg.input('PostOrderByInput', (f) => ({
-                id: f.string().nullable(),
+                id: f.string().nullish(),
               })),
             )
-            .nullable(),
+            .nullish(),
         })),
       }))
 
@@ -781,21 +781,21 @@ describe('prismaFindArgs', () => {
                 pg.input('UsersWhereInput', (f) => ({
                   name: f.input(() =>
                     pg.input('UsersWhereNameInput', (f) => ({
-                      contains: f.string().nullable(),
+                      contains: f.string().nullish(),
                     })),
                   ),
                 })),
               )
-              .nullable(),
+              .nullish(),
             orderBy: f
               .input(() =>
                 pg.input('UserOrderByInput', (f) => ({
-                  id: f.id().nullable(),
-                  name: f.string().nullable(),
+                  id: f.id().nullish(),
+                  name: f.string().nullish(),
                 })),
               )
               .list()
-              .nullable(),
+              .nullish(),
           }))
           .resolve((params) => {
             paramsValue = params
@@ -1023,12 +1023,12 @@ describe('prismaFindArgs', () => {
                 pg.input('PostsWhereInput', (f) => ({
                   title: f.input(() =>
                     pg.input('PostsWhereTitleInput', (f) => ({
-                      equals: f.string().nullable(),
+                      equals: f.string().nullish(),
                     })),
                   ),
                 })),
               )
-              .nullable(),
+              .nullish(),
           })),
       }))
 
@@ -1042,12 +1042,12 @@ describe('prismaFindArgs', () => {
                 pg.input('CommentsWhereInput', (f) => ({
                   message: f.input(() =>
                     pg.input('CommentsWhereMessageInput', (f) => ({
-                      equals: f.string().nullable(),
+                      equals: f.string().nullish(),
                     })),
                   ),
                 })),
               )
-              .nullable(),
+              .nullish(),
           })),
       }))
 
@@ -1066,12 +1066,12 @@ describe('prismaFindArgs', () => {
                 pg.input('UsersWhereInput', (f) => ({
                   name: f.input(() =>
                     pg.input('UsersWhereNameInput', (f) => ({
-                      equals: f.string().nullable(),
+                      equals: f.string().nullish(),
                     })),
                   ),
                 })),
               )
-              .nullable(),
+              .nullish(),
           }))
           .resolve((params) => {
             paramsValue = params
@@ -1219,10 +1219,10 @@ describe('prismaFindArgs', () => {
                 posts: f
                   .input(() =>
                     pg.input('PostsOrderByInput', (f) => ({
-                      id: f.id().nullable(),
+                      id: f.id().nullish(),
                     })),
                   )
-                  .nullable(),
+                  .nullish(),
               })),
             ),
           }))
@@ -1304,14 +1304,14 @@ describe('prismaFindArgs', () => {
             orderBy: f
               .input(() =>
                 pg.input('UsersOrderByInput', (f) => ({
-                  id: f.id().nullable(),
+                  id: f.id().nullish(),
                   posts: f
                     .input(() =>
                       pg.input('PostsOrderByInput', (f) => ({
-                        id: f.id().nullable(),
+                        id: f.id().nullish(),
                       })),
                     )
-                    .nullable(),
+                    .nullish(),
                 })),
               )
               .list(),
@@ -1387,7 +1387,7 @@ describe('prismaFindArgs', () => {
             ...userRelayArgs,
             orderBy: f.input(() =>
               pg.input('UsersOrderByInput', (f) => ({
-                id: f.id().nullable(),
+                id: f.id().nullish(),
               })),
             ),
           }))
@@ -1460,7 +1460,7 @@ describe('prismaFindArgs', () => {
             ...userRelayArgs,
             orderBy: f.input(() =>
               pg.input('UsersOrderByInput', (f) => ({
-                id: f.id().nullable(),
+                id: f.id().nullish(),
               })),
             ),
           }))
@@ -1534,10 +1534,10 @@ describe('prismaFindArgs', () => {
             orderBy: f
               .input(() =>
                 pg.input('UsersOrderByInput', (f) => ({
-                  id: f.id().nullable(),
+                  id: f.id().nullish(),
                 })),
               )
-              .nullable(),
+              .nullish(),
           }))
           .resolve((params) => {
             paramsValue = params

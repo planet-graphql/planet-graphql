@@ -1,11 +1,12 @@
 import { Decimal } from '@prisma/client/runtime'
 import { expectType } from 'tsd'
+import { JsonValue } from 'type-fest'
 import { getPGBuilder } from '..'
 import { PGInputField } from '../types/input'
 import { PGObject, PGOutputField } from '../types/output'
 import {
-  setInputFieldMethods,
-  setOutputFieldMethods,
+  mergeDefaultInputField,
+  mergeDefaultOutputField,
   setPGObjectProperties,
 } from './test-utils'
 
@@ -14,241 +15,207 @@ describe('object', () => {
     const pg = getPGBuilder()()
     const userRole = pg.enum('UserRole', 'USER', 'MANAGER', 'ADMIN')
 
-    const post = pg.object('Post', (f) => ({
+    const inner = pg.object('InnerObject', (f) => ({
       id: f.id(),
       title: f.string(),
-      ref: f.object(() => someObject),
+      ref: f.object(() => object),
     }))
 
-    const someObject = pg.object('SomeObject', (f) => ({
-      someID: f.id().args((f) => ({ arg: f.string() })),
-      someString: f.string().args((f) => ({ arg: f.string() })),
-      someBoolean: f.boolean().args((f) => ({ arg: f.string() })),
-      someInt: f.int().args((f) => ({ arg: f.string() })),
-      someBigInt: f.bigInt().args((f) => ({ arg: f.string() })),
-      someFloat: f.float().args((f) => ({ arg: f.string() })),
-      someDateTime: f.dateTime().args((f) => ({ arg: f.string() })),
-      someJson: f.json().args((f) => ({ arg: f.string() })),
-      someByte: f.bytes().args((f) => ({ arg: f.string() })),
-      someDecimal: f.decimal().args((f) => ({ arg: f.string() })),
-      someObject: f.object(() => post).args((f) => ({ arg: f.string() })),
-      someEnum: f.enum(userRole).args((f) => ({ arg: f.string() })),
-      someScalarList: f.string().list(),
-      someNullableScalar: f.string().nullable(),
-      someNullableScalarList: f.string().list().nullable(),
-      someEnumList: f.enum(userRole).list(),
-      someNullableEnum: f.enum(userRole).nullable(),
-      someNullableEnumList: f.enum(userRole).list().nullable(),
-      someObjectList: f.object(() => post).list(),
-      someNullableObject: f.object(() => post).nullable(),
-      someNullableObjectList: f
-        .object(() => post)
+    const object = pg.object('Object', (f) => ({
+      id: f.id(),
+      string: f.string(),
+      boolean: f.boolean(),
+      int: f.int(),
+      bigInt: f.bigInt(),
+      float: f.float(),
+      dateTime: f.dateTime(),
+      json: f.json(),
+      byte: f.bytes(),
+      decimal: f.decimal(),
+      object: f.object(() => inner),
+      enum: f.enum(userRole),
+      scalarList: f.string().list(),
+      nullableScalar: f.string().nullable(),
+      nullableScalarList: f.string().list().nullable(),
+      enumList: f.enum(userRole).list(),
+      nullableEnum: f.enum(userRole).nullable(),
+      nullableEnumList: f.enum(userRole).list().nullable(),
+      objectList: f.object(() => inner).list(),
+      nullableObject: f.object(() => inner).nullable(),
+      nullableObjectList: f
+        .object(() => inner)
         .nullable()
         .list(),
+      args: f.id().args((f) => ({ arg: f.string() })),
     }))
 
-    const expectSomeArgs = {
-      arg: setInputFieldMethods({
-        kind: 'scalar',
-        isRequired: true,
-        isList: false,
-        type: 'string',
-      }),
-    }
-
     const expectValue = setPGObjectProperties({
-      name: 'SomeObject',
+      name: 'Object',
       fieldMap: {
-        someID: setOutputFieldMethods({
+        id: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'id',
-          args: expectSomeArgs,
         }),
-        someString: setOutputFieldMethods({
+        string: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'string',
-          args: expectSomeArgs,
         }),
-        someBoolean: setOutputFieldMethods({
+        boolean: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'boolean',
-          args: expectSomeArgs,
         }),
-        someInt: setOutputFieldMethods({
+        int: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'int',
-          args: expectSomeArgs,
         }),
-        someBigInt: setOutputFieldMethods({
+        bigInt: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'bigInt',
-          args: expectSomeArgs,
         }),
-        someFloat: setOutputFieldMethods({
+        float: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'float',
-          args: expectSomeArgs,
         }),
-        someDateTime: setOutputFieldMethods({
+        dateTime: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'dateTime',
-          args: expectSomeArgs,
         }),
-        someJson: setOutputFieldMethods({
+        json: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'json',
-          args: expectSomeArgs,
         }),
-        someByte: setOutputFieldMethods({
+        byte: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'bytes',
-          args: expectSomeArgs,
         }),
-        someDecimal: setOutputFieldMethods({
+        decimal: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'decimal',
-          args: expectSomeArgs,
         }),
-        someObject: setOutputFieldMethods({
+        object: mergeDefaultOutputField({
           kind: 'object',
-          isRequired: true,
-          isList: false,
           type: expect.any(Function),
-          args: expectSomeArgs,
         }),
-        someEnum: setOutputFieldMethods({
+        enum: mergeDefaultOutputField({
           kind: 'enum',
-          isRequired: true,
-          isList: false,
           type: userRole,
-          args: expectSomeArgs,
         }),
-        someScalarList: setOutputFieldMethods({
+        scalarList: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
           isList: true,
           type: 'string',
         }),
-        someNullableScalar: setOutputFieldMethods({
+        nullableScalar: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: false,
-          isList: false,
+          isOptional: true,
+          isNullable: true,
           type: 'string',
         }),
-        someNullableScalarList: setOutputFieldMethods({
+        nullableScalarList: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: false,
+          isOptional: true,
+          isNullable: true,
           isList: true,
           type: 'string',
         }),
-        someEnumList: setOutputFieldMethods({
+        enumList: mergeDefaultOutputField({
           kind: 'enum',
-          isRequired: true,
           isList: true,
           type: userRole,
         }),
-        someNullableEnum: setOutputFieldMethods({
+        nullableEnum: mergeDefaultOutputField({
           kind: 'enum',
-          isRequired: false,
-          isList: false,
+          isOptional: true,
+          isNullable: true,
           type: userRole,
         }),
-        someNullableEnumList: setOutputFieldMethods({
+        nullableEnumList: mergeDefaultOutputField({
           kind: 'enum',
-          isRequired: false,
+          isOptional: true,
+          isNullable: true,
           isList: true,
           type: userRole,
         }),
-        someObjectList: setOutputFieldMethods({
+        objectList: mergeDefaultOutputField({
           kind: 'object',
-          isRequired: true,
           isList: true,
           type: expect.any(Function),
         }),
-        someNullableObject: setOutputFieldMethods({
+        nullableObject: mergeDefaultOutputField({
           kind: 'object',
-          isRequired: false,
-          isList: false,
+          isOptional: true,
+          isNullable: true,
           type: expect.any(Function),
         }),
-        someNullableObjectList: setOutputFieldMethods({
+        nullableObjectList: mergeDefaultOutputField({
           kind: 'object',
-          isRequired: false,
+          isOptional: true,
+          isNullable: true,
           isList: true,
           type: expect.any(Function),
+        }),
+        args: mergeDefaultOutputField({
+          kind: 'scalar',
+          type: 'id',
+          args: {
+            arg: mergeDefaultInputField({
+              kind: 'scalar',
+              isNullable: false,
+              type: 'string',
+            }),
+          },
         }),
       },
     })
 
-    expect(someObject).toEqual(expectValue)
-    expect(pg.cache().object.SomeObject).toEqual(expectValue)
+    expect(object).toEqual(expectValue)
+    expect(pg.cache().object.Object).toEqual(expectValue)
 
-    type ExpectArgsType = { arg: PGInputField<string> }
     expectType<
       PGObject<{
-        someID: PGOutputField<string, ExpectArgsType>
-        someString: PGOutputField<string, ExpectArgsType>
-        someBoolean: PGOutputField<boolean, ExpectArgsType>
-        someInt: PGOutputField<number, ExpectArgsType>
-        someBigInt: PGOutputField<bigint, ExpectArgsType>
-        someFloat: PGOutputField<number, ExpectArgsType>
-        someDateTime: PGOutputField<Date, ExpectArgsType>
-        someJson: PGOutputField<string, ExpectArgsType>
-        someByte: PGOutputField<Buffer, ExpectArgsType>
-        someDecimal: PGOutputField<Decimal, ExpectArgsType>
-        someObject: PGOutputField<() => typeof post, ExpectArgsType>
-        someEnum: PGOutputField<typeof userRole, ExpectArgsType>
-        someScalarList: PGOutputField<string[], any>
-        someNullableScalar: PGOutputField<string | null, any>
-        someNullableScalarList: PGOutputField<string[] | null, any>
-        someEnumList: PGOutputField<Array<typeof userRole>, any>
-        someNullableEnum: PGOutputField<typeof userRole | null, any>
-        someNullableEnumList: PGOutputField<Array<typeof userRole> | null, any>
-        someObjectList: PGOutputField<Array<() => typeof post>, any>
-        someNullableObject: PGOutputField<(() => typeof post) | null, any>
-        someNullableObjectList: PGOutputField<Array<() => typeof post> | null, any>
+        id: PGOutputField<string>
+        string: PGOutputField<string>
+        boolean: PGOutputField<boolean>
+        int: PGOutputField<number>
+        bigInt: PGOutputField<bigint>
+        float: PGOutputField<number>
+        dateTime: PGOutputField<Date>
+        json: PGOutputField<JsonValue>
+        byte: PGOutputField<Buffer>
+        decimal: PGOutputField<Decimal>
+        object: PGOutputField<() => typeof inner>
+        enum: PGOutputField<typeof userRole>
+        scalarList: PGOutputField<string[], any>
+        nullableScalar: PGOutputField<string | null, any>
+        nullableScalarList: PGOutputField<string[] | null, any>
+        enumList: PGOutputField<Array<typeof userRole>, any>
+        nullableEnum: PGOutputField<typeof userRole | null, any>
+        nullableEnumList: PGOutputField<Array<typeof userRole> | null, any>
+        objectList: PGOutputField<Array<() => typeof inner>, any>
+        nullableObject: PGOutputField<(() => typeof inner) | null, any>
+        nullableObjectList: PGOutputField<Array<() => typeof inner> | null, any>
+        args: PGOutputField<string, { arg: PGInputField<string> }>
       }>
-    >(someObject)
+    >(object)
   })
 
   it('Returns an existing resource because a resource with the same name cannot be created', () => {
     const pg = getPGBuilder()()
-    pg.object('SomeObject', (f) => ({
+    pg.object('Object', (f) => ({
       id: f.id(),
     }))
     expect(
-      pg.object('SomeObject', (f) => ({
+      pg.object('Object', (f) => ({
         id: f.id(),
         title: f.string(),
       })),
     ).toEqual(
       setPGObjectProperties({
-        name: 'SomeObject',
+        name: 'Object',
         fieldMap: {
-          id: setOutputFieldMethods({
+          id: mergeDefaultOutputField({
             kind: 'scalar',
-            isRequired: true,
-            isList: false,
+            isNullable: false,
             type: 'id',
           }),
         },

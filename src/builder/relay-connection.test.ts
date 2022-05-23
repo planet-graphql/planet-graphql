@@ -3,7 +3,7 @@ import { getPGBuilder } from '..'
 import { getPageInfo } from './relay-connection'
 import {
   pgObjectToPGModel,
-  setOutputFieldMethods,
+  mergeDefaultOutputField,
   setPGObjectProperties,
 } from './test-utils'
 
@@ -20,19 +20,14 @@ describe('relayConnection', () => {
     const expectConnection = setPGObjectProperties({
       name: 'PostConnection',
       fieldMap: {
-        edges: setOutputFieldMethods({
+        edges: mergeDefaultOutputField({
           kind: 'object',
-          isRequired: true,
           isList: true,
-
           resolve: expect.any(Function),
           type: expect.any(Function),
         }),
-        pageInfo: setOutputFieldMethods({
+        pageInfo: mergeDefaultOutputField({
           kind: 'object',
-          isRequired: true,
-          isList: false,
-
           resolve: expect.any(Function),
           type: expect.any(Function),
         }),
@@ -45,19 +40,13 @@ describe('relayConnection', () => {
     const expectPostEdge = setPGObjectProperties({
       name: 'PostEdge',
       fieldMap: {
-        cursor: setOutputFieldMethods({
+        cursor: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
-
           resolve: expect.any(Function),
           type: 'string',
         }),
-        node: setOutputFieldMethods({
+        node: mergeDefaultOutputField({
           kind: 'object',
-          isRequired: true,
-          isList: false,
-
           resolve: expect.any(Function),
           type: expect.any(Function),
         }),
@@ -67,18 +56,12 @@ describe('relayConnection', () => {
     const expectPageInfo = setPGObjectProperties({
       name: 'PageInfo',
       fieldMap: {
-        hasNextPage: setOutputFieldMethods({
+        hasNextPage: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
-
           type: 'boolean',
         }),
-        hasPreviousPage: setOutputFieldMethods({
+        hasPreviousPage: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
-
           type: 'boolean',
         }),
       },
@@ -131,12 +114,12 @@ describe('relayConnection', () => {
                 pg.input('PostsWhereInput', (f) => ({
                   title: f.input(() =>
                     pg.input('PostsWhereTitleInput', (f) => ({
-                      equals: f.string().nullable(),
+                      equals: f.string().nullish(),
                     })),
                   ),
                 })),
               )
-              .nullable(),
+              .nullish(),
           })),
       }))
       const userConnection = pg.relayConnection(user, {
@@ -171,12 +154,12 @@ describe('relayConnection', () => {
                 pg.input('UsersWhereInput', (f) => ({
                   name: f.input(() =>
                     pg.input('UsersWhereNameInput', (f) => ({
-                      equals: f.string().nullable(),
+                      equals: f.string().nullish(),
                     })),
                   ),
                 })),
               )
-              .nullable(),
+              .nullish(),
           }))
           .resolve((params) => {
             pg.prismaFindArgs(userConnection, params, {
@@ -343,27 +326,19 @@ describe('relayConnection', () => {
       const expectConnection = setPGObjectProperties({
         name: 'PostConnection',
         fieldMap: {
-          totalCount: setOutputFieldMethods({
+          totalCount: mergeDefaultOutputField({
             kind: 'scalar',
-            isRequired: true,
-            isList: false,
-
             resolve: expect.any(Function),
             type: 'int',
           }),
-          edges: setOutputFieldMethods({
+          edges: mergeDefaultOutputField({
             kind: 'object',
-            isRequired: true,
             isList: true,
-
             resolve: expect.any(Function),
             type: expect.any(Function),
           }),
-          pageInfo: setOutputFieldMethods({
+          pageInfo: mergeDefaultOutputField({
             kind: 'object',
-            isRequired: true,
-            isList: false,
-
             resolve: expect.any(Function),
             type: expect.any(Function),
           }),
@@ -376,19 +351,13 @@ describe('relayConnection', () => {
       const expectPostEdge = setPGObjectProperties({
         name: 'PostEdge',
         fieldMap: {
-          cursor: setOutputFieldMethods({
+          cursor: mergeDefaultOutputField({
             kind: 'scalar',
-            isRequired: true,
-            isList: false,
-
             resolve: expect.any(Function),
             type: 'string',
           }),
-          node: setOutputFieldMethods({
+          node: mergeDefaultOutputField({
             kind: 'object',
-            isRequired: true,
-            isList: false,
-
             resolve: expect.any(Function),
             type: expect.any(Function),
           }),

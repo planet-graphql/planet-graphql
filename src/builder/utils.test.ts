@@ -633,8 +633,8 @@ describe('PGInput', () => {
 
       const orderByInput = pg
         .input('OrderByInput', (f) => ({
-          id: f.string().nullable(),
-          name: f.string().nullable(),
+          id: f.string().nullish(),
+          name: f.string().nullish(),
         }))
         .validation((value, ctx) => {
           return value.id != null || value.name != null
@@ -645,11 +645,11 @@ describe('PGInput', () => {
           .object(() => content)
           .list()
           .args((f) => ({
-            passCheck: f.input(() => contentInput).nullable(),
+            passCheck: f.input(() => contentInput).nullish(),
             orderBy: f
               .input(() => orderByInput)
               .list()
-              .nullable(),
+              .nullish(),
           }))
           .resolve(({ args }) => {
             const resultContents =
@@ -854,7 +854,7 @@ describe('PGInputField', () => {
       const someInput = pg.input('SomeInput', (f) => ({
         id: f
           .id()
-          .nullable()
+          .nullish()
           .validation((scheme, ctx) =>
             ctx.user.roles.includes('Admin') ? scheme.min(5) : z.null(),
           ),
@@ -903,7 +903,7 @@ describe('PGInputField', () => {
           .args((f) => ({
             titleName: f
               .string()
-              .nullable()
+              .nullish()
               .validation((schema, ctx) => schema.max(6)),
           }))
           .nullable()
@@ -919,7 +919,7 @@ describe('PGInputField', () => {
       const userProfileInput = pg.input('UserProfileInput', (f) => ({
         age: f
           .int()
-          .nullable()
+          .nullish()
           .validation((schema, ctx) =>
             ctx.user.roles.includes('Admin') ? schema.min(20) : z.null(),
           ),
@@ -931,7 +931,7 @@ describe('PGInputField', () => {
           .list()
           .args((f) => ({
             name: f.string().validation((schema, ctx) => schema.max(6)),
-            profile: f.input(() => userProfileInput).nullable(),
+            profile: f.input(() => userProfileInput).nullish(),
           }))
           .resolve(({ args }) => {
             return users.filter((x) => args.name === x.name) ?? []

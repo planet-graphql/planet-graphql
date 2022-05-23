@@ -1,7 +1,7 @@
 import { expectType } from 'tsd'
 import { getPGBuilder } from '..'
 import { PGObject, PGOutputField } from '../types/output'
-import { setOutputFieldMethods, setPGObjectProperties } from './test-utils'
+import { mergeDefaultOutputField, setPGObjectProperties } from './test-utils'
 
 describe('resolver', () => {
   it('Sets resolves to each field of the PGObject', () => {
@@ -31,23 +31,17 @@ describe('resolver', () => {
     const expectValue = setPGObjectProperties({
       name: 'User',
       fieldMap: {
-        someID: setOutputFieldMethods({
+        someID: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'id',
         }),
-        someString: setOutputFieldMethods({
+        someString: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'string',
           resolve: expect.any(Function),
         }),
-        someObject: setOutputFieldMethods({
+        someObject: mergeDefaultOutputField({
           kind: 'object',
-          isRequired: true,
-          isList: false,
           type: expect.any(Function),
           resolve: expect.any(Function),
         }),
