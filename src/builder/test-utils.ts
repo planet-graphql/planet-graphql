@@ -13,9 +13,6 @@ export function setPGObjectProperties(object: {
 }): PGObject<any> {
   return {
     kind: 'object',
-    value: object.value ?? {},
-    prismaAuth: expect.any(Function),
-    checkPrismaPermission: expect.any(Function),
     ...object,
   }
 }
@@ -68,9 +65,7 @@ export function mergeDefaultOutputField(
   }
 }
 
-export function pgObjectToPGModel<TPrismaWhere = any>(): <
-  T extends PGObject<any, any, any>,
->(
+export function pgObjectToPGModel<TPrismaWhere = any>(): <T extends PGObject<any, any>>(
   object: T,
   pgCache?: ReadonlyDeep<PGCache>,
 ) => PGModel<

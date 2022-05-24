@@ -8,8 +8,6 @@ import { objectFromModel } from './builder/object-from-model'
 import { pgfy } from './builder/pgfy'
 import { prismaFindArgs } from './builder/prisma-find-args'
 import { queryArgsBuilder } from './builder/query-args-builder'
-import { relayArgs } from './builder/relay-args'
-import { relayConnection } from './builder/relay-connection'
 import { resolver } from './builder/resolver'
 import { rootFieldBuilder } from './builder/root-field'
 import { createPGInputFieldBuilder, createPGOutputFieldBuilder } from './builder/utils'
@@ -67,8 +65,6 @@ export const getPGBuilder: InitPGBuilder =
       queryArgsBuilder: queryArgsBuilder(cache),
       prismaFindArgs: prismaFindArgs(cache),
       dataloader,
-      relayConnection: relayConnection(cache, outputFieldBuilder),
-      relayArgs: relayArgs(),
       cache: () => cache,
     }
 

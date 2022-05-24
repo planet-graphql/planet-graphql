@@ -1,7 +1,5 @@
 import { GraphQLFieldResolver } from 'graphql'
 import { ResolverFn } from 'graphql-subscriptions'
-import { PartialDeep } from 'type-fest'
-import { IsAny } from 'type-fest/source/set-return-type'
 import { PGConfig, PGTypeConfig, PGTypes } from './builder'
 import {
   PGEnum,
@@ -15,108 +13,15 @@ import {
 } from './common'
 import { PGInputFieldBuilder, PGInputFieldMap } from './input'
 
-type CheckPrismaPermissionFn<TContext, TValue> = {
-  (ctx: TContext, action: string, value: TValue, condition?: TValue): {
-    hasPermission: boolean
-    permittedValue: TValue
-  }
-  (ctx: TContext, action: string, value: TValue[], condition?: TValue[]): {
-    hasPermission: boolean
-    permittedValue: TValue[]
-  }
-}
-
-export interface PrismaFindManyArgsBase {
-  select?: any | null
-  include?: any | null
-  where?: any
-  orderby?: any | any[]
-  cursor?: any
-  take?: number
-  skip?: number
-  distinct?: any | any[]
-}
-
-type NamesOfPGFieldMap<T extends PGOutputFieldMap> = Array<
-  IsAny<T> extends true ? any : keyof T
->
-
-type PrismaAuthFn<TPrismaWhere, TField> = {
-  (action: string, condition?: TPrismaWhere): void
-  (action: string, fields: TField, condition?: TPrismaWhere): void
-}
-
-type PrismaAuthBuilder<TContext, TPrismaWhere, TField> = (params: {
-  ctx: TContext
-  allow: PrismaAuthFn<TPrismaWhere, TField>
-  deny: PrismaAuthFn<TPrismaWhere, TField>
-}) => void
-
 export interface PGObject<
   TFieldMap extends PGOutputFieldMap,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Types extends PGTypes = any,
-  TPrismaWhere = any,
 > {
   name: string
   fieldMap: TFieldMap
   kind: 'object'
-  value: {
-    prismaAuthBuilder?: PrismaAuthBuilder<
-      Types['Context'],
-      TPrismaWhere,
-      NamesOfPGFieldMap<TFieldMap>
-    >
-    isRelayConnection?: boolean
-  }
-  prismaAuth: (
-    builder: PrismaAuthBuilder<
-      Types['Context'],
-      TPrismaWhere,
-      NamesOfPGFieldMap<TFieldMap>
-    >,
-  ) => this
-  checkPrismaPermission: CheckPrismaPermissionFn<
-    Types['Context'],
-    PartialDeep<TypeOfPGFieldMap<TFieldMap>>
-  >
 }
-
-export type RelayConnectionTotalCountFn<TSource, TContext, TPrismaFindMany> = (
-  params: ResolveParams<number, TSource, never, TContext>,
-  nodeFindArgs: TPrismaFindMany,
-) => number
-
-type PGConnectionObjectFieldBase<TObject extends PGObject<any>> = {
-  edges: PGOutputField<
-    Array<
-      () => PGObject<{
-        cursor: PGOutputField<string>
-        node: PGOutputField<() => TObject>
-      }>
-    >
-  >
-  pageInfo: PGOutputField<
-    () => PGObject<{
-      hasNextPage: PGOutputField<boolean>
-      hasPreviousPage: PGOutputField<boolean>
-    }>
-  >
-}
-
-export type PGConnectionObject<
-  TObject extends PGObject<any>,
-  Types extends PGTypes = any,
-> = PGObject<PGConnectionObjectFieldBase<TObject>, Types>
-
-export type PGConnectionObjectWithTotalCount<
-  TObject extends PGObject<any>,
-  Types extends PGTypes = any,
-> = PGObject<
-  PGConnectionObjectFieldBase<TObject> & {
-    totalCount: PGOutputField<number>
-  },
-  Types
->
 
 export interface PGOutputField<
   T,

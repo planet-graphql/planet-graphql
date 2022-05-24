@@ -1,15 +1,7 @@
-import { AbilityBuilder, subject } from '@casl/ability'
-import { PrismaAbility } from '@casl/prisma'
 import { withFilter } from 'graphql-subscriptions'
 import _ from 'lodash'
 import { ContextCache, PGCache, PGRootFieldConfig, PGTypes } from '../types/builder'
-import {
-  PGEnum,
-  PGFieldKindAndType,
-  PGModel,
-  PGScalarLike,
-  TypeOfPGFieldMap,
-} from '../types/common'
+import { PGEnum, PGFieldKindAndType, PGModel, PGScalarLike } from '../types/common'
 import { PGInput, PGInputField, PGInputFieldBuilder } from '../types/input'
 import {
   PGObject,
@@ -46,7 +38,6 @@ export function getCtxCache(context: any): ContextCache {
     const contextCache: ContextCache = {
       loader: {},
       auth: {},
-      prismaAbility: {},
       rootResolveInfo: {
         raw: null,
         parsed: null,
@@ -56,41 +47,6 @@ export function getCtxCache(context: any): ContextCache {
     context.__cache = contextCache
   }
   return context.__cache
-}
-
-export function getPrismaAbility(
-  pgObject: PGObject<any>,
-  ctx: any,
-): PrismaAbility<any> | null {
-  const abilityCache = getCtxCache(ctx)
-  const cachedAbility = abilityCache.prismaAbility[pgObject.name]
-  if (cachedAbility !== undefined) {
-    return cachedAbility
-  }
-  if (pgObject.value.prismaAuthBuilder === undefined) {
-    abilityCache.prismaAbility[pgObject.name] = null
-    return null
-  }
-
-  const { can, cannot, build } = new AbilityBuilder(PrismaAbility)
-  const allow = (action: string, conditionOrFields: any, condition?: any): void => {
-    if (Array.isArray(conditionOrFields)) {
-      can(action, pgObject.name as any, conditionOrFields, condition)
-    } else {
-      can(action, pgObject.name as any, conditionOrFields)
-    }
-  }
-  const deny = (action: string, conditionOrFields: any, condition?: any): void => {
-    if (Array.isArray(conditionOrFields)) {
-      cannot(action, pgObject.name as any, conditionOrFields, condition)
-    } else {
-      cannot(action, pgObject.name as any, conditionOrFields)
-    }
-  }
-  pgObject.value.prismaAuthBuilder({ ctx, allow, deny })
-  const ability = build()
-  abilityCache.prismaAbility[pgObject.name] = ability
-  return ability
 }
 
 export function createOutputField<T, Types extends PGTypes>(
@@ -191,71 +147,7 @@ export function createPGObject<TFieldMap extends PGOutputFieldMap>(
   const pgObject: PGObject<TFieldMap> = {
     name,
     fieldMap,
-    value: {},
     kind: 'object',
-    prismaAuth: (builder) => {
-      pgObject.value.prismaAuthBuilder = builder
-      return pgObject
-    },
-    checkPrismaPermission: (ctx, action, value, condition = value) => {
-      const ability = getPrismaAbility(pgObject, ctx)
-      if (ability === null)
-        return {
-          hasPermission: true,
-          permittedValue: value,
-        }
-      const listedValue = (Array.isArray(value) ? value : [value]) as any[]
-      const listedCondition = (
-        Array.isArray(condition) ? condition : [condition]
-      ) as any[]
-      let hasPermission = true
-      const permittedValue = listedValue.map((listedValueElement, index) => {
-        return Object.entries(listedValueElement).reduce<{ [key: string]: any }>(
-          (acc, [key, fieldValue]) => {
-            if (!ability.can(action, subject(name, listedCondition[index]), key)) {
-              if (
-                pgObject.fieldMap[key].value.isOptional ||
-                pgObject.fieldMap[key].value.isNullable
-              ) {
-                hasPermission = false
-                acc[key] = null
-                return acc
-              }
-              if (pgObject.fieldMap[key].value.isList) {
-                hasPermission = false
-                acc[key] = []
-                return acc
-              }
-              throw new PGError(
-                `Prisma permission denied. Field: ${name}.${key}`,
-                'PrismaAuthError',
-              )
-            }
-            if (typeof pgObject.fieldMap[key].value.type === 'function') {
-              const innerObject = pgObject.fieldMap[key].value.type as Function
-              const innerObjectPermission = innerObject().checkPrismaPermission(
-                ctx,
-                action,
-                listedValueElement[key],
-                listedCondition[index][key],
-              )
-              if (innerObjectPermission.hasPermission === false) hasPermission = false
-              acc[key] = innerObjectPermission.permittedValue
-              return acc
-            }
-            acc[key] = fieldValue
-            return acc
-          },
-          {},
-        ) as Partial<TypeOfPGFieldMap<TFieldMap>>
-      })
-      return {
-        hasPermission,
-        permittedValue: Array.isArray(value)
-          ? permittedValue
-          : (permittedValue[0] as any),
-      }
-    },
   }
   return pgObject
 }
