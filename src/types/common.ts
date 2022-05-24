@@ -24,7 +24,7 @@ export interface PGScalar<
 export type PGFieldKindAndType =
   | {
       kind: 'scalar'
-      type: GraphQLScalarType<any>
+      type: string
     }
   | {
       kind: 'enum'

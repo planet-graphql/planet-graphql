@@ -556,34 +556,36 @@ describe('PGInput', () => {
           password: f.string(),
           confirmPassword: f.string(),
         }))
-        .validation((z, ctx) =>
-          z.any().refine((args: any) => {
-            return ctx.user.roles.includes('Admin')
-              ? true
-              : args.password === args.confirmPassword
-          }),
-        )
+        .validation((value, ctx) => {
+          return ctx.user.roles.includes('Admin')
+            ? true
+            : value.password === value.confirmPassword
+        })
 
-      const validator = findUser.value.validatorBuilder?.(z, {
+      const validator = findUser.value.validatorBuilder
+      const context = {
         user: {
-          roles: ['LoginUser'],
+          roles: ['LoginUser' as const],
         },
-      })
+      }
       expect(
-        validator?.parse({
-          password: 'xxx',
-          confirmPassword: 'xxx',
-        }),
-      ).toEqual({
-        password: 'xxx',
-        confirmPassword: 'xxx',
-      })
-      expect(() =>
-        validator?.parse({
-          password: 'xxx',
-          confirmPassword: 'yyy',
-        }),
-      ).toThrow()
+        validator?.(
+          {
+            password: 'xxx',
+            confirmPassword: 'xxx',
+          },
+          context,
+        ),
+      ).toBe(true)
+      expect(
+        validator?.(
+          {
+            password: 'xxx',
+            confirmPassword: 'yyy',
+          },
+          context,
+        ),
+      ).toBe(false)
     })
 
     it('Validates according to the rules set in the validationBuilder', async () => {
@@ -623,24 +625,20 @@ describe('PGInput', () => {
           password: f.string(),
           confirmPassword: f.string(),
         }))
-        .validation((z, ctx) =>
-          z.any().refine((args: any) => {
-            return ctx.user.roles.includes('Admin')
-              ? true
-              : args.password === args.confirmPassword
-          }),
-        )
+        .validation((value, ctx) => {
+          return ctx.user.roles.includes('Admin')
+            ? true
+            : value.password === value.confirmPassword
+        })
 
       const orderByInput = pg
         .input('OrderByInput', (f) => ({
           id: f.string().nullable(),
           name: f.string().nullable(),
         }))
-        .validation((z, ctx) =>
-          z.any().refine((args: any) => {
-            return args.id != null || args.name != null
-          }),
-        )
+        .validation((value, ctx) => {
+          return value.id != null || value.name != null
+        })
 
       pg.query('findContents', (f) =>
         f
@@ -839,7 +837,7 @@ describe('PGInput', () => {
         'ValidationError',
       )
       expect((loginUserIrregularQueryOriginalErrors as PGError).detail).toEqual(
-        '[{"path":"findContents.passCheck","issues":[{"code":"custom","message":"Invalid input","path":[]}]}]',
+        '[{"path":"findContents.passCheck"}]',
       )
     })
   })
@@ -857,12 +855,12 @@ describe('PGInputField', () => {
         id: f
           .id()
           .nullable()
-          .validation((z, ctx) =>
-            ctx.user.roles.includes('Admin') ? z.string().min(5) : z.null(),
+          .validation((scheme, ctx) =>
+            ctx.user.roles.includes('Admin') ? scheme.min(5) : z.null(),
           ),
       }))
 
-      const validator = someInput.fieldMap.id.value.validatorBuilder?.(z, {
+      const validator = someInput.fieldMap.id.value.validatorBuilder?.(z.string(), {
         user: {
           roles: ['Admin'],
         },
@@ -906,7 +904,7 @@ describe('PGInputField', () => {
             titleName: f
               .string()
               .nullable()
-              .validation((z, ctx) => z.string().max(6)),
+              .validation((schema, ctx) => schema.max(6)),
           }))
           .nullable()
           .resolve(({ source, args }) => {
@@ -922,8 +920,8 @@ describe('PGInputField', () => {
         age: f
           .int()
           .nullable()
-          .validation((z, ctx) =>
-            ctx.user.roles.includes('Admin') ? z.number().min(20) : z.null(),
+          .validation((schema, ctx) =>
+            ctx.user.roles.includes('Admin') ? schema.min(20) : z.null(),
           ),
       }))
 
@@ -932,7 +930,7 @@ describe('PGInputField', () => {
           .object(() => user)
           .list()
           .args((f) => ({
-            name: f.string().validation((z, ctx) => z.string().max(6)),
+            name: f.string().validation((schema, ctx) => schema.max(6)),
             profile: f.input(() => userProfileInput).nullable(),
           }))
           .resolve(({ args }) => {

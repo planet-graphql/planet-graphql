@@ -1,4 +1,3 @@
-import { GraphQLInt, GraphQLString } from 'graphql'
 import { z } from 'zod'
 import { getPGBuilder } from '..'
 import { setInputFieldMethods } from './test-utils'
@@ -13,25 +12,25 @@ describe('relayArgs', () => {
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        type: GraphQLInt,
+        type: 'int',
       }),
       after: setInputFieldMethods({
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        type: GraphQLString,
+        type: 'string',
       }),
       last: setInputFieldMethods({
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        type: GraphQLInt,
+        type: 'int',
       }),
       before: setInputFieldMethods({
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        type: GraphQLString,
+        type: 'string',
       }),
     })
   })
@@ -49,7 +48,7 @@ describe('relayArgs', () => {
           kind: 'scalar',
           isRequired: false,
           isList: false,
-          type: GraphQLInt,
+          type: 'int',
           default: 10,
           validatorBuilder: expect.any(Function),
         }),
@@ -57,13 +56,13 @@ describe('relayArgs', () => {
           kind: 'scalar',
           isRequired: false,
           isList: false,
-          type: GraphQLString,
+          type: 'string',
         }),
         last: setInputFieldMethods({
           kind: 'scalar',
           isRequired: false,
           isList: false,
-          type: GraphQLInt,
+          type: 'int',
           default: 10,
           validatorBuilder: expect.any(Function),
         }),
@@ -71,16 +70,16 @@ describe('relayArgs', () => {
           kind: 'scalar',
           isRequired: false,
           isList: false,
-          type: GraphQLString,
+          type: 'string',
         }),
       })
 
-      const firstValidation = args.first.value.validatorBuilder?.(z, {})
+      const firstValidation = args.first.value.validatorBuilder?.(z.number(), {})
       expect(JSON.stringify(firstValidation)).toEqual(
         JSON.stringify(z.number().max(1000)),
       )
 
-      const lastValidation = args.last.value.validatorBuilder?.(z, {})
+      const lastValidation = args.last.value.validatorBuilder?.(z.number(), {})
       expect(JSON.stringify(lastValidation)).toEqual(JSON.stringify(z.number().max(1000)))
     })
   })

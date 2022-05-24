@@ -1,16 +1,8 @@
 import { Decimal } from '@prisma/client/runtime'
 import { DMMF } from '@prisma/generator-helper'
 import { getDMMF } from '@prisma/sdk'
-import { GraphQLString, GraphQLInt, GraphQLFloat, GraphQLBoolean } from 'graphql'
-import {
-  GraphQLBigInt,
-  GraphQLByte,
-  GraphQLDateTime,
-  GraphQLJSONObject,
-} from 'graphql-scalars'
 import { getPGBuilder } from '..'
-import { PGGraphQLDecimal } from '../lib/pg-decimal-scalar'
-import { PGGraphQLID } from '../lib/pg-id-scalar'
+import { DefaultScalars } from '../lib/scalars'
 import { PGField, PGEnum, PGModel } from '../types/common'
 import { PGObject } from '../types/output'
 import { setPGObjectProperties, setOutputFieldMethods } from './test-utils'
@@ -155,73 +147,73 @@ describe('pgfy', () => {
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: PGGraphQLID,
+          type: 'id',
         }),
         string: setOutputFieldMethods({
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: GraphQLString,
+          type: 'string',
         }),
         json: setOutputFieldMethods({
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: GraphQLJSONObject,
+          type: 'json',
         }),
         int: setOutputFieldMethods({
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: GraphQLInt,
+          type: 'int',
         }),
         float: setOutputFieldMethods({
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: GraphQLFloat,
+          type: 'float',
         }),
         boolean: setOutputFieldMethods({
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: GraphQLBoolean,
+          type: 'boolean',
         }),
         bigInt: setOutputFieldMethods({
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: GraphQLBigInt,
+          type: 'bigInt',
         }),
         dateTime: setOutputFieldMethods({
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: GraphQLDateTime,
+          type: 'dateTime',
         }),
         bytes: setOutputFieldMethods({
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: GraphQLByte,
+          type: 'bytes',
         }),
         decimal: setOutputFieldMethods({
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: PGGraphQLDecimal,
+          type: 'decimal',
         }),
         nullable: setOutputFieldMethods({
           isList: false,
           isRequired: false,
           kind: 'scalar',
-          type: GraphQLString,
+          type: 'string',
         }),
         list: setOutputFieldMethods({
           isList: true,
           isRequired: true,
           kind: 'scalar',
-          type: GraphQLString,
+          type: 'string',
         }),
         enum: setOutputFieldMethods({
           isList: false,
@@ -262,7 +254,7 @@ describe('pgfy', () => {
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: PGGraphQLID,
+          type: 'id',
         }),
         model1: setOutputFieldMethods({
           isList: false,
@@ -274,7 +266,7 @@ describe('pgfy', () => {
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: GraphQLInt,
+          type: 'int',
         }),
       },
     })
@@ -285,7 +277,7 @@ describe('pgfy', () => {
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: PGGraphQLID,
+          type: 'id',
         }),
         model1: setOutputFieldMethods({
           isList: false,
@@ -297,7 +289,7 @@ describe('pgfy', () => {
           isList: false,
           isRequired: true,
           kind: 'scalar',
-          type: GraphQLInt,
+          type: 'int',
         }),
       },
     })
@@ -315,6 +307,7 @@ describe('pgfy', () => {
       },
     })
     expect(pg.cache()).toEqual({
+      scalar: DefaultScalars,
       enum: {
         SomeEnum: expectSomeEnum,
         SomeEnum2: expectSomeEnum2,

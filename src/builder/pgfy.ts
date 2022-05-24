@@ -1,18 +1,17 @@
 import { DMMF } from '@prisma/generator-helper'
 import { PGBuilder, PGCache, PGfyResponseType, PGTypes } from '../types/builder'
-import { PGEnum, PGFieldKindAndType, PGModel, PGScalarLike } from '../types/common'
+import { PGEnum, PGFieldKindAndType, PGModel } from '../types/common'
 import { PGInputFieldBuilder } from '../types/input'
 import { PGObject, PGOutputFieldMap } from '../types/output'
-import { getGraphQLScalar } from './build'
+import { getScalarTypeName } from './build'
 import { createEnum } from './enum'
 import { createOutputField, createPGObject, PGError, setCache } from './utils'
 
 export const pgfy: <Types extends PGTypes>(
   cache: PGCache,
   inputFieldBuilder: PGInputFieldBuilder<Types>,
-  scalarMap: { [name: string]: PGScalarLike },
 ) => PGBuilder<Types>['pgfy'] =
-  (cache, inputFieldBuilder, scalarMap) => (datamodel: DMMF.Datamodel) => {
+  (cache, inputFieldBuilder) => (datamodel: DMMF.Datamodel) => {
     function convertToPGObject(
       model: DMMF.Model,
       enums: { [name: string]: PGEnum<any> },
@@ -24,7 +23,7 @@ export const pgfy: <Types extends PGTypes>(
           case 'scalar':
             kindAndType = {
               kind: x.kind,
-              type: getGraphQLScalar(x.type, x.isId, scalarMap),
+              type: getScalarTypeName(x.type, x.isId),
             }
             break
           case 'enum':

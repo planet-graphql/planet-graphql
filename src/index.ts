@@ -42,6 +42,7 @@ export const getPGBuilder: InitPGBuilder =
     )
 
     const cache: PGCache = {
+      scalar: scalarMap,
       model: {},
       object: {},
       input: {},
@@ -62,8 +63,8 @@ export const getPGBuilder: InitPGBuilder =
       mutation: rootFieldBuilder(cache, outputFieldBuilder, 'mutation'),
       subscription: rootFieldBuilder(cache, outputFieldBuilder, 'subscription'),
       build: build(cache),
-      pgfy: pgfy(cache, inputFieldBuilder, scalarMap),
-      queryArgsBuilder: queryArgsBuilder(cache, scalarMap),
+      pgfy: pgfy(cache, inputFieldBuilder),
+      queryArgsBuilder: queryArgsBuilder(cache),
       prismaFindArgs: prismaFindArgs(cache),
       dataloader,
       relayConnection: relayConnection(cache, outputFieldBuilder),

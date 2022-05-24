@@ -195,15 +195,16 @@ export interface PGBuilder<
     ? PGConnectionObject<PGObject<T, Types, TPrismaFindMany>>
     : PGConnectionObjectWithTotalCount<PGObject<T, Types, TPrismaFindMany>>
   relayArgs: (options?: { default?: number; max?: number }) => {
-    first: PGInputField<number | null | undefined, Types>
-    after: PGInputField<string | null | undefined, Types>
-    last: PGInputField<number | null | undefined, Types>
-    before: PGInputField<string | null | undefined, Types>
+    first: PGInputField<number | null | undefined, 'int', Types>
+    after: PGInputField<string | null | undefined, 'string', Types>
+    last: PGInputField<number | null | undefined, 'int', Types>
+    before: PGInputField<string | null | undefined, 'string', Types>
   }
   cache: () => ReadonlyDeep<PGCache>
 }
 
 export interface PGCache {
+  scalar: { [name: string]: PGScalarLike }
   model: { [name: string]: PGModel<PGFieldMap> }
   object: { [name: string]: PGObject<PGOutputFieldMap> }
   input: { [name: string]: PGInput<PGInputFieldMap> }

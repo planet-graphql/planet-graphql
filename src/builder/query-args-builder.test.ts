@@ -1,15 +1,7 @@
 import { Decimal } from '@prisma/client/runtime'
-import { GraphQLString, GraphQLInt, GraphQLFloat, GraphQLBoolean } from 'graphql'
-import {
-  GraphQLBigInt,
-  GraphQLByte,
-  GraphQLDateTime,
-  GraphQLJSONObject,
-} from 'graphql-scalars'
 import { expectType } from 'tsd'
 import { JsonValue } from 'type-fest'
 import { getPGBuilder } from '..'
-import { PGGraphQLDecimal } from '../lib/pg-decimal-scalar'
 import { PGInputField, PGInput } from '../types/input'
 import { setInputFieldMethods } from './test-utils'
 
@@ -73,55 +65,55 @@ describe('queryArgsBuilder', () => {
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        type: GraphQLString,
+        type: 'string',
       }),
       int: setInputFieldMethods({
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        type: GraphQLInt,
+        type: 'int',
       }),
       float: setInputFieldMethods({
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        type: GraphQLFloat,
+        type: 'float',
       }),
       boolean: setInputFieldMethods({
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        type: GraphQLBoolean,
+        type: 'boolean',
       }),
       bigint: setInputFieldMethods({
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        type: GraphQLBigInt,
+        type: 'bigInt',
       }),
       date: setInputFieldMethods({
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        type: GraphQLDateTime,
+        type: 'dateTime',
       }),
       buffer: setInputFieldMethods({
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        type: GraphQLByte,
+        type: 'bytes',
       }),
       decimal: setInputFieldMethods({
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        type: PGGraphQLDecimal,
+        type: 'decimal',
       }),
       json: setInputFieldMethods({
         kind: 'scalar',
         isRequired: false,
         isList: false,
-        type: GraphQLJSONObject,
+        type: 'json',
       }),
       object: setInputFieldMethods({
         kind: 'object',
@@ -139,7 +131,7 @@ describe('queryArgsBuilder', () => {
         kind: 'scalar',
         isRequired: false,
         isList: true,
-        type: GraphQLString,
+        type: 'string',
       }),
       arrayObject: setInputFieldMethods({
         kind: 'object',
@@ -165,7 +157,7 @@ describe('queryArgsBuilder', () => {
             kind: 'scalar',
             isRequired: false,
             isList: false,
-            type: GraphQLString,
+            type: 'string',
           }),
         },
         value: {},
@@ -193,7 +185,7 @@ describe('queryArgsBuilder', () => {
             kind: 'scalar',
             isRequired: false,
             isList: false,
-            type: GraphQLString,
+            type: 'string',
           }),
         },
         value: {},
@@ -207,7 +199,7 @@ describe('queryArgsBuilder', () => {
             kind: 'scalar',
             isRequired: false,
             isList: false,
-            type: GraphQLString,
+            type: 'string',
           }),
         },
         value: {},

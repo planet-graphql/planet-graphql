@@ -1,10 +1,4 @@
-import {
-  GraphQLSchema,
-  graphql,
-  GraphQLBoolean,
-  GraphQLInt,
-  GraphQLString,
-} from 'graphql'
+import { GraphQLSchema, graphql } from 'graphql'
 import { getPGBuilder } from '..'
 import { getPageInfo } from './relay-connection'
 import {
@@ -57,7 +51,7 @@ describe('relayConnection', () => {
           isList: false,
 
           resolve: expect.any(Function),
-          type: GraphQLString,
+          type: 'string',
         }),
         node: setOutputFieldMethods({
           kind: 'object',
@@ -78,14 +72,14 @@ describe('relayConnection', () => {
           isRequired: true,
           isList: false,
 
-          type: GraphQLBoolean,
+          type: 'boolean',
         }),
         hasPreviousPage: setOutputFieldMethods({
           kind: 'scalar',
           isRequired: true,
           isList: false,
 
-          type: GraphQLBoolean,
+          type: 'boolean',
         }),
       },
     })
@@ -355,7 +349,7 @@ describe('relayConnection', () => {
             isList: false,
 
             resolve: expect.any(Function),
-            type: GraphQLInt,
+            type: 'int',
           }),
           edges: setOutputFieldMethods({
             kind: 'object',
@@ -388,7 +382,7 @@ describe('relayConnection', () => {
             isList: false,
 
             resolve: expect.any(Function),
-            type: GraphQLString,
+            type: 'string',
           }),
           node: setOutputFieldMethods({
             kind: 'object',

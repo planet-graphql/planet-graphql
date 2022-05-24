@@ -142,7 +142,9 @@ export function createOutputField<T, Types extends PGTypes>(
   return field
 }
 
-export function createInputField<T>(kindAndType: PGFieldKindAndType): PGInputField<T> {
+export function createInputField<T, TypeName extends string>(
+  kindAndType: PGFieldKindAndType,
+): PGInputField<T, TypeName> {
   const field: PGInputField<any> = {
     value: {
       ...kindAndType,
@@ -247,9 +249,12 @@ export function createPGObject<TFieldMap extends PGOutputFieldMap>(
 export function createPGInputFieldBuilder<Types extends PGTypes>(scalarMap: {
   [name: string]: PGScalarLike
 }): PGInputFieldBuilder<Types> {
-  const scalarFieldBuilder = _.mapValues(scalarMap, (value) => () => {
-    return createInputField({ kind: 'scalar', type: value.scalar })
-  })
+  const scalarFieldBuilder = Object.keys(scalarMap).reduce<{
+    [name: string]: () => PGInputField<any>
+  }>((acc, key) => {
+    acc[key] = () => createInputField({ kind: 'scalar', type: key })
+    return acc
+  }, {})
   return {
     ...(scalarFieldBuilder as any),
     enum: (type: PGEnum<any>) => createInputField({ kind: 'enum', type }),
@@ -264,9 +269,12 @@ export function createPGOutputFieldBuilder<Types extends PGTypes>(
   },
   inputFieldBuilder: PGInputFieldBuilder<Types>,
 ): PGOutputFieldBuilder<Types> {
-  const scalarFieldBuilder = _.mapValues(scalarMap, (value) => () => {
-    return createOutputField({ kind: 'scalar', type: value.scalar }, inputFieldBuilder)
-  })
+  const scalarFieldBuilder = Object.keys(scalarMap).reduce<{
+    [name: string]: () => PGOutputField<any>
+  }>((acc, key) => {
+    acc[key] = () => createOutputField({ kind: 'scalar', type: key }, inputFieldBuilder)
+    return acc
+  }, {})
   return {
     ...(scalarFieldBuilder as any),
     enum: (type: PGEnum<any>) =>
