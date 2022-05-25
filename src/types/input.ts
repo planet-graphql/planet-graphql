@@ -1,7 +1,9 @@
-import { IsAny } from 'type-fest/source/set-return-type'
+import { Simplify } from 'type-fest'
 import { z } from 'zod'
 import { PGConfig, PGTypeConfig, PGTypes } from './builder'
 import {
+  ExcludeNullish,
+  ExtractNullish,
   PGEnum,
   PGField,
   PGFieldMap,
@@ -31,11 +33,14 @@ export interface PGInput<TFieldMap extends PGInputFieldMap, Types extends PGType
 export type GetSchemaType<
   TypeName extends string,
   Types extends PGTypes,
-> = IsAny<TypeName> extends true
-  ? z.ZodAny
-  : TypeName extends keyof Types['ScalarMap']
+> = TypeName extends keyof Types['ScalarMap']
   ? Types['ScalarMap'][TypeName]['schema']
   : z.ZodAny
+
+export type PGInputFieldValidator<TypeName extends string, Types extends PGTypes> = (
+  schema: GetSchemaType<TypeName, Types>,
+  context: Types['Context'],
+) => z.ZodSchema
 
 export interface PGInputField<
   T,
@@ -43,32 +48,22 @@ export interface PGInputField<
   Types extends PGTypes = any,
 > extends PGField<T> {
   value: PGFieldValue & {
-    validatorBuilder?: (
-      schema: GetSchemaType<TypeName, Types>,
-      context: Types['Context'],
-    ) => z.ZodSchema
+    validatorBuilder?: PGInputFieldValidator<TypeName, Types>
   }
   nullable: () => PGInputField<T | null, TypeName, Types>
   optional: () => PGInputField<T | undefined, TypeName, Types>
   nullish: () => PGInputField<T | null | undefined, TypeName, Types>
-  list: () => PGInputField<
-    T extends null | undefined ? null | undefined : T[],
-    TypeName,
-    Types
-  >
+  list: () => ExcludeNullish<T> extends any[]
+    ? this
+    : PGInputField<Array<ExcludeNullish<T>> | ExtractNullish<T>, TypeName, Types>
   default: (
-    value: T extends PGInput<any> | Function
+    value: T extends Function
       ? never
-      : T extends Array<PGInput<any>> | Function[]
+      : T extends Function[]
       ? []
       : Exclude<TypeOfPGFieldType<T>, undefined>,
   ) => this
-  validation: (
-    validatorBuilder: (
-      schema: GetSchemaType<TypeName, Types>,
-      context: Types['Context'],
-    ) => z.ZodSchema,
-  ) => this
+  validation: (validatorBuilder: PGInputFieldValidator<TypeName, Types>) => this
 }
 
 export interface PGInputFieldMap {
@@ -79,13 +74,13 @@ export type PGEditInputFieldMap<TModel extends PGFieldMap> =
   | { [P in keyof TModel]?: PGInputField<any> }
   | { [name: string]: PGInputField<any> }
 
-export type PGInputFieldBuilder<Types extends PGTypes<PGTypeConfig, PGConfig>> = {
-  [P in keyof Types['ScalarMap']]: () => PGInputField<
-    Types['ScalarMap'][P]['input'],
-    P extends string ? P : any,
-    Types
-  >
-} & {
-  input: <T extends Function>(type: T) => PGInputField<T, 'input', Types>
-  enum: <T extends PGEnum<any>>(type: T) => PGInputField<T, 'enum', Types>
-}
+export type PGInputFieldBuilder<Types extends PGTypes<PGTypeConfig, PGConfig>> = Simplify<
+  {
+    [P in keyof Types['ScalarMap'] as string extends P ? never : P]: P extends string
+      ? () => PGInputField<Types['ScalarMap'][P]['input'], P, Types>
+      : never
+  } & {
+    input: <T extends Function>(type: T) => PGInputField<T, 'input', Types>
+    enum: <T extends PGEnum<any>>(type: T) => PGInputField<T, 'enum', Types>
+  }
+>

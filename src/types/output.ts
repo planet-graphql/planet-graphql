@@ -1,7 +1,10 @@
 import { GraphQLFieldResolver } from 'graphql'
 import { ResolverFn } from 'graphql-subscriptions'
+import { Simplify } from 'type-fest'
 import { PGConfig, PGTypeConfig, PGTypes } from './builder'
 import {
+  ExcludeNullish,
+  ExtractNullish,
   PGEnum,
   PGField,
   PGFieldMap,
@@ -38,7 +41,9 @@ export interface PGOutputField<
     }) => boolean | Promise<boolean>
   }
   nullable: () => PGOutputField<T | null, TArgs, Types>
-  list: () => PGOutputField<T extends null ? null : T[], TArgs, Types>
+  list: () => ExcludeNullish<T> extends any[]
+    ? this
+    : PGOutputField<Array<ExcludeNullish<T>> | ExtractNullish<T>, TArgs, Types>
   args: <SetTArgs extends PGInputFieldMap>(
     x: (f: PGInputFieldBuilder<Types>) => SetTArgs,
   ) => PGOutputField<T, SetTArgs, Types>
@@ -66,10 +71,9 @@ export interface PGOutputField<
     },
   ) => this
   auth: (
-    // NOTE: 直接TArgsを使うと型エラーが発生するため、CheckTArgsを挟んでいる
-    checker: <CheckerTArgs extends TArgs>(x: {
+    checker: (x: {
       ctx: Types['Context']
-      args: TypeOfPGFieldMap<Exclude<CheckerTArgs, undefined>>
+      args: TypeOfPGFieldMap<Exclude<TArgs, undefined>>
     }) => boolean | Promise<boolean>,
   ) => this
 }
@@ -82,13 +86,14 @@ export type PGEditOutputFieldMap<TModel extends PGFieldMap> =
   | { [P in keyof TModel]?: PGOutputField<any, any> }
   | { [name: string]: PGOutputField<any, any> }
 
-export type PGOutputFieldBuilder<Types extends PGTypes<PGTypeConfig, PGConfig>> = {
-  [P in keyof Types['ScalarMap']]: () => PGOutputField<
-    Types['ScalarMap'][P]['output'],
-    undefined,
-    Types
+export type PGOutputFieldBuilder<Types extends PGTypes<PGTypeConfig, PGConfig>> =
+  Simplify<
+    {
+      [P in keyof Types['ScalarMap'] as string extends P
+        ? never
+        : P]: () => PGOutputField<Types['ScalarMap'][P]['output'], undefined, Types>
+    } & {
+      object: <T extends Function>(type: T) => PGOutputField<T, undefined, Types>
+      enum: <T extends PGEnum<any>>(type: T) => PGOutputField<T, undefined, Types>
+    }
   >
-} & {
-  object: <T extends Function>(type: T) => PGOutputField<T, undefined, Types>
-  enum: <T extends PGEnum<any>>(type: T) => PGOutputField<T, undefined, Types>
-}

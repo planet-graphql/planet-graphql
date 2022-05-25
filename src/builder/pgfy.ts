@@ -4,8 +4,9 @@ import { PGEnum, PGFieldKindAndType, PGModel } from '../types/common'
 import { PGInputFieldBuilder } from '../types/input'
 import { PGObject, PGOutputFieldMap } from '../types/output'
 import { getScalarTypeName } from './build'
-import { createEnum } from './enum'
-import { createOutputField, createPGObject, PGError, setCache } from './utils'
+import { createEnumBuilder } from './enum'
+import { createOutputField, createPGObject } from './object'
+import { PGError, setCache } from './utils'
 
 export const pgfy: <Types extends PGTypes>(
   cache: PGCache,
@@ -49,7 +50,7 @@ export const pgfy: <Types extends PGTypes>(
     }
     const objectRef: { [name: string]: PGObject<any> } = {}
     const enums = datamodel.enums.reduce<PGfyResponseType['enums']>((acc, x) => {
-      const pgEnum = createEnum(cache)(x.name, ...x.values.map((v) => v.name))
+      const pgEnum = createEnumBuilder(cache)(x.name, ...x.values.map((v) => v.name))
       acc[x.name] = pgEnum
       return acc
     }, {})

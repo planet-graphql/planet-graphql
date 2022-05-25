@@ -94,6 +94,9 @@ export interface PGModel<TFieldMap extends PGFieldMap, TPrismaFindManyArgs = {}>
   }
 }
 
+export type ExcludeNullish<T> = Exclude<T, null | undefined>
+export type ExtractNullish<T> = Extract<T, null | undefined>
+
 export type IsObject<T> = T extends any[]
   ? false
   : T extends Date

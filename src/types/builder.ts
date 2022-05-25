@@ -97,7 +97,9 @@ export interface PGBuilder<
   objectFromModel: <TModel extends PGFieldMap, T extends PGEditOutputFieldMap<TModel>>(
     model: PGModel<TModel>,
     editFieldMap: (
-      keep: { [P in keyof TModel]: PGOutputField<TypeOfPGField<TModel[P]>> },
+      keep: {
+        [P in keyof TModel]: PGOutputField<TypeOfPGField<TModel[P]>, undefined, Types>
+      },
       f: PGOutputFieldBuilder<Types>,
     ) => T,
   ) => PGObject<{ [P in keyof T]: Exclude<T[P], undefined> }, Types>

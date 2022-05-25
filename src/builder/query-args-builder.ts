@@ -2,7 +2,8 @@ import _ from 'lodash'
 import { PGBuilder, PGCache } from '../types/builder'
 import { PGInput, PGInputFieldMap } from '../types/input'
 import { getScalarTypeName } from './build'
-import { createInputField, setCache } from './utils'
+import { createInputField } from './input'
+import { setCache } from './utils'
 
 export const queryArgsBuilder: (cache: PGCache) => PGBuilder['queryArgsBuilder'] =
   (cache) => (inputNamePrefix) => (selector) => {
