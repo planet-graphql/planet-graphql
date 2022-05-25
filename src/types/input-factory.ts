@@ -1,56 +1,13 @@
 import { z } from 'zod'
-import {
-  PGField,
-  PGFieldValue,
-  TypeOfPGFieldMap,
-  TypeOfPGFieldType,
-  TypeOfPGModelBase,
-} from './common'
-
-export interface PGInputFieldMap2 {
-  [name: string]: PGInputField2<any, any>
-}
-
-export interface PGInput2<TFieldMap extends PGInputFieldMap2, TContext = any> {
-  name: string
-  fieldMap: TFieldMap
-  kind: 'input'
-  value: {
-    validatorBuilder?: (value: TypeOfPGFieldMap<TFieldMap>, context: TContext) => boolean
-  }
-  validation: (
-    validatorBuilder?: (value: TypeOfPGFieldMap<TFieldMap>, context: TContext) => boolean,
-  ) => this
-}
-
-export interface PGInputField2<T, TSchema extends z.ZodSchema = z.ZodAny, TContext = any>
-  extends PGField<T> {
-  value: PGFieldValue & {
-    validatorBuilder?: (schema: TSchema, context: TContext) => z.ZodSchema
-  }
-  nullable: () => PGInputField2<T | null | undefined, TSchema, TContext>
-  list: () => PGInputField2<
-    T extends null | undefined ? null | undefined : T[],
-    TSchema,
-    TContext
-  >
-  default: (
-    value: T extends PGInput2<any> | Function
-      ? never
-      : T extends Array<PGInput2<any>> | Function[]
-      ? []
-      : Exclude<TypeOfPGFieldType<T>, undefined>,
-  ) => this
-  validation: (
-    validatorBuilder: (schema: TSchema, context: TContext) => z.ZodSchema,
-  ) => this
-}
+import { PGTypes } from './builder'
+import { TypeOfPGModelBase } from './common'
+import { GetSchemaType, PGInput, PGInputField } from './input'
 
 type PGInputFactoryField =
   | (() => PGInputFactoryWrapper<any>)
   | PGInputFactoryWrapper<any>
   | PGInputFactoryUnion<any>
-  | PGInputFactory<any>
+  | PGInputFactory<any, any>
 
 type TypeOfPGInputFactoryMapField<T extends PGInputFactoryField> = T extends () => any
   ? ReturnType<T>
@@ -82,43 +39,49 @@ export interface PGInputFactoryUnion<
 
 export interface PGInputFactoryBase<
   T extends PGInputFactory<any> | PGInputFactoryWrapper<any>,
-  TSchema extends z.ZodSchema = z.ZodSchema,
+  TypeName extends string = any,
+  Types extends PGTypes = any,
 > {
   nullish: () => T extends PGInputFactory<infer U>
-    ? PGInputFactory<U | null | undefined, TSchema>
+    ? PGInputFactory<U | null | undefined, TypeName, Types>
     : T extends PGInputFactoryWrapper<infer U>
-    ? PGInputFactoryWrapper<U | null | undefined>
+    ? PGInputFactoryWrapper<U | null | undefined, Types>
     : never
   nullable: () => T extends PGInputFactory<infer U>
-    ? PGInputFactory<U | null, TSchema>
+    ? PGInputFactory<U | null, TypeName, Types>
     : T extends PGInputFactoryWrapper<infer U>
-    ? PGInputFactoryWrapper<U | null>
+    ? PGInputFactoryWrapper<U | null, Types>
     : never
   optional: () => T extends PGInputFactory<infer U>
-    ? PGInputFactory<U | undefined, TSchema>
+    ? PGInputFactory<U | undefined, TypeName, Types>
     : T extends PGInputFactoryWrapper<infer U>
-    ? PGInputFactoryWrapper<U | undefined>
+    ? PGInputFactoryWrapper<U | undefined, Types>
     : never
   list: () => T extends PGInputFactory<infer U>
     ? ExcludeNullish<U> extends any[]
       ? this
-      : PGInputFactory<Array<ExcludeNullish<U>> | ExtractNullish<T>>
+      : PGInputFactory<Array<ExcludeNullish<U>> | ExtractNullish<T>, TypeName, Types>
     : T extends PGInputFactoryWrapper<infer U>
     ? ExcludeNullish<U> extends any[]
       ? this
       : ExcludeNullish<U> extends PGInputFactoryFieldMap
-      ? PGInputFactoryWrapper<Array<ExcludeNullish<U>> | ExtractNullish<T>>
+      ? PGInputFactoryWrapper<Array<ExcludeNullish<U>> | ExtractNullish<T>, Types>
       : never
     : never
 }
 
 export interface PGInputFactory<
   T,
-  TSchema extends z.ZodSchema = z.ZodSchema,
-  TContext = any,
-> extends PGInputFactoryBase<PGInputFactory<T>, TSchema> {
+  TypeName extends string = string,
+  Types extends PGTypes = any,
+> extends PGInputFactoryBase<PGInputFactory<T>, TypeName, Types> {
   default: (value: Exclude<T extends any[] ? [] : T, undefined>) => this
-  validation: (builder: (schema: TSchema, context: TContext) => z.ZodSchema) => this
+  validation: (
+    builder: (
+      schema: GetSchemaType<TypeName, Types>,
+      context: Types['Context'],
+    ) => z.ZodSchema,
+  ) => this
   __type: T
 }
 
@@ -133,8 +96,8 @@ type ExtractPGInputFactoryFieldMap<
 
 export interface PGInputFactoryWrapper<
   TFieldMap extends PGInputFactoryFieldMap | PGInputFactoryFieldMap[] | null | undefined,
-  TContext = any,
-> extends PGInputFactoryBase<PGInputFactoryWrapper<TFieldMap>, z.ZodAny> {
+  Types extends PGTypes = any,
+> extends PGInputFactoryBase<PGInputFactoryWrapper<TFieldMap>, any, Types> {
   fieldMap: TFieldMap
   default: (
     value: TFieldMap extends any[] ? [] : TFieldMap extends null ? null : never,
@@ -142,12 +105,12 @@ export interface PGInputFactoryWrapper<
   validation: (
     builder: (
       value: Exclude<
-        ConvertPGInputFactoryFieldMapField<this> extends PGInputField2<infer U, any>
+        ConvertPGInputFactoryFieldMapField<this> extends PGInputField<infer U, any>
           ? U extends Array<infer V>
-            ? V extends PGInput2<any>
+            ? V extends PGInput<any>
               ? TypeOfPGModelBase<V>
               : V
-            : U extends PGInput2<any>
+            : U extends PGInput<any>
             ? TypeOfPGModelBase<U>
             : U
           : never,
@@ -167,8 +130,8 @@ export interface PGInputFactoryWrapper<
   } extends infer U
     ? U extends PGInputFactoryFieldMap
       ? ExcludeNullish<TFieldMap> extends any[]
-        ? PGInputFactoryWrapper<[U] | ExtractNullish<TFieldMap>, TContext>
-        : PGInputFactoryWrapper<U | ExtractNullish<TFieldMap>, TContext>
+        ? PGInputFactoryWrapper<[U] | ExtractNullish<TFieldMap>, Types>
+        : PGInputFactoryWrapper<U | ExtractNullish<TFieldMap>, Types>
       : never
     : never
   build: <TWrap extends boolean>(
@@ -189,17 +152,17 @@ type ConvertPGInputFactoryFieldMapField<T extends PGInputFactoryField> =
   T extends () => any
     ? ConvertPGInputFactoryFieldMapField<ReturnType<T>>
     : T extends PGInputFactoryWrapper<infer U, infer V>
-    ? PGInput2<{
+    ? PGInput<{
         [P in keyof ExtractPGInputFactoryFieldMap<U>]: ConvertPGInputFactoryFieldMapField<
           ExtractPGInputFactoryFieldMap<U>[P]
         > extends infer R
-          ? Cast<R, PGInputField2<any, any, any>>
-          : PGInputField2<any, any, any>
-      }> extends PGInput2<infer TFieldMap>
+          ? Cast<R, PGInputField<any, any, any>>
+          : PGInputField<any, any, any>
+      }> extends PGInput<infer TFieldMap>
       ? ExcludeNullish<U> extends any[]
-        ? PGInputField2<[PGInput2<TFieldMap>] | ExtractNullish<U>, z.ZodAny, V>
-        : PGInputField2<PGInput2<TFieldMap> | ExtractNullish<U>, z.ZodAny, V>
+        ? PGInputField<[PGInput<TFieldMap>] | ExtractNullish<U>, 'input', V>
+        : PGInputField<PGInput<TFieldMap> | ExtractNullish<U>, 'input', V>
       : never
     : T extends PGInputFactory<infer U, infer V, infer W>
-    ? PGInputField2<U, V, W>
+    ? PGInputField<U, V, W>
     : never

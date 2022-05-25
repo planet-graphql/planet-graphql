@@ -1,44 +1,57 @@
 import { expectType } from 'tsd'
-import { z } from 'zod'
+import { PGTypes } from './builder'
+import { PGInput, PGInputField } from './input'
 import {
   PGInputFactoryWrapper,
   PGInputFactoryUnion,
   PGInputFactory,
-  PGInput2,
-  PGInputField2,
 } from './input-factory'
 
 describe('PGInputFactory', () => {
   it('Type is evaluated correctly even if it contains circular references', () => {
+    type PGType = PGTypes<{
+      Context: { prisma: string }
+      PGGeneratedType: { models: {}; enums: {} }
+    }>
+
     type UserWhereFactory = PGInputFactoryWrapper<
       {
-        AND: () => PGInputFactoryWrapper<[UserWhereFactory['fieldMap']]>
+        AND: () => PGInputFactoryWrapper<[UserWhereFactory['fieldMap']], PGType>
         name: PGInputFactoryUnion<{
-          StringFilter: () => PGInputFactoryWrapper<{
-            equals: PGInputFactory<string, z.ZodString>
-            in: PGInputFactory<string[], z.ZodArray<z.ZodString>>
-          }>
-          String: PGInputFactory<string, z.ZodString>
-          __default: PGInputFactory<string, z.ZodString>
+          StringFilter: () => PGInputFactoryWrapper<
+            {
+              equals: PGInputFactory<string, 'string', PGType>
+              in: PGInputFactory<string[], 'string', PGType>
+            },
+            PGType
+          >
+          String: PGInputFactory<string, 'string', PGType>
+          __default: PGInputFactory<string, 'string', PGType>
         }>
-        age: PGInputFactory<number, z.ZodNumber>
-        posts: () => PGInputFactoryWrapper<{
-          every: () => PostWhereFactory
-        }>
+        age: PGInputFactory<number, 'int', PGType>
+        posts: () => PGInputFactoryWrapper<
+          {
+            every: () => PostWhereFactory
+          },
+          PGType
+        >
       },
-      { prisma: string }
+      PGType
     >
 
     type PostWhereFactory = PGInputFactoryWrapper<
       {
-        AND: () => PGInputFactoryWrapper<[PostWhereFactory['fieldMap']]>
-        title: () => PGInputFactoryWrapper<{
-          equals: PGInputFactory<string, z.ZodString>
-          in: PGInputFactory<string[], z.ZodArray<z.ZodString>>
-        }>
+        AND: () => PGInputFactoryWrapper<[PostWhereFactory['fieldMap']], PGType>
+        title: () => PGInputFactoryWrapper<
+          {
+            equals: PGInputFactory<string, 'string', PGType>
+            in: PGInputFactory<string[], 'string', PGType>
+          },
+          PGType
+        >
         author: () => UserWhereFactory
       },
-      { prisma: string }
+      PGType
     >
 
     const userWhere: UserWhereFactory = null as any
@@ -70,41 +83,49 @@ describe('PGInputFactory', () => {
       .build('UserWhere', true)
 
     expectType<
-      PGInputField2<
-        PGInput2<{
-          name: PGInputField2<
+      PGInputField<
+        PGInput<{
+          name: PGInputField<
             | [
-                PGInput2<{
-                  equals: PGInputField2<string | null | undefined, z.ZodString>
+                PGInput<{
+                  equals: PGInputField<string | null | undefined, 'string', PGType>
                 }>,
               ]
             | null
-            | undefined
+            | undefined,
+            'input',
+            PGType
           >
-          posts: PGInputField2<
-            PGInput2<{
-              every: PGInputField2<
-                PGInput2<{
-                  title: PGInputField2<
-                    PGInput2<{
-                      equals: PGInputField2<string, z.ZodString>
-                      in: PGInputField2<string[], z.ZodArray<z.ZodString>>
-                    }>
+          posts: PGInputField<
+            PGInput<{
+              every: PGInputField<
+                PGInput<{
+                  title: PGInputField<
+                    PGInput<{
+                      equals: PGInputField<string, 'string', PGType>
+                      in: PGInputField<string[], 'string', PGType>
+                    }>,
+                    'input',
+                    PGType
                   >
-                  author: PGInputField2<
-                    PGInput2<{
-                      age: PGInputField2<number, z.ZodNumber>
-                    }>
+                  author: PGInputField<
+                    PGInput<{
+                      age: PGInputField<number, 'int', PGType>
+                    }>,
+                    'input',
+                    PGType
                   >
-                }>
+                }>,
+                'input',
+                PGType
               >
             }>,
-            z.ZodAny,
-            { prisma: string }
+            'input',
+            PGType
           >
         }>,
-        z.ZodAny,
-        { prisma: string }
+        'input',
+        PGType
       >
     >(userEdited)
 
@@ -121,23 +142,27 @@ describe('PGInputFactory', () => {
       .build('PostWhere')
 
     expectType<{
-      AND: PGInputField2<
+      AND: PGInputField<
         [
-          PGInput2<{
-            title: PGInputField2<
-              PGInput2<{
-                equals: PGInputField2<string, z.ZodString>
-                in: PGInputField2<string[], z.ZodArray<z.ZodString>>
-              }>
+          PGInput<{
+            title: PGInputField<
+              PGInput<{
+                equals: PGInputField<string, 'string', PGType>
+                in: PGInputField<string[], 'string', PGType>
+              }>,
+              'input',
+              PGType
             >
           }>,
         ]
       >
-      title: PGInputField2<
-        PGInput2<{
-          equals: PGInputField2<string, z.ZodString>
-          in: PGInputField2<string[], z.ZodArray<z.ZodString>>
-        }>
+      title: PGInputField<
+        PGInput<{
+          equals: PGInputField<string, 'string', PGType>
+          in: PGInputField<string[], 'string', PGType>
+        }>,
+        'input',
+        PGType
       >
     }>(postEdited)
   })
