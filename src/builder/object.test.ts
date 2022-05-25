@@ -1,7 +1,8 @@
 import { Decimal } from '@prisma/client/runtime'
-import { expectType } from 'tsd'
+import { expectType, TypeEqual } from 'ts-expect'
 import { JsonValue } from 'type-fest'
 import { getPGBuilder } from '..'
+import { PGTypes } from '../types/builder'
 import { PGInputField } from '../types/input'
 import { PGObject, PGOutputField } from '../types/output'
 import {
@@ -172,31 +173,49 @@ describe('object', () => {
     expect(pg.cache().object.Object).toEqual(expectValue)
 
     expectType<
-      PGObject<{
-        id: PGOutputField<string>
-        string: PGOutputField<string>
-        boolean: PGOutputField<boolean>
-        int: PGOutputField<number>
-        bigInt: PGOutputField<bigint>
-        float: PGOutputField<number>
-        dateTime: PGOutputField<Date>
-        json: PGOutputField<JsonValue>
-        byte: PGOutputField<Buffer>
-        decimal: PGOutputField<Decimal>
-        object: PGOutputField<() => typeof inner>
-        enum: PGOutputField<typeof userRole>
-        scalarList: PGOutputField<string[], any>
-        nullableScalar: PGOutputField<string | null, any>
-        nullableScalarList: PGOutputField<string[] | null, any>
-        enumList: PGOutputField<Array<typeof userRole>, any>
-        nullableEnum: PGOutputField<typeof userRole | null, any>
-        nullableEnumList: PGOutputField<Array<typeof userRole> | null, any>
-        objectList: PGOutputField<Array<() => typeof inner>, any>
-        nullableObject: PGOutputField<(() => typeof inner) | null, any>
-        nullableObjectList: PGOutputField<Array<() => typeof inner> | null, any>
-        args: PGOutputField<string, { arg: PGInputField<string> }>
-      }>
-    >(object)
+      TypeEqual<
+        typeof object,
+        PGObject<
+          {
+            id: PGOutputField<string, undefined, PGTypes>
+            string: PGOutputField<string, undefined, PGTypes>
+            boolean: PGOutputField<boolean, undefined, PGTypes>
+            int: PGOutputField<number, undefined, PGTypes>
+            bigInt: PGOutputField<bigint, undefined, PGTypes>
+            float: PGOutputField<number, undefined, PGTypes>
+            dateTime: PGOutputField<Date, undefined, PGTypes>
+            json: PGOutputField<JsonValue, undefined, PGTypes>
+            byte: PGOutputField<Buffer, undefined, PGTypes>
+            decimal: PGOutputField<Decimal, undefined, PGTypes>
+            object: PGOutputField<() => typeof inner, undefined, PGTypes>
+            enum: PGOutputField<typeof userRole, undefined, PGTypes>
+            scalarList: PGOutputField<string[], undefined, PGTypes>
+            nullableScalar: PGOutputField<string | null, undefined, PGTypes>
+            nullableScalarList: PGOutputField<string[] | null, undefined, PGTypes>
+            enumList: PGOutputField<Array<typeof userRole>, undefined, PGTypes>
+            nullableEnum: PGOutputField<typeof userRole | null, undefined, PGTypes>
+            nullableEnumList: PGOutputField<
+              Array<typeof userRole> | null,
+              undefined,
+              PGTypes
+            >
+            objectList: PGOutputField<Array<() => typeof inner>, undefined, PGTypes>
+            nullableObject: PGOutputField<(() => typeof inner) | null, undefined, PGTypes>
+            nullableObjectList: PGOutputField<
+              Array<() => typeof inner> | null,
+              undefined,
+              PGTypes
+            >
+            args: PGOutputField<
+              string,
+              { arg: PGInputField<string, 'string', PGTypes> },
+              PGTypes
+            >
+          },
+          PGTypes
+        >
+      >
+    >(true)
   })
 
   it('Returns an existing resource because a resource with the same name cannot be created', () => {

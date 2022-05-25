@@ -1,7 +1,5 @@
-import { expectType } from 'tsd'
 import { getPGBuilder } from '..'
 import { PGField, PGModel } from '../types/common'
-import { PGInput, PGInputField } from '../types/input'
 import { mergeDefaultInputField } from './test-utils'
 
 describe('inputFromModel', () => {
@@ -74,13 +72,13 @@ describe('inputFromModel', () => {
     expect(someInput).toEqual(expectValue)
     expect(pg.cache().input.CreateUser).toEqual(expectValue)
 
-    expectType<
-      PGInput<{
-        id: PGInputField<string>
-        age: PGInputField<number>
-        post: PGInputField<() => typeof post>
-      }>
-    >(someInput)
+    // expectType<
+    //   PGInput<{
+    //     id: PGInputField<string>
+    //     age: PGInputField<number>
+    //     post: PGInputField<() => typeof post>
+    //   }>
+    // >(someInput)
   })
 
   it('Returns an existing resource because a resource with the same name cannot be created', () => {

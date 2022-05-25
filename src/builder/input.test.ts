@@ -1,7 +1,8 @@
 import { Decimal } from '@prisma/client/runtime'
-import { expectType } from 'tsd'
+import { expectType, TypeEqual } from 'ts-expect'
 import { JsonValue } from 'type-fest'
 import { getPGBuilder } from '..'
+import { PGTypes } from '../types/builder'
 import { PGInput, PGInputField } from '../types/input'
 import { mergeDefaultInputField } from './test-utils'
 
@@ -256,43 +257,87 @@ describe('input', () => {
     expect(pg.cache().input.Input).toEqual(expectValue)
 
     expectType<
-      PGInput<{
-        id: PGInputField<string>
-        string: PGInputField<string>
-        boolean: PGInputField<boolean>
-        int: PGInputField<number>
-        bigInt: PGInputField<bigint>
-        float: PGInputField<number>
-        dateTime: PGInputField<Date>
-        json: PGInputField<JsonValue>
-        byte: PGInputField<Buffer>
-        decimal: PGInputField<Decimal>
-        scalarList: PGInputField<string[]>
-        nullableScalar: PGInputField<string | null | undefined>
-        nullableScalarList: PGInputField<string[] | null | undefined>
-        nullableScalarDefault: PGInputField<string | null | undefined>
-        nullableScalarListDefault: PGInputField<string[] | null | undefined>
-        scalarDefault: PGInputField<string>
-        scalarListDefault: PGInputField<string[]>
-        enum: PGInputField<typeof anEnum>
-        enumList: PGInputField<Array<typeof anEnum>>
-        nullableEnum: PGInputField<typeof anEnum | null | undefined>
-        nullableEnumList: PGInputField<Array<typeof anEnum> | null | undefined>
-        enumDefault: PGInputField<typeof anEnum>
-        enumListDefault: PGInputField<Array<typeof anEnum>>
-        nullableEnumDefault: PGInputField<typeof anEnum | null | undefined>
-        nullableEnumListDefault: PGInputField<Array<typeof anEnum> | null | undefined>
-        object: PGInputField<() => typeof inner>
-        objectList: PGInputField<Array<() => typeof inner>>
-        nullableObject: PGInputField<(() => typeof inner) | null | undefined>
-        nullableObjectList: PGInputField<Array<() => typeof inner> | null | undefined>
-        objectListDefault: PGInputField<Array<() => typeof inner>>
-        nullableObjectDefault: PGInputField<(() => typeof inner) | null | undefined>
-        nullableObjectListDefault: PGInputField<
-          Array<() => typeof inner> | null | undefined
+      TypeEqual<
+        typeof input,
+        PGInput<
+          {
+            id: PGInputField<string, 'id', PGTypes>
+            string: PGInputField<string, 'string', PGTypes>
+            boolean: PGInputField<boolean, 'boolean', PGTypes>
+            int: PGInputField<number, 'int', PGTypes>
+            bigInt: PGInputField<bigint, 'bigInt', PGTypes>
+            float: PGInputField<number, 'float', PGTypes>
+            dateTime: PGInputField<Date, 'dateTime', PGTypes>
+            json: PGInputField<JsonValue, 'json', PGTypes>
+            byte: PGInputField<Buffer, 'bytes', PGTypes>
+            decimal: PGInputField<Decimal, 'decimal', PGTypes>
+            scalarList: PGInputField<string[], 'string', PGTypes>
+            nullableScalar: PGInputField<string | null | undefined, 'string', PGTypes>
+            nullableScalarList: PGInputField<
+              string[] | null | undefined,
+              'string',
+              PGTypes
+            >
+            nullableScalarDefault: PGInputField<
+              string | null | undefined,
+              'string',
+              PGTypes
+            >
+            nullableScalarListDefault: PGInputField<
+              string[] | null | undefined,
+              'string',
+              PGTypes
+            >
+            scalarDefault: PGInputField<string, 'string', PGTypes>
+            scalarListDefault: PGInputField<string[], 'string', PGTypes>
+            enum: PGInputField<typeof anEnum, 'enum', PGTypes>
+            enumList: PGInputField<Array<typeof anEnum>, 'enum', PGTypes>
+            nullableEnum: PGInputField<typeof anEnum | null | undefined, 'enum', PGTypes>
+            nullableEnumList: PGInputField<
+              Array<typeof anEnum> | null | undefined,
+              'enum',
+              PGTypes
+            >
+            enumDefault: PGInputField<typeof anEnum, 'enum', PGTypes>
+            enumListDefault: PGInputField<Array<typeof anEnum>, 'enum', PGTypes>
+            nullableEnumDefault: PGInputField<
+              typeof anEnum | null | undefined,
+              'enum',
+              PGTypes
+            >
+            nullableEnumListDefault: PGInputField<
+              Array<typeof anEnum> | null | undefined,
+              'enum',
+              PGTypes
+            >
+            object: PGInputField<() => typeof inner, 'input', PGTypes>
+            objectList: PGInputField<Array<() => typeof inner>, 'input', PGTypes>
+            nullableObject: PGInputField<
+              (() => typeof inner) | null | undefined,
+              'input',
+              PGTypes
+            >
+            nullableObjectList: PGInputField<
+              Array<() => typeof inner> | null | undefined,
+              'input',
+              PGTypes
+            >
+            objectListDefault: PGInputField<Array<() => typeof inner>, 'input', PGTypes>
+            nullableObjectDefault: PGInputField<
+              (() => typeof inner) | null | undefined,
+              'input',
+              PGTypes
+            >
+            nullableObjectListDefault: PGInputField<
+              Array<() => typeof inner> | null | undefined,
+              'input',
+              PGTypes
+            >
+          },
+          PGTypes
         >
-      }>
-    >(input)
+      >
+    >(true)
   })
 
   it('Returns an existing resource because a resource with the same name cannot be created', () => {

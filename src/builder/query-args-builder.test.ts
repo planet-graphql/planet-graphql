@@ -1,8 +1,6 @@
 import { Decimal } from '@prisma/client/runtime'
-import { expectType } from 'tsd'
 import { JsonValue } from 'type-fest'
 import { getPGBuilder } from '..'
-import { PGInputField, PGInput } from '../types/input'
 import { mergeDefaultInputField } from './test-utils'
 
 describe('queryArgsBuilder', () => {
@@ -214,46 +212,46 @@ describe('queryArgsBuilder', () => {
         .name,
     ).toEqual('PrefixNestedObjectInnerInput')
 
-    expectType<{
-      string: PGInputField<string | null | undefined>
-      int: PGInputField<number | null | undefined>
-      float: PGInputField<number | null | undefined>
-      boolean: PGInputField<boolean | null | undefined>
-      bigint: PGInputField<bigint | null | undefined>
-      date: PGInputField<Date | null | undefined>
-      buffer: PGInputField<Buffer | null | undefined>
-      decimal: PGInputField<Decimal | null | undefined>
-      json: PGInputField<string | null | undefined>
-      object: PGInputField<
-        | PGInput<{
-            string: PGInputField<string | null | undefined>
-          }>
-        | null
-        | undefined
-      >
-      nestedObject: PGInputField<
-        | PGInput<{
-            inner: PGInputField<
-              | PGInput<{
-                  string: PGInputField<string | null | undefined>
-                }>
-              | null
-              | undefined
-            >
-          }>
-        | null
-        | undefined
-      >
-      array: PGInputField<string[] | null | undefined>
-      arrayObject: PGInputField<
-        | Array<
-            PGInput<{
-              string: PGInputField<string | null | undefined>
-            }>
-          >
-        | null
-        | undefined
-      >
-    }>(queryArgs)
+    // expectType<{
+    //   string: PGInputField<string | null | undefined>
+    //   int: PGInputField<number | null | undefined>
+    //   float: PGInputField<number | null | undefined>
+    //   boolean: PGInputField<boolean | null | undefined>
+    //   bigint: PGInputField<bigint | null | undefined>
+    //   date: PGInputField<Date | null | undefined>
+    //   buffer: PGInputField<Buffer | null | undefined>
+    //   decimal: PGInputField<Decimal | null | undefined>
+    //   json: PGInputField<string | null | undefined>
+    //   object: PGInputField<
+    //     | PGInput<{
+    //         string: PGInputField<string | null | undefined>
+    //       }>
+    //     | null
+    //     | undefined
+    //   >
+    //   nestedObject: PGInputField<
+    //     | PGInput<{
+    //         inner: PGInputField<
+    //           | PGInput<{
+    //               string: PGInputField<string | null | undefined>
+    //             }>
+    //           | null
+    //           | undefined
+    //         >
+    //       }>
+    //     | null
+    //     | undefined
+    //   >
+    //   array: PGInputField<string[] | null | undefined>
+    //   arrayObject: PGInputField<
+    //     | Array<
+    //         PGInput<{
+    //           string: PGInputField<string | null | undefined>
+    //         }>
+    //       >
+    //     | null
+    //     | undefined
+    //   >
+    // }>(queryArgs)
   })
 })

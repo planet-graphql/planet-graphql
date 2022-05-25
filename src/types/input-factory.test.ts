@@ -1,4 +1,4 @@
-import { expectType } from 'tsd'
+import { expectType, TypeEqual } from 'ts-expect'
 import { PGTypes } from './builder'
 import { PGInput, PGInputField } from './input'
 import {
@@ -7,51 +7,46 @@ import {
   PGInputFactory,
 } from './input-factory'
 
-describe('PGInputFactory', () => {
+describe.skip('PGInputFactory', () => {
   it('Type is evaluated correctly even if it contains circular references', () => {
-    type PGType = PGTypes<{
-      Context: { prisma: string }
-      PGGeneratedType: { models: {}; enums: {} }
-    }>
-
     type UserWhereFactory = PGInputFactoryWrapper<
       {
-        AND: () => PGInputFactoryWrapper<[UserWhereFactory['fieldMap']], PGType>
+        AND: () => PGInputFactoryWrapper<[UserWhereFactory['fieldMap']], PGTypes>
         name: PGInputFactoryUnion<{
           StringFilter: () => PGInputFactoryWrapper<
             {
-              equals: PGInputFactory<string, 'string', PGType>
-              in: PGInputFactory<string[], 'string', PGType>
+              equals: PGInputFactory<string, 'string', PGTypes>
+              in: PGInputFactory<string[], 'string', PGTypes>
             },
-            PGType
+            PGTypes
           >
-          String: PGInputFactory<string, 'string', PGType>
-          __default: PGInputFactory<string, 'string', PGType>
+          String: PGInputFactory<string, 'string', PGTypes>
+          __default: PGInputFactory<string, 'string', PGTypes>
         }>
-        age: PGInputFactory<number, 'int', PGType>
+        age: PGInputFactory<number, 'int', PGTypes>
         posts: () => PGInputFactoryWrapper<
           {
             every: () => PostWhereFactory
           },
-          PGType
+          PGTypes
         >
       },
-      PGType
+      PGTypes
     >
 
     type PostWhereFactory = PGInputFactoryWrapper<
       {
-        AND: () => PGInputFactoryWrapper<[PostWhereFactory['fieldMap']], PGType>
+        AND: () => PGInputFactoryWrapper<[PostWhereFactory['fieldMap']], PGTypes>
         title: () => PGInputFactoryWrapper<
           {
-            equals: PGInputFactory<string, 'string', PGType>
-            in: PGInputFactory<string[], 'string', PGType>
+            equals: PGInputFactory<string, 'string', PGTypes>
+            in: PGInputFactory<string[], 'string', PGTypes>
           },
-          PGType
+          PGTypes
         >
         author: () => UserWhereFactory
       },
-      PGType
+      PGTypes
     >
 
     const userWhere: UserWhereFactory = null as any
@@ -83,51 +78,54 @@ describe('PGInputFactory', () => {
       .build('UserWhere', true)
 
     expectType<
-      PGInputField<
-        PGInput<{
-          name: PGInputField<
-            | [
-                PGInput<{
-                  equals: PGInputField<string | null | undefined, 'string', PGType>
-                }>,
-              ]
-            | null
-            | undefined,
-            'input',
-            PGType
-          >
-          posts: PGInputField<
-            PGInput<{
-              every: PGInputField<
-                PGInput<{
-                  title: PGInputField<
-                    PGInput<{
-                      equals: PGInputField<string, 'string', PGType>
-                      in: PGInputField<string[], 'string', PGType>
-                    }>,
-                    'input',
-                    PGType
-                  >
-                  author: PGInputField<
-                    PGInput<{
-                      age: PGInputField<number, 'int', PGType>
-                    }>,
-                    'input',
-                    PGType
-                  >
-                }>,
-                'input',
-                PGType
-              >
-            }>,
-            'input',
-            PGType
-          >
-        }>,
-        'input',
-        PGType
+      TypeEqual<
+        typeof userEdited,
+        PGInputField<
+          PGInput<{
+            name: PGInputField<
+              | [
+                  PGInput<{
+                    equals: PGInputField<string | null | undefined, 'string', PGTypes>
+                  }>,
+                ]
+              | null
+              | undefined,
+              'input',
+              PGTypes
+            >
+            posts: PGInputField<
+              PGInput<{
+                every: PGInputField<
+                  PGInput<{
+                    title: PGInputField<
+                      PGInput<{
+                        equals: PGInputField<string, 'string', PGTypes>
+                        in: PGInputField<string[], 'string', PGTypes>
+                      }>,
+                      'input',
+                      PGTypes
+                    >
+                    author: PGInputField<
+                      PGInput<{
+                        age: PGInputField<number, 'int', PGTypes>
+                      }>,
+                      'input',
+                      PGTypes
+                    >
+                  }>,
+                  'input',
+                  PGTypes
+                >
+              }>,
+              'input',
+              PGTypes
+            >
+          }>,
+          'input',
+          PGTypes
+        >
       >
-    >(userEdited)
+    >(true)
 
     const postEdited = postWhere
       .edit((f) => ({
@@ -141,29 +139,36 @@ describe('PGInputFactory', () => {
       }))
       .build('PostWhere')
 
-    expectType<{
-      AND: PGInputField<
-        [
-          PGInput<{
-            title: PGInputField<
+    expectType<
+      TypeEqual<
+        typeof postEdited,
+        {
+          AND: PGInputField<
+            [
               PGInput<{
-                equals: PGInputField<string, 'string', PGType>
-                in: PGInputField<string[], 'string', PGType>
+                title: PGInputField<
+                  PGInput<{
+                    equals: PGInputField<string, 'string', PGTypes>
+                    in: PGInputField<string[], 'string', PGTypes>
+                  }>,
+                  'input',
+                  PGTypes
+                >
               }>,
-              'input',
-              PGType
-            >
-          }>,
-        ]
+            ],
+            'input',
+            PGTypes
+          >
+          title: PGInputField<
+            PGInput<{
+              equals: PGInputField<string, 'string', PGTypes>
+              in: PGInputField<string[], 'string', PGTypes>
+            }>,
+            'input',
+            PGTypes
+          >
+        }
       >
-      title: PGInputField<
-        PGInput<{
-          equals: PGInputField<string, 'string', PGType>
-          in: PGInputField<string[], 'string', PGType>
-        }>,
-        'input',
-        PGType
-      >
-    }>(postEdited)
+    >(true)
   })
 })

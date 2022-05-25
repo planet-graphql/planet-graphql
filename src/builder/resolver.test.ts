@@ -1,5 +1,6 @@
-import { expectType } from 'tsd'
+import { expectType, TypeEqual } from 'ts-expect'
 import { getPGBuilder } from '..'
+import { PGTypes } from '../types/builder'
 import { PGObject, PGOutputField } from '../types/output'
 import { mergeDefaultOutputField, setPGObjectProperties } from './test-utils'
 
@@ -64,11 +65,14 @@ describe('resolver', () => {
     expect(pg.cache().object.User).toEqual(expectValue)
 
     expectType<
-      PGObject<{
-        someID: PGOutputField<string, any>
-        someString: PGOutputField<string, any>
-        someObject: PGOutputField<() => typeof post, any>
-      }>
-    >(setResolverObject)
+      TypeEqual<
+        typeof setResolverObject,
+        PGObject<{
+          someID: PGOutputField<string, undefined, PGTypes>
+          someString: PGOutputField<string, undefined, PGTypes>
+          someObject: PGOutputField<() => typeof post, undefined, PGTypes>
+        }>
+      >
+    >(true)
   })
 })

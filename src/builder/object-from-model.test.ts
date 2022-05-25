@@ -1,8 +1,6 @@
-import { expectType } from 'tsd'
 import { getPGBuilder } from '..'
 import { PGCache } from '../types/builder'
 import { PGField, PGModel } from '../types/common'
-import { PGObject, PGOutputField } from '../types/output'
 import { mergeDefaultOutputField, setPGObjectProperties } from './test-utils'
 
 describe('objectFromModel', () => {
@@ -90,12 +88,12 @@ describe('objectFromModel', () => {
     expect(someObject).toEqual(expectValue)
     expect(pg.cache().object.User).toEqual(expectValue)
 
-    expectType<
-      PGObject<{
-        id: PGOutputField<string>
-        age: PGOutputField<number>
-        post: PGOutputField<() => typeof post, any>
-      }>
-    >(someObject)
+    // expectType<
+    //   PGObject<{
+    //     id: PGOutputField<string>
+    //     age: PGOutputField<number>
+    //     post: PGOutputField<() => typeof post, any>
+    //   }>
+    // >(someObject)
   })
 })
