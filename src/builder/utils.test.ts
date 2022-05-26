@@ -1,292 +1,8 @@
-import { AbilityBuilder, subject } from '@casl/ability'
-import { PrismaAbility } from '@casl/prisma'
 import { graphql } from 'graphql'
 import _ from 'lodash'
 import { z } from 'zod'
 import { getPGBuilder } from '..'
-import { PGTypes } from '../types/builder'
-import { PGObject, PGOutputField } from '../types/output'
-import { pgObjectToPGModel } from './test-utils'
 import { PGError } from './utils'
-
-describe('PGObject', () => {
-  describe('prismaAuth', () => {
-    it('Sets Prisma authorization rules', () => {
-      type TContext = { role: 'Admin' | 'Manager' }
-      type TPGTypeConfig = {
-        Context: TContext
-        PGGeneratedType: any
-      }
-      type TPrismaWhere = { status: string }
-
-      const pg = getPGBuilder<TPGTypeConfig>()()
-      const object: PGObject<
-        {
-          title: PGOutputField<string>
-          detail: PGOutputField<string>
-          status: PGOutputField<string>
-        },
-        PGTypes<TPGTypeConfig>,
-        TPrismaWhere
-      > = pg
-        .object('Post', (f) => ({
-          title: f.string(),
-          detail: f.string(),
-          status: f.string(),
-        }))
-        .prismaAuth(({ ctx, allow, deny }) => {
-          allow('read', { status: 'published' })
-          deny('read', ['detail'], { status: 'draft' })
-          if (ctx.role === 'Admin') {
-            allow('read')
-          }
-        })
-
-      function getAbility(ctx: TContext): PrismaAbility<any> {
-        const { can, cannot, build } = new AbilityBuilder(PrismaAbility)
-        const allowFn = (
-          action: string,
-          conditionOrFields: any,
-          condition?: TPrismaWhere,
-        ): void => {
-          if (Array.isArray(conditionOrFields)) {
-            can(action, 'Post' as any, conditionOrFields, condition as any)
-          } else {
-            can(action, 'Post' as any, conditionOrFields)
-          }
-        }
-        const denyFun = (
-          action: string,
-          conditionOrFields: any,
-          condition?: TPrismaWhere,
-        ): void => {
-          if (Array.isArray(conditionOrFields)) {
-            cannot(action, 'Post' as any, conditionOrFields, condition as any)
-          } else {
-            cannot(action, 'Post' as any, conditionOrFields)
-          }
-        }
-        object.value.prismaAuthBuilder?.({ ctx, allow: allowFn, deny: denyFun })
-        return build()
-      }
-
-      const managerAbility = getAbility({ role: 'Manager' })
-      expect(
-        managerAbility.can(
-          'read',
-          subject('Post', {
-            status: 'published',
-          }),
-        ),
-      ).toBeTruthy()
-      expect(
-        managerAbility.can(
-          'read',
-          subject('Post', {
-            status: 'xxx',
-          }),
-        ),
-      ).toBeFalsy()
-      expect(
-        managerAbility.can(
-          'read',
-          subject('Post', {
-            status: 'draft',
-          }),
-          'detail',
-        ),
-      ).toBeFalsy()
-
-      const adminAbility = getAbility({ role: 'Admin' })
-      expect(
-        adminAbility.can(
-          'read',
-          subject('Post', {
-            status: 'draft',
-          }),
-        ),
-      ).toBeTruthy()
-    })
-  })
-
-  describe('checkPrismaPermission', () => {
-    it('Checks for authorization according to the set Prisma authorization rules', async () => {
-      type TContext = { role: 'Admin' | 'LoginUser' }
-      type TPrismaWhere = { status: string }
-
-      const pg = getPGBuilder<{ Context: TContext; PGGeneratedType: any }>()()
-      const loginUserContext: TContext = { role: 'LoginUser' }
-      const adminContext: TContext = { role: 'Admin' }
-
-      const user = pg
-        .object('User', (f) => ({
-          name: f.string(),
-          config: f.string().nullable(),
-        }))
-        .prismaAuth(({ ctx, allow, deny }) => {
-          allow('read', ['name'])
-          if (ctx.role === 'Admin') {
-            allow('read')
-          }
-        })
-
-      const comment = pg
-        .object('Comment', (f) => ({
-          message: f.string(),
-          config: f.string().list(),
-          latestMessage: f.string(),
-        }))
-        .prismaAuth(({ ctx, allow, deny }) => {
-          allow('read')
-          deny('read', ['config'])
-          if (ctx.role === 'Admin') {
-            allow('read')
-          }
-        })
-
-      const model = pgObjectToPGModel<TPrismaWhere>()(
-        pg.object('Post', (f) => ({
-          id: f.id(),
-          title: f.string(),
-          detail: f.string(),
-          user: f.object(() => user),
-          comments: f.object(() => comment).list(),
-          status: f.string().nullable(),
-          config: f.string().nullable(),
-        })),
-      )
-
-      const post = pg
-        .objectFromModel(model, (keep) => keep)
-        .prismaAuth(({ ctx, allow, deny }) => {
-          deny('read', { status: 'draft' })
-          allow('read', ['title', 'user', 'comments'], { status: 'draft' })
-          allow('read', { status: 'published' })
-          deny('read', ['config'], { status: 'published' })
-          deny('read', ['id'])
-          if (ctx.role === 'Admin') {
-            allow('read')
-          }
-        })
-
-      expect(
-        post.checkPrismaPermission(loginUserContext, 'read', {
-          title: 'aaa',
-          detail: 'Text1',
-          user: {
-            name: 'xxx',
-            config: 'config1',
-          },
-          comments: [
-            {
-              message: 'message1',
-              config: ['config2'],
-            },
-            {
-              message: 'message2',
-              config: ['config3'],
-            },
-          ],
-          status: 'published',
-        }),
-      ).toEqual({
-        hasPermission: false,
-        permittedValue: {
-          title: 'aaa',
-          detail: 'Text1',
-          user: {
-            name: 'xxx',
-            config: null,
-          },
-          comments: [
-            {
-              message: 'message1',
-              config: [],
-            },
-            {
-              message: 'message2',
-              config: [],
-            },
-          ],
-          status: 'published',
-        },
-      })
-
-      expect(
-        post.checkPrismaPermission(loginUserContext, 'read', {
-          title: 'aaa',
-          detail: 'Text1',
-          status: 'published',
-        }),
-      ).toEqual({
-        hasPermission: true,
-        permittedValue: {
-          title: 'aaa',
-          detail: 'Text1',
-          status: 'published',
-        },
-      })
-
-      expect(() =>
-        post.checkPrismaPermission(loginUserContext, 'read', {
-          id: '1',
-          title: 'aaa',
-          detail: 'Text1',
-          status: 'published',
-        }),
-      ).toThrow('Prisma permission denied. Field: Post.id')
-
-      expect(
-        post.checkPrismaPermission(adminContext, 'read', {
-          id: '1',
-          title: 'aaa',
-          detail: 'Text1',
-          user: {
-            name: 'xxx',
-            config: 'config1',
-          },
-          comments: [
-            {
-              message: 'message1',
-              config: ['config2'],
-            },
-            {
-              message: 'message2',
-              config: ['config3'],
-              latestMessage: 'message3',
-            },
-          ],
-          status: 'published',
-          config: 'config4',
-        }),
-      ).toEqual({
-        hasPermission: true,
-        permittedValue: {
-          id: '1',
-          title: 'aaa',
-          detail: 'Text1',
-          user: {
-            name: 'xxx',
-            config: 'config1',
-          },
-          comments: [
-            {
-              message: 'message1',
-              config: ['config2'],
-            },
-            {
-              message: 'message2',
-              config: ['config3'],
-              latestMessage: 'message3',
-            },
-          ],
-          status: 'published',
-          config: 'config4',
-        },
-      })
-    })
-  })
-})
 
 describe('PGOutputField', () => {
   describe('auth', () => {
@@ -633,8 +349,8 @@ describe('PGInput', () => {
 
       const orderByInput = pg
         .input('OrderByInput', (f) => ({
-          id: f.string().nullable(),
-          name: f.string().nullable(),
+          id: f.string().nullish(),
+          name: f.string().nullish(),
         }))
         .validation((value, ctx) => {
           return value.id != null || value.name != null
@@ -645,11 +361,11 @@ describe('PGInput', () => {
           .object(() => content)
           .list()
           .args((f) => ({
-            passCheck: f.input(() => contentInput).nullable(),
+            passCheck: f.input(() => contentInput).nullish(),
             orderBy: f
               .input(() => orderByInput)
               .list()
-              .nullable(),
+              .nullish(),
           }))
           .resolve(({ args }) => {
             const resultContents =
@@ -854,7 +570,7 @@ describe('PGInputField', () => {
       const someInput = pg.input('SomeInput', (f) => ({
         id: f
           .id()
-          .nullable()
+          .nullish()
           .validation((scheme, ctx) =>
             ctx.user.roles.includes('Admin') ? scheme.min(5) : z.null(),
           ),
@@ -903,7 +619,7 @@ describe('PGInputField', () => {
           .args((f) => ({
             titleName: f
               .string()
-              .nullable()
+              .nullish()
               .validation((schema, ctx) => schema.max(6)),
           }))
           .nullable()
@@ -919,7 +635,7 @@ describe('PGInputField', () => {
       const userProfileInput = pg.input('UserProfileInput', (f) => ({
         age: f
           .int()
-          .nullable()
+          .nullish()
           .validation((schema, ctx) =>
             ctx.user.roles.includes('Admin') ? schema.min(20) : z.null(),
           ),
@@ -931,7 +647,7 @@ describe('PGInputField', () => {
           .list()
           .args((f) => ({
             name: f.string().validation((schema, ctx) => schema.max(6)),
-            profile: f.input(() => userProfileInput).nullable(),
+            profile: f.input(() => userProfileInput).nullish(),
           }))
           .resolve(({ args }) => {
             return users.filter((x) => args.name === x.name) ?? []

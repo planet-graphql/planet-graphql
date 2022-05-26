@@ -1,6 +1,7 @@
 import { PGBuilder, PGCache, PGTypes } from '../types/builder'
 import { PGOutputField, PGOutputFieldMap } from '../types/output'
-import { createPGObject, setCache } from './utils'
+import { createPGObject } from './object'
+import { setCache } from './utils'
 
 export const resolver: <Types extends PGTypes>(
   cache: PGCache,

@@ -1,4 +1,3 @@
-import { accessibleBy } from '@casl/prisma'
 import _ from 'lodash'
 import {
   FieldsByTypeName,
@@ -8,21 +7,13 @@ import {
 import { PGBuilder, PGCache, PGTypes } from '../types/builder'
 import { ResolveParams, PGField } from '../types/common'
 import { PGObject } from '../types/output'
-import { getPrismaAbility, getCtxCache, PGError } from './utils'
+import { PGError } from './utils'
 
 export const prismaFindArgs: <Types extends PGTypes>(
   cache: PGCache,
 ) => PGBuilder<Types>['prismaFindArgs'] =
   (cache) =>
   <T>(root: PGObject<any>, params: ResolveParams<any, any, any, any>, defaultArgs: T) => {
-    function getPrismaAuthWhere(pgObject: PGObject<any>, ctx: any): object | null {
-      const ability = getPrismaAbility(pgObject, ctx)
-      if (ability === null) {
-        return null
-      }
-      return (accessibleBy(ability) as any)[pgObject.name]
-    }
-
     function createArgs(
       rootObject: PGObject<any>,
       fieldsByTypeName: FieldsByTypeName,
@@ -31,21 +22,6 @@ export const prismaFindArgs: <Types extends PGTypes>(
       loc: ResolveTree['loc'],
     ): Record<string, any> | true | undefined {
       const returnType = Object.keys(fieldsByTypeName)[0]
-
-      if (rootObject.value.isRelayConnection === true) {
-        const edges = fieldsByTypeName[returnType].edges.fieldsByTypeName
-        const nodeTree = edges[Object.keys(edges)[0]].node
-        const created = createArgs(
-          rootObject.fieldMap.edges.value.type().fieldMap.node.value.type(),
-          nodeTree.fieldsByTypeName,
-          args,
-          dArgs,
-          nodeTree.loc,
-        )
-        const ctxCache = getCtxCache(params.context)
-        ctxCache.prismaFindArgs[`${loc.start}:${loc.end}`] = created
-        return created
-      }
       const rootModel = cache.model[rootObject.name]
       const targetArgsName = [
         'select',
@@ -70,7 +46,7 @@ export const prismaFindArgs: <Types extends PGTypes>(
           if (Array.isArray(defaultValue)) return value
         },
       )
-      const { include, where, first, after, last, before, ...rest } = mergedArgs
+      const { include, first, after, last, before, ...rest } = mergedArgs
 
       if (returnType !== rootModel.name) {
         throw new PGError(
@@ -105,17 +81,11 @@ export const prismaFindArgs: <Types extends PGTypes>(
         },
         {},
       )
-      const whereList = [where, getPrismaAuthWhere(rootObject, params.context)].filter(
-        (x) => !_.isEmpty(x),
-      )
       const includeArgs = _.merge(include, includeFromTree)
-      const whereArgs = whereList.length > 1 ? { AND: whereList } : whereList[0]
-
-      const resp = _.omitBy(
+      const resp: any = _.omitBy(
         {
           ...rest,
           include: _.isEmpty(includeArgs) ? undefined : includeArgs,
-          where: whereArgs,
         },
         _.isNil,
       )

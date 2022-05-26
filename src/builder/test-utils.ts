@@ -13,19 +13,27 @@ export function setPGObjectProperties(object: {
 }): PGObject<any> {
   return {
     kind: 'object',
-    value: object.value ?? {},
-    prismaAuth: expect.any(Function),
-    checkPrismaPermission: expect.any(Function),
     ...object,
   }
 }
 
-export function setInputFieldMethods(
-  value: PGInputField<any>['value'],
+export function mergeDefaultInputField(
+  value: Partial<PGInputField<any>['value']>,
 ): PGInputField<any> {
   return {
-    value,
+    value: Object.assign(
+      {
+        kind: 'scalar',
+        isOptional: false,
+        isNullable: false,
+        isList: false,
+        type: 'id',
+      },
+      value,
+    ),
     nullable: expect.any(Function),
+    optional: expect.any(Function),
+    nullish: expect.any(Function),
     list: expect.any(Function),
     default: expect.any(Function),
     validation: expect.any(Function),
@@ -33,11 +41,20 @@ export function setInputFieldMethods(
   }
 }
 
-export function setOutputFieldMethods(
-  value: PGOutputField<any, any>['value'],
+export function mergeDefaultOutputField(
+  value: Partial<PGOutputField<any, any>['value']>,
 ): PGOutputField<any, any> {
   return {
-    value,
+    value: Object.assign(
+      {
+        kind: 'scalar',
+        isOptional: false,
+        isNullable: false,
+        isList: false,
+        type: 'id',
+      },
+      value,
+    ),
     nullable: expect.any(Function),
     list: expect.any(Function),
     args: expect.any(Function),
@@ -48,9 +65,7 @@ export function setOutputFieldMethods(
   }
 }
 
-export function pgObjectToPGModel<TPrismaWhere = any>(): <
-  T extends PGObject<any, any, any>,
->(
+export function pgObjectToPGModel<TPrismaWhere = any>(): <T extends PGObject<any, any>>(
   object: T,
   pgCache?: ReadonlyDeep<PGCache>,
 ) => PGModel<

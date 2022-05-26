@@ -1,257 +1,154 @@
-import { Decimal } from '@prisma/client/runtime'
-import { expectType } from 'tsd'
-import { getPGBuilder } from '..'
-import { PGInputField } from '../types/input'
-import { PGObject, PGOutputField } from '../types/output'
+import { DefaultScalars } from '../lib/scalars'
+import { PGTypes } from '../types/builder'
+import { createEnum } from './enum'
+import { createPGInputFieldBuilder } from './input'
 import {
-  setInputFieldMethods,
-  setOutputFieldMethods,
-  setPGObjectProperties,
-} from './test-utils'
+  createObjectBuilder,
+  createOutputField,
+  createPGObject,
+  createPGOutputFieldBuilder,
+} from './object'
+import { mergeDefaultOutputField } from './test-utils'
+import { createBuilderCache } from './utils'
 
-describe('object', () => {
-  it('Creates a new PGObject & Set it to the Build Cache', () => {
-    const pg = getPGBuilder()()
-    const userRole = pg.enum('UserRole', 'USER', 'MANAGER', 'ADMIN')
+describe('createObjectBuilder', () => {
+  it('Returns a builder that generates PGObjects & sets generated PGObjects in cache', () => {
+    const cache = createBuilderCache(DefaultScalars)
+    const inputFieldBuilder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
+    const outputFieldBuilder = createPGOutputFieldBuilder<PGTypes>(
+      DefaultScalars,
+      inputFieldBuilder,
+    )
+    const builder = createObjectBuilder<PGTypes>(cache, outputFieldBuilder)
 
-    const post = pg.object('Post', (f) => ({
-      id: f.id(),
-      title: f.string(),
-      ref: f.object(() => someObject),
+    const object = builder('SomeObject', (b) => ({
+      id: b.id(),
     }))
 
-    const someObject = pg.object('SomeObject', (f) => ({
-      someID: f.id().args((f) => ({ arg: f.string() })),
-      someString: f.string().args((f) => ({ arg: f.string() })),
-      someBoolean: f.boolean().args((f) => ({ arg: f.string() })),
-      someInt: f.int().args((f) => ({ arg: f.string() })),
-      someBigInt: f.bigInt().args((f) => ({ arg: f.string() })),
-      someFloat: f.float().args((f) => ({ arg: f.string() })),
-      someDateTime: f.dateTime().args((f) => ({ arg: f.string() })),
-      someJson: f.json().args((f) => ({ arg: f.string() })),
-      someByte: f.bytes().args((f) => ({ arg: f.string() })),
-      someDecimal: f.decimal().args((f) => ({ arg: f.string() })),
-      someObject: f.object(() => post).args((f) => ({ arg: f.string() })),
-      someEnum: f.enum(userRole).args((f) => ({ arg: f.string() })),
-      someScalarList: f.string().list(),
-      someNullableScalar: f.string().nullable(),
-      someNullableScalarList: f.string().list().nullable(),
-      someEnumList: f.enum(userRole).list(),
-      someNullableEnum: f.enum(userRole).nullable(),
-      someNullableEnumList: f.enum(userRole).list().nullable(),
-      someObjectList: f.object(() => post).list(),
-      someNullableObject: f.object(() => post).nullable(),
-      someNullableObjectList: f
-        .object(() => post)
-        .nullable()
-        .list(),
-    }))
-
-    const expectSomeArgs = {
-      arg: setInputFieldMethods({
-        kind: 'scalar',
-        isRequired: true,
-        isList: false,
-        type: 'string',
-      }),
-    }
-
-    const expectValue = setPGObjectProperties({
+    const expectValue = {
       name: 'SomeObject',
       fieldMap: {
-        someID: setOutputFieldMethods({
+        id: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'id',
-          args: expectSomeArgs,
-        }),
-        someString: setOutputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'string',
-          args: expectSomeArgs,
-        }),
-        someBoolean: setOutputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'boolean',
-          args: expectSomeArgs,
-        }),
-        someInt: setOutputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'int',
-          args: expectSomeArgs,
-        }),
-        someBigInt: setOutputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'bigInt',
-          args: expectSomeArgs,
-        }),
-        someFloat: setOutputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'float',
-          args: expectSomeArgs,
-        }),
-        someDateTime: setOutputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'dateTime',
-          args: expectSomeArgs,
-        }),
-        someJson: setOutputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'json',
-          args: expectSomeArgs,
-        }),
-        someByte: setOutputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'bytes',
-          args: expectSomeArgs,
-        }),
-        someDecimal: setOutputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'decimal',
-          args: expectSomeArgs,
-        }),
-        someObject: setOutputFieldMethods({
-          kind: 'object',
-          isRequired: true,
-          isList: false,
-          type: expect.any(Function),
-          args: expectSomeArgs,
-        }),
-        someEnum: setOutputFieldMethods({
-          kind: 'enum',
-          isRequired: true,
-          isList: false,
-          type: userRole,
-          args: expectSomeArgs,
-        }),
-        someScalarList: setOutputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: true,
-          type: 'string',
-        }),
-        someNullableScalar: setOutputFieldMethods({
-          kind: 'scalar',
-          isRequired: false,
-          isList: false,
-          type: 'string',
-        }),
-        someNullableScalarList: setOutputFieldMethods({
-          kind: 'scalar',
-          isRequired: false,
-          isList: true,
-          type: 'string',
-        }),
-        someEnumList: setOutputFieldMethods({
-          kind: 'enum',
-          isRequired: true,
-          isList: true,
-          type: userRole,
-        }),
-        someNullableEnum: setOutputFieldMethods({
-          kind: 'enum',
-          isRequired: false,
-          isList: false,
-          type: userRole,
-        }),
-        someNullableEnumList: setOutputFieldMethods({
-          kind: 'enum',
-          isRequired: false,
-          isList: true,
-          type: userRole,
-        }),
-        someObjectList: setOutputFieldMethods({
-          kind: 'object',
-          isRequired: true,
-          isList: true,
-          type: expect.any(Function),
-        }),
-        someNullableObject: setOutputFieldMethods({
-          kind: 'object',
-          isRequired: false,
-          isList: false,
-          type: expect.any(Function),
-        }),
-        someNullableObjectList: setOutputFieldMethods({
-          kind: 'object',
-          isRequired: false,
-          isList: true,
-          type: expect.any(Function),
         }),
       },
-    })
+      kind: 'object',
+    }
 
-    expect(someObject).toEqual(expectValue)
-    expect(pg.cache().object.SomeObject).toEqual(expectValue)
-
-    type ExpectArgsType = { arg: PGInputField<string> }
-    expectType<
-      PGObject<{
-        someID: PGOutputField<string, ExpectArgsType>
-        someString: PGOutputField<string, ExpectArgsType>
-        someBoolean: PGOutputField<boolean, ExpectArgsType>
-        someInt: PGOutputField<number, ExpectArgsType>
-        someBigInt: PGOutputField<bigint, ExpectArgsType>
-        someFloat: PGOutputField<number, ExpectArgsType>
-        someDateTime: PGOutputField<Date, ExpectArgsType>
-        someJson: PGOutputField<string, ExpectArgsType>
-        someByte: PGOutputField<Buffer, ExpectArgsType>
-        someDecimal: PGOutputField<Decimal, ExpectArgsType>
-        someObject: PGOutputField<() => typeof post, ExpectArgsType>
-        someEnum: PGOutputField<typeof userRole, ExpectArgsType>
-        someScalarList: PGOutputField<string[], any>
-        someNullableScalar: PGOutputField<string | null, any>
-        someNullableScalarList: PGOutputField<string[] | null, any>
-        someEnumList: PGOutputField<Array<typeof userRole>, any>
-        someNullableEnum: PGOutputField<typeof userRole | null, any>
-        someNullableEnumList: PGOutputField<Array<typeof userRole> | null, any>
-        someObjectList: PGOutputField<Array<() => typeof post>, any>
-        someNullableObject: PGOutputField<(() => typeof post) | null, any>
-        someNullableObjectList: PGOutputField<Array<() => typeof post> | null, any>
-      }>
-    >(someObject)
+    expect(object).toEqual(expectValue)
+    expect(cache.object.SomeObject).toEqual(expectValue)
   })
 
   it('Returns an existing resource because a resource with the same name cannot be created', () => {
-    const pg = getPGBuilder()()
-    pg.object('SomeObject', (f) => ({
-      id: f.id(),
+    const cache = createBuilderCache(DefaultScalars)
+    const inputFieldBuilder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
+    const outputFieldBuilder = createPGOutputFieldBuilder<PGTypes>(
+      DefaultScalars,
+      inputFieldBuilder,
+    )
+    const builder = createObjectBuilder<PGTypes>(cache, outputFieldBuilder)
+
+    builder('SomeObject', (b) => ({
+      id: b.id(),
     }))
-    expect(
-      pg.object('SomeObject', (f) => ({
-        id: f.id(),
-        title: f.string(),
-      })),
-    ).toEqual(
-      setPGObjectProperties({
-        name: 'SomeObject',
-        fieldMap: {
-          id: setOutputFieldMethods({
-            kind: 'scalar',
-            isRequired: true,
-            isList: false,
-            type: 'id',
-          }),
+
+    const object = builder('SomeObject', (b) => ({
+      int: b.int(),
+    }))
+
+    const expectValue = {
+      name: 'SomeObject',
+      fieldMap: {
+        id: mergeDefaultOutputField({
+          kind: 'scalar',
+          type: 'id',
+        }),
+      },
+      kind: 'object',
+    }
+
+    expect(object).toEqual(expectValue)
+    expect(cache.object.SomeObject).toEqual(expectValue)
+  })
+})
+
+describe('createPGOutputFieldBuilder', () => {
+  it('Returns a PGOutputFieldBuilder created for the argument ScalarMap', () => {
+    const inputFieldBuilder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
+    const builder = createPGOutputFieldBuilder<PGTypes>(DefaultScalars, inputFieldBuilder)
+
+    expect(Object.keys(builder)).toEqual([
+      ...Object.keys(DefaultScalars),
+      'enum',
+      'object',
+    ])
+  })
+
+  it('Returns a builder to create a scalar type outputField', () => {
+    const inputFieldBuilder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
+    const builder = createPGOutputFieldBuilder<PGTypes>(DefaultScalars, inputFieldBuilder)
+
+    expect(builder.id()).toEqual(
+      mergeDefaultOutputField({
+        kind: 'scalar',
+        type: 'id',
+      }),
+    )
+  })
+
+  it('Returns a builder to create a enum type outputField', () => {
+    const inputFieldBuilder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
+    const builder = createPGOutputFieldBuilder<PGTypes>(DefaultScalars, inputFieldBuilder)
+    const someEnum = createEnum('SomeEnum', 'A', 'B')
+
+    expect(builder.enum(someEnum)).toEqual(
+      mergeDefaultOutputField({
+        kind: 'enum',
+        type: someEnum,
+      }),
+    )
+  })
+
+  it('Returns a builder to create a input type inputField', () => {
+    const inputFieldBuilder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
+    const builder = createPGOutputFieldBuilder<PGTypes>(DefaultScalars, inputFieldBuilder)
+    const someObject = createPGObject('SomeInput', {
+      id: createOutputField<string, PGTypes>(
+        {
+          kind: 'scalar',
+          type: 'string',
         },
+        inputFieldBuilder,
+      ),
+    })
+
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    const type = () => someObject
+    expect(builder.object(type)).toEqual(
+      mergeDefaultOutputField({
+        kind: 'object',
+        type,
+      }),
+    )
+  })
+})
+
+describe('createOutputField', () => {
+  it('Returns a PGOutputField', () => {
+    const inputFieldBuilder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
+    const outputField = createOutputField<string, PGTypes>(
+      {
+        kind: 'scalar',
+        type: 'string',
+      },
+      inputFieldBuilder,
+    )
+
+    expect(outputField).toEqual(
+      mergeDefaultOutputField({
+        kind: 'scalar',
+        type: 'string',
       }),
     )
   })

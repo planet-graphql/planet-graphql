@@ -1,7 +1,8 @@
-import { expectType } from 'tsd'
+import { expectType, TypeEqual } from 'ts-expect'
 import { getPGBuilder } from '..'
+import { PGTypes } from '../types/builder'
 import { PGObject, PGOutputField } from '../types/output'
-import { setOutputFieldMethods, setPGObjectProperties } from './test-utils'
+import { mergeDefaultOutputField, setPGObjectProperties } from './test-utils'
 
 describe('resolver', () => {
   it('Sets resolves to each field of the PGObject', () => {
@@ -31,23 +32,17 @@ describe('resolver', () => {
     const expectValue = setPGObjectProperties({
       name: 'User',
       fieldMap: {
-        someID: setOutputFieldMethods({
+        someID: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'id',
         }),
-        someString: setOutputFieldMethods({
+        someString: mergeDefaultOutputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'string',
           resolve: expect.any(Function),
         }),
-        someObject: setOutputFieldMethods({
+        someObject: mergeDefaultOutputField({
           kind: 'object',
-          isRequired: true,
-          isList: false,
           type: expect.any(Function),
           resolve: expect.any(Function),
         }),
@@ -70,11 +65,14 @@ describe('resolver', () => {
     expect(pg.cache().object.User).toEqual(expectValue)
 
     expectType<
-      PGObject<{
-        someID: PGOutputField<string, any>
-        someString: PGOutputField<string, any>
-        someObject: PGOutputField<() => typeof post, any>
-      }>
-    >(setResolverObject)
+      TypeEqual<
+        typeof setResolverObject,
+        PGObject<{
+          someID: PGOutputField<string, undefined, PGTypes>
+          someString: PGOutputField<string, undefined, PGTypes>
+          someObject: PGOutputField<() => typeof post, undefined, PGTypes>
+        }>
+      >
+    >(true)
   })
 })

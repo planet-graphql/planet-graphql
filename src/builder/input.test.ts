@@ -1,286 +1,31 @@
-import { Decimal } from '@prisma/client/runtime'
-import { expectType } from 'tsd'
-import { getPGBuilder } from '..'
-import { PGInput, PGInputField } from '../types/input'
-import { setInputFieldMethods } from './test-utils'
+import { DefaultScalars } from '../lib/scalars'
+import { PGTypes } from '../types/builder'
+import { createEnum } from './enum'
+import {
+  createInputBuilder,
+  createInputField,
+  createPGInput,
+  createPGInputFieldBuilder,
+} from './input'
+import { mergeDefaultInputField } from './test-utils'
+import { createBuilderCache } from './utils'
 
-describe('input', () => {
-  it('Creates a new PGInput & Set it to the Build Cache', () => {
-    const pg = getPGBuilder()()
-    const someEnum = pg.enum('SomeEnum', 'VALUE1', 'VALUE2', 'VALUE3')
+describe('createInputBuilder', () => {
+  it('Returns a builder that generates PGInput & sets generated PGInputs in cache', () => {
+    const cache = createBuilderCache(DefaultScalars)
+    const fieldBuilder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
+    const builder = createInputBuilder<PGTypes>(cache, fieldBuilder)
 
-    const inner = pg.input('SomeInnerInput', (f) => ({
-      id: f.id(),
-    }))
-
-    const someInput = pg.input('SomeInput', (f) => ({
-      someID: f.id(),
-      someString: f.string(),
-      someBoolean: f.boolean(),
-      someInt: f.int(),
-      someBigInt: f.bigInt(),
-      someFloat: f.float(),
-      someDateTime: f.dateTime(),
-      someJson: f.json(),
-      someByte: f.bytes(),
-      someDecimal: f.decimal(),
-      someScalarList: f.string().list(),
-      someNullableScalar: f.string().nullable(),
-      someNullableScalarList: f.string().list().nullable(),
-      someScalarDefault: f.string().default(''),
-      someScalarListDefault: f.string().list().default(['']),
-      someNullableScalarDefault: f.string().nullable().default('').default(null),
-      someNullableScalarListDefault: f
-        .string()
-        .list()
-        .nullable()
-        .default([''])
-        .default(null),
-      someEnum: f.enum(someEnum),
-      someEnumList: f.enum(someEnum).list(),
-      someNullableEnum: f.enum(someEnum).nullable(),
-      someNullableEnumList: f.enum(someEnum).list().nullable(),
-      someEnumDefault: f.enum(someEnum).default('VALUE3'),
-      someEnumListDefault: f.enum(someEnum).list().default(['VALUE3']),
-      someNullableEnumDefault: f
-        .enum(someEnum)
-        .nullable()
-        .default('VALUE3')
-        .default(null),
-      someNullableEnumListDefault: f
-        .enum(someEnum)
-        .list()
-        .nullable()
-        .default(['VALUE3'])
-        .default(null),
-      someObject: f.input(() => inner),
-      someObjectList: f.input(() => inner).list(),
-      someNullableObject: f.input(() => inner).nullable(),
-      someNullableObjectList: f
-        .input(() => inner)
-        .nullable()
-        .list(),
-      someObjectListDefault: f
-        .input(() => inner)
-        .list()
-        .default([]),
-      someNullableObjectDefault: f
-        .input(() => inner)
-        .nullable()
-        .default(null),
-      someNullableObjectListDefault: f
-        .input(() => inner)
-        .list()
-        .nullable()
-        .default([])
-        .default(null),
+    const input = builder('SomeInput', (b) => ({
+      id: b.id(),
     }))
 
     const expectValue = {
       name: 'SomeInput',
       fieldMap: {
-        someID: setInputFieldMethods({
+        id: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'id',
-        }),
-        someString: setInputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'string',
-        }),
-        someBoolean: setInputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'boolean',
-        }),
-        someInt: setInputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'int',
-        }),
-        someBigInt: setInputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'bigInt',
-        }),
-        someFloat: setInputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'float',
-        }),
-        someDateTime: setInputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'dateTime',
-        }),
-        someJson: setInputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'json',
-        }),
-        someByte: setInputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'bytes',
-        }),
-        someDecimal: setInputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'decimal',
-        }),
-        someScalarList: setInputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: true,
-          type: 'string',
-        }),
-        someNullableScalar: setInputFieldMethods({
-          kind: 'scalar',
-          isRequired: false,
-          isList: false,
-          type: 'string',
-        }),
-        someNullableScalarList: setInputFieldMethods({
-          kind: 'scalar',
-          isRequired: false,
-          isList: true,
-          type: 'string',
-        }),
-        someNullableScalarDefault: setInputFieldMethods({
-          kind: 'scalar',
-          isRequired: false,
-          isList: false,
-          type: 'string',
-          default: null,
-        }),
-        someNullableScalarListDefault: setInputFieldMethods({
-          kind: 'scalar',
-          isRequired: false,
-          isList: true,
-          type: 'string',
-          default: null,
-        }),
-        someScalarDefault: setInputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: false,
-          type: 'string',
-          default: '',
-        }),
-        someScalarListDefault: setInputFieldMethods({
-          kind: 'scalar',
-          isRequired: true,
-          isList: true,
-          type: 'string',
-          default: [''],
-        }),
-        someEnum: setInputFieldMethods({
-          kind: 'enum',
-          isRequired: true,
-          isList: false,
-          type: someEnum,
-        }),
-        someEnumList: setInputFieldMethods({
-          kind: 'enum',
-          isRequired: true,
-          isList: true,
-          type: someEnum,
-        }),
-        someNullableEnum: setInputFieldMethods({
-          kind: 'enum',
-          isRequired: false,
-          isList: false,
-          type: someEnum,
-        }),
-        someNullableEnumList: setInputFieldMethods({
-          kind: 'enum',
-          isRequired: false,
-          isList: true,
-          type: someEnum,
-        }),
-        someEnumDefault: setInputFieldMethods({
-          kind: 'enum',
-          isRequired: true,
-          isList: false,
-          type: someEnum,
-          default: 'VALUE3',
-        }),
-        someEnumListDefault: setInputFieldMethods({
-          kind: 'enum',
-          isRequired: true,
-          isList: true,
-          type: someEnum,
-          default: ['VALUE3'],
-        }),
-        someNullableEnumDefault: setInputFieldMethods({
-          kind: 'enum',
-          isRequired: false,
-          isList: false,
-          type: someEnum,
-          default: null,
-        }),
-        someNullableEnumListDefault: setInputFieldMethods({
-          kind: 'enum',
-          isRequired: false,
-          isList: true,
-          type: someEnum,
-          default: null,
-        }),
-        someObject: setInputFieldMethods({
-          kind: 'object',
-          isRequired: true,
-          isList: false,
-          type: expect.any(Function),
-        }),
-        someObjectList: setInputFieldMethods({
-          kind: 'object',
-          isRequired: true,
-          isList: true,
-          type: expect.any(Function),
-        }),
-        someNullableObject: setInputFieldMethods({
-          kind: 'object',
-          isRequired: false,
-          isList: false,
-          type: expect.any(Function),
-        }),
-        someNullableObjectList: setInputFieldMethods({
-          kind: 'object',
-          isRequired: false,
-          isList: true,
-          type: expect.any(Function),
-        }),
-        someObjectListDefault: setInputFieldMethods({
-          kind: 'object',
-          isRequired: true,
-          isList: true,
-          type: expect.any(Function),
-          default: [],
-        }),
-        someNullableObjectDefault: setInputFieldMethods({
-          kind: 'object',
-          isRequired: false,
-          isList: false,
-          type: expect.any(Function),
-          default: null,
-        }),
-        someNullableObjectListDefault: setInputFieldMethods({
-          kind: 'object',
-          isRequired: false,
-          isList: true,
-          type: expect.any(Function),
-          default: null,
         }),
       },
       kind: 'input',
@@ -288,74 +33,104 @@ describe('input', () => {
       validation: expect.any(Function),
     }
 
-    expect(someInput).toEqual(expectValue)
-    expect(pg.cache().input.SomeInput).toEqual(expectValue)
-
-    expectType<
-      PGInput<{
-        someID: PGInputField<string>
-        someString: PGInputField<string>
-        someBoolean: PGInputField<boolean>
-        someInt: PGInputField<number>
-        someBigInt: PGInputField<bigint>
-        someFloat: PGInputField<number>
-        someDateTime: PGInputField<Date>
-        someJson: PGInputField<string>
-        someByte: PGInputField<Buffer>
-        someDecimal: PGInputField<Decimal>
-        someScalarList: PGInputField<string[]>
-        someNullableScalar: PGInputField<string | null | undefined>
-        someNullableScalarList: PGInputField<string[] | null | undefined>
-        someNullableScalarDefault: PGInputField<string | null | undefined>
-        someNullableScalarListDefault: PGInputField<string[] | null | undefined>
-        someScalarDefault: PGInputField<string>
-        someScalarListDefault: PGInputField<string[]>
-        someEnum: PGInputField<typeof someEnum>
-        someEnumList: PGInputField<Array<typeof someEnum>>
-        someNullableEnum: PGInputField<typeof someEnum | null | undefined>
-        someNullableEnumList: PGInputField<Array<typeof someEnum> | null | undefined>
-        someEnumDefault: PGInputField<typeof someEnum>
-        someEnumListDefault: PGInputField<Array<typeof someEnum>>
-        someNullableEnumDefault: PGInputField<typeof someEnum | null | undefined>
-        someNullableEnumListDefault: PGInputField<
-          Array<typeof someEnum> | null | undefined
-        >
-        someObject: PGInputField<() => typeof inner>
-        someObjectList: PGInputField<Array<() => typeof inner>>
-        someNullableObject: PGInputField<(() => typeof inner) | null | undefined>
-        someNullableObjectList: PGInputField<Array<() => typeof inner> | null | undefined>
-        someObjectListDefault: PGInputField<Array<() => typeof inner>>
-        someNullableObjectDefault: PGInputField<(() => typeof inner) | null | undefined>
-        someNullableObjectListDefault: PGInputField<
-          Array<() => typeof inner> | null | undefined
-        >
-      }>
-    >(someInput)
+    expect(input).toEqual(expectValue)
+    expect(cache.input.SomeInput).toEqual(expectValue)
   })
 
   it('Returns an existing resource because a resource with the same name cannot be created', () => {
-    const pg = getPGBuilder()()
-    pg.input('SomeInput', (f) => ({
-      id: f.id(),
+    const cache = createBuilderCache(DefaultScalars)
+    const fieldBuilder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
+    const builder = createInputBuilder<PGTypes>(cache, fieldBuilder)
+
+    builder('SomeInput', (b) => ({
+      id: b.id(),
     }))
-    expect(
-      pg.input('SomeInput', (f) => ({
-        id: f.id(),
-        title: f.string(),
-      })),
-    ).toEqual({
+
+    const input = builder('SomeInput', (b) => ({
+      int: b.int(),
+    }))
+
+    const expectValue = {
       name: 'SomeInput',
       fieldMap: {
-        id: setInputFieldMethods({
+        id: mergeDefaultInputField({
           kind: 'scalar',
-          isRequired: true,
-          isList: false,
           type: 'id',
         }),
       },
       kind: 'input',
       value: {},
       validation: expect.any(Function),
+    }
+
+    expect(input).toEqual(expectValue)
+    expect(cache.input.SomeInput).toEqual(expectValue)
+  })
+})
+
+describe('createPGInputFieldBuilder', () => {
+  it('Returns a PGInputFieldBuilder created for the argument ScalarMap', () => {
+    const builder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
+
+    expect(Object.keys(builder)).toEqual([
+      ...Object.keys(DefaultScalars),
+      'enum',
+      'input',
+    ])
+  })
+
+  it('Returns a builder to create a scalar type inputField', () => {
+    const builder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
+
+    expect(builder.id()).toEqual(
+      mergeDefaultInputField({
+        kind: 'scalar',
+        type: 'id',
+      }),
+    )
+  })
+
+  it('Returns a builder to create a enum type inputField', () => {
+    const builder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
+    const someEnum = createEnum('SomeEnum', 'A', 'B')
+
+    expect(builder.enum(someEnum)).toEqual(
+      mergeDefaultInputField({
+        kind: 'enum',
+        type: someEnum,
+      }),
+    )
+  })
+
+  it('Returns a builder to create a input type inputField', () => {
+    const builder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
+    const someInput = createPGInput('SomeInput', {
+      id: createInputField<string, 'id', PGTypes>({ kind: 'scalar', type: 'string' }),
     })
+
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    const type = () => someInput
+    expect(builder.input(type)).toEqual(
+      mergeDefaultInputField({
+        kind: 'object',
+        type,
+      }),
+    )
+  })
+})
+
+describe('createInputField', () => {
+  it('Returns a PGInputField', () => {
+    const inputField = createInputField<string, 'string', PGTypes>({
+      kind: 'scalar',
+      type: 'string',
+    })
+
+    expect(inputField).toEqual(
+      mergeDefaultInputField({
+        kind: 'scalar',
+        type: 'string',
+      }),
+    )
   })
 })

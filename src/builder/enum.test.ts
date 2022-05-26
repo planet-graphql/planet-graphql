@@ -1,4 +1,4 @@
-import { expectType } from 'tsd'
+import { expectType, TypeEqual } from 'ts-expect'
 import { getPGBuilder } from '..'
 import { PGEnum } from '../types/common'
 
@@ -12,7 +12,7 @@ describe('enum', () => {
       kind: 'enum',
     }
     expect(result).toEqual(expectValue)
-    expectType<PGEnum<['USER', 'MANAGER', 'ADMIN']>>(result)
+    expectType<TypeEqual<typeof result, PGEnum<['USER', 'MANAGER', 'ADMIN']>>>(true)
 
     const cache = pg.cache().enum.UserRole
     expect(cache).toEqual(expectValue)

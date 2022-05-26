@@ -1,13 +1,26 @@
+import { Decimal } from '@prisma/client/runtime'
 import { GraphQLBoolean, GraphQLFloat, GraphQLInt, GraphQLString } from 'graphql'
-import {
-  GraphQLBigInt,
-  GraphQLByte,
-  GraphQLDateTime,
-  GraphQLJSONObject,
-} from 'graphql-scalars'
+import { GraphQLBigInt, GraphQLByte, GraphQLDateTime, GraphQLJSON } from 'graphql-scalars'
+import { JsonValue } from 'type-fest'
 import { z } from 'zod'
+import { PGScalar } from '../types/common'
 import { PGGraphQLDecimal } from './pg-decimal-scalar'
 import { PGGraphQLID } from './pg-id-scalar'
+
+const json: PGScalar<z.ZodAny, JsonValue> = {
+  scalar: GraphQLJSON,
+  schema: () => z.any(),
+}
+
+const bytes: PGScalar<z.ZodAny, Buffer> = {
+  scalar: GraphQLByte,
+  schema: () => z.any(),
+}
+
+const decimal: PGScalar<z.ZodAny, Decimal> = {
+  scalar: PGGraphQLDecimal,
+  schema: () => z.any(),
+}
 
 export const DefaultScalars = {
   id: {
@@ -38,16 +51,7 @@ export const DefaultScalars = {
     scalar: GraphQLDateTime,
     schema: () => z.date(),
   },
-  json: {
-    scalar: GraphQLJSONObject,
-    schema: () => z.any(),
-  },
-  bytes: {
-    scalar: GraphQLByte,
-    schema: () => z.any(),
-  },
-  decimal: {
-    scalar: PGGraphQLDecimal,
-    schema: () => z.any(),
-  },
+  json,
+  bytes,
+  decimal,
 }

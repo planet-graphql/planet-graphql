@@ -18,7 +18,16 @@ export const inputFromModel: <Types extends PGTypes>(
         const field: PGInputField<any> = {
           ...value,
           nullable: () => {
-            field.value.isRequired = false
+            field.value.isNullable = true
+            return field
+          },
+          optional: () => {
+            field.value.isOptional = true
+            return field
+          },
+          nullish: () => {
+            field.value.isOptional = true
+            field.value.isNullable = true
             return field
           },
           list: () => {

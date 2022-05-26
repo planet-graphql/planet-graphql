@@ -4,7 +4,6 @@ import { JsonValue, PartialDeep, Promisable, RequireAtLeastOne } from 'type-fest
 import { IsAny } from 'type-fest/source/set-return-type'
 import { z } from 'zod'
 import { PGInput, PGInputField } from './input'
-import { PGConnectionObject, PGConnectionObjectWithTotalCount } from './output'
 
 export interface PGScalarLike {
   scalar: GraphQLScalarType<any>
@@ -45,13 +44,12 @@ export type TypeOfPGFieldType<T> = IsAny<T> extends true
   : T extends PGEnum<any>
   ? TypeOfPGEnum<T>
   : T extends PGModelBase<any>
-  ? T extends PGConnectionObjectWithTotalCount<infer U> | PGConnectionObject<infer U>
-    ? Array<TypeOfPGModelBase<U>>
-    : TypeOfPGModelBase<T>
+  ? TypeOfPGModelBase<T>
   : T
 
 export type PGFieldValue = {
-  isRequired: boolean
+  isOptional: boolean
+  isNullable: boolean
   isList: boolean
   default?: any
 } & PGFieldKindAndType
@@ -95,6 +93,9 @@ export interface PGModel<TFieldMap extends PGFieldMap, TPrismaFindManyArgs = {}>
     prismaFindManyArgs: TPrismaFindManyArgs
   }
 }
+
+export type ExcludeNullish<T> = Exclude<T, null | undefined>
+export type ExtractNullish<T> = Extract<T, null | undefined>
 
 export type IsObject<T> = T extends any[]
   ? false

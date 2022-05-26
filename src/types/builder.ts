@@ -1,4 +1,3 @@
-import { PrismaAbility } from '@casl/prisma'
 import { DMMF } from '@prisma/client/runtime'
 import DataLoader from 'dataloader'
 import {
@@ -37,15 +36,11 @@ import {
   PGInputFieldMap,
 } from './input'
 import {
-  PGConnectionObject,
-  PGConnectionObjectWithTotalCount,
   PGEditOutputFieldMap,
   PGObject,
   PGOutputField,
   PGOutputFieldBuilder,
   PGOutputFieldMap,
-  PrismaFindManyArgsBase,
-  RelayConnectionTotalCountFn,
 } from './output'
 
 export interface PGConfig {
@@ -99,17 +94,15 @@ export interface PGBuilder<
     name: string,
     fieldMap: (x: PGOutputFieldBuilder<Types>) => T,
   ) => PGObject<T, Types>
-  objectFromModel: <
-    TModel extends PGFieldMap,
-    TPrismaFindMany,
-    T extends PGEditOutputFieldMap<TModel>,
-  >(
-    model: PGModel<TModel, TPrismaFindMany>,
+  objectFromModel: <TModel extends PGFieldMap, T extends PGEditOutputFieldMap<TModel>>(
+    model: PGModel<TModel>,
     editFieldMap: (
-      keep: { [P in keyof TModel]: PGOutputField<TypeOfPGField<TModel[P]>> },
+      keep: {
+        [P in keyof TModel]: PGOutputField<TypeOfPGField<TModel[P]>, undefined, Types>
+      },
       f: PGOutputFieldBuilder<Types>,
     ) => T,
-  ) => PGObject<{ [P in keyof T]: Exclude<T[P], undefined> }, Types, TPrismaFindMany>
+  ) => PGObject<{ [P in keyof T]: Exclude<T[P], undefined> }, Types>
   enum: <T extends string[]>(name: string, ...values: T) => PGEnum<T>
   input: <T extends PGInputFieldMap>(
     name: string,
@@ -171,35 +164,6 @@ export interface PGBuilder<
     params: ResolveParams<TResolve, TSource, TArgs, Types['Context']>,
     batchLoadFn: (sourceList: readonly TSource[]) => ResolveResponse<TResolve[]>,
   ) => ResolveResponse<TResolve>
-  relayConnection: <
-    T extends PGOutputFieldMap,
-    TPrismaFindMany extends PrismaFindManyArgsBase,
-    TConnectionSource extends PGOutputFieldMap,
-    TotalCountFn extends
-      | RelayConnectionTotalCountFn<
-          TypeOfPGFieldMap<TConnectionSource>,
-          Types['Context'],
-          TPrismaFindMany
-        >
-      | undefined,
-  >(
-    object: PGObject<T, Types, TPrismaFindMany>,
-    options?: {
-      connectionSource?: PGObject<TConnectionSource>
-      totalCount?: TotalCountFn
-      cursor?: (
-        node: TypeOfPGFieldMap<T>,
-      ) => Exclude<TPrismaFindMany['cursor'], undefined>
-    },
-  ) => TotalCountFn extends undefined
-    ? PGConnectionObject<PGObject<T, Types, TPrismaFindMany>>
-    : PGConnectionObjectWithTotalCount<PGObject<T, Types, TPrismaFindMany>>
-  relayArgs: (options?: { default?: number; max?: number }) => {
-    first: PGInputField<number | null | undefined, 'int', Types>
-    after: PGInputField<string | null | undefined, 'string', Types>
-    last: PGInputField<number | null | undefined, 'int', Types>
-    before: PGInputField<string | null | undefined, 'string', Types>
-  }
   cache: () => ReadonlyDeep<PGCache>
 }
 
@@ -225,9 +189,6 @@ export interface ContextCache {
           unAuthReturnValue: null | []
         }
       | undefined
-  }
-  prismaAbility: {
-    [key: string]: PrismaAbility<any> | null | undefined
   }
   rootResolveInfo: {
     raw: GraphQLResolveInfo | null

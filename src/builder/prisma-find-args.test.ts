@@ -1,5 +1,4 @@
 import { graphql } from 'graphql'
-import { expectType } from 'tsd'
 import { getPGBuilder } from '..'
 import { ResolveParams } from '../types/common'
 import { getResolveParamsRef, pgObjectToPGModel } from './test-utils'
@@ -66,39 +65,39 @@ describe('prismaFindArgs', () => {
           include: f
             .input(() =>
               pg.input('PostsIncludeInput', (f) => ({
-                _count: f.boolean().nullable(),
+                _count: f.boolean().nullish(),
               })),
             )
-            .nullable(),
+            .nullish(),
           where: f
             .input(() =>
               pg.input('PostsWhereInput', (f) => ({
                 title: f.input(() =>
                   pg.input('PostsWhereTitleInput', (f) => ({
-                    equals: f.string().nullable(),
+                    equals: f.string().nullish(),
                   })),
                 ),
               })),
             )
-            .nullable(),
+            .nullish(),
           orderBy: f
             .input(() =>
               pg.input('PostsOrderByInput', (f) => ({
-                updatedAt: f.string().nullable(),
+                updatedAt: f.string().nullish(),
               })),
             )
-            .nullable(),
+            .nullish(),
           cursor: f
             .input(() =>
               pg.input('PostsCursorInput', (f) => ({
-                id: f.int().nullable(),
+                id: f.int().nullish(),
               })),
             )
-            .nullable(),
-          take: f.int().nullable(),
-          skip: f.int().nullable(),
-          distinct: f.string().nullable(),
-          unrelated2: f.boolean().nullable(),
+            .nullish(),
+          take: f.int().nullish(),
+          skip: f.int().nullish(),
+          distinct: f.string().nullish(),
+          unrelated2: f.boolean().nullish(),
         })),
         latestPost: f.object(() => postModel),
       }))
@@ -108,8 +107,8 @@ describe('prismaFindArgs', () => {
       const post = pg.objectFromModel(postModel, (keep, f) => ({
         ...keep,
         comments: keep.comments.args((f) => ({
-          take: f.int().nullable(),
-          unrelated3: f.boolean().nullable(),
+          take: f.int().nullish(),
+          unrelated3: f.boolean().nullish(),
         })),
       }))
 
@@ -120,45 +119,45 @@ describe('prismaFindArgs', () => {
           .object(() => user)
           .list()
           .args((f) => ({
-            select: f.string().list().nullable(),
+            select: f.string().list().nullish(),
             include: f
               .input(() =>
                 pg.input('UsersIncludeInput', (f) => ({
-                  _count: f.boolean().nullable(),
+                  _count: f.boolean().nullish(),
                 })),
               )
-              .nullable(),
+              .nullish(),
             where: f
               .input(() =>
                 pg.input('UsersWhereInput', (f) => ({
                   email: f.input(() =>
                     pg.input('PostsWhereEmailInput', (f) => ({
-                      contains: f.string().nullable(),
+                      contains: f.string().nullish(),
                     })),
                   ),
                 })),
               )
-              .nullable(),
+              .nullish(),
             orderBy: f
               .input(() =>
                 pg.input('UsersOrderByInput', (f) => ({
-                  name: f.string().nullable(),
-                  email: f.string().nullable(),
+                  name: f.string().nullish(),
+                  email: f.string().nullish(),
                 })),
               )
               .list()
-              .nullable(),
+              .nullish(),
             cursor: f
               .input(() =>
                 pg.input('UsersCursorInput', (f) => ({
-                  id: f.int().nullable(),
+                  id: f.int().nullish(),
                 })),
               )
-              .nullable(),
-            take: f.int().nullable(),
-            skip: f.int().nullable(),
-            distinct: f.string().nullable(),
-            unrelated: f.boolean().nullable(),
+              .nullish(),
+            take: f.int().nullish(),
+            skip: f.int().nullish(),
+            distinct: f.string().nullish(),
+            unrelated: f.boolean().nullish(),
           }))
           .resolve(() => {
             return [
@@ -291,9 +290,9 @@ describe('prismaFindArgs', () => {
         distinct: 'email',
       })
 
-      expectType<{
-        someArgs: string
-      }>(result)
+      // expectType<{
+      //   someArgs: string
+      // }>(result)
     })
 
     it('Generates args considering the default value of each PGInputFields', async () => {
@@ -366,7 +365,7 @@ describe('prismaFindArgs', () => {
                         equals: f.string(),
                       })),
                     )
-                    .nullable(),
+                    .nullish(),
                   someOverride: f.input(() =>
                     pg.input('CommentWhereOverrideInput', (f) => ({
                       equals: f.string().default('default'),
@@ -374,7 +373,7 @@ describe('prismaFindArgs', () => {
                   ),
                 })),
               )
-              .nullable(),
+              .nullish(),
           })),
       }))
 
@@ -409,7 +408,7 @@ describe('prismaFindArgs', () => {
                         equals: f.string(),
                       })),
                     )
-                    .nullable(),
+                    .nullish(),
                   someOverride: f.input(() =>
                     pg.input('PostWhereOverrideInput', (f) => ({
                       equals: f.string().default('default'),
@@ -417,7 +416,7 @@ describe('prismaFindArgs', () => {
                   ),
                 })),
               )
-              .nullable(),
+              .nullish(),
           }))
           .list(),
       }))
@@ -453,7 +452,7 @@ describe('prismaFindArgs', () => {
                         equals: f.string(),
                       })),
                     )
-                    .nullable(),
+                    .nullish(),
                   someOverride: f.input(() =>
                     pg.input('UserWhereOverrideInput', (f) => ({
                       equals: f.string().default('default'),
@@ -461,7 +460,7 @@ describe('prismaFindArgs', () => {
                   ),
                 })),
               )
-              .nullable(),
+              .nullish(),
           }))
           .resolve((params) => {
             paramsValue = params
@@ -578,133 +577,6 @@ describe('prismaFindArgs', () => {
       })
     })
 
-    it('Generates a Prisma where clause according to the Prisma authorization rules defined for the PGObject', async () => {
-      const query = `
-      query {
-        users (
-          where: { email: { contains: "@test.com" } },
-          take: 10,
-        ) {
-          posts {
-            comments {
-              id
-              message
-            }
-          }
-        }
-      }
-    `
-
-      const { pg, paramsRef, schema, user, comment } = getObjects()
-
-      user.prismaAuth(({ ctx, allow }) => {
-        allow('read', { isDeleted: false, profile: { isPublic: true } })
-        if (ctx.role === 'Admin') {
-          allow('read')
-        }
-      })
-      comment.prismaAuth(({ ctx, allow, deny }) => {
-        allow('read')
-        deny('read', { message: { contains: '[system message]' } })
-        if (ctx.role === 'User') {
-          deny('read', { message: { contains: 'f-word' } })
-        }
-      })
-
-      await graphql({
-        schema,
-        source: query,
-        contextValue: { role: 'User' },
-      })
-
-      const userResult = pg.prismaFindArgs(user, paramsRef.value)
-
-      expect(userResult).toEqual({
-        include: {
-          posts: {
-            include: {
-              comments: {
-                where: {
-                  AND: [
-                    {
-                      NOT: {
-                        message: {
-                          contains: 'f-word',
-                        },
-                      },
-                    },
-                    {
-                      NOT: {
-                        message: {
-                          contains: '[system message]',
-                        },
-                      },
-                    },
-                  ],
-                },
-              },
-            },
-          },
-        },
-        take: 10,
-        where: {
-          AND: [
-            {
-              email: {
-                contains: '@test.com',
-              },
-            },
-            {
-              OR: [
-                {
-                  isDeleted: false,
-                  profile: {
-                    isPublic: true,
-                  },
-                },
-              ],
-            },
-          ],
-        },
-      })
-
-      await graphql({
-        schema,
-        source: query,
-        contextValue: { role: 'Admin' },
-      })
-
-      const adminResult = pg.prismaFindArgs(user, paramsRef.value)
-
-      expect(adminResult).toEqual({
-        include: {
-          posts: {
-            include: {
-              comments: {
-                where: {
-                  AND: [
-                    {
-                      NOT: {
-                        message: {
-                          contains: '[system message]',
-                        },
-                      },
-                    },
-                  ],
-                },
-              },
-            },
-          },
-        },
-        take: 10,
-        where: {
-          email: {
-            contains: '@test.com',
-          },
-        },
-      })
-    })
-
     it('Raises an exception because the ReturnType of the Query and the PGObject specified as root are different', async () => {
       const query = `
       query {
@@ -765,10 +637,10 @@ describe('prismaFindArgs', () => {
           orderBy: f
             .input(() =>
               pg.input('PostOrderByInput', (f) => ({
-                id: f.string().nullable(),
+                id: f.string().nullish(),
               })),
             )
-            .nullable(),
+            .nullish(),
         })),
       }))
 
@@ -781,21 +653,21 @@ describe('prismaFindArgs', () => {
                 pg.input('UsersWhereInput', (f) => ({
                   name: f.input(() =>
                     pg.input('UsersWhereNameInput', (f) => ({
-                      contains: f.string().nullable(),
+                      contains: f.string().nullish(),
                     })),
                   ),
                 })),
               )
-              .nullable(),
+              .nullish(),
             orderBy: f
               .input(() =>
                 pg.input('UserOrderByInput', (f) => ({
-                  id: f.id().nullable(),
-                  name: f.string().nullable(),
+                  id: f.id().nullish(),
+                  name: f.string().nullish(),
                 })),
               )
               .list()
-              .nullable(),
+              .nullish(),
           }))
           .resolve((params) => {
             paramsValue = params
@@ -945,617 +817,6 @@ describe('prismaFindArgs', () => {
           },
         ],
       })
-    })
-  })
-
-  describe('PGConnectionObject is included in the query', () => {
-    it('Generates args considering PGConnectionObject & Set necessary info needed at resolve time to the Context Cache', async () => {
-      const query = `
-        query {
-          users ( where: { name: { equals: "xxx" } } ) {
-            edges {
-              cursor
-              node {
-                name
-                somePosts ( where: { title: { equals: "yyy" } } ){
-                  edges {
-                    cursor
-                    node {
-                      title
-                      someComments ( where: { message: { equals: "zzz" } } ){
-                        edges {
-                          cursor
-                          node {
-                            message
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      `
-
-      const pg = getPGBuilder<{
-        Context: { role: 'Admin' | 'User' }
-        PGGeneratedType: any
-      }>()()
-      const pgCache = pg.cache()
-
-      let paramsValue: ResolveParams<any, any, any, any> = null as any
-
-      const userModel = pgObjectToPGModel()(
-        pg.object('User', (f) => ({
-          id: f.id(),
-          name: f.string(),
-          somePosts: f.object(() => postModel).list(),
-        })),
-        pgCache,
-      )
-
-      const postModel = pgObjectToPGModel()(
-        pg.object('Post', (f) => ({
-          id: f.id(),
-          title: f.string(),
-          someComments: f.object(() => commentModel).list(),
-        })),
-        pgCache,
-      )
-
-      const commentModel = pgObjectToPGModel()(
-        pg.object('Comment', (f) => ({
-          id: f.id(),
-          message: f.string(),
-        })),
-        pgCache,
-      )
-
-      const user = pg.objectFromModel(userModel, (keep, f) => ({
-        ...keep,
-        somePosts: f
-          .object(() => postConnection)
-          .args((f) => ({
-            where: f
-              .input(() =>
-                pg.input('PostsWhereInput', (f) => ({
-                  title: f.input(() =>
-                    pg.input('PostsWhereTitleInput', (f) => ({
-                      equals: f.string().nullable(),
-                    })),
-                  ),
-                })),
-              )
-              .nullable(),
-          })),
-      }))
-
-      const post = pg.objectFromModel(postModel, (keep, f) => ({
-        ...keep,
-        someComments: f
-          .object(() => commentConnection)
-          .args((f) => ({
-            where: f
-              .input(() =>
-                pg.input('CommentsWhereInput', (f) => ({
-                  message: f.input(() =>
-                    pg.input('CommentsWhereMessageInput', (f) => ({
-                      equals: f.string().nullable(),
-                    })),
-                  ),
-                })),
-              )
-              .nullable(),
-          })),
-      }))
-
-      const comment = pg.objectFromModel(commentModel, (keep, f) => keep)
-
-      const userConnection = pg.relayConnection(user)
-      const postConnection = pg.relayConnection(post)
-      const commentConnection = pg.relayConnection(comment)
-
-      pg.query('users', (f) =>
-        f
-          .object(() => userConnection)
-          .args((f) => ({
-            where: f
-              .input(() =>
-                pg.input('UsersWhereInput', (f) => ({
-                  name: f.input(() =>
-                    pg.input('UsersWhereNameInput', (f) => ({
-                      equals: f.string().nullable(),
-                    })),
-                  ),
-                })),
-              )
-              .nullable(),
-          }))
-          .resolve((params) => {
-            paramsValue = params
-            return []
-          }),
-      )
-
-      const schema = pg.build()
-
-      await graphql({
-        schema,
-        source: query,
-        contextValue: { role: 'User' },
-      })
-
-      const result = pg.prismaFindArgs(userConnection, paramsValue)
-
-      expect(result).toEqual({
-        include: {
-          somePosts: {
-            include: {
-              someComments: {
-                where: {
-                  message: {
-                    equals: 'zzz',
-                  },
-                },
-              },
-            },
-            where: {
-              title: {
-                equals: 'yyy',
-              },
-            },
-          },
-        },
-        where: {
-          name: {
-            equals: 'xxx',
-          },
-        },
-      })
-
-      expect(paramsValue.context.__cache.prismaFindArgs).toEqual({
-        '27:723': {
-          include: {
-            somePosts: {
-              include: {
-                someComments: {
-                  where: {
-                    message: {
-                      equals: 'zzz',
-                    },
-                  },
-                },
-              },
-              where: {
-                title: {
-                  equals: 'yyy',
-                },
-              },
-            },
-          },
-          where: {
-            name: {
-              equals: 'xxx',
-            },
-          },
-        },
-        '173:681': {
-          include: {
-            someComments: {
-              where: {
-                message: {
-                  equals: 'zzz',
-                },
-              },
-            },
-          },
-          where: {
-            title: {
-              equals: 'yyy',
-            },
-          },
-        },
-        '354:621': {
-          where: {
-            message: {
-              equals: 'zzz',
-            },
-          },
-        },
-      })
-    })
-  })
-
-  describe('RelayArgs is specified', () => {
-    it('Returns results corresponding to the first and after', async () => {
-      const query = `
-      query {
-        users ( 
-          first: 2
-          after: "eyAiaWQiOiAyfQ=="
-          orderBy: { posts: { id: "asc" } }
-          ) {
-          edges {
-            cursor
-            node {
-              id
-              name
-            }
-          }
-        }
-      }`
-
-      const pg = getPGBuilder<{
-        Context: { role: 'Admin' | 'User' }
-        PGGeneratedType: any
-      }>()()
-      const pgCache = pg.cache()
-
-      let paramsValue: ResolveParams<any, any, any, any> = null as any
-
-      const userModel = pgObjectToPGModel()(
-        pg.object('User', (f) => ({
-          id: f.id(),
-          name: f.string(),
-        })),
-        pgCache,
-      )
-
-      const userConnection = pg.relayConnection(
-        pg.objectFromModel(userModel, (keep, f) => keep),
-      )
-
-      const userRelayArgs = pg.relayArgs()
-
-      pg.query('users', (f) =>
-        f
-          .object(() => userConnection)
-          .args((f) => ({
-            ...userRelayArgs,
-            orderBy: f.input(() =>
-              pg.input('UsersOrderByInput', (f) => ({
-                posts: f
-                  .input(() =>
-                    pg.input('PostsOrderByInput', (f) => ({
-                      id: f.id().nullable(),
-                    })),
-                  )
-                  .nullable(),
-              })),
-            ),
-          }))
-          .resolve((params) => {
-            paramsValue = params
-            return []
-          }),
-      )
-
-      const schema = pg.build()
-
-      await graphql({
-        schema,
-        source: query,
-        contextValue: { role: 'User' },
-      })
-
-      const result = pg.prismaFindArgs(userConnection, paramsValue)
-
-      expect(result).toEqual({
-        skip: 1,
-        take: 3,
-        cursor: {
-          id: 2,
-        },
-        orderBy: {
-          posts: {
-            id: 'asc',
-          },
-        },
-      })
-    })
-
-    it('Returns results corresponding to the last and before', async () => {
-      const query = `
-      query {
-        users ( 
-          last: 2
-          before: "eyAiaWQiOiAyfQ=="
-          orderBy: [{ id: "asc" }, { posts: { id: "asc" } }]
-          ) {
-          edges {
-            cursor
-            node {
-              id
-              name
-            }
-          }
-        }
-      }`
-
-      const pg = getPGBuilder<{
-        Context: { role: 'Admin' | 'User' }
-        PGGeneratedType: any
-      }>()()
-      const pgCache = pg.cache()
-
-      let paramsValue: ResolveParams<any, any, any, any> = null as any
-
-      const userModel = pgObjectToPGModel()(
-        pg.object('User', (f) => ({
-          id: f.id(),
-          name: f.string(),
-        })),
-        pgCache,
-      )
-
-      const userConnection = pg.relayConnection(
-        pg.objectFromModel(userModel, (keep, f) => keep),
-      )
-
-      const userRelayArgs = pg.relayArgs()
-
-      pg.query('users', (f) =>
-        f
-          .object(() => userConnection)
-          .args((f) => ({
-            ...userRelayArgs,
-            orderBy: f
-              .input(() =>
-                pg.input('UsersOrderByInput', (f) => ({
-                  id: f.id().nullable(),
-                  posts: f
-                    .input(() =>
-                      pg.input('PostsOrderByInput', (f) => ({
-                        id: f.id().nullable(),
-                      })),
-                    )
-                    .nullable(),
-                })),
-              )
-              .list(),
-          }))
-          .resolve((params) => {
-            paramsValue = params
-            return []
-          }),
-      )
-
-      const schema = pg.build()
-
-      await graphql({
-        schema,
-        source: query,
-        contextValue: { role: 'User' },
-      })
-
-      const result = pg.prismaFindArgs(userConnection, paramsValue)
-
-      expect(result).toEqual({
-        skip: 1,
-        take: 3,
-        cursor: {
-          id: 2,
-        },
-        orderBy: [{ id: 'desc' }, { posts: { id: 'desc' } }],
-      })
-    })
-
-    it('Returns results corresponding only to the first', async () => {
-      const query = `
-      query {
-        users ( 
-          first: 2
-          orderBy: { id: "asc" }
-          ) {
-          edges {
-            cursor
-            node {
-              id
-              name
-            }
-          }
-        }
-      }`
-
-      const pg = getPGBuilder<{
-        Context: { role: 'Admin' | 'User' }
-        PGGeneratedType: any
-      }>()()
-      const pgCache = pg.cache()
-
-      let paramsValue: ResolveParams<any, any, any, any> = null as any
-
-      const userModel = pgObjectToPGModel()(
-        pg.object('User', (f) => ({
-          id: f.id(),
-          name: f.string(),
-        })),
-        pgCache,
-      )
-
-      const userConnection = pg.relayConnection(
-        pg.objectFromModel(userModel, (keep, f) => keep),
-      )
-      const userRelayArgs = pg.relayArgs()
-
-      pg.query('users', (f) =>
-        f
-          .object(() => userConnection)
-          .args((f) => ({
-            ...userRelayArgs,
-            orderBy: f.input(() =>
-              pg.input('UsersOrderByInput', (f) => ({
-                id: f.id().nullable(),
-              })),
-            ),
-          }))
-          .resolve((params) => {
-            paramsValue = params
-            return []
-          }),
-      )
-
-      const schema = pg.build()
-
-      await graphql({
-        schema,
-        source: query,
-        contextValue: { role: 'User' },
-      })
-
-      const result = pg.prismaFindArgs(userConnection, paramsValue)
-
-      expect(result).toEqual({
-        take: 3,
-        orderBy: {
-          id: 'asc',
-        },
-      })
-    })
-
-    it('Returns results corresponding only to the last', async () => {
-      const query = `
-      query {
-        users ( 
-          last: 2
-          orderBy: { id: "asc" }
-          ) {
-          edges {
-            cursor
-            node {
-              id
-              name
-            }
-          }
-        }
-      }`
-
-      const pg = getPGBuilder<{
-        Context: { role: 'Admin' | 'User' }
-        PGGeneratedType: any
-      }>()()
-      const pgCache = pg.cache()
-
-      let paramsValue: ResolveParams<any, any, any, any> = null as any
-
-      const userModel = pgObjectToPGModel()(
-        pg.object('User', (f) => ({
-          id: f.id(),
-          name: f.string(),
-        })),
-        pgCache,
-      )
-
-      const userConnection = pg.relayConnection(
-        pg.objectFromModel(userModel, (keep, f) => keep),
-      )
-      const userRelayArgs = pg.relayArgs()
-
-      pg.query('users', (f) =>
-        f
-          .object(() => userConnection)
-          .args((f) => ({
-            ...userRelayArgs,
-            orderBy: f.input(() =>
-              pg.input('UsersOrderByInput', (f) => ({
-                id: f.id().nullable(),
-              })),
-            ),
-          }))
-          .resolve((params) => {
-            paramsValue = params
-            return []
-          }),
-      )
-
-      const schema = pg.build()
-
-      await graphql({
-        schema,
-        source: query,
-        contextValue: { role: 'User' },
-      })
-
-      const result = pg.prismaFindArgs(userConnection, paramsValue)
-
-      expect(result).toEqual({
-        take: 3,
-        orderBy: {
-          id: 'desc',
-        },
-      })
-    })
-
-    it('Returns an error if orderBy is undefined', async () => {
-      const query = `
-      query {
-        users ( 
-          first: 2
-          after: "eyAiaWQiOiAyfQ=="
-          ) {
-          edges {
-            cursor
-            node {
-              id
-              name
-            }
-          }
-        }
-      }`
-
-      const pg = getPGBuilder<{
-        Context: { role: 'Admin' | 'User' }
-        PGGeneratedType: any
-      }>()()
-      const pgCache = pg.cache()
-
-      let paramsValue: ResolveParams<any, any, any, any> = null as any
-
-      const userModel = pgObjectToPGModel()(
-        pg.object('User', (f) => ({
-          id: f.id(),
-          name: f.string(),
-        })),
-        pgCache,
-      )
-
-      const userConnection = pg.relayConnection(
-        pg.objectFromModel(userModel, (keep, f) => keep),
-      )
-      const userRelayArgs = pg.relayArgs()
-
-      pg.query('users', (f) =>
-        f
-          .object(() => userConnection)
-          .args((f) => ({
-            ...userRelayArgs,
-            orderBy: f
-              .input(() =>
-                pg.input('UsersOrderByInput', (f) => ({
-                  id: f.id().nullable(),
-                })),
-              )
-              .nullable(),
-          }))
-          .resolve((params) => {
-            paramsValue = params
-            return []
-          }),
-      )
-
-      const schema = pg.build()
-
-      await graphql({
-        schema,
-        source: query,
-        contextValue: { role: 'User' },
-      })
-
-      expect(() => pg.prismaFindArgs(userConnection, paramsValue)).toThrow(
-        'Cannot paginate without `orderBy`',
-      )
     })
   })
 })

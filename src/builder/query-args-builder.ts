@@ -2,7 +2,8 @@ import _ from 'lodash'
 import { PGBuilder, PGCache } from '../types/builder'
 import { PGInput, PGInputFieldMap } from '../types/input'
 import { getScalarTypeName } from './build'
-import { createInputField, setCache } from './utils'
+import { createInputField } from './input'
+import { setCache } from './utils'
 
 export const queryArgsBuilder: (cache: PGCache) => PGBuilder['queryArgsBuilder'] =
   (cache) => (inputNamePrefix) => (selector) => {
@@ -14,7 +15,7 @@ export const queryArgsBuilder: (cache: PGCache) => PGBuilder['queryArgsBuilder']
             acc[key] = createInputField({
               kind: 'scalar',
               type: getScalarTypeName(deArrayValue, false),
-            }).nullable()
+            }).nullish()
           } else {
             const p = `${prefix}${_.upperFirst(key)}`
             const pgInput: PGInput<any> = {
@@ -31,7 +32,7 @@ export const queryArgsBuilder: (cache: PGCache) => PGBuilder['queryArgsBuilder']
             acc[key] = createInputField({
               kind: 'object',
               type: () => pgInput,
-            }).nullable()
+            }).nullish()
           }
           if (Array.isArray(value)) acc[key] = acc[key].list()
           return acc

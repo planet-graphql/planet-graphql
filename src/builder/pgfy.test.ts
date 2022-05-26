@@ -5,7 +5,7 @@ import { getPGBuilder } from '..'
 import { DefaultScalars } from '../lib/scalars'
 import { PGField, PGEnum, PGModel } from '../types/common'
 import { PGObject } from '../types/output'
-import { setPGObjectProperties, setOutputFieldMethods } from './test-utils'
+import { setPGObjectProperties, mergeDefaultOutputField } from './test-utils'
 
 describe('pgfy', () => {
   let dmmf: DMMF.Document
@@ -143,105 +143,80 @@ describe('pgfy', () => {
     const expectModel1: PGObject<any> = setPGObjectProperties({
       name: 'Model1',
       fieldMap: {
-        id: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        id: mergeDefaultOutputField({
           kind: 'scalar',
           type: 'id',
         }),
-        string: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        string: mergeDefaultOutputField({
           kind: 'scalar',
           type: 'string',
         }),
-        json: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        json: mergeDefaultOutputField({
           kind: 'scalar',
           type: 'json',
         }),
-        int: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        int: mergeDefaultOutputField({
           kind: 'scalar',
           type: 'int',
         }),
-        float: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        float: mergeDefaultOutputField({
           kind: 'scalar',
           type: 'float',
         }),
-        boolean: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        boolean: mergeDefaultOutputField({
           kind: 'scalar',
           type: 'boolean',
         }),
-        bigInt: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        bigInt: mergeDefaultOutputField({
           kind: 'scalar',
           type: 'bigInt',
         }),
-        dateTime: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        dateTime: mergeDefaultOutputField({
           kind: 'scalar',
           type: 'dateTime',
         }),
-        bytes: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        bytes: mergeDefaultOutputField({
           kind: 'scalar',
           type: 'bytes',
         }),
-        decimal: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        decimal: mergeDefaultOutputField({
           kind: 'scalar',
           type: 'decimal',
         }),
-        nullable: setOutputFieldMethods({
-          isList: false,
-          isRequired: false,
+        nullable: mergeDefaultOutputField({
+          isOptional: true,
+          isNullable: true,
           kind: 'scalar',
           type: 'string',
         }),
-        list: setOutputFieldMethods({
+        list: mergeDefaultOutputField({
           isList: true,
-          isRequired: true,
           kind: 'scalar',
           type: 'string',
         }),
-        enum: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        enum: mergeDefaultOutputField({
           kind: 'enum',
           type: expectSomeEnum,
         }),
-        enumList: setOutputFieldMethods({
+        enumList: mergeDefaultOutputField({
           isList: true,
-          isRequired: true,
           kind: 'enum',
           type: expectSomeEnum2,
         }),
-        enumNullable: setOutputFieldMethods({
-          isList: false,
-          isRequired: false,
+        enumNullable: mergeDefaultOutputField({
+          isOptional: true,
+          isNullable: true,
           kind: 'enum',
           type: expectSomeEnum3,
         }),
-        oneToOne: setOutputFieldMethods({
-          isList: false,
-          isRequired: false,
+        oneToOne: mergeDefaultOutputField({
+          isOptional: true,
+          isNullable: true,
           kind: 'object',
           type: expect.any(Function),
         }),
-        oneToMany: setOutputFieldMethods({
+        oneToMany: mergeDefaultOutputField({
           isList: true,
-          isRequired: true,
           kind: 'object',
           type: expect.any(Function),
         }),
@@ -250,21 +225,15 @@ describe('pgfy', () => {
     const expectModel2: PGObject<any> = setPGObjectProperties({
       name: 'Model2',
       fieldMap: {
-        id: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        id: mergeDefaultOutputField({
           kind: 'scalar',
           type: 'id',
         }),
-        model1: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        model1: mergeDefaultOutputField({
           kind: 'object',
           type: expect.any(Function),
         }),
-        model1Id: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        model1Id: mergeDefaultOutputField({
           kind: 'scalar',
           type: 'int',
         }),
@@ -273,21 +242,15 @@ describe('pgfy', () => {
     const expectModel3: PGObject<any> = setPGObjectProperties({
       name: 'Model3',
       fieldMap: {
-        id: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        id: mergeDefaultOutputField({
           kind: 'scalar',
           type: 'id',
         }),
-        model1: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        model1: mergeDefaultOutputField({
           kind: 'object',
           type: expect.any(Function),
         }),
-        model1Id: setOutputFieldMethods({
-          isList: false,
-          isRequired: true,
+        model1Id: mergeDefaultOutputField({
           kind: 'scalar',
           type: 'int',
         }),
