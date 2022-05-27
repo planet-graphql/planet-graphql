@@ -12,7 +12,6 @@ export const inputFromModel: <Types extends PGTypes>(
   inputFieldBuilder: PGInputFieldBuilder<Types>,
 ) => PGBuilder<Types>['inputFromModel'] =
   (cache, inputFieldBuilder) => (name, model, editFieldMap) => {
-    if (cache.input[name] !== undefined) return cache.input[name]
     const inputPGFieldMap = Object.entries(model.fieldMap).reduce<PGInputFieldMap>(
       (acc, [key, value]) => {
         const field: PGInputField<any> = {

@@ -12,7 +12,6 @@ export const createInputBuilder: <Types extends PGTypes>(
   cache: PGCache,
   inputFieldBuilder: PGInputFieldBuilder<Types>,
 ) => PGBuilder<Types>['input'] = (cache, inputFieldBuilder) => (name, fieldMap) => {
-  if (cache.input[name] !== undefined) return cache.input[name] as PGInput<any>
   const pgInput = createPGInput(name, fieldMap(inputFieldBuilder))
   setCache(cache, pgInput)
   return pgInput

@@ -36,36 +36,6 @@ describe('createInputBuilder', () => {
     expect(input).toEqual(expectValue)
     expect(cache.input.SomeInput).toEqual(expectValue)
   })
-
-  it('Returns an existing resource because a resource with the same name cannot be created', () => {
-    const cache = createBuilderCache(DefaultScalars)
-    const fieldBuilder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
-    const builder = createInputBuilder<PGTypes>(cache, fieldBuilder)
-
-    builder('SomeInput', (b) => ({
-      id: b.id(),
-    }))
-
-    const input = builder('SomeInput', (b) => ({
-      int: b.int(),
-    }))
-
-    const expectValue = {
-      name: 'SomeInput',
-      fieldMap: {
-        id: mergeDefaultInputField({
-          kind: 'scalar',
-          type: 'id',
-        }),
-      },
-      kind: 'input',
-      value: {},
-      validation: expect.any(Function),
-    }
-
-    expect(input).toEqual(expectValue)
-    expect(cache.input.SomeInput).toEqual(expectValue)
-  })
 })
 
 describe('createPGInputFieldBuilder', () => {

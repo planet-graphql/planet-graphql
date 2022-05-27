@@ -4,17 +4,18 @@ import { PGField, PGModel, ResolveParams } from '../types/common'
 import { PGInputField } from '../types/input'
 import { PGObject, PGOutputField } from '../types/output'
 
-export function setPGObjectProperties(object: {
-  name: string
-  fieldMap: { [key: string]: any }
-  value?: {
-    isRelayConnection?: boolean
-  }
-}): PGObject<any> {
-  return {
-    kind: 'object',
-    ...object,
-  }
+export function mergeDefaultPGObject(object: Partial<PGObject<any>>): PGObject<any> {
+  return Object.assign(
+    {
+      name: '',
+      fieldMap: {},
+      kind: 'object',
+      copy: expect.any(Function),
+      update: expect.any(Function),
+      modify: expect.any(Function),
+    },
+    object,
+  )
 }
 
 export function mergeDefaultInputField(
@@ -42,8 +43,8 @@ export function mergeDefaultInputField(
 }
 
 export function mergeDefaultOutputField(
-  value: Partial<PGOutputField<any, any>['value']>,
-): PGOutputField<any, any> {
+  value: Partial<PGOutputField<any>['value']>,
+): PGOutputField<any> {
   return {
     value: Object.assign(
       {

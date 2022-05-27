@@ -2,7 +2,7 @@ import { DMMF } from '@prisma/generator-helper'
 import { PGBuilder, PGCache, PGfyResponseType, PGTypes } from '../types/builder'
 import { PGEnum, PGFieldKindAndType, PGModel } from '../types/common'
 import { PGInputFieldBuilder } from '../types/input'
-import { PGObject, PGOutputFieldMap } from '../types/output'
+import { PGObject, PGOutputFieldBuilder, PGOutputFieldMap } from '../types/output'
 import { getScalarTypeName } from './build'
 import { createEnumBuilder } from './enum'
 import { createOutputField, createPGObject } from './object'
@@ -11,8 +11,9 @@ import { PGError, setCache } from './utils'
 export const pgfy: <Types extends PGTypes>(
   cache: PGCache,
   inputFieldBuilder: PGInputFieldBuilder<Types>,
+  outputFieldBuilder: PGOutputFieldBuilder<Types>,
 ) => PGBuilder<Types>['pgfy'] =
-  (cache, inputFieldBuilder) => (datamodel: DMMF.Datamodel) => {
+  (cache, inputFieldBuilder, outputFieldBuilder) => (datamodel: DMMF.Datamodel) => {
     function convertToPGObject(
       model: DMMF.Model,
       enums: { [name: string]: PGEnum<any> },
@@ -46,7 +47,13 @@ export const pgfy: <Types extends PGTypes>(
         acc[x.name] = field
         return acc
       }, {})
-      return createPGObject(model.name, fieldMap)
+      return createPGObject(
+        model.name,
+        fieldMap,
+        cache,
+        outputFieldBuilder,
+        inputFieldBuilder,
+      )
     }
     const objectRef: { [name: string]: PGObject<any> } = {}
     const enums = datamodel.enums.reduce<PGfyResponseType['enums']>((acc, x) => {

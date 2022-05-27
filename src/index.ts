@@ -41,17 +41,17 @@ export const getPGBuilder: InitPGBuilder =
     const cache = createBuilderCache(scalarMap)
 
     const builder: PGBuilder<Types> = {
-      object: createObjectBuilder(cache, outputFieldBuilder),
-      objectFromModel: objectFromModel(cache, outputFieldBuilder),
+      object: createObjectBuilder(cache, outputFieldBuilder, inputFieldBuilder),
+      objectFromModel: objectFromModel(cache, outputFieldBuilder, inputFieldBuilder),
       enum: createEnumBuilder(cache),
       input: createInputBuilder(cache, inputFieldBuilder),
       inputFromModel: inputFromModel(cache, inputFieldBuilder),
-      resolver: resolver(cache),
+      resolver: resolver(cache, outputFieldBuilder, inputFieldBuilder),
       query: rootFieldBuilder(cache, outputFieldBuilder, 'query'),
       mutation: rootFieldBuilder(cache, outputFieldBuilder, 'mutation'),
       subscription: rootFieldBuilder(cache, outputFieldBuilder, 'subscription'),
       build: build(cache),
-      pgfy: pgfy(cache, inputFieldBuilder),
+      pgfy: pgfy(cache, inputFieldBuilder, outputFieldBuilder),
       queryArgsBuilder: queryArgsBuilder(cache),
       prismaFindArgs: prismaFindArgs(cache),
       dataloader,

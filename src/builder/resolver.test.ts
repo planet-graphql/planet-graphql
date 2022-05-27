@@ -2,7 +2,7 @@ import { expectType, TypeEqual } from 'ts-expect'
 import { getPGBuilder } from '..'
 import { PGTypes } from '../types/builder'
 import { PGObject, PGOutputField } from '../types/output'
-import { mergeDefaultOutputField, setPGObjectProperties } from './test-utils'
+import { mergeDefaultOutputField, mergeDefaultPGObject } from './test-utils'
 
 describe('resolver', () => {
   it('Sets resolves to each field of the PGObject', () => {
@@ -29,7 +29,7 @@ describe('resolver', () => {
       },
     })
 
-    const expectValue = setPGObjectProperties({
+    const expectValue = mergeDefaultPGObject({
       name: 'User',
       fieldMap: {
         someID: mergeDefaultOutputField({
@@ -67,11 +67,14 @@ describe('resolver', () => {
     expectType<
       TypeEqual<
         typeof setResolverObject,
-        PGObject<{
-          someID: PGOutputField<string, undefined, PGTypes>
-          someString: PGOutputField<string, undefined, PGTypes>
-          someObject: PGOutputField<() => typeof post, undefined, PGTypes>
-        }>
+        PGObject<
+          {
+            someID: PGOutputField<string, any, undefined, PGTypes>
+            someString: PGOutputField<string, any, undefined, PGTypes>
+            someObject: PGOutputField<() => typeof post, any, undefined, PGTypes>
+          },
+          PGTypes
+        >
       >
     >(true)
   })

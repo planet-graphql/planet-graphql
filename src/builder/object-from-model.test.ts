@@ -1,7 +1,7 @@
 import { getPGBuilder } from '..'
 import { PGCache } from '../types/builder'
 import { PGField, PGModel } from '../types/common'
-import { mergeDefaultOutputField, setPGObjectProperties } from './test-utils'
+import { mergeDefaultOutputField, mergeDefaultPGObject } from './test-utils'
 
 describe('objectFromModel', () => {
   it('Updates an existing PGObject in the Build Cache & returns it', () => {
@@ -67,7 +67,7 @@ describe('objectFromModel', () => {
       post: f.object(() => post),
     }))
 
-    const expectValue = setPGObjectProperties({
+    const expectValue = mergeDefaultPGObject({
       name: 'User',
       fieldMap: {
         id: mergeDefaultOutputField({

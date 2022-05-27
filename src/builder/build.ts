@@ -93,9 +93,7 @@ function getGraphQLInputObjectType(
   })
 }
 
-function getGraphQLFieldConfigOnlyType<
-  T extends PGOutputField<any, any> | PGInputField<any>,
->(
+function getGraphQLFieldConfigOnlyType<T extends PGOutputField<any> | PGInputField<any>>(
   cache: PGCache,
   field: T,
   typeRefFn: GetGraphqlTypeRefFn,
@@ -326,7 +324,7 @@ async function accessControlWrapper(
 
 function getGraphQLFieldConfig(
   cache: PGCache,
-  field: PGOutputField<any, PGInputFieldMap | undefined>,
+  field: PGOutputField<any, any, PGInputFieldMap>,
   typeRefFn: GetGraphqlTypeRefFn,
 ): GraphQLFieldConfig<any, any> {
   const fieldConfig: GraphQLFieldConfig<any, any> = getGraphQLFieldConfigOnlyType(
