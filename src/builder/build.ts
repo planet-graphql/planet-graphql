@@ -190,7 +190,7 @@ async function argsValidationChecker(
           field.value.kind === 'scalar'
             ? cache.scalar[field.value.type].schema
             : () => z.any()
-        const validator = field.value.validatorBuilder?.(schemaBuilder() as z.ZodAny, ctx)
+        const validator = field.value.validator?.(schemaBuilder() as z.ZodAny, ctx)
         const parsed = validator?.safeParse(argValue)
         if (parsed?.success === false) {
           e.push({
@@ -205,7 +205,7 @@ async function argsValidationChecker(
           const pgInput = field.value.type() as PGInput<any>
           const listedArgValue = Array.isArray(argValue) ? argValue : [argValue]
           for (const value of listedArgValue) {
-            const result = await pgInput.value.validatorBuilder?.(value, ctx)
+            const result = await pgInput.value.validator?.(value, ctx)
 
             if (result === false) {
               e.push({

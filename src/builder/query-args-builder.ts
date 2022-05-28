@@ -1,12 +1,15 @@
 import _ from 'lodash'
-import { PGBuilder, PGCache } from '../types/builder'
-import { PGInput, PGInputFieldMap } from '../types/input'
+import { PGBuilder, PGCache, PGTypes } from '../types/builder'
+import { PGInputFieldBuilder, PGInputFieldMap } from '../types/input'
 import { getScalarTypeName } from './build'
-import { createInputField } from './input'
+import { createInputField, createPGInput } from './input'
 import { setCache } from './utils'
 
-export const queryArgsBuilder: (cache: PGCache) => PGBuilder['queryArgsBuilder'] =
-  (cache) => (inputNamePrefix) => (selector) => {
+export const queryArgsBuilder: <Types extends PGTypes>(
+  cache: PGCache,
+  inputFieldBuilder: PGInputFieldBuilder<Types>,
+) => PGBuilder['queryArgsBuilder'] =
+  (cache, inputFieldBuilder) => (inputNamePrefix) => (selector) => {
     function createInputFieldMap(prefix: string, s: any): PGInputFieldMap {
       const inputFieldMap = Object.entries(s).reduce<PGInputFieldMap>(
         (acc, [key, value]) => {
@@ -18,16 +21,12 @@ export const queryArgsBuilder: (cache: PGCache) => PGBuilder['queryArgsBuilder']
             }).nullish()
           } else {
             const p = `${prefix}${_.upperFirst(key)}`
-            const pgInput: PGInput<any> = {
-              name: `${p}Input`,
-              fieldMap: createInputFieldMap(p, deArrayValue),
-              value: {},
-              kind: 'input',
-              validation: (builder) => {
-                pgInput.value.validatorBuilder = builder
-                return pgInput
-              },
-            }
+            const pgInput = createPGInput(
+              `${p}Input`,
+              createInputFieldMap(p, deArrayValue),
+              cache,
+              inputFieldBuilder,
+            )
             setCache(cache, pgInput)
             acc[key] = createInputField({
               kind: 'object',

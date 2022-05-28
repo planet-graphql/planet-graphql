@@ -1,8 +1,23 @@
 import { ReadonlyDeep } from 'type-fest'
 import { PGCache } from '../types/builder'
 import { PGField, PGModel, ResolveParams } from '../types/common'
-import { PGInputField } from '../types/input'
+import { PGInput, PGInputField } from '../types/input'
 import { PGObject, PGOutputField } from '../types/output'
+
+export function mergeDefaultPGInput(input: Partial<PGInput<any>>): PGInput<any> {
+  return Object.assign(
+    {
+      name: '',
+      fieldMap: {},
+      value: {},
+      kind: 'input',
+      copy: expect.any(Function),
+      update: expect.any(Function),
+      validation: expect.any(Function),
+    },
+    input,
+  )
+}
 
 export function mergeDefaultPGObject(object: Partial<PGObject<any>>): PGObject<any> {
   return Object.assign(

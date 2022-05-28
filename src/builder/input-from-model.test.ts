@@ -1,6 +1,6 @@
 import { getPGBuilder } from '..'
 import { PGField, PGModel } from '../types/common'
-import { mergeDefaultInputField } from './test-utils'
+import { mergeDefaultInputField, mergeDefaultPGInput } from './test-utils'
 
 describe('inputFromModel', () => {
   let user: PGModel<{ id: PGField<string>; age: PGField<number> }>
@@ -48,7 +48,7 @@ describe('inputFromModel', () => {
       post: f.input(() => post),
     }))
 
-    const expectValue = {
+    const expectValue = mergeDefaultPGInput({
       name: 'CreateUser',
       fieldMap: {
         id: mergeDefaultInputField({
@@ -64,10 +64,7 @@ describe('inputFromModel', () => {
           type: expect.any(Function),
         }),
       },
-      kind: 'input',
-      value: {},
-      validation: expect.any(Function),
-    }
+    })
 
     expect(someInput).toEqual(expectValue)
     expect(pg.cache().input.CreateUser).toEqual(expectValue)

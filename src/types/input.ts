@@ -12,21 +12,19 @@ import {
   TypeOfPGFieldType,
 } from './common'
 
-export interface PGInput<TFieldMap extends PGInputFieldMap, Types extends PGTypes = any> {
+export interface PGInput<T extends PGInputFieldMap, Types extends PGTypes = any> {
   name: string
-  fieldMap: TFieldMap
+  fieldMap: T
   kind: 'input'
   value: {
-    validatorBuilder?: (
-      value: TypeOfPGFieldMap<TFieldMap>,
-      context: Types['Context'],
-    ) => boolean
+    validator?: (value: TypeOfPGFieldMap<T>, context: Types['Context']) => boolean
   }
+  copy: (name: string) => this
+  update: <SetT extends PGEditInputFieldMap<T>>(
+    editFieldMap: (f: T, b: PGInputFieldBuilder<Types>) => SetT,
+  ) => PGInput<{ [P in keyof SetT]: Exclude<SetT[P], undefined> }, Types>
   validation: (
-    validatorBuilder?: (
-      value: TypeOfPGFieldMap<TFieldMap>,
-      context: Types['Context'],
-    ) => boolean,
+    validator?: (value: TypeOfPGFieldMap<T>, context: Types['Context']) => boolean,
   ) => this
 }
 
@@ -48,7 +46,7 @@ export interface PGInputField<
   Types extends PGTypes = any,
 > extends PGField<T> {
   value: PGFieldValue & {
-    validatorBuilder?: PGInputFieldValidator<TypeName, Types>
+    validator?: PGInputFieldValidator<TypeName, Types>
   }
   nullable: () => PGInputField<T | null, TypeName, Types>
   optional: () => PGInputField<T | undefined, TypeName, Types>
@@ -63,7 +61,7 @@ export interface PGInputField<
       ? []
       : Exclude<TypeOfPGFieldType<T>, undefined>,
   ) => this
-  validation: (validatorBuilder: PGInputFieldValidator<TypeName, Types>) => this
+  validation: (validator: PGInputFieldValidator<TypeName, Types>) => this
 }
 
 export interface PGInputFieldMap {

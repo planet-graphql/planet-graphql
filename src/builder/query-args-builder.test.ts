@@ -1,7 +1,7 @@
 import { Decimal } from '@prisma/client/runtime'
 import { JsonValue } from 'type-fest'
 import { getPGBuilder } from '..'
-import { mergeDefaultInputField } from './test-utils'
+import { mergeDefaultInputField, mergeDefaultPGInput } from './test-utils'
 
 describe('queryArgsBuilder', () => {
   it('Allows specifying selectors according to the specified type & Returns a PGInputFieldMap according to the contents of the Selector', () => {
@@ -150,7 +150,7 @@ describe('queryArgsBuilder', () => {
       'PrefixArrayObjectInput',
     )
     expect(pg.cache().input).toEqual({
-      PrefixObjectInput: {
+      PrefixObjectInput: mergeDefaultPGInput({
         name: 'PrefixObjectInput',
         fieldMap: {
           string: mergeDefaultInputField({
@@ -160,11 +160,8 @@ describe('queryArgsBuilder', () => {
             type: 'string',
           }),
         },
-        value: {},
-        kind: 'input',
-        validation: expect.any(Function),
-      },
-      PrefixNestedObjectInput: {
+      }),
+      PrefixNestedObjectInput: mergeDefaultPGInput({
         name: 'PrefixNestedObjectInput',
         fieldMap: {
           inner: mergeDefaultInputField({
@@ -174,11 +171,8 @@ describe('queryArgsBuilder', () => {
             type: expect.any(Function),
           }),
         },
-        value: {},
-        kind: 'input',
-        validation: expect.any(Function),
-      },
-      PrefixNestedObjectInnerInput: {
+      }),
+      PrefixNestedObjectInnerInput: mergeDefaultPGInput({
         name: 'PrefixNestedObjectInnerInput',
         fieldMap: {
           string: mergeDefaultInputField({
@@ -188,11 +182,8 @@ describe('queryArgsBuilder', () => {
             type: 'string',
           }),
         },
-        value: {},
-        kind: 'input',
-        validation: expect.any(Function),
-      },
-      PrefixArrayObjectInput: {
+      }),
+      PrefixArrayObjectInput: mergeDefaultPGInput({
         name: 'PrefixArrayObjectInput',
         fieldMap: {
           string: mergeDefaultInputField({
@@ -202,10 +193,7 @@ describe('queryArgsBuilder', () => {
             type: 'string',
           }),
         },
-        value: {},
-        kind: 'input',
-        validation: expect.any(Function),
-      },
+      }),
     })
     expect(
       (pg.cache().input.PrefixNestedObjectInput.fieldMap.inner.value.type as Function)()

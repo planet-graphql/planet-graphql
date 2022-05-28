@@ -1,10 +1,6 @@
 import { PGBuilder, PGCache, PGTypes } from '../types/builder'
-import {
-  PGInput,
-  PGInputField,
-  PGInputFieldBuilder,
-  PGInputFieldMap,
-} from '../types/input'
+import { PGInputFieldBuilder, PGInputFieldMap } from '../types/input'
+import { createInputField, createPGInput } from './input'
 import { setCache } from './utils'
 
 export const inputFromModel: <Types extends PGTypes>(
@@ -13,52 +9,16 @@ export const inputFromModel: <Types extends PGTypes>(
 ) => PGBuilder<Types>['inputFromModel'] =
   (cache, inputFieldBuilder) => (name, model, editFieldMap) => {
     const inputPGFieldMap = Object.entries(model.fieldMap).reduce<PGInputFieldMap>(
-      (acc, [key, value]) => {
-        const field: PGInputField<any> = {
-          ...value,
-          nullable: () => {
-            field.value.isNullable = true
-            return field
-          },
-          optional: () => {
-            field.value.isOptional = true
-            return field
-          },
-          nullish: () => {
-            field.value.isOptional = true
-            field.value.isNullable = true
-            return field
-          },
-          list: () => {
-            field.value.isList = true
-            return field
-          },
-          default: (value: any) => {
-            field.value.default = value
-            return field
-          },
-          validation: (validator) => {
-            field.value.validatorBuilder = validator
-            return field
-          },
-        }
-        acc[key] = field
+      (acc, [key, field]) => {
+        const inputField = createInputField(field.value)
+        acc[key] = inputField
         return acc
       },
       {},
     )
 
-    const pgFieldMap = editFieldMap(inputPGFieldMap as any, inputFieldBuilder)
-    const pgInput: PGInput<any> = {
-      name,
-      fieldMap: pgFieldMap,
-      value: {},
-      kind: 'input' as const,
-      validation: (builder) => {
-        pgInput.value.validatorBuilder = builder
-        return pgInput
-      },
-    }
+    const fieldMap = editFieldMap(inputPGFieldMap as any, inputFieldBuilder) as any
+    const pgInput = createPGInput(name, fieldMap, cache, inputFieldBuilder)
     setCache(cache, pgInput)
     return pgInput
   }

@@ -52,7 +52,7 @@ export const getPGBuilder: InitPGBuilder =
       subscription: rootFieldBuilder(cache, outputFieldBuilder, 'subscription'),
       build: build(cache),
       pgfy: pgfy(cache, inputFieldBuilder, outputFieldBuilder),
-      queryArgsBuilder: queryArgsBuilder(cache),
+      queryArgsBuilder: queryArgsBuilder(cache, inputFieldBuilder) as any,
       prismaFindArgs: prismaFindArgs(cache),
       dataloader,
       cache: () => cache,
