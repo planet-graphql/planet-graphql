@@ -118,7 +118,7 @@ describe('rootFieldBuilder', () => {
       pg.subscription('SomeSubscription', (f) =>
         f
           .string()
-          .resolve((params) => params.source)
+          .resolve((params) => '')
           .subscribe((params) => ({
             pubSubIter: pubsub.asyncIterator('somethingUpdated'),
           })),
@@ -128,7 +128,7 @@ describe('rootFieldBuilder', () => {
         pg.subscription('SomeSubscription', (f) =>
           f
             .int()
-            .resolve((params) => params.source)
+            .resolve((params) => 0)
             .subscribe((params) => ({
               pubSubIter: pubsub.asyncIterator('somethingUpdated'),
             })),

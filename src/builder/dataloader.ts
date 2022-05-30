@@ -19,7 +19,7 @@ export const dataloader: PGBuilder['dataloader'] = async (params, batchLoadFn) =
     loader = new DataLoader<
       typeof params['source'],
       PartialDeep<typeof params['__type']>
-    >(async (sourceList) => await batchLoadFn(sourceList))
+    >(async (sourceList) => await batchLoadFn(sourceList as any[]))
     loaderCache.loader[loaderKey] = loader
   }
   return await loader.load(params.source)

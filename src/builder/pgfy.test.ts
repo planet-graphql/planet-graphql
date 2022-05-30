@@ -5,7 +5,7 @@ import { getPGBuilder } from '..'
 import { DefaultScalars } from '../lib/scalars'
 import { PGField, PGEnum, PGModel } from '../types/common'
 import { PGObject } from '../types/output'
-import { setPGObjectProperties, mergeDefaultOutputField } from './test-utils'
+import { mergeDefaultPGObject, mergeDefaultOutputField } from './test-utils'
 
 describe('pgfy', () => {
   let dmmf: DMMF.Document
@@ -140,7 +140,7 @@ describe('pgfy', () => {
       name: 'SomeEnum3',
       values: ['aaa', 'bbb', 'ccc'],
     }
-    const expectModel1: PGObject<any> = setPGObjectProperties({
+    const expectModel1: PGObject<any> = mergeDefaultPGObject({
       name: 'Model1',
       fieldMap: {
         id: mergeDefaultOutputField({
@@ -222,7 +222,7 @@ describe('pgfy', () => {
         }),
       },
     })
-    const expectModel2: PGObject<any> = setPGObjectProperties({
+    const expectModel2: PGObject<any> = mergeDefaultPGObject({
       name: 'Model2',
       fieldMap: {
         id: mergeDefaultOutputField({
@@ -239,7 +239,7 @@ describe('pgfy', () => {
         }),
       },
     })
-    const expectModel3: PGObject<any> = setPGObjectProperties({
+    const expectModel3: PGObject<any> = mergeDefaultPGObject({
       name: 'Model3',
       fieldMap: {
         id: mergeDefaultOutputField({

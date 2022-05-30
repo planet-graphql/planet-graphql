@@ -5,6 +5,11 @@ import { IsAny } from 'type-fest/source/set-return-type'
 import { z } from 'zod'
 import { PGInput, PGInputField } from './input'
 
+export type ExcludeNullish<T> = Exclude<T, null | undefined>
+export type ExtractNullish<T> = Extract<T, null | undefined>
+export type AnyWithNote<Note extends string> = { [key: string]: any } & Note
+export type NeverWithNote<Note extends string> = { [key: string]: never } & Note
+
 export interface PGScalarLike {
   scalar: GraphQLScalarType<any>
   schema: () => z.ZodSchema
@@ -94,9 +99,6 @@ export interface PGModel<TFieldMap extends PGFieldMap, TPrismaFindManyArgs = {}>
   }
 }
 
-export type ExcludeNullish<T> = Exclude<T, null | undefined>
-export type ExtractNullish<T> = Extract<T, null | undefined>
-
 export type IsObject<T> = T extends any[]
   ? false
   : T extends Date
@@ -172,7 +174,9 @@ export type PGQueryArgsType<T> = IsObject<T> extends true
   : InnerPGQueryArgsType<T>
 
 export interface ResolveParams<TResolve, TSource, TArgs, TContext> {
-  source: TSource
+  source: IsAny<TSource> extends true
+    ? AnyWithNote<'The type is not fixed as it is currently being created & If you need the fixed type, consider using the modify() method of PGObject'>
+    : TSource
   args: TArgs
   context: TContext
   info: GraphQLResolveInfo

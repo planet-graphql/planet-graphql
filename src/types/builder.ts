@@ -92,13 +92,18 @@ export interface PGBuilder<
 > {
   object: <T extends PGOutputFieldMap>(
     name: string,
-    fieldMap: (x: PGOutputFieldBuilder<Types>) => T,
+    fieldMap: (b: PGOutputFieldBuilder<Types>) => T,
   ) => PGObject<T, Types>
   objectFromModel: <TModel extends PGFieldMap, T extends PGEditOutputFieldMap<TModel>>(
     model: PGModel<TModel>,
     editFieldMap: (
       keep: {
-        [P in keyof TModel]: PGOutputField<TypeOfPGField<TModel[P]>, undefined, Types>
+        [P in keyof TModel]: PGOutputField<
+          TypeOfPGField<TModel[P]>,
+          any,
+          undefined,
+          Types
+        >
       },
       f: PGOutputFieldBuilder<Types>,
     ) => T,
@@ -138,15 +143,15 @@ export interface PGBuilder<
       ) => ResolveResponse<TypeOfPGField<T[P]>>
     },
   ) => PGObject<T, Types>
-  query: <TOutput extends PGOutputField<any, any>>(
+  query: <TOutput extends PGOutputField<any>>(
     name: string,
     field: (f: PGOutputFieldBuilder<Types>) => TOutput,
   ) => PGRootFieldConfig
-  mutation: <TOutput extends PGOutputField<any, any>>(
+  mutation: <TOutput extends PGOutputField<any>>(
     name: string,
     field: (f: PGOutputFieldBuilder<Types>) => TOutput,
   ) => PGRootFieldConfig
-  subscription: <TOutput extends PGOutputField<any, any>>(
+  subscription: <TOutput extends PGOutputField<any>>(
     name: string,
     fields: (f: PGOutputFieldBuilder<Types>) => TOutput,
   ) => PGRootFieldConfig

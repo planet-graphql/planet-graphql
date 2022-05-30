@@ -93,9 +93,7 @@ function getGraphQLInputObjectType(
   })
 }
 
-function getGraphQLFieldConfigOnlyType<
-  T extends PGOutputField<any, any> | PGInputField<any>,
->(
+function getGraphQLFieldConfigOnlyType<T extends PGOutputField<any> | PGInputField<any>>(
   cache: PGCache,
   field: T,
   typeRefFn: GetGraphqlTypeRefFn,
@@ -192,7 +190,7 @@ async function argsValidationChecker(
           field.value.kind === 'scalar'
             ? cache.scalar[field.value.type].schema
             : () => z.any()
-        const validator = field.value.validatorBuilder?.(schemaBuilder() as z.ZodAny, ctx)
+        const validator = field.value.validator?.(schemaBuilder() as z.ZodAny, ctx)
         const parsed = validator?.safeParse(argValue)
         if (parsed?.success === false) {
           e.push({
@@ -207,7 +205,7 @@ async function argsValidationChecker(
           const pgInput = field.value.type() as PGInput<any>
           const listedArgValue = Array.isArray(argValue) ? argValue : [argValue]
           for (const value of listedArgValue) {
-            const result = await pgInput.value.validatorBuilder?.(value, ctx)
+            const result = await pgInput.value.validator?.(value, ctx)
 
             if (result === false) {
               e.push({
@@ -326,7 +324,7 @@ async function accessControlWrapper(
 
 function getGraphQLFieldConfig(
   cache: PGCache,
-  field: PGOutputField<any, PGInputFieldMap | undefined>,
+  field: PGOutputField<any, any, PGInputFieldMap>,
   typeRefFn: GetGraphqlTypeRefFn,
 ): GraphQLFieldConfig<any, any> {
   const fieldConfig: GraphQLFieldConfig<any, any> = getGraphQLFieldConfigOnlyType(

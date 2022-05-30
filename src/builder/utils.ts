@@ -29,11 +29,8 @@ export function createBuilderCache(scalarMap: PGConfig['scalars']): PGCache {
 export function setCache(
   cache: PGCache,
   value: PGModel<any> | PGObject<any> | PGInput<any> | PGEnum<any> | PGRootFieldConfig,
-  overwrite = false,
 ): void {
-  if (overwrite || cache[value.kind][value.name] === undefined) {
-    cache[value.kind][value.name] = value
-  }
+  cache[value.kind][value.name] = value
 }
 
 export function getCtxCache(context: any): ContextCache {

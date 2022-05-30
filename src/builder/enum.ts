@@ -7,7 +7,6 @@ export const createEnumBuilder: <Types extends PGTypes>(
 ) => PGBuilder<Types>['enum'] =
   (cache) =>
   (name, ...values) => {
-    if (cache.enum[name] !== undefined) return cache.enum[name] as PGEnum<any>
     const pgEnum = createEnum(name, ...values)
     setCache(cache, pgEnum)
     return pgEnum

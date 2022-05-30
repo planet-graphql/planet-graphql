@@ -1,8 +1,10 @@
 import { withFilter } from 'graphql-subscriptions'
+import _ from 'lodash'
 import { PGBuilder, PGCache, PGTypes } from '../types/builder'
 import { PGScalarLike, PGEnum, PGFieldKindAndType } from '../types/common'
 import { PGInputFieldBuilder } from '../types/input'
 import {
+  PGModifyOutputFieldMap,
   PGObject,
   PGOutputField,
   PGOutputFieldBuilder,
@@ -13,21 +15,71 @@ import { setCache } from './utils'
 export const createObjectBuilder: <Types extends PGTypes>(
   cache: PGCache,
   outputFieldBuilder: PGOutputFieldBuilder<Types>,
-) => PGBuilder<Types>['object'] = (cache, outputFieldBuilder) => (name, fieldMap) => {
-  if (cache.object[name] !== undefined) return cache.object[name] as PGObject<any>
-  const pgObject = createPGObject(name, fieldMap(outputFieldBuilder))
-  setCache(cache, pgObject)
-  return pgObject
-}
+  inputFieldBuilder: PGInputFieldBuilder<Types>,
+) => PGBuilder<Types>['object'] =
+  (cache, outputFieldBuilder, inputFieldBuilder) => (name, fieldMap) => {
+    const pgObject = createPGObject(
+      name,
+      fieldMap(outputFieldBuilder),
+      cache,
+      outputFieldBuilder,
+      inputFieldBuilder,
+    )
+    setCache(cache, pgObject)
+    return pgObject
+  }
 
-export function createPGObject<TFieldMap extends PGOutputFieldMap>(
+export function createPGObject<TFieldMap extends PGOutputFieldMap, Types extends PGTypes>(
   name: string,
   fieldMap: TFieldMap,
+  cache: PGCache,
+  outputFieldBuilder: PGOutputFieldBuilder<Types>,
+  inputFieldBuilder: PGInputFieldBuilder<Types>,
 ): PGObject<TFieldMap> {
   const pgObject: PGObject<TFieldMap> = {
     name,
     fieldMap,
     kind: 'object',
+    copy: (name) => {
+      const newFieldMap = _.mapValues(pgObject.fieldMap, (field) => {
+        const clonedValue = _.cloneDeep(field.value)
+        const newField = createOutputField(clonedValue, inputFieldBuilder)
+        newField.value = clonedValue
+        return newField
+      })
+      const copy = createPGObject(
+        name,
+        newFieldMap,
+        cache,
+        outputFieldBuilder,
+        inputFieldBuilder,
+      )
+      setCache(cache, copy)
+      return copy as PGObject<any>
+    },
+    update: (c) => {
+      const clonedFieldMap = _.mapValues(pgObject.fieldMap, (field) => {
+        const clonedValue = _.cloneDeep(field.value)
+        const newField = createOutputField(clonedValue, inputFieldBuilder)
+        newField.value = clonedValue
+        return newField
+      }) as any
+      const newFieldMap = c(clonedFieldMap, outputFieldBuilder) as any
+      const updated = createPGObject(
+        name,
+        newFieldMap,
+        cache,
+        outputFieldBuilder,
+        inputFieldBuilder,
+      )
+      setCache(cache, updated)
+      return updated
+    },
+    modify: (c) => {
+      const newFieldMap = c(pgObject.fieldMap as PGModifyOutputFieldMap<any>)
+      pgObject.fieldMap = newFieldMap
+      return pgObject
+    },
   }
   return pgObject
 }
@@ -56,8 +108,8 @@ export function createPGOutputFieldBuilder<Types extends PGTypes>(
 export function createOutputField<T, Types extends PGTypes>(
   kindAndType: PGFieldKindAndType,
   inputFieldBuilder: PGInputFieldBuilder<Types>,
-): PGOutputField<T, undefined, Types> {
-  const field: PGOutputField<any, any, Types> = {
+): PGOutputField<T, any, undefined, Types> {
+  const field: PGOutputField<any> = {
     value: {
       ...kindAndType,
       isOptional: false,

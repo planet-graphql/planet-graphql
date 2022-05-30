@@ -278,7 +278,7 @@ describe('PGInput', () => {
             : value.password === value.confirmPassword
         })
 
-      const validator = findUser.value.validatorBuilder
+      const validator = findUser.value.validator
       const context = {
         user: {
           roles: ['LoginUser' as const],
@@ -576,7 +576,7 @@ describe('PGInputField', () => {
           ),
       }))
 
-      const validator = someInput.fieldMap.id.value.validatorBuilder?.(z.string(), {
+      const validator = someInput.fieldMap.id.value.validator?.(z.string(), {
         user: {
           roles: ['Admin'],
         },

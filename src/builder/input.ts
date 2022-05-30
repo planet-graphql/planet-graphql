@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { PGBuilder, PGCache, PGTypes } from '../types/builder'
 import { PGEnum, PGFieldKindAndType, PGScalarLike } from '../types/common'
 import {
@@ -12,23 +13,52 @@ export const createInputBuilder: <Types extends PGTypes>(
   cache: PGCache,
   inputFieldBuilder: PGInputFieldBuilder<Types>,
 ) => PGBuilder<Types>['input'] = (cache, inputFieldBuilder) => (name, fieldMap) => {
-  if (cache.input[name] !== undefined) return cache.input[name] as PGInput<any>
-  const pgInput = createPGInput(name, fieldMap(inputFieldBuilder))
+  const pgInput = createPGInput(
+    name,
+    fieldMap(inputFieldBuilder),
+    cache,
+    inputFieldBuilder,
+  )
   setCache(cache, pgInput)
   return pgInput
 }
 
-export function createPGInput<T extends PGInputFieldMap>(
+export function createPGInput<T extends PGInputFieldMap, Types extends PGTypes>(
   name: string,
   fieldMap: T,
+  cache: PGCache,
+  inputFieldBuilder: PGInputFieldBuilder<Types>,
 ): PGInput<T> {
   const pgInput: PGInput<T> = {
     name,
     fieldMap,
     value: {},
     kind: 'input' as const,
-    validation: (builder) => {
-      pgInput.value.validatorBuilder = builder
+    copy: (name) => {
+      const newFieldMap = _.mapValues(pgInput.fieldMap, (field) => {
+        const clonedValue = _.cloneDeep(field.value)
+        const newField = createInputField(clonedValue)
+        newField.value = clonedValue
+        return newField
+      })
+      const copy = createPGInput(name, newFieldMap, cache, inputFieldBuilder)
+      setCache(cache, copy)
+      return copy as PGInput<any>
+    },
+    update: (c) => {
+      const clonedFieldMap = _.mapValues(pgInput.fieldMap, (field) => {
+        const clonedValue = _.cloneDeep(field.value)
+        const newField = createInputField(clonedValue)
+        newField.value = clonedValue
+        return newField
+      }) as any
+      const newFieldMap = c(clonedFieldMap, inputFieldBuilder) as any
+      const updated = createPGInput(name, newFieldMap, cache, inputFieldBuilder)
+      setCache(cache, updated)
+      return updated
+    },
+    validation: (validator) => {
+      pgInput.value.validator = validator
       return pgInput
     },
   }
@@ -83,7 +113,7 @@ export function createInputField<T, TypeName extends string, Types extends PGTyp
       return field
     },
     validation: (validator) => {
-      field.value.validatorBuilder = validator
+      field.value.validator = validator
       return field
     },
     __type: undefined as any,
