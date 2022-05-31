@@ -41,20 +41,22 @@ import {
   PGOutputField,
   PGOutputFieldBuilder,
   PGOutputFieldMap,
+  PrismaArgsBase,
 } from './output'
 
 export interface PGConfig {
   scalars: { [name: string]: PGScalarLike }
 }
 
-export interface PGfyResponseType {
-  models: Record<string, PGModel<any>>
+export interface PGGeneratedType {
+  models: Record<string, PrismaArgsBase>
+  objects: Record<string, PGObject<any>>
   enums: Record<string, PGEnum<any>>
 }
 
 export interface PGTypeConfig {
   Context: object
-  PGGeneratedType: PGfyResponseType
+  GeneratedType: PGGeneratedType
 }
 
 export type PGScalarMap<T extends PGConfig['scalars']> = {

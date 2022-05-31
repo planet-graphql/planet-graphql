@@ -18,9 +18,20 @@ import {
 } from './common'
 import { PGInputFieldBuilder, PGInputFieldMap } from './input'
 
+export interface PrismaArgsBase {
+  select: any
+  include: any
+  where: any
+  orderby: any | any[]
+  cursor: any
+  take: number
+  skip: number
+  distinct: any | any[]
+}
+
 export interface PGObject<
   T extends PGOutputFieldMap,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  TPrismaModelName extends string = string,
   Types extends PGTypes = any,
 > {
   name: string
@@ -29,7 +40,11 @@ export interface PGObject<
   copy: (name: string) => this
   update: <SetT extends PGEditOutputFieldMap<T>>(
     callback: (f: T, b: PGOutputFieldBuilder<Types>) => SetT,
-  ) => PGObject<{ [P in keyof SetT]: Exclude<SetT[P], undefined> }, Types>
+  ) => PGObject<
+    { [P in keyof SetT]: Exclude<SetT[P], undefined> },
+    TPrismaModelName,
+    Types
+  >
   modify: (callback: (f: PGModifyOutputFieldMap<T>) => T) => this
 }
 
@@ -37,6 +52,8 @@ export interface PGOutputField<
   T,
   TSource = any,
   TArgs extends PGInputFieldMap | undefined = any,
+  TPrismaArgs extends PGInputFieldMap | undefined = any,
+  TPrismaModelName extends string = any,
   Types extends PGTypes = any,
 > extends PGField<T> {
   value: PGFieldValue & {
