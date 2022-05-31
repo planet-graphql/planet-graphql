@@ -1,6 +1,7 @@
 import path from 'path'
 import { DMMF } from '@prisma/client/runtime'
 import { generatorHandler } from '@prisma/generator-helper'
+import _ from 'lodash'
 import { Project, Writers } from 'ts-morph'
 import { PGError } from './builder/utils'
 
@@ -61,8 +62,133 @@ function getPGFieldType(dmmf: DMMF.Field): string {
   return `PGField<${innerType}>`
 }
 
+export function getInputsTypeProperty(arg: DMMF.SchemaArg): string {
+  const nullishSuffix =
+    (arg.isNullable ? ' | null' : '') + (arg.isRequired ? '' : ' | undefined')
+  const getProperty: (inputType: DMMF.SchemaArgInputType) => string = (inputType) => {
+    const listPrefix = inputType.isList ? 'Array<' : ''
+    const listSuffix = inputType.isList ? '>' : ''
+    if (inputType.location === 'inputObjectTypes') {
+      return `() => PGInputFactoryWrapper<${listPrefix}${_.upperFirst(
+        inputType.type as string,
+      )}Factory<Types>${listSuffix}${nullishSuffix}, Types>`
+    }
+    if (inputType.location === 'scalar') {
+      return `PGInputFactory<${
+        inputType.isList
+          ? `${
+              inputType.type === 'Null' ? 'null' : getTSType(inputType.type as string)
+            }[]`
+          : inputType.type === 'Null'
+          ? 'null'
+          : getTSType(inputType.type as string)
+      }${nullishSuffix}, '${_.lowerFirst(inputType.type as string)}', Types>`
+    }
+    if (inputType.location === 'enumTypes') {
+      return `PGInputFactory<${
+        inputType.isList
+          ? `${_.upperFirst(inputType.type as string)}Factory[]`
+          : `${_.upperFirst(inputType.type as string)}Factory`
+      }${nullishSuffix}, 'enum', Types>`
+    }
+    return ''
+  }
+
+  if (arg.inputTypes.length > 1) {
+    const unionObject = arg.inputTypes.reduce<{ [name: string]: string }>(
+      (acc, inputType) => {
+        if (acc.__default === undefined) acc.__default = getProperty(inputType)
+        if (inputType.isList) {
+          acc[(inputType.type as string) + 'List'] = getProperty(inputType)
+        }
+        acc[inputType.type as string] = getProperty(inputType)
+        return acc
+      },
+      {},
+    )
+    return `PGInputFactoryUnion<{\n${Object.entries(unionObject)
+      .map(([key, value]) => {
+        return `${key}: ${value}`
+      })
+      .join(',\n')}\n}>`
+  }
+  return getProperty(arg.inputTypes[0])
+}
+
+export function shapeInputs(
+  name: string,
+  args: DMMF.SchemaArg[],
+): {
+  name: string
+  type: Array<{
+    name: string
+    type: string
+  }>
+  inputTypes: string[]
+} {
+  return {
+    name: `${_.upperFirst(name)}Factory`,
+    type: args.map((arg) => ({
+      name: arg.name,
+      type: getInputsTypeProperty(arg),
+    })),
+    inputTypes: _.union(
+      _.compact(
+        args.flatMap((arg) =>
+          arg.inputTypes.map((inputType) =>
+            inputType.location === 'inputObjectTypes'
+              ? `${inputType.type as string}Factory`
+              : '',
+          ),
+        ),
+      ),
+    ),
+  }
+}
+
+export function getInputFactories(schema: DMMF.Schema): Array<{
+  name: string
+  type: Array<{
+    name: string
+    type: string
+  }>
+}> {
+  const getRecursiveInputs: (parents: DMMF.InputType[]) => void = (parents) => {
+    if (parents.length === 0) return
+    const inputsType = parents.map((parent) => {
+      const result = shapeInputs(parent.name, parent.fields)
+      factories.push(result)
+      return result
+    })
+    const extractNewInputsName = inputsType
+      .flatMap((t) => t.inputTypes)
+      .filter((input) => !factories.map((f) => f.name).includes(input))
+    return getRecursiveInputs(getInputObjectTypes(extractNewInputsName, schema))
+  }
+  const getInputObjectTypes: (
+    names: string[],
+    schema: DMMF.Schema,
+  ) => DMMF.InputType[] = (names, schema) => {
+    return schema.inputObjectTypes.prisma.filter((input) =>
+      names.includes(`${input.name}Factory`),
+    )
+  }
+
+  const roots = schema.outputObjectTypes.prisma
+    .filter((x) => x.name === 'Query' || x.name === 'Mutation')
+    .flatMap((x) => x.fields)
+  const factories = roots.map((root) => shapeInputs(root.name, root.args))
+  getRecursiveInputs(
+    getInputObjectTypes(
+      factories.flatMap((f) => f.inputTypes),
+      schema,
+    ),
+  )
+  return factories
+}
+
 export async function generate(
-  datamodel: DMMF.Datamodel,
+  dmmf: DMMF.Document,
   outputPath: string,
   prismaImportPath: string,
 ): Promise<void> {
@@ -77,17 +203,25 @@ export async function generate(
     moduleSpecifier: `${prismaImportPath}/runtime`,
   })
   outputFile.addImportDeclaration({
+    namedImports: ['PGTypes'],
+    moduleSpecifier: '@prismagql/prismagql/lib/types/builder',
+  })
+  outputFile.addImportDeclaration({
     namedImports: ['PGEnum', 'PGField', 'PGModel'],
     moduleSpecifier: '@prismagql/prismagql/lib/types/common',
   })
+  outputFile.addImportDeclaration({
+    namedImports: ['PGInputFactoryWrapper', 'PGInputFactoryUnion', 'PGInputFactory'],
+    moduleSpecifier: '@prismagql/prismagql/lib/types/input-factory',
+  })
   outputFile.addTypeAliases(
-    datamodel.enums.map((x) => ({
+    dmmf.datamodel.enums.map((x) => ({
       name: getEnumTypeName(x.name),
       type: `["${x.values.map((v) => v.name).join('", "')}"]`,
     })),
   )
   outputFile.addTypeAliases(
-    datamodel.models.map((x) => ({
+    dmmf.datamodel.models.map((x) => ({
       name: getModelTypeName(x.name),
       // FIXME:
       // I would like to fix the indent that is going wrong.
@@ -103,7 +237,7 @@ export async function generate(
   outputFile.addTypeAlias({
     name: 'PGfyResponseEnums',
     type: objectType({
-      properties: datamodel.enums.map((x) => ({
+      properties: dmmf.datamodel.enums.map((x) => ({
         name: x.name,
         type: `PGEnum<${getEnumTypeName(x.name)}>`,
       })),
@@ -112,20 +246,65 @@ export async function generate(
   outputFile.addTypeAlias({
     name: 'PGfyResponseModels',
     type: objectType({
-      properties: datamodel.models.map((x) => ({
+      properties: dmmf.datamodel.models.map((x) => ({
         name: x.name,
         type: `PGModel<${getModelTypeName(x.name)}, Prisma.${x.name}WhereInput>`,
       })),
     }),
   })
-  outputFile.addInterface({
-    name: 'PGfyResponse',
-    properties: [
-      { name: 'enums', type: 'PGfyResponseEnums' },
-      { name: 'models', type: 'PGfyResponseModels' },
-    ],
-    isExported: true,
-  })
+  for (const e of [
+    ...dmmf.schema.enumTypes.prisma,
+    ...(dmmf.schema.enumTypes.model ?? []),
+  ]) {
+    outputFile.addTypeAlias({
+      name: `${e.name}Factory`,
+      type: `PGEnum<[${e.values.map((v) => `'${v}'`).join(', ')}]>`,
+    })
+  }
+  for (const factory of getInputFactories(dmmf.schema)) {
+    outputFile
+      .addTypeAlias({
+        name: factory.name,
+        type: objectType({
+          properties: factory.type,
+        }),
+      })
+      .addTypeParameter({
+        name: 'Types',
+        constraint: 'PGTypes',
+      })
+  }
+  outputFile
+    .addInterface({
+      name: 'Inputs',
+      properties: dmmf.schema.outputObjectTypes.prisma
+        .filter((x) => x.name === 'Query' || x.name === 'Mutation')
+        .flatMap((x) =>
+          x.fields.map((f) => ({
+            name: f.name,
+            type: `${_.upperFirst(f.name)}Factory<Types>`,
+          })),
+        ),
+    })
+    .addTypeParameter({
+      name: 'Types',
+      constraint: 'PGTypes',
+    })
+  outputFile
+    .addInterface({
+      name: 'PGfyResponse',
+      properties: [
+        { name: 'enums', type: 'PGfyResponseEnums' },
+        { name: 'models', type: 'PGfyResponseModels' },
+        { name: 'inputs', type: 'Inputs<Types>' },
+      ],
+      isExported: true,
+    })
+    .addTypeParameter({
+      name: 'Types',
+      constraint: 'PGTypes',
+    })
+
   // FIXME:
   // I think it would be easier to test if I just do `emitToMemory()` in generate
   // and saveFiles in the caller as shown below, but for some reason it doesn't work.
@@ -163,6 +342,6 @@ generatorHandler({
       outputPath,
       prismaClientConfig?.output?.value,
     )
-    await generate(options.dmmf.datamodel, outputPath, prismaImportPath)
+    await generate(options.dmmf, outputPath, prismaImportPath)
   },
 })
