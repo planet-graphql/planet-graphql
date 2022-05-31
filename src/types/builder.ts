@@ -204,7 +204,7 @@ export interface ContextCache {
   }
 }
 
-export type GetGraphqlTypeRefFn = () => {
+export type GraphqlTypeRef = () => {
   enums: { [name: string]: GraphQLEnumType }
   objects: { [name: string]: GraphQLObjectType }
   inputs: { [name: string]: GraphQLInputObjectType }

@@ -1,8 +1,9 @@
 import _ from 'lodash'
+import { createPGInput } from '../objects/pg-input'
+import { createInputField } from '../objects/pg-input-field'
 import { PGBuilder, PGCache, PGTypes } from '../types/builder'
 import { PGInputFieldBuilder, PGInputFieldMap } from '../types/input'
 import { getScalarTypeName } from './build'
-import { createInputField, createPGInput } from './input'
 import { setCache } from './utils'
 
 export const queryArgsBuilder: <Types extends PGTypes>(

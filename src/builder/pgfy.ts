@@ -1,11 +1,12 @@
 import { DMMF } from '@prisma/generator-helper'
+import { createPGObject } from '../objects/pg-object'
+import { createOutputField } from '../objects/pg-output-field'
 import { PGBuilder, PGCache, PGfyResponseType, PGTypes } from '../types/builder'
 import { PGEnum, PGFieldKindAndType, PGModel } from '../types/common'
 import { PGInputFieldBuilder } from '../types/input'
 import { PGObject, PGOutputFieldBuilder, PGOutputFieldMap } from '../types/output'
 import { getScalarTypeName } from './build'
 import { createEnumBuilder } from './enum'
-import { createOutputField, createPGObject } from './object'
 import { PGError, setCache } from './utils'
 
 export const pgfy: <Types extends PGTypes>(
