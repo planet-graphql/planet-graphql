@@ -45,7 +45,7 @@ function getPGFieldType(dmmf: DMMF.Field): string {
       innerType = `PGEnum<${getEnumTypeName(dmmf.type)}>`
       break
     case 'object':
-      innerType = `PGModel<${getModelTypeName(dmmf.type)}>`
+      innerType = `PGObject<${getModelTypeName(dmmf.type)}<Types>, '${dmmf.type}', Types>`
       break
     case 'scalar':
       innerType = `${getTSType(dmmf.type)}`
@@ -59,7 +59,9 @@ function getPGFieldType(dmmf: DMMF.Field): string {
   if (!dmmf.isRequired) {
     innerType = `${innerType} | null`
   }
-  return `PGField<${innerType}>`
+  return `PGOutputField<${innerType}, any, undefined, undefined, ${
+    dmmf.kind === 'object' ? `'${dmmf.type}'` : 'any'
+  }, Types>`
 }
 
 export function getInputsTypeProperty(arg: DMMF.SchemaArg): string {
@@ -207,8 +209,12 @@ export async function generate(
     moduleSpecifier: '@prismagql/prismagql/lib/types/builder',
   })
   outputFile.addImportDeclaration({
-    namedImports: ['PGEnum', 'PGField', 'PGModel'],
+    namedImports: ['PGEnum', 'RequiredNonNullable'],
     moduleSpecifier: '@prismagql/prismagql/lib/types/common',
+  })
+  outputFile.addImportDeclaration({
+    namedImports: ['PGObject', 'PGOutputField'],
+    moduleSpecifier: '@prismagql/prismagql/lib/types/output',
   })
   outputFile.addImportDeclaration({
     namedImports: ['PGInputFactoryWrapper', 'PGInputFactoryUnion', 'PGInputFactory'],
@@ -220,20 +226,25 @@ export async function generate(
       type: `["${x.values.map((v) => v.name).join('", "')}"]`,
     })),
   )
-  outputFile.addTypeAliases(
-    dmmf.datamodel.models.map((x) => ({
-      name: getModelTypeName(x.name),
-      // FIXME:
-      // I would like to fix the indent that is going wrong.
-      // At first glance, it looks like a problem on the ts-morph side.
-      type: objectType({
-        properties: x.fields.map((f) => ({
-          name: f.name,
-          type: getPGFieldType(f),
-        })),
-      }),
-    })),
-  )
+  for (const m of dmmf.datamodel.models) {
+    outputFile
+      .addTypeAlias({
+        name: getModelTypeName(m.name),
+        // FIXME:
+        // I would like to fix the indent that is going wrong.
+        // At first glance, it looks like a problem on the ts-morph side.
+        type: objectType({
+          properties: m.fields.map((f) => ({
+            name: f.name,
+            type: getPGFieldType(f),
+          })),
+        }),
+      })
+      .addTypeParameter({
+        name: 'Types',
+        constraint: 'PGTypes',
+      })
+  }
   outputFile.addTypeAlias({
     name: 'PGfyResponseEnums',
     type: objectType({
@@ -243,12 +254,26 @@ export async function generate(
       })),
     }),
   })
+  outputFile
+    .addTypeAlias({
+      name: 'PGfyResponseObjects',
+      type: objectType({
+        properties: dmmf.datamodel.models.map((x) => ({
+          name: x.name,
+          type: `PGObject<${getModelTypeName(x.name)}<Types>, '${x.name}', Types>`,
+        })),
+      }),
+    })
+    .addTypeParameter({
+      name: 'Types',
+      constraint: 'PGTypes',
+    })
   outputFile.addTypeAlias({
     name: 'PGfyResponseModels',
     type: objectType({
       properties: dmmf.datamodel.models.map((x) => ({
         name: x.name,
-        type: `PGModel<${getModelTypeName(x.name)}, Prisma.${x.name}WhereInput>`,
+        type: `RequiredNonNullable<Prisma.${x.name}FindManyArgs>`,
       })),
     }),
   })
@@ -294,6 +319,7 @@ export async function generate(
     .addInterface({
       name: 'PGfyResponse',
       properties: [
+        { name: 'objects', type: 'PGfyResponseObjects<Types>' },
         { name: 'enums', type: 'PGfyResponseEnums' },
         { name: 'models', type: 'PGfyResponseModels' },
         { name: 'inputs', type: 'Inputs<Types>' },

@@ -186,3 +186,7 @@ export interface ResolveParams<TResolve, TSource, TArgs, TContext> {
 export type ResolveResponse<T> = Promisable<
   T extends Array<infer U> ? Array<PartialDeep<U>> : PartialDeep<T>
 >
+
+export type RequiredNonNullable<T> = {
+  [P in keyof T]-?: Exclude<T, null | undefined>
+}

@@ -74,366 +74,131 @@ enum SomeEnum3 {
 // It might be better to keep the files separate.
 jest.mock('@prisma/generator-helper')
 
-describe('generateFile', () => {
-  const outputPath = '.output.ts'
+describe('generate', () => {
+  describe('the whole dmmf is passed', () => {
+    const outputPath = '.output.ts'
 
-  afterEach(() => {
-    if (fs.existsSync(outputPath)) {
-      fs.rmSync(outputPath)
-    }
+    afterEach(() => {
+      if (fs.existsSync(outputPath)) {
+        fs.rmSync(outputPath)
+      }
+    })
+
+    it("Type definitions (Snapshot) of pgfy return values are generated according to Prisma's Schema", async () => {
+      const dmmf = await getDMMF({ datamodel })
+      await generate(dmmf, outputPath, '@prisma/client')
+      const result = fs.readFileSync(outputPath, 'utf8')
+
+      expect(result).toMatchSnapshot()
+    }, 30_000)
+
+    it('File is overwritten even if it exists and no exception is raised', async () => {
+      const dmmf: DMMF.Document = {
+        datamodel: { models: [], enums: [], types: [] },
+        schema: {
+          outputObjectTypes: { model: [], prisma: [] },
+          inputObjectTypes: { prisma: [] },
+          enumTypes: { prisma: [] },
+        },
+        mappings: { modelOperations: [], otherOperations: { read: [], write: [] } },
+      }
+      await generate(dmmf, outputPath, '@prisma/client')
+      await generate(dmmf, outputPath, '@prisma/client')
+    })
   })
 
-  it.skip('PrismaのSchemaに従ってpgfyの戻り値の型定義が生成される', async () => {
-    const dmmf = await getDMMF({ datamodel })
-    await generate(dmmf, outputPath, '@prisma/client')
-    const result = fs.readFileSync(outputPath, 'utf8')
+  describe('only datamodel is passed', () => {
+    const outputPath = '.output-datamodel.ts'
 
-    expect(result).toBe(`import { Prisma } from "@prisma/client";
+    afterEach(() => {
+      if (fs.existsSync(outputPath)) {
+        fs.rmSync(outputPath)
+      }
+    })
+    it('generator returns the correct value', async () => {
+      const dmmf = await getDMMF({ datamodel })
+      await generate(
+        {
+          ...dmmf,
+          schema: {
+            inputObjectTypes: { prisma: [] },
+            outputObjectTypes: { model: [], prisma: [] },
+            enumTypes: { prisma: [] },
+          },
+        },
+        outputPath,
+        '@prisma/client',
+      )
+      const result = fs.readFileSync(outputPath, 'utf8')
+
+      expect(result).toBe(`import { Prisma } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime";
-import { PGEnum, PGField, PGModel } from "@prismagql/prismagql/lib/types/common";
+import { PGTypes } from "@prismagql/prismagql/lib/types/builder";
+import { PGEnum, RequiredNonNullable } from "@prismagql/prismagql/lib/types/common";
+import { PGObject, PGOutputField } from "@prismagql/prismagql/lib/types/output";
+import { PGInputFactoryWrapper, PGInputFactoryUnion, PGInputFactory } from "@prismagql/prismagql/lib/types/input-factory";
 
 type SomeEnumValuesType = ["AAA", "BBB", "CCC"];
 type SomeEnum2ValuesType = ["Aaa", "Bbb", "Ccc"];
 type SomeEnum3ValuesType = ["aaa", "bbb", "ccc"];
-type Model1FieldMapType = {
-        id: PGField<number>;
-        string: PGField<string>;
-        json: PGField<string>;
-        int: PGField<number>;
-        float: PGField<number>;
-        boolean: PGField<boolean>;
-        bigInt: PGField<bigint>;
-        dateTime: PGField<Date>;
-        bytes: PGField<Buffer>;
-        decimal: PGField<Decimal>;
-        nullable: PGField<string | null>;
-        list: PGField<string[]>;
-        enum: PGField<PGEnum<SomeEnumValuesType>>;
-        enumList: PGField<Array<PGEnum<SomeEnum2ValuesType>>>;
-        enumNullable: PGField<PGEnum<SomeEnum3ValuesType> | null>;
-        oneToOne: PGField<PGModel<Model2FieldMapType> | null>;
-        oneToMany: PGField<Array<PGModel<Model3FieldMapType>>>;
+type Model1FieldMapType<Types extends PGTypes> = {
+        id: PGOutputField<number, any, undefined, undefined, any, Types>;
+        string: PGOutputField<string, any, undefined, undefined, any, Types>;
+        json: PGOutputField<string, any, undefined, undefined, any, Types>;
+        int: PGOutputField<number, any, undefined, undefined, any, Types>;
+        float: PGOutputField<number, any, undefined, undefined, any, Types>;
+        boolean: PGOutputField<boolean, any, undefined, undefined, any, Types>;
+        bigInt: PGOutputField<bigint, any, undefined, undefined, any, Types>;
+        dateTime: PGOutputField<Date, any, undefined, undefined, any, Types>;
+        bytes: PGOutputField<Buffer, any, undefined, undefined, any, Types>;
+        decimal: PGOutputField<Decimal, any, undefined, undefined, any, Types>;
+        nullable: PGOutputField<string | null, any, undefined, undefined, any, Types>;
+        list: PGOutputField<string[], any, undefined, undefined, any, Types>;
+        enum: PGOutputField<PGEnum<SomeEnumValuesType>, any, undefined, undefined, any, Types>;
+        enumList: PGOutputField<Array<PGEnum<SomeEnum2ValuesType>>, any, undefined, undefined, any, Types>;
+        enumNullable: PGOutputField<PGEnum<SomeEnum3ValuesType> | null, any, undefined, undefined, any, Types>;
+        oneToOne: PGOutputField<PGObject<Model2FieldMapType<Types>, 'Model2', Types> | null, any, undefined, undefined, 'Model2', Types>;
+        oneToMany: PGOutputField<Array<PGObject<Model3FieldMapType<Types>, 'Model3', Types>>, any, undefined, undefined, 'Model3', Types>;
     };
-type Model2FieldMapType = {
-        id: PGField<number>;
-        model1: PGField<PGModel<Model1FieldMapType>>;
-        model1Id: PGField<number>;
+type Model2FieldMapType<Types extends PGTypes> = {
+        id: PGOutputField<number, any, undefined, undefined, any, Types>;
+        model1: PGOutputField<PGObject<Model1FieldMapType<Types>, 'Model1', Types>, any, undefined, undefined, 'Model1', Types>;
+        model1Id: PGOutputField<number, any, undefined, undefined, any, Types>;
     };
-type Model3FieldMapType = {
-        id: PGField<number>;
-        model1: PGField<PGModel<Model1FieldMapType>>;
-        model1Id: PGField<number>;
+type Model3FieldMapType<Types extends PGTypes> = {
+        id: PGOutputField<number, any, undefined, undefined, any, Types>;
+        model1: PGOutputField<PGObject<Model1FieldMapType<Types>, 'Model1', Types>, any, undefined, undefined, 'Model1', Types>;
+        model1Id: PGOutputField<number, any, undefined, undefined, any, Types>;
     };
 type PGfyResponseEnums = {
         SomeEnum: PGEnum<SomeEnumValuesType>;
         SomeEnum2: PGEnum<SomeEnum2ValuesType>;
         SomeEnum3: PGEnum<SomeEnum3ValuesType>;
     };
+type PGfyResponseObjects<Types extends PGTypes> = {
+        Model1: PGObject<Model1FieldMapType<Types>, 'Model1', Types>;
+        Model2: PGObject<Model2FieldMapType<Types>, 'Model2', Types>;
+        Model3: PGObject<Model3FieldMapType<Types>, 'Model3', Types>;
+    };
 type PGfyResponseModels = {
-        Model1: PGModel<Model1FieldMapType, Prisma.Model1WhereInput>;
-        Model2: PGModel<Model2FieldMapType, Prisma.Model2WhereInput>;
-        Model3: PGModel<Model3FieldMapType, Prisma.Model3WhereInput>;
+        Model1: RequiredNonNullable<Prisma.Model1FindManyArgs>;
+        Model2: RequiredNonNullable<Prisma.Model2FindManyArgs>;
+        Model3: RequiredNonNullable<Prisma.Model3FindManyArgs>;
     };
 
-export interface PGfyResponse {
+interface Inputs<Types extends PGTypes> {
+}
+
+export interface PGfyResponse<Types extends PGTypes> {
+    objects: PGfyResponseObjects<Types>;
     enums: PGfyResponseEnums;
     models: PGfyResponseModels;
+    inputs: Inputs<Types>;
 }
 `)
-  })
-
-  it.skip('ファイルが存在していても上書き保存され例外が発生しない', async () => {
-    const dmmf = await getDMMF({ datamodel })
-    await generate(dmmf, outputPath, '@prisma/client')
-    await generate(dmmf, outputPath, '@prisma/client')
-  })
-
-  describe('getInputsTypeProperty', () => {
-    describe('inputObjectTypes', () => {
-      it('returns PGInputFactoryWrapper of type inputTypes', () => {
-        const args: DMMF.SchemaArg = {
-          name: 'arg',
-          isRequired: false,
-          isNullable: true,
-          inputTypes: [
-            {
-              type: 'Input',
-              namespace: 'prisma',
-              location: 'inputObjectTypes',
-              isList: false,
-            },
-          ],
-        }
-        const result = getInputsTypeProperty(args)
-        expect(result).toEqual(
-          '() => PGInputFactoryWrapper<InputFactory<Types> | null | undefined, Types>',
-        )
-      })
-    })
-    describe('Array of inputObjectTypes', () => {
-      it('returns PGInputFactoryUnion & PGInputFactoryWrapper of type inputTypes', () => {
-        const args: DMMF.SchemaArg = {
-          name: 'arg',
-          isRequired: true,
-          isNullable: false,
-          inputTypes: [
-            {
-              type: 'Input',
-              namespace: 'prisma',
-              location: 'inputObjectTypes',
-              isList: true,
-            },
-            {
-              type: 'Input',
-              namespace: 'prisma',
-              location: 'inputObjectTypes',
-              isList: false,
-            },
-          ],
-        }
-        const result = getInputsTypeProperty(args)
-        expect(result).toEqual(`PGInputFactoryUnion<{
-__default: () => PGInputFactoryWrapper<Array<InputFactory<Types>>, Types>,
-InputList: () => PGInputFactoryWrapper<Array<InputFactory<Types>>, Types>,
-Input: () => PGInputFactoryWrapper<InputFactory<Types>, Types>
-}>`)
-      })
-    })
-    describe('scalar', () => {
-      it('returns PGInputFactory of type scalar', () => {
-        const args: DMMF.SchemaArg = {
-          name: 'arg',
-          isRequired: true,
-          isNullable: true,
-          inputTypes: [
-            {
-              type: 'Int',
-              location: 'scalar',
-              isList: false,
-            },
-          ],
-        }
-        const result = getInputsTypeProperty(args)
-        expect(result).toEqual(`PGInputFactory<number | null, 'int', Types>`)
-      })
-    })
-    describe('enumTypes', () => {
-      it('returns PGInputFactory of type enum', () => {
-        const args: DMMF.SchemaArg = {
-          name: 'arg',
-          isRequired: false,
-          isNullable: false,
-          inputTypes: [
-            {
-              type: 'Enum',
-              namespace: 'prisma',
-              location: 'enumTypes',
-              isList: true,
-            },
-          ],
-        }
-        const result = getInputsTypeProperty(args)
-        expect(result).toEqual(`PGInputFactory<EnumFactory[] | undefined, 'enum', Types>`)
-      })
     })
   })
-  describe('shapeInputs', () => {
-    it('returns the factories in the form used by generator method', () => {
-      const args: DMMF.SchemaArg[] = [
-        {
-          name: 'arg1',
-          isRequired: false,
-          isNullable: false,
-          inputTypes: [
-            {
-              type: 'Input1',
-              namespace: 'prisma',
-              location: 'inputObjectTypes',
-              isList: false,
-            },
-          ],
-        },
-        {
-          name: 'arg2',
-          isRequired: false,
-          isNullable: false,
-          inputTypes: [
-            {
-              type: 'Input2',
-              namespace: 'prisma',
-              location: 'inputObjectTypes',
-              isList: true,
-            },
-            {
-              type: 'Input2',
-              namespace: 'prisma',
-              location: 'inputObjectTypes',
-              isList: false,
-            },
-          ],
-        },
-        {
-          name: 'arg3',
-          isRequired: false,
-          isNullable: false,
-          inputTypes: [
-            {
-              type: 'Int',
-              location: 'scalar',
-              isList: false,
-            },
-          ],
-        },
-      ]
-
-      const result = shapeInputs('findFirstSomeModel', args)
-      expect(result).toEqual({
-        name: 'FindFirstSomeModelFactory',
-        type: [
-          {
-            name: 'arg1',
-            type: '() => PGInputFactoryWrapper<Input1Factory<Types> | undefined, Types>',
-          },
-          {
-            name: 'arg2',
-            type: `PGInputFactoryUnion<{
-__default: () => PGInputFactoryWrapper<Array<Input2Factory<Types>> | undefined, Types>,
-Input2List: () => PGInputFactoryWrapper<Array<Input2Factory<Types>> | undefined, Types>,
-Input2: () => PGInputFactoryWrapper<Input2Factory<Types> | undefined, Types>
-}>`,
-          },
-          {
-            name: 'arg3',
-            type: "PGInputFactory<number | undefined, 'int', Types>",
-          },
-        ],
-        inputTypes: ['Input1Factory', 'Input2Factory'],
-      })
-    })
-  })
-  describe('getFactories', () => {
-    it('returns all factories, including recursion, in the form used by generator method', async () => {
-      const schema: DMMF.Schema = {
-        inputObjectTypes: {
-          prisma: [
-            {
-              name: 'Input1',
-              constraints: {
-                maxNumFields: 1,
-                minNumFields: 0,
-              },
-              fields: [
-                {
-                  name: 'field1',
-                  isRequired: true,
-                  isNullable: false,
-                  inputTypes: [
-                    {
-                      type: 'Enum1',
-                      namespace: 'prisma',
-                      location: 'enumTypes',
-                      isList: false,
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-        outputObjectTypes: {
-          prisma: [
-            {
-              name: 'Query',
-              fields: [
-                {
-                  name: 'findFirstSomeModel',
-                  args: [
-                    {
-                      name: 'args1',
-                      isRequired: false,
-                      isNullable: true,
-                      inputTypes: [
-                        {
-                          type: 'Input1',
-                          namespace: 'prisma',
-                          location: 'inputObjectTypes',
-                          isList: false,
-                        },
-                      ],
-                    },
-                    {
-                      name: 'args2',
-                      isRequired: true,
-                      isNullable: false,
-                      inputTypes: [
-                        {
-                          type: 'Enum2',
-                          namespace: 'prisma',
-                          location: 'enumTypes',
-                          isList: false,
-                        },
-                      ],
-                    },
-                  ],
-                  isNullable: true,
-                  outputType: {
-                    type: 'SomeModel',
-                    namespace: 'model',
-                    location: 'outputObjectTypes',
-                    isList: false,
-                  },
-                },
-              ],
-            },
-          ],
-          model: [],
-        },
-        enumTypes: {
-          prisma: [
-            {
-              name: 'Enum1',
-              values: ['asc', 'desc'],
-            },
-          ],
-          model: [
-            {
-              name: 'Enum2',
-              values: ['AAA', 'BBB'],
-            },
-          ],
-        },
-      }
-      const result = getInputFactories(schema)
-      expect(result).toEqual([
-        {
-          name: 'FindFirstSomeModelFactory',
-          type: [
-            {
-              name: 'args1',
-              type: '() => PGInputFactoryWrapper<Input1Factory<Types> | null | undefined, Types>',
-            },
-            {
-              name: 'args2',
-              type: "PGInputFactory<Enum2Factory, 'enum', Types>",
-            },
-          ],
-          inputTypes: ['Input1Factory'],
-        },
-        {
-          name: 'Input1Factory',
-          type: [
-            {
-              name: 'field1',
-              type: "PGInputFactory<Enum1Factory, 'enum', Types>",
-            },
-          ],
-          inputTypes: [],
-        },
-      ])
-    })
-  })
-
-  describe('Integration test', () => {
+  describe('only schema is passed', () => {
     let schema: DMMF.Schema
     const outputPath = '.output-factory.ts'
     beforeEach(() => {
@@ -663,7 +428,7 @@ Input2: () => PGInputFactoryWrapper<Input2Factory<Types> | undefined, Types>
         fs.rmSync(outputPath)
       }
     })
-    it('generator returns the correct value when only schema is passed', async () => {
+    it('generator returns the correct value', async () => {
       const dmmf: DMMF.Document = {
         schema,
         datamodel: {
@@ -684,10 +449,12 @@ Input2: () => PGInputFactoryWrapper<Input2Factory<Types> | undefined, Types>
       expect(result).toEqual(`import { Prisma } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime";
 import { PGTypes } from "@prismagql/prismagql/lib/types/builder";
-import { PGEnum, PGField, PGModel } from "@prismagql/prismagql/lib/types/common";
+import { PGEnum, RequiredNonNullable } from "@prismagql/prismagql/lib/types/common";
+import { PGObject, PGOutputField } from "@prismagql/prismagql/lib/types/output";
 import { PGInputFactoryWrapper, PGInputFactoryUnion, PGInputFactory } from "@prismagql/prismagql/lib/types/input-factory";
 
 type PGfyResponseEnums = {};
+type PGfyResponseObjects<Types extends PGTypes> = {};
 type PGfyResponseModels = {};
 type Enum1Factory = PGEnum<['id', 'name', 'income', 'role']>;
 type Enum2Factory = PGEnum<['asc', 'desc']>;
@@ -721,12 +488,298 @@ interface Inputs<Types extends PGTypes> {
 }
 
 export interface PGfyResponse<Types extends PGTypes> {
+    objects: PGfyResponseObjects<Types>;
     enums: PGfyResponseEnums;
     models: PGfyResponseModels;
     inputs: Inputs<Types>;
 }
 `)
     })
+  })
+})
+
+describe('getInputsTypeProperty', () => {
+  describe('inputObjectTypes', () => {
+    it('returns PGInputFactoryWrapper of type inputTypes', () => {
+      const args: DMMF.SchemaArg = {
+        name: 'arg',
+        isRequired: false,
+        isNullable: true,
+        inputTypes: [
+          {
+            type: 'Input',
+            namespace: 'prisma',
+            location: 'inputObjectTypes',
+            isList: false,
+          },
+        ],
+      }
+      const result = getInputsTypeProperty(args)
+      expect(result).toEqual(
+        '() => PGInputFactoryWrapper<InputFactory<Types> | null | undefined, Types>',
+      )
+    })
+  })
+  describe('Array of inputObjectTypes', () => {
+    it('returns PGInputFactoryUnion & PGInputFactoryWrapper of type inputTypes', () => {
+      const args: DMMF.SchemaArg = {
+        name: 'arg',
+        isRequired: true,
+        isNullable: false,
+        inputTypes: [
+          {
+            type: 'Input',
+            namespace: 'prisma',
+            location: 'inputObjectTypes',
+            isList: true,
+          },
+          {
+            type: 'Input',
+            namespace: 'prisma',
+            location: 'inputObjectTypes',
+            isList: false,
+          },
+        ],
+      }
+      const result = getInputsTypeProperty(args)
+      expect(result).toEqual(`PGInputFactoryUnion<{
+__default: () => PGInputFactoryWrapper<Array<InputFactory<Types>>, Types>,
+InputList: () => PGInputFactoryWrapper<Array<InputFactory<Types>>, Types>,
+Input: () => PGInputFactoryWrapper<InputFactory<Types>, Types>
+}>`)
+    })
+  })
+  describe('scalar', () => {
+    it('returns PGInputFactory of type scalar', () => {
+      const args: DMMF.SchemaArg = {
+        name: 'arg',
+        isRequired: true,
+        isNullable: true,
+        inputTypes: [
+          {
+            type: 'Int',
+            location: 'scalar',
+            isList: false,
+          },
+        ],
+      }
+      const result = getInputsTypeProperty(args)
+      expect(result).toEqual(`PGInputFactory<number | null, 'int', Types>`)
+    })
+  })
+  describe('enumTypes', () => {
+    it('returns PGInputFactory of type enum', () => {
+      const args: DMMF.SchemaArg = {
+        name: 'arg',
+        isRequired: false,
+        isNullable: false,
+        inputTypes: [
+          {
+            type: 'Enum',
+            namespace: 'prisma',
+            location: 'enumTypes',
+            isList: true,
+          },
+        ],
+      }
+      const result = getInputsTypeProperty(args)
+      expect(result).toEqual(`PGInputFactory<EnumFactory[] | undefined, 'enum', Types>`)
+    })
+  })
+})
+describe('shapeInputs', () => {
+  it('returns the factories in the form used by generator method', () => {
+    const args: DMMF.SchemaArg[] = [
+      {
+        name: 'arg1',
+        isRequired: false,
+        isNullable: false,
+        inputTypes: [
+          {
+            type: 'Input1',
+            namespace: 'prisma',
+            location: 'inputObjectTypes',
+            isList: false,
+          },
+        ],
+      },
+      {
+        name: 'arg2',
+        isRequired: false,
+        isNullable: false,
+        inputTypes: [
+          {
+            type: 'Input2',
+            namespace: 'prisma',
+            location: 'inputObjectTypes',
+            isList: true,
+          },
+          {
+            type: 'Input2',
+            namespace: 'prisma',
+            location: 'inputObjectTypes',
+            isList: false,
+          },
+        ],
+      },
+      {
+        name: 'arg3',
+        isRequired: false,
+        isNullable: false,
+        inputTypes: [
+          {
+            type: 'Int',
+            location: 'scalar',
+            isList: false,
+          },
+        ],
+      },
+    ]
+
+    const result = shapeInputs('findFirstSomeModel', args)
+    expect(result).toEqual({
+      name: 'FindFirstSomeModelFactory',
+      type: [
+        {
+          name: 'arg1',
+          type: '() => PGInputFactoryWrapper<Input1Factory<Types> | undefined, Types>',
+        },
+        {
+          name: 'arg2',
+          type: `PGInputFactoryUnion<{
+__default: () => PGInputFactoryWrapper<Array<Input2Factory<Types>> | undefined, Types>,
+Input2List: () => PGInputFactoryWrapper<Array<Input2Factory<Types>> | undefined, Types>,
+Input2: () => PGInputFactoryWrapper<Input2Factory<Types> | undefined, Types>
+}>`,
+        },
+        {
+          name: 'arg3',
+          type: "PGInputFactory<number | undefined, 'int', Types>",
+        },
+      ],
+      inputTypes: ['Input1Factory', 'Input2Factory'],
+    })
+  })
+})
+describe('getFactories', () => {
+  it('returns all factories, including recursion, in the form used by generator method', async () => {
+    const schema: DMMF.Schema = {
+      inputObjectTypes: {
+        prisma: [
+          {
+            name: 'Input1',
+            constraints: {
+              maxNumFields: 1,
+              minNumFields: 0,
+            },
+            fields: [
+              {
+                name: 'field1',
+                isRequired: true,
+                isNullable: false,
+                inputTypes: [
+                  {
+                    type: 'Enum1',
+                    namespace: 'prisma',
+                    location: 'enumTypes',
+                    isList: false,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      outputObjectTypes: {
+        prisma: [
+          {
+            name: 'Query',
+            fields: [
+              {
+                name: 'findFirstSomeModel',
+                args: [
+                  {
+                    name: 'args1',
+                    isRequired: false,
+                    isNullable: true,
+                    inputTypes: [
+                      {
+                        type: 'Input1',
+                        namespace: 'prisma',
+                        location: 'inputObjectTypes',
+                        isList: false,
+                      },
+                    ],
+                  },
+                  {
+                    name: 'args2',
+                    isRequired: true,
+                    isNullable: false,
+                    inputTypes: [
+                      {
+                        type: 'Enum2',
+                        namespace: 'prisma',
+                        location: 'enumTypes',
+                        isList: false,
+                      },
+                    ],
+                  },
+                ],
+                isNullable: true,
+                outputType: {
+                  type: 'SomeModel',
+                  namespace: 'model',
+                  location: 'outputObjectTypes',
+                  isList: false,
+                },
+              },
+            ],
+          },
+        ],
+        model: [],
+      },
+      enumTypes: {
+        prisma: [
+          {
+            name: 'Enum1',
+            values: ['asc', 'desc'],
+          },
+        ],
+        model: [
+          {
+            name: 'Enum2',
+            values: ['AAA', 'BBB'],
+          },
+        ],
+      },
+    }
+    const result = getInputFactories(schema)
+    expect(result).toEqual([
+      {
+        name: 'FindFirstSomeModelFactory',
+        type: [
+          {
+            name: 'args1',
+            type: '() => PGInputFactoryWrapper<Input1Factory<Types> | null | undefined, Types>',
+          },
+          {
+            name: 'args2',
+            type: "PGInputFactory<Enum2Factory, 'enum', Types>",
+          },
+        ],
+        inputTypes: ['Input1Factory'],
+      },
+      {
+        name: 'Input1Factory',
+        type: [
+          {
+            name: 'field1',
+            type: "PGInputFactory<Enum1Factory, 'enum', Types>",
+          },
+        ],
+        inputTypes: [],
+      },
+    ])
   })
 })
 
