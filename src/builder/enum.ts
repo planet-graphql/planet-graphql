@@ -1,5 +1,5 @@
+import { createPGEnum } from '../objects/pg-enum'
 import { PGBuilder, PGCache, PGTypes } from '../types/builder'
-import { PGEnum } from '../types/common'
 import { setCache } from './utils'
 
 export const createEnumBuilder: <Types extends PGTypes>(
@@ -7,16 +7,7 @@ export const createEnumBuilder: <Types extends PGTypes>(
 ) => PGBuilder<Types>['enum'] =
   (cache) =>
   (name, ...values) => {
-    const pgEnum = createEnum(name, ...values)
+    const pgEnum = createPGEnum(name, ...values)
     setCache(cache, pgEnum)
     return pgEnum
   }
-
-export function createEnum<T extends string[]>(name: string, ...values: T): PGEnum<T> {
-  const pgEnum: PGEnum<T> = {
-    name,
-    values,
-    kind: 'enum' as const,
-  }
-  return pgEnum
-}

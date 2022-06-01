@@ -1,7 +1,7 @@
+import { createPGObject } from '../objects/pg-object'
 import { PGBuilder, PGCache, PGTypes } from '../types/builder'
 import { PGInputFieldBuilder } from '../types/input'
 import { PGOutputFieldBuilder } from '../types/output'
-import { createPGObject } from './object'
 import { setCache } from './utils'
 
 export const objectFromModel: <Types extends PGTypes>(
