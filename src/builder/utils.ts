@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { ContextCache, PGCache, PGConfig, PGRootFieldConfig } from '../types/builder'
+import { PGCache, PGConfig, PGRootFieldConfig } from '../types/builder'
 import { PGEnum, PGModel } from '../types/common'
 import { PGInput } from '../types/input'
 import { PGObject } from '../types/output'
@@ -33,22 +33,15 @@ export function setCache(
   cache[value.kind][value.name] = value
 }
 
-export function getCtxCache(context: any): ContextCache {
+export function getContextCache<T>(context: any, key: string): { [key: string]: T } {
   if (!_.isPlainObject(context)) {
     throw new PGError('Context must be a plain object.', 'Error')
   }
-
   if (context.__cache === undefined) {
-    const contextCache: ContextCache = {
-      loader: {},
-      auth: {},
-      rootResolveInfo: {
-        raw: null,
-        parsed: null,
-      },
-      prismaFindArgs: {},
-    }
-    context.__cache = contextCache
+    context.__cache = {}
   }
-  return context.__cache
+  if (context.__cache[key] === undefined) {
+    context.__cache[key] = {}
+  }
+  return context.__cache[key]
 }

@@ -58,8 +58,11 @@ export function createPGObject<TFieldMap extends PGOutputFieldMap, Types extends
       return updated
     },
     modify: (c) => {
-      const newFieldMap = c(pgObject.fieldMap as PGModifyOutputFieldMap<any>)
-      pgObject.fieldMap = newFieldMap
+      c(pgObject.fieldMap as PGModifyOutputFieldMap<any>)
+      return pgObject
+    },
+    prismaModel: (name) => {
+      pgObject.prismaModelName = name
       return pgObject
     },
   }

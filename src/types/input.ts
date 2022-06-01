@@ -46,6 +46,7 @@ export interface PGInputField<
   Types extends PGTypes = any,
 > extends PGField<T> {
   value: PGFieldValue & {
+    isPrisma?: boolean
     validator?: PGInputFieldValidator<TypeName, Types>
   }
   nullable: () => PGInputField<T | null, TypeName, Types>
@@ -82,3 +83,10 @@ export type PGInputFieldBuilder<Types extends PGTypes<PGTypeConfig, PGConfig>> =
     enum: <T extends PGEnum<any>>(type: T) => PGInputField<T, 'enum', Types>
   }
 >
+
+export type PGRelayInputFieldMap<Types extends PGTypes> = {
+  first: PGInputField<number | undefined, 'int', Types>
+  after: PGInputField<string | undefined, 'string', Types>
+  last: PGInputField<number | undefined, 'int', Types>
+  before: PGInputField<string | undefined, 'string', Types>
+}

@@ -173,14 +173,25 @@ export type PGQueryArgsType<T> = IsObject<T> extends true
     }
   : InnerPGQueryArgsType<T>
 
-export interface ResolveParams<TResolve, TSource, TArgs, TContext> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export interface PGResolveParams<TSource, TArgs, TPrismaArgs, TContext, TResolve> {
+  source: IsAny<TSource> extends true
+    ? AnyWithNote<'The type is not fixed as it is currently being created & If you need the fixed type, consider using the modify() method of PGObject'>
+    : TSource
+  args: TArgs
+  prismaArgs: TPrismaArgs
+  context: TContext
+  info: GraphQLResolveInfo
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export interface PGSubscribeParams<TSource, TArgs, TContext, TResolve> {
   source: IsAny<TSource> extends true
     ? AnyWithNote<'The type is not fixed as it is currently being created & If you need the fixed type, consider using the modify() method of PGObject'>
     : TSource
   args: TArgs
   context: TContext
   info: GraphQLResolveInfo
-  __type: TResolve
 }
 
 export type ResolveResponse<T> = Promisable<

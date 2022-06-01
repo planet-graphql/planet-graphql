@@ -1,6 +1,6 @@
 import { ReadonlyDeep } from 'type-fest'
 import { PGCache } from '../types/builder'
-import { PGField, PGModel, ResolveParams } from '../types/common'
+import { PGField, PGModel } from '../types/common'
 import { PGInput, PGInputField } from '../types/input'
 import { PGObject, PGOutputField } from '../types/output'
 
@@ -28,6 +28,7 @@ export function mergeDefaultPGObject(object: Partial<PGObject<any>>): PGObject<a
       copy: expect.any(Function),
       update: expect.any(Function),
       modify: expect.any(Function),
+      prismaModel: expect.any(Function),
     },
     object,
   )
@@ -74,6 +75,8 @@ export function mergeDefaultOutputField(
     nullable: expect.any(Function),
     list: expect.any(Function),
     args: expect.any(Function),
+    prismaArgs: expect.any(Function),
+    prismaRelayArgs: expect.any(Function),
     resolve: expect.any(Function),
     subscribe: expect.any(Function),
     auth: expect.any(Function),
@@ -104,31 +107,4 @@ export function pgObjectToPGModel<TPrismaWhere = any>(): <T extends PGObject<any
     }
     return model
   }
-}
-
-export function getResolveParamsRef(readonlyPGCache: ReadonlyDeep<PGCache>): {
-  value: ResolveParams<any, any, any, any>
-} {
-  const paramsRef = { value: null as any }
-  const pgCache = readonlyPGCache as PGCache
-  pgCache.query = Object.entries(pgCache.query).reduce<PGCache['query']>(
-    (acc, [name, pgQuery]) => {
-      const originalResolve = pgQuery.field.value.resolve
-      acc[name] = {
-        ...pgQuery,
-        field: pgQuery.field.resolve((params) => {
-          paramsRef.value = params
-          return originalResolve?.(
-            params.source,
-            params.args,
-            params.context,
-            params.info,
-          ) as any
-        }),
-      }
-      return acc
-    },
-    {},
-  )
-  return paramsRef
 }
