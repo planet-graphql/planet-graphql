@@ -39,6 +39,9 @@ export const pgfy: <Types extends PGTypes>(
             throw new PGError(`Unexpected kind '${x.kind}''.`, 'Error')
         }
         let field = createOutputField<any, any>(kindAndType, inputFieldBuilder)
+        if (x.kind === 'object') {
+          field.value.isPrismaRelation = true
+        }
         if (x.isList) {
           field = field.list()
         }
@@ -48,13 +51,15 @@ export const pgfy: <Types extends PGTypes>(
         acc[x.name] = field
         return acc
       }, {})
-      return createPGObject(
+      const pgObject = createPGObject(
         model.name,
         fieldMap,
         cache,
         outputFieldBuilder,
         inputFieldBuilder,
       )
+      pgObject.prismaModel(model.name)
+      return pgObject
     }
     const objectRef: { [name: string]: PGObject<any> } = {}
     const enums = datamodel.enums.reduce<PGfyResponseType['enums']>((acc, x) => {

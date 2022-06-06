@@ -84,6 +84,7 @@ describe('pgfy', () => {
     }
     const expectModel1: PGObject<any> = mergeDefaultPGObject({
       name: 'Model1',
+      prismaModelName: 'Model1',
       fieldMap: {
         id: mergeDefaultOutputField({
           kind: 'scalar',
@@ -154,11 +155,13 @@ describe('pgfy', () => {
         oneToOne: mergeDefaultOutputField({
           isOptional: true,
           isNullable: true,
+          isPrismaRelation: true,
           kind: 'object',
           type: expect.any(Function),
         }),
         oneToMany: mergeDefaultOutputField({
           isList: true,
+          isPrismaRelation: true,
           kind: 'object',
           type: expect.any(Function),
         }),
@@ -166,12 +169,14 @@ describe('pgfy', () => {
     })
     const expectModel2: PGObject<any> = mergeDefaultPGObject({
       name: 'Model2',
+      prismaModelName: 'Model2',
       fieldMap: {
         id: mergeDefaultOutputField({
           kind: 'scalar',
           type: 'id',
         }),
         model1: mergeDefaultOutputField({
+          isPrismaRelation: true,
           kind: 'object',
           type: expect.any(Function),
         }),
@@ -183,12 +188,14 @@ describe('pgfy', () => {
     })
     const expectModel3: PGObject<any> = mergeDefaultPGObject({
       name: 'Model3',
+      prismaModelName: 'Model3',
       fieldMap: {
         id: mergeDefaultOutputField({
           kind: 'scalar',
           type: 'id',
         }),
         model1: mergeDefaultOutputField({
+          isPrismaRelation: true,
           kind: 'object',
           type: expect.any(Function),
         }),
