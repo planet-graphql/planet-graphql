@@ -2,7 +2,7 @@ import { GraphQLInputFieldConfig } from 'graphql'
 import _ from 'lodash'
 import { GraphqlTypeRef, PGCache, PGTypes } from '../types/builder'
 import { PGFieldKindAndType } from '../types/common'
-import { PGInputField } from '../types/input'
+import { PGInputField, PGRelayInputFieldMap } from '../types/input'
 import { getGraphQLFieldConfigType } from './util'
 
 export function createInputField<T, TypeName extends string, Types extends PGTypes>(
@@ -70,4 +70,27 @@ export function getInputFieldDefaultValue(field: PGInputField<any>): any {
   return Object.values(defaultValue).every((x) => x === undefined)
     ? undefined
     : defaultValue
+}
+
+export function getRelayInputFieldMap<
+  Types extends PGTypes,
+>(): PGRelayInputFieldMap<Types> {
+  return {
+    first: createInputField<number, 'int', Types>({
+      kind: 'scalar',
+      type: 'int',
+    }).optional(),
+    after: createInputField<string, 'string', Types>({
+      kind: 'scalar',
+      type: 'string',
+    }).optional(),
+    last: createInputField<number, 'int', Types>({
+      kind: 'scalar',
+      type: 'int',
+    }).optional(),
+    before: createInputField<string, 'string', Types>({
+      kind: 'scalar',
+      type: 'string',
+    }).optional(),
+  }
 }

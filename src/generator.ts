@@ -59,9 +59,7 @@ function getPGFieldType(dmmf: DMMF.Field): string {
   if (!dmmf.isRequired) {
     innerType = `${innerType} | null`
   }
-  return `PGOutputField<${innerType}, any, undefined, undefined, ${
-    dmmf.kind === 'object' ? `'${dmmf.type}'` : 'any'
-  }, Types>`
+  return `PGOutputField<${innerType}, any, undefined, undefined, Types>`
 }
 
 export function getInputsTypeProperty(arg: DMMF.SchemaArg): string {

@@ -8,20 +8,26 @@ import { PGOutputField, PGOutputFieldBuilder } from './output'
 describe('PGOutputField', () => {
   describe('list', () => {
     it('Arrays any T other than null and undefined', () => {
-      type InputField = PGOutputField<string | null, any, undefined, PGTypes>
+      type InputField = PGOutputField<string | null, any, undefined, undefined, PGTypes>
       type T = ReturnType<InputField['list']>
-      expectType<TypeEqual<T, PGOutputField<string[] | null, any, undefined, PGTypes>>>(
-        true,
-      )
+      expectType<
+        TypeEqual<T, PGOutputField<string[] | null, any, undefined, undefined, PGTypes>>
+      >(true)
     })
 
     describe('already arrayed', () => {
       it('Does not change anything', () => {
-        type InputField = PGOutputField<string[] | null, any, undefined, PGTypes>
+        type InputField = PGOutputField<
+          string[] | null,
+          any,
+          undefined,
+          undefined,
+          PGTypes
+        >
         type T = ReturnType<InputField['list']>
-        expectType<TypeEqual<T, PGOutputField<string[] | null, any, undefined, PGTypes>>>(
-          true,
-        )
+        expectType<
+          TypeEqual<T, PGOutputField<string[] | null, any, undefined, undefined, PGTypes>>
+        >(true)
       })
     })
   })
@@ -34,22 +40,25 @@ describe('PGOutputFieldBuilder', () => {
       TypeEqual<
         T,
         {
-          id: () => PGOutputField<string, any, undefined, PGTypes>
-          string: () => PGOutputField<string, any, undefined, PGTypes>
-          boolean: () => PGOutputField<boolean, any, undefined, PGTypes>
-          int: () => PGOutputField<number, any, undefined, PGTypes>
-          bigInt: () => PGOutputField<bigint, any, undefined, PGTypes>
-          float: () => PGOutputField<number, any, undefined, PGTypes>
-          dateTime: () => PGOutputField<Date, any, undefined, PGTypes>
-          json: () => PGOutputField<JsonValue, any, undefined, PGTypes>
-          bytes: () => PGOutputField<Buffer, any, undefined, PGTypes>
-          decimal: () => PGOutputField<Decimal, any, undefined, PGTypes>
+          id: () => PGOutputField<string, any, undefined, undefined, PGTypes>
+          string: () => PGOutputField<string, any, undefined, undefined, PGTypes>
+          boolean: () => PGOutputField<boolean, any, undefined, undefined, PGTypes>
+          int: () => PGOutputField<number, any, undefined, undefined, PGTypes>
+          bigInt: () => PGOutputField<bigint, any, undefined, undefined, PGTypes>
+          float: () => PGOutputField<number, any, undefined, undefined, PGTypes>
+          dateTime: () => PGOutputField<Date, any, undefined, undefined, PGTypes>
+          json: () => PGOutputField<JsonValue, any, undefined, undefined, PGTypes>
+          bytes: () => PGOutputField<Buffer, any, undefined, undefined, PGTypes>
+          decimal: () => PGOutputField<Decimal, any, undefined, undefined, PGTypes>
           object: <T extends Function>(
             type: T,
-          ) => PGOutputField<T, any, undefined, PGTypes>
+          ) => PGOutputField<T, any, undefined, undefined, PGTypes>
+          relation: <T extends Function>(
+            type: T,
+          ) => PGOutputField<T, any, undefined, undefined, PGTypes>
           enum: <T extends PGEnum<any>>(
             type: T,
-          ) => PGOutputField<T, any, undefined, PGTypes>
+          ) => PGOutputField<T, any, undefined, undefined, PGTypes>
         }
       >
     >(true)

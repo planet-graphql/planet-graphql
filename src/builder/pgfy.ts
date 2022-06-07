@@ -2,7 +2,7 @@ import { DMMF } from '@prisma/generator-helper'
 import { createPGObject } from '../objects/pg-object'
 import { createOutputField } from '../objects/pg-output-field'
 import { PGBuilder, PGCache, PGfyResponseType, PGTypes } from '../types/builder'
-import { PGEnum, PGFieldKindAndType, PGModel } from '../types/common'
+import { PGEnum, PGFieldKindAndType } from '../types/common'
 import { PGInputFieldBuilder } from '../types/input'
 import { PGObject, PGOutputFieldBuilder, PGOutputFieldMap } from '../types/output'
 import { getScalarTypeName } from './build'
@@ -39,6 +39,9 @@ export const pgfy: <Types extends PGTypes>(
             throw new PGError(`Unexpected kind '${x.kind}''.`, 'Error')
         }
         let field = createOutputField<any, any>(kindAndType, inputFieldBuilder)
+        if (x.kind === 'object') {
+          field.value.isPrismaRelation = true
+        }
         if (x.isList) {
           field = field.list()
         }
@@ -48,13 +51,15 @@ export const pgfy: <Types extends PGTypes>(
         acc[x.name] = field
         return acc
       }, {})
-      return createPGObject(
+      const pgObject = createPGObject(
         model.name,
         fieldMap,
         cache,
         outputFieldBuilder,
         inputFieldBuilder,
       )
+      pgObject.prismaModel(model.name)
+      return pgObject
     }
     const objectRef: { [name: string]: PGObject<any> } = {}
     const enums = datamodel.enums.reduce<PGfyResponseType['enums']>((acc, x) => {
@@ -62,22 +67,17 @@ export const pgfy: <Types extends PGTypes>(
       acc[x.name] = pgEnum
       return acc
     }, {})
-    const models = datamodel.models.reduce<PGfyResponseType['models']>((acc, x) => {
+    const objects = datamodel.models.reduce<PGfyResponseType['objects']>((acc, x) => {
       const pgObject = convertToPGObject(x, enums, objectRef)
       setCache(cache, pgObject)
       objectRef[x.name] = pgObject
-      const pgModel: PGModel<any> = {
-        ...pgObject,
-        kind: 'model',
-        __type: undefined as any,
-      }
-      setCache(cache, pgModel)
-      acc[x.name] = pgModel
+      acc[x.name] = pgObject
       return acc
     }, {})
     const resp: PGfyResponseType = {
       enums,
-      models,
+      objects,
+      models: {},
     }
     return resp
   }

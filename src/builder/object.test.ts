@@ -50,6 +50,7 @@ describe('createPGOutputFieldBuilder', () => {
       ...Object.keys(DefaultScalars),
       'enum',
       'object',
+      'relation',
     ])
   })
 

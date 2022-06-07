@@ -41,5 +41,10 @@ export function createPGOutputFieldBuilder<Types extends PGTypes>(
       createOutputField({ kind: 'enum', type }, inputFieldBuilder),
     object: (type: Function) =>
       createOutputField({ kind: 'object', type }, inputFieldBuilder),
+    relation: (type: Function) => {
+      const field = createOutputField({ kind: 'object', type }, inputFieldBuilder)
+      field.value.isPrismaRelation = true
+      return field
+    },
   }
 }

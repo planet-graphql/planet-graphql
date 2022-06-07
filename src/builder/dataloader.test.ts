@@ -51,8 +51,8 @@ describe('dataloader', () => {
 
     const spy = jest.fn()
 
-    pg.resolver(user, {
-      latestPost: (params) => {
+    user.modify((f) => ({
+      latestPost: f.latestPost.resolve((params) => {
         return pg.dataloader(params, (sourceList) => {
           spy()
           const userPosts = sourceList.map((x) => posts.filter((p) => p.userId === x.id))
@@ -61,8 +61,8 @@ describe('dataloader', () => {
           )
           return latestPost
         })
-      },
-    })
+      }),
+    }))
 
     pg.query('findUsers', (f) =>
       f

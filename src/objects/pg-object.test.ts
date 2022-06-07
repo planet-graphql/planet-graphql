@@ -130,10 +130,11 @@ describe('PGObject', () => {
           typeof updated,
           PGObject<
             {
-              id: PGOutputField<string, any, undefined, PGTypes>
-              name: PGOutputField<string | null, any, undefined, PGTypes>
-              age: PGOutputField<number, any, undefined, PGTypes>
+              id: PGOutputField<string, any, undefined, undefined, PGTypes>
+              name: PGOutputField<string | null, any, undefined, undefined, PGTypes>
+              age: PGOutputField<number, any, undefined, undefined, PGTypes>
             },
+            any,
             PGTypes
           >
         >
@@ -150,7 +151,6 @@ describe('PGObject', () => {
 
       const modified = original.modify((f) => ({
         id: f.id.resolve((params) => `id: ${params.source.id}`),
-        name: f.name,
       }))
 
       const expectModifiedValue = mergeDefaultPGObject({

@@ -1,46 +1,31 @@
 import { DMMF } from '@prisma/client/runtime'
-import DataLoader from 'dataloader'
 import {
   GraphQLEnumType,
   GraphQLInputObjectType,
   GraphQLObjectType,
-  GraphQLResolveInfo,
   GraphQLScalarType,
   GraphQLSchema,
 } from 'graphql'
 import { ReadonlyDeep } from 'type-fest'
 import { IsUnknown } from 'type-fest/source/set-return-type'
 import { z } from 'zod'
-import { ResolveTree } from '../lib/graphql-parse-resolve-info'
 import { DefaultScalars } from '../lib/scalars'
 import {
   PGEnum,
-  PGField,
   PGFieldMap,
   PGModel,
-  PGQueryArgsType,
   PGScalar,
   PGScalarLike,
-  PGSelectorType,
-  ResolveParams,
+  PGResolveParams,
   ResolveResponse,
-  TypeOfPGField,
-  TypeOfPGFieldMap,
-  TypeOfPGModelBase,
 } from './common'
+import { PGInput, PGInputFieldBuilder, PGInputFieldMap } from './input'
 import {
-  PGEditInputFieldMap,
-  PGInput,
-  PGInputField,
-  PGInputFieldBuilder,
-  PGInputFieldMap,
-} from './input'
-import {
-  PGEditOutputFieldMap,
   PGObject,
   PGOutputField,
   PGOutputFieldBuilder,
   PGOutputFieldMap,
+  PrismaArgsBase,
 } from './output'
 
 export interface PGConfig {
@@ -48,13 +33,14 @@ export interface PGConfig {
 }
 
 export interface PGfyResponseType {
-  models: Record<string, PGModel<any>>
+  models: Record<string, PrismaArgsBase>
+  objects: Record<string, PGObject<any>>
   enums: Record<string, PGEnum<any>>
 }
 
 export interface PGTypeConfig {
   Context: object
-  PGGeneratedType: PGfyResponseType
+  GeneratedType: PGfyResponseType
 }
 
 export type PGScalarMap<T extends PGConfig['scalars']> = {
@@ -93,80 +79,28 @@ export interface PGBuilder<
   object: <T extends PGOutputFieldMap>(
     name: string,
     fieldMap: (b: PGOutputFieldBuilder<Types>) => T,
-  ) => PGObject<T, Types>
-  objectFromModel: <TModel extends PGFieldMap, T extends PGEditOutputFieldMap<TModel>>(
-    model: PGModel<TModel>,
-    editFieldMap: (
-      keep: {
-        [P in keyof TModel]: PGOutputField<
-          TypeOfPGField<TModel[P]>,
-          any,
-          undefined,
-          Types
-        >
-      },
-      f: PGOutputFieldBuilder<Types>,
-    ) => T,
-  ) => PGObject<{ [P in keyof T]: Exclude<T[P], undefined> }, Types>
+  ) => PGObject<T, any, Types>
   enum: <T extends string[]>(name: string, ...values: T) => PGEnum<T>
   input: <T extends PGInputFieldMap>(
     name: string,
-    fieldMap: (x: PGInputFieldBuilder<Types>) => T,
+    fieldMap: (b: PGInputFieldBuilder<Types>) => T,
   ) => PGInput<T, Types>
-  inputFromModel: <TModel extends PGFieldMap, T extends PGEditInputFieldMap<TModel>>(
-    name: string,
-    model: PGModel<TModel>,
-    editFieldMap: (
-      keep: {
-        // NOTE:
-        // A nullable fields must also be given an undefined type when converted to input.
-        // This is because an Input field which value is not specified in a query is undefined in graphql.js.
-        [P in keyof TModel]: TModel[P] extends PGField<infer U>
-          ? null extends U
-            ? PGInputField<U | undefined>
-            : PGInputField<U>
-          : never
-      },
-      x: PGInputFieldBuilder<Types>,
-    ) => T,
-  ) => PGInput<{ [P in keyof T]: Exclude<T[P], undefined> }, Types>
-  resolver: <T extends PGOutputFieldMap>(
-    object: PGObject<T>,
-    fieldMap: {
-      [P in keyof T]?: (
-        params: ResolveParams<
-          TypeOfPGField<T[P]>,
-          TypeOfPGModelBase<PGObject<T>>,
-          TypeOfPGFieldMap<Exclude<T[P]['value']['args'], undefined>>,
-          Types['Context']
-        >,
-      ) => ResolveResponse<TypeOfPGField<T[P]>>
-    },
-  ) => PGObject<T, Types>
   query: <TOutput extends PGOutputField<any>>(
     name: string,
-    field: (f: PGOutputFieldBuilder<Types>) => TOutput,
+    field: (b: PGOutputFieldBuilder<Types>) => TOutput,
   ) => PGRootFieldConfig
   mutation: <TOutput extends PGOutputField<any>>(
     name: string,
-    field: (f: PGOutputFieldBuilder<Types>) => TOutput,
+    field: (b: PGOutputFieldBuilder<Types>) => TOutput,
   ) => PGRootFieldConfig
   subscription: <TOutput extends PGOutputField<any>>(
     name: string,
-    fields: (f: PGOutputFieldBuilder<Types>) => TOutput,
+    fields: (b: PGOutputFieldBuilder<Types>) => TOutput,
   ) => PGRootFieldConfig
   build: () => GraphQLSchema
-  pgfy: (datamodel: DMMF.Datamodel) => Types['PGGeneratedType']
-  queryArgsBuilder: <T extends { [key: string]: any }>(
-    inputNamePrefix: string,
-  ) => <U extends PGSelectorType<T>>(selector: U) => PGQueryArgsType<U>
-  prismaFindArgs: <T = any>(
-    rootType: PGObject<any>,
-    params: ResolveParams<any, any, any, any>,
-    defaultArgs?: Partial<T>,
-  ) => T
-  dataloader: <TResolve, TSource, TArgs>(
-    params: ResolveParams<TResolve, TSource, TArgs, Types['Context']>,
+  pgfy: (datamodel: DMMF.Datamodel) => Types['GeneratedType']
+  dataloader: <TResolve, TSource>(
+    params: PGResolveParams<TSource, any, any, any, TResolve>,
     batchLoadFn: (sourceList: readonly TSource[]) => ResolveResponse<TResolve[]>,
   ) => ResolveResponse<TResolve>
   cache: () => ReadonlyDeep<PGCache>
@@ -181,27 +115,6 @@ export interface PGCache {
   query: { [name: string]: PGRootFieldConfig }
   mutation: { [name: string]: PGRootFieldConfig }
   subscription: { [name: string]: PGRootFieldConfig }
-}
-
-export interface ContextCache {
-  loader: {
-    [key: string]: DataLoader<any, any>
-  }
-  auth: {
-    [typeAndFieldName: string]:
-      | {
-          hasAuth: boolean
-          unAuthReturnValue: null | []
-        }
-      | undefined
-  }
-  rootResolveInfo: {
-    raw: GraphQLResolveInfo | null
-    parsed: ResolveTree | null
-  }
-  prismaFindArgs: {
-    [loc: string]: any | undefined
-  }
 }
 
 export type GraphqlTypeRef = () => {

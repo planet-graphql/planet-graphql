@@ -3,8 +3,9 @@ import { getDMMF } from '@prisma/sdk'
 import { graphql, GraphQLError } from 'graphql'
 import _ from 'lodash'
 import { getPGBuilder } from '..'
-import { parseResolveInfo } from '../lib/graphql-parse-resolve-info'
-import { PGEnum, PGField, PGModel, TypeOfPGModelBase } from '../types/common'
+import { PGTypes } from '../types/builder'
+import { PGEnum, PGModel } from '../types/common'
+import { PGObject, PGOutputField } from '../types/output'
 
 describe('build', () => {
   let dmmf: DMMF.Document
@@ -39,66 +40,66 @@ describe('build', () => {
     dmmf = await getDMMF({ datamodel })
   })
   it('Builds a GraphQLSchema', async () => {
-    type UserFieldMapType = {
-      id: PGField<bigint>
-      name: PGField<string>
-      income: PGField<Decimal>
-      posts: PGField<Array<PGModel<PostFieldMapType>>>
-      role: PGField<PGEnum<UserRoleValuesType>>
+    type UserFieldMapType<Types extends PGTypes> = {
+      id: PGOutputField<bigint, any, undefined, undefined, Types>
+      name: PGOutputField<string, any, undefined, undefined, Types>
+      income: PGOutputField<Decimal, any, undefined, undefined, Types>
+      posts: PGOutputField<
+        Array<PGModel<PostFieldMapType<Types>>>,
+        any,
+        undefined,
+        undefined,
+        Types
+      >
+      role: PGOutputField<PGEnum<UserRoleValuesType>, any, undefined, undefined, Types>
     }
-    type PostFieldMapType = {
-      id: PGField<number>
-      title: PGField<string>
-      userId: PGField<bigint>
-      user: PGField<PGModel<UserFieldMapType>>
+    type PostFieldMapType<Types extends PGTypes> = {
+      id: PGOutputField<number, any, undefined, undefined, Types>
+      title: PGOutputField<string, any, undefined, undefined, Types>
+      userId: PGOutputField<bigint, any, undefined, undefined, Types>
+      user: PGOutputField<
+        PGObject<UserFieldMapType<Types>, 'User', Types>,
+        any,
+        undefined,
+        undefined,
+        Types
+      >
     }
     type UserRoleValuesType = ['USER', 'MANAGER', 'ADMIN']
     type PGfyResponseEnums = {
       UserRole: PGEnum<UserRoleValuesType>
     }
 
-    type PGfyResponseModels = {
-      User: PGModel<UserFieldMapType>
-      Post: PGModel<PostFieldMapType>
+    type PGfyResponseObjects<Types extends PGTypes> = {
+      User: PGObject<UserFieldMapType<Types>, 'User', Types>
+      Post: PGObject<PostFieldMapType<Types>, 'Post', Types>
     }
 
-    interface PGfyResponse {
+    interface PGfyResponse<Types extends PGTypes> {
       enums: PGfyResponseEnums
-      models: PGfyResponseModels
+      objects: PGfyResponseObjects<Types>
+      models: {}
     }
 
-    const pg = getPGBuilder<{ Context: any; PGGeneratedType: PGfyResponse }>()()
+    const pg = getPGBuilder<{ Context: any; GeneratedType: PGfyResponse<PGTypes> }>()()
     const pgfyResult = pg.pgfy(dmmf.datamodel)
 
-    const user = pgfyResult.models.User
+    const user = pgfyResult.objects.User
 
-    const users: Array<TypeOfPGModelBase<typeof user>> = [
+    const users = [
       {
         id: 1n,
         name: 'xxx',
         income: new Decimal(100),
-        posts: [
-          {
-            id: 1,
-            title: 'xxx',
-            userId: 1n,
-            user: {
-              id: 1n,
-              name: 'xxx',
-              income: new Decimal(100),
-              posts: [],
-              role: 'USER',
-            },
-          },
-        ],
-        role: 'USER',
+        posts: [],
+        role: 'USER' as const,
       },
       {
         id: 2n,
         name: 'yyy',
         income: new Decimal(1000),
         posts: [],
-        role: 'MANAGER',
+        role: 'MANAGER' as const,
       },
     ]
     pg.query('findUser', (f) =>
@@ -107,7 +108,7 @@ describe('build', () => {
         .args((f) => ({
           id: f.id(),
         }))
-        .resolve(({ args, context }) => {
+        .resolve(({ args }) => {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           return users.find((x) => x.id === BigInt(args.id))!
         }),
@@ -191,12 +192,7 @@ describe('build', () => {
           id: '1',
           name: 'xxx',
           income: new Decimal(100),
-          posts: [
-            {
-              id: '1',
-              title: 'xxx',
-            },
-          ],
+          posts: [],
           role: 'USER',
         },
       },
@@ -211,31 +207,6 @@ describe('build', () => {
           role: 'USER',
         },
       },
-    })
-  })
-
-  it('Set the GraphqlResolveInfo in ContextCache', async () => {
-    let ctxCache: any
-    let resolveInfo: any
-    const pg = getPGBuilder()()
-    pg.query('someQuery', (f) =>
-      f.string().resolve((params) => {
-        ctxCache = (params.context as any).__cache
-        resolveInfo = params.info
-        return 'hi'
-      }),
-    )
-    const schema = pg.build()
-    const query = `
-        query {
-          someQuery
-        }
-      `
-    await graphql({ schema, source: query, contextValue: {} })
-
-    expect(ctxCache?.rootResolveInfo).toEqual({
-      raw: resolveInfo,
-      parsed: parseResolveInfo(resolveInfo),
     })
   })
 
