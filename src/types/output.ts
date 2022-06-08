@@ -25,9 +25,7 @@ import {
 
 export interface PGObject<
   T extends PGOutputFieldMap,
-  TPrismaModelName extends
-    | keyof ReturnType<Types['GeneratedType']>['models']
-    | undefined = undefined,
+  TOptions extends PGObjectOptions<Types> = any,
   Types extends PGTypes = any,
 > {
   name: string
@@ -37,11 +35,7 @@ export interface PGObject<
   copy: (name: string) => this
   update: <SetT extends PGEditOutputFieldMap<T>>(
     callback: (f: T, b: PGOutputFieldBuilder<Types>) => SetT,
-  ) => PGObject<
-    { [P in keyof SetT]: Exclude<SetT[P], undefined> },
-    TPrismaModelName,
-    Types
-  >
+  ) => PGObject<{ [P in keyof SetT]: Exclude<SetT[P], undefined> }, TOptions, Types>
   modify: (
     callback: (f: PGModifyOutputFieldMap<T>) => Partial<PGModifyOutputFieldMap<T>>,
   ) => this
@@ -49,14 +43,26 @@ export interface PGObject<
     TSetPrismaModelName extends keyof ReturnType<Types['GeneratedType']>['models'],
   >(
     name: TSetPrismaModelName,
-  ) => PGObject<T, TSetPrismaModelName, Types>
+  ) => PGObject<
+    T,
+    UpdatePGOptions<TOptions, 'PrismaModelName', TSetPrismaModelName>,
+    Types
+  >
+}
+
+export interface PGObjectOptions<Types extends PGTypes> {
+  PrismaModelName: keyof ReturnType<Types['GeneratedType']>['models'] | undefined
+}
+
+export interface PGObjectOptionsDefault<Types extends PGTypes>
+  extends PGObjectOptions<Types> {
+  PrismaModelName: undefined
 }
 
 export interface PGOutputField<
   T,
   TSource = any,
-  TArgs extends PGInputFieldMap | undefined = any,
-  TPrismaArgs extends PGInputFieldMap | undefined = any,
+  TOptions extends PGOuptutFieldOptions = any,
   Types extends PGTypes = any,
 > extends PGField<T> {
   value: PGFieldValue & {
@@ -64,21 +70,21 @@ export interface PGOutputField<
     resolve?: (
       params: PGResolveParams<
         TSource,
-        TypeOfPGFieldMap<Exclude<TArgs, undefined>>,
-        TypeOfPGFieldMap<Exclude<TPrismaArgs, undefined>>,
+        TypeOfPGFieldMap<Exclude<TOptions['Args'], undefined>>,
+        TypeOfPGFieldMap<Exclude<TOptions['PrismaArgs'], undefined>>,
         Types['Context'],
         TypeOfPGField<PGField<T>>
       >,
     ) => ResolveResponse<TypeOfPGField<PGField<T>>>
     subscribe?: ResolverFn
-    authChecker?: <CheckerTArgs extends TArgs>(x: {
+    authChecker?: (x: {
       ctx: Types['Context']
-      args: TypeOfPGFieldMap<Exclude<CheckerTArgs, undefined>>
+      args: TypeOfPGFieldMap<Exclude<TOptions['Args'], undefined>>
     }) => boolean | Promise<boolean>
     isPrismaRelation?: boolean
   }
   nullable: CheckCallability<
-    () => PGOutputField<T | null, TSource, TArgs, TPrismaArgs, Types>,
+    () => PGOutputField<T | null, TSource, TOptions, Types>,
     IsAny<TSource>
   >
   list: CheckCallability<
@@ -87,8 +93,7 @@ export interface PGOutputField<
       : PGOutputField<
           Array<ExcludeNullish<T>> | ExtractNullish<T>,
           TSource,
-          TArgs,
-          TPrismaArgs,
+          TOptions,
           Types
         >,
     IsAny<TSource>
@@ -96,23 +101,40 @@ export interface PGOutputField<
   args: CheckCallability<
     <TSetArgs extends PGInputFieldMap>(
       callback: (b: PGInputFieldBuilder<Types>) => TSetArgs,
-    ) => PGOutputField<T, TSource, MergerArgs<TArgs, TSetArgs>, TPrismaArgs, Types>,
+    ) => PGOutputField<
+      T,
+      TSource,
+      UpdatePGOptions<TOptions, 'Args', MergerArgs<TOptions['Args'], TSetArgs>>,
+      Types
+    >,
     IsAny<TSource>
   >
   prismaArgs: CheckCallability<
     <TSetPrismaArgs extends PGInputFieldMap>(
       callback: (b: PGInputFieldBuilder<Types>) => TSetPrismaArgs,
-    ) => PGOutputField<T, TSource, TArgs, MergerArgs<TPrismaArgs, TSetPrismaArgs>, Types>,
+    ) => PGOutputField<
+      T,
+      TSource,
+      UpdatePGOptions<
+        TOptions,
+        'PrismaArgs',
+        MergerArgs<TOptions['PrismaArgs'], TSetPrismaArgs>
+      >,
+      Types
+    >,
     IsAny<TSource>
   >
   prismaRelayArgs: CheckCallability<
-    <SetTArgs extends PGInputFieldMap>(
+    (
       callback: (f: PGRelayInputFieldMap<Types>) => PGRelayInputFieldMap<Types>,
     ) => PGOutputField<
       T,
       TSource,
-      SetTArgs,
-      MergePrismaRelayArgs<TPrismaArgs, GetPrismaModelName<T, Types>, Types>,
+      UpdatePGOptions<
+        TOptions,
+        'PrismaArgs',
+        MergePrismaRelayArgs<TOptions['PrismaArgs'], GetPrismaModelName<T, Types>, Types>
+      >,
       Types
     >,
     IsAny<TSource>
@@ -121,9 +143,9 @@ export interface PGOutputField<
     callback: (
       params: PGResolveParams<
         TSource,
-        TypeOfPGFieldMap<Exclude<TArgs, undefined>>,
+        TypeOfPGFieldMap<Exclude<TOptions['Args'], undefined>>,
         MergeDefaultPrismaArgs<
-          TypeOfPGFieldMap<Exclude<TPrismaArgs, undefined>>,
+          TypeOfPGFieldMap<Exclude<TOptions['PrismaArgs'], undefined>>,
           GetPrismaModelName<T, Types>,
           Types
         >,
@@ -136,7 +158,7 @@ export interface PGOutputField<
     callback: (
       params: PGSubscribeParams<
         TSource,
-        TypeOfPGFieldMap<Exclude<TArgs, undefined>>,
+        TypeOfPGFieldMap<Exclude<TOptions['Args'], undefined>>,
         Types['Context'],
         TypeOfPGField<PGField<T>>
       >,
@@ -148,9 +170,19 @@ export interface PGOutputField<
   auth: (
     checker: (x: {
       ctx: Types['Context']
-      args: TypeOfPGFieldMap<Exclude<TArgs, undefined>>
+      args: TypeOfPGFieldMap<Exclude<TOptions['Args'], undefined>>
     }) => boolean | Promise<boolean>,
   ) => this
+}
+
+export interface PGOuptutFieldOptions {
+  Args: PGInputFieldMap | undefined
+  PrismaArgs: PGInputFieldMap | undefined
+}
+
+export interface PGOutputFieldOptionsDefault {
+  Args: undefined
+  PrismaArgs: undefined
 }
 
 export interface PGOutputFieldMap {
@@ -167,10 +199,16 @@ export type PGModifyOutputFieldMap<T extends PGOutputFieldMap> = {
     : never
 }
 
+export type UpdatePGOptions<
+  TCurrentOptions,
+  TKeyName extends keyof TCurrentOptions,
+  TSet,
+> = { [P in keyof TCurrentOptions]: P extends TKeyName ? TSet : TCurrentOptions[P] }
+
 export type GetPrismaModelName<T, Types extends PGTypes> = (
   ExcludeNullish<T> extends Array<infer U> ? U : ExcludeNullish<T>
 ) extends () => PGObject<any, infer U, Types>
-  ? U
+  ? U['PrismaModelName']
   : undefined
 
 export type MergerArgs<
@@ -245,19 +283,18 @@ export type PGOutputFieldBuilder<Types extends PGTypes<PGTypeConfig, PGConfig>> 
         : P]: () => PGOutputField<
         Types['ScalarMap'][P]['output'],
         any,
-        undefined,
-        undefined,
+        PGOutputFieldOptionsDefault,
         Types
       >
     } & {
       object: <T extends Function>(
         type: T,
-      ) => PGOutputField<T, any, undefined, undefined, Types>
+      ) => PGOutputField<T, any, PGOutputFieldOptionsDefault, Types>
       relation: <T extends Function>(
         type: T,
-      ) => PGOutputField<T, any, undefined, undefined, Types>
+      ) => PGOutputField<T, any, PGOutputFieldOptionsDefault, Types>
       enum: <T extends PGEnum<any>>(
         type: T,
-      ) => PGOutputField<T, any, undefined, undefined, Types>
+      ) => PGOutputField<T, any, PGOutputFieldOptionsDefault, Types>
     }
   >

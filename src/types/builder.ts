@@ -23,6 +23,7 @@ import { PGInput, PGInputFieldBuilder, PGInputFieldMap } from './input'
 import { PGInputFactoryWrapper } from './input-factory'
 import {
   PGObject,
+  PGObjectOptionsDefault,
   PGOutputField,
   PGOutputFieldBuilder,
   PGOutputFieldMap,
@@ -82,7 +83,7 @@ export interface PGBuilder<
   object: <T extends PGOutputFieldMap>(
     name: string,
     fieldMap: (b: PGOutputFieldBuilder<Types>) => T,
-  ) => PGObject<T, any, Types>
+  ) => PGObject<T, PGObjectOptionsDefault<Types>, Types>
   enum: <T extends string[]>(name: string, ...values: T) => PGEnum<T>
   input: <T extends PGInputFieldMap>(
     name: string,

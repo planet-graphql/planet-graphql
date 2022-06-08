@@ -135,40 +135,40 @@ describe('generate', () => {
 import { Decimal } from "@prisma/client/runtime";
 import { PGTypes } from "@prismagql/prismagql/lib/types/builder";
 import { PGEnum, RequiredNonNullable } from "@prismagql/prismagql/lib/types/common";
-import { PGObject, PGOutputField } from "@prismagql/prismagql/lib/types/output";
+import { PGObject, PGOutputField, PGOutputFieldOptionsDefault } from "@prismagql/prismagql/lib/types/output";
 import { PGInputFactoryWrapper, PGInputFactoryUnion, PGInputFactory } from "@prismagql/prismagql/lib/types/input-factory";
 
 type SomeEnumValuesType = ["AAA", "BBB", "CCC"];
 type SomeEnum2ValuesType = ["Aaa", "Bbb", "Ccc"];
 type SomeEnum3ValuesType = ["aaa", "bbb", "ccc"];
 type Model1FieldMapType<Types extends PGTypes> = {
-        id: PGOutputField<number, any, undefined, undefined, Types>;
-        string: PGOutputField<string, any, undefined, undefined, Types>;
-        json: PGOutputField<string, any, undefined, undefined, Types>;
-        int: PGOutputField<number, any, undefined, undefined, Types>;
-        float: PGOutputField<number, any, undefined, undefined, Types>;
-        boolean: PGOutputField<boolean, any, undefined, undefined, Types>;
-        bigInt: PGOutputField<bigint, any, undefined, undefined, Types>;
-        dateTime: PGOutputField<Date, any, undefined, undefined, Types>;
-        bytes: PGOutputField<Buffer, any, undefined, undefined, Types>;
-        decimal: PGOutputField<Decimal, any, undefined, undefined, Types>;
-        nullable: PGOutputField<string | null, any, undefined, undefined, Types>;
-        list: PGOutputField<string[], any, undefined, undefined, Types>;
-        enum: PGOutputField<PGEnum<SomeEnumValuesType>, any, undefined, undefined, Types>;
-        enumList: PGOutputField<Array<PGEnum<SomeEnum2ValuesType>>, any, undefined, undefined, Types>;
-        enumNullable: PGOutputField<PGEnum<SomeEnum3ValuesType> | null, any, undefined, undefined, Types>;
-        oneToOne: PGOutputField<PGObject<Model2FieldMapType<Types>, 'Model2', Types> | null, any, undefined, undefined, Types>;
-        oneToMany: PGOutputField<Array<PGObject<Model3FieldMapType<Types>, 'Model3', Types>>, any, undefined, undefined, Types>;
+        id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
+        string: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>;
+        json: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>;
+        int: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
+        float: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
+        boolean: PGOutputField<boolean, any, PGOutputFieldOptionsDefault, Types>;
+        bigInt: PGOutputField<bigint, any, PGOutputFieldOptionsDefault, Types>;
+        dateTime: PGOutputField<Date, any, PGOutputFieldOptionsDefault, Types>;
+        bytes: PGOutputField<Buffer, any, PGOutputFieldOptionsDefault, Types>;
+        decimal: PGOutputField<Decimal, any, PGOutputFieldOptionsDefault, Types>;
+        nullable: PGOutputField<string | null, any, PGOutputFieldOptionsDefault, Types>;
+        list: PGOutputField<string[], any, PGOutputFieldOptionsDefault, Types>;
+        enum: PGOutputField<PGEnum<SomeEnumValuesType>, any, PGOutputFieldOptionsDefault, Types>;
+        enumList: PGOutputField<Array<PGEnum<SomeEnum2ValuesType>>, any, PGOutputFieldOptionsDefault, Types>;
+        enumNullable: PGOutputField<PGEnum<SomeEnum3ValuesType> | null, any, PGOutputFieldOptionsDefault, Types>;
+        oneToOne: PGOutputField<PGObject<Model2FieldMapType<Types>, { PrismaModelName: 'Model2' }, Types> | null, any, PGOutputFieldOptionsDefault, Types>;
+        oneToMany: PGOutputField<Array<PGObject<Model3FieldMapType<Types>, { PrismaModelName: 'Model3' }, Types>>, any, PGOutputFieldOptionsDefault, Types>;
     };
 type Model2FieldMapType<Types extends PGTypes> = {
-        id: PGOutputField<number, any, undefined, undefined, Types>;
-        model1: PGOutputField<PGObject<Model1FieldMapType<Types>, 'Model1', Types>, any, undefined, undefined, Types>;
-        model1Id: PGOutputField<number, any, undefined, undefined, Types>;
+        id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
+        model1: PGOutputField<PGObject<Model1FieldMapType<Types>, { PrismaModelName: 'Model1' }, Types>, any, PGOutputFieldOptionsDefault, Types>;
+        model1Id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
     };
 type Model3FieldMapType<Types extends PGTypes> = {
-        id: PGOutputField<number, any, undefined, undefined, Types>;
-        model1: PGOutputField<PGObject<Model1FieldMapType<Types>, 'Model1', Types>, any, undefined, undefined, Types>;
-        model1Id: PGOutputField<number, any, undefined, undefined, Types>;
+        id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
+        model1: PGOutputField<PGObject<Model1FieldMapType<Types>, { PrismaModelName: 'Model1' }, Types>, any, PGOutputFieldOptionsDefault, Types>;
+        model1Id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
     };
 type PGfyResponseEnums = {
         SomeEnum: PGEnum<SomeEnumValuesType>;
@@ -176,9 +176,9 @@ type PGfyResponseEnums = {
         SomeEnum3: PGEnum<SomeEnum3ValuesType>;
     };
 type PGfyResponseObjects<Types extends PGTypes> = {
-        Model1: PGObject<Model1FieldMapType<Types>, 'Model1', Types>;
-        Model2: PGObject<Model2FieldMapType<Types>, 'Model2', Types>;
-        Model3: PGObject<Model3FieldMapType<Types>, 'Model3', Types>;
+        Model1: PGObject<Model1FieldMapType<Types>, { PrismaModelName: 'Model1' }, Types>;
+        Model2: PGObject<Model2FieldMapType<Types>, { PrismaModelName: 'Model2' }, Types>;
+        Model3: PGObject<Model3FieldMapType<Types>, { PrismaModelName: 'Model3' }, Types>;
     };
 type PGfyResponseModels = {
         Model1: RequiredNonNullable<Prisma.Model1FindManyArgs>;
@@ -450,7 +450,7 @@ export interface PGfyResponse<Types extends PGTypes> {
 import { Decimal } from "@prisma/client/runtime";
 import { PGTypes } from "@prismagql/prismagql/lib/types/builder";
 import { PGEnum, RequiredNonNullable } from "@prismagql/prismagql/lib/types/common";
-import { PGObject, PGOutputField } from "@prismagql/prismagql/lib/types/output";
+import { PGObject, PGOutputField, PGOutputFieldOptionsDefault } from "@prismagql/prismagql/lib/types/output";
 import { PGInputFactoryWrapper, PGInputFactoryUnion, PGInputFactory } from "@prismagql/prismagql/lib/types/input-factory";
 
 type PGfyResponseEnums = {};

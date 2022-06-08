@@ -45,7 +45,9 @@ function getPGFieldType(dmmf: DMMF.Field): string {
       innerType = `PGEnum<${getEnumTypeName(dmmf.type)}>`
       break
     case 'object':
-      innerType = `PGObject<${getModelTypeName(dmmf.type)}<Types>, '${dmmf.type}', Types>`
+      innerType = `PGObject<${getModelTypeName(dmmf.type)}<Types>, { PrismaModelName: '${
+        dmmf.type
+      }' }, Types>`
       break
     case 'scalar':
       innerType = `${getTSType(dmmf.type)}`
@@ -59,7 +61,7 @@ function getPGFieldType(dmmf: DMMF.Field): string {
   if (!dmmf.isRequired) {
     innerType = `${innerType} | null`
   }
-  return `PGOutputField<${innerType}, any, undefined, undefined, Types>`
+  return `PGOutputField<${innerType}, any, PGOutputFieldOptionsDefault, Types>`
 }
 
 export function getInputsTypeProperty(arg: DMMF.SchemaArg): string {
@@ -211,7 +213,7 @@ export async function generate(
     moduleSpecifier: '@prismagql/prismagql/lib/types/common',
   })
   outputFile.addImportDeclaration({
-    namedImports: ['PGObject', 'PGOutputField'],
+    namedImports: ['PGObject', 'PGOutputField', 'PGOutputFieldOptionsDefault'],
     moduleSpecifier: '@prismagql/prismagql/lib/types/output',
   })
   outputFile.addImportDeclaration({
@@ -258,7 +260,9 @@ export async function generate(
       type: objectType({
         properties: dmmf.datamodel.models.map((x) => ({
           name: x.name,
-          type: `PGObject<${getModelTypeName(x.name)}<Types>, '${x.name}', Types>`,
+          type: `PGObject<${getModelTypeName(x.name)}<Types>, { PrismaModelName: '${
+            x.name
+          }' }, Types>`,
         })),
       }),
     })

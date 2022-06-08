@@ -2,7 +2,7 @@ import { expectType, TypeEqual } from 'ts-expect'
 import { getPGBuilder } from '..'
 import { mergeDefaultPGObject, mergeDefaultOutputField } from '../builder/test-utils'
 import { PGBuilder, PGTypes } from '../types/builder'
-import { PGObject, PGOutputField } from '../types/output'
+import { PGObject, PGOutputFieldOptionsDefault, PGOutputField } from '../types/output'
 
 describe('PGObject', () => {
   let buider: PGBuilder<PGTypes>
@@ -130,9 +130,14 @@ describe('PGObject', () => {
           typeof updated,
           PGObject<
             {
-              id: PGOutputField<string, any, undefined, undefined, PGTypes>
-              name: PGOutputField<string | null, any, undefined, undefined, PGTypes>
-              age: PGOutputField<number, any, undefined, undefined, PGTypes>
+              id: PGOutputField<string, any, PGOutputFieldOptionsDefault, PGTypes>
+              name: PGOutputField<
+                string | null,
+                any,
+                PGOutputFieldOptionsDefault,
+                PGTypes
+              >
+              age: PGOutputField<number, any, PGOutputFieldOptionsDefault, PGTypes>
             },
             any,
             PGTypes

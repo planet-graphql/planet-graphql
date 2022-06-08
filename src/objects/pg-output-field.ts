@@ -7,14 +7,14 @@ import { GraphqlTypeRef, PGCache, PGTypes } from '../types/builder'
 import { PGFieldKindAndType } from '../types/common'
 import { GraphQLResolveParams, PGFeatureBeforeResolveResponse } from '../types/feature'
 import { PGInputFieldBuilder } from '../types/input'
-import { PGOutputField } from '../types/output'
+import { PGOutputFieldOptionsDefault, PGOutputField } from '../types/output'
 import { convertToGraphQLInputFieldConfig, getRelayInputFieldMap } from './pg-input-field'
 import { getGraphQLFieldConfigType } from './util'
 
 export function createOutputField<T, Types extends PGTypes>(
   kindAndType: PGFieldKindAndType,
   inputFieldBuilder: PGInputFieldBuilder<Types>,
-): PGOutputField<T, any, undefined, undefined, Types> {
+): PGOutputField<T, any, PGOutputFieldOptionsDefault, Types> {
   const field: PGOutputField<any> = {
     value: {
       ...kindAndType,
