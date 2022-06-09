@@ -2,6 +2,7 @@ import { ReadonlyDeep } from 'type-fest'
 import { PGCache } from '../types/builder'
 import { PGField, PGModel } from '../types/common'
 import { PGInput, PGInputField } from '../types/input'
+import { PGInputFactoryUnion, PGInputFactoryWrapper } from '../types/input-factory'
 import { PGObject, PGOutputField } from '../types/output'
 
 export function mergeDefaultPGInput(input: Partial<PGInput<any>>): PGInput<any> {
@@ -81,6 +82,46 @@ export function mergeDefaultOutputField(
     subscribe: expect.any(Function),
     auth: expect.any(Function),
     __type: undefined as any,
+  }
+}
+
+export function mergeDefaultInputFactoryWrapper(
+  value: Partial<PGInputFactoryWrapper<any>['value']>,
+): PGInputFactoryWrapper<any> {
+  return {
+    value: Object.assign(
+      {
+        fieldMap: {},
+        kind: 'object',
+        type: Function,
+        isOptional: false,
+        isNullable: false,
+        isList: false,
+      },
+      value,
+    ),
+    nullish: expect.any(Function),
+    nullable: expect.any(Function),
+    optional: expect.any(Function),
+    list: expect.any(Function),
+    default: expect.any(Function),
+    validation: expect.any(Function),
+    edit: expect.any(Function),
+    build: expect.any(Function),
+  }
+}
+
+export function mergeDefaultInputFactoryUnion(
+  value: Partial<PGInputFactoryUnion<any>['value']>,
+): PGInputFactoryUnion<any> {
+  return {
+    value: Object.assign(
+      {
+        factoryMap: {},
+      },
+      value,
+    ),
+    select: expect.any(Function),
   }
 }
 
