@@ -25,13 +25,15 @@ import {
 
 export interface PGObject<
   T extends PGOutputFieldMap,
-  TPrismaModelName extends keyof Types['GeneratedType']['models'] | undefined = undefined,
+  TPrismaModelName extends
+    | keyof ReturnType<Types['GeneratedType']>['models']
+    | undefined = undefined,
   Types extends PGTypes = any,
 > {
   name: string
   fieldMap: T
   kind: 'object'
-  prismaModelName?: keyof Types['GeneratedType']['models']
+  prismaModelName?: keyof ReturnType<Types['GeneratedType']>['models']
   copy: (name: string) => this
   update: <SetT extends PGEditOutputFieldMap<T>>(
     callback: (f: T, b: PGOutputFieldBuilder<Types>) => SetT,
@@ -43,7 +45,9 @@ export interface PGObject<
   modify: (
     callback: (f: PGModifyOutputFieldMap<T>) => Partial<PGModifyOutputFieldMap<T>>,
   ) => this
-  prismaModel: <TSetPrismaModelName extends keyof Types['GeneratedType']['models']>(
+  prismaModel: <
+    TSetPrismaModelName extends keyof ReturnType<Types['GeneratedType']>['models'],
+  >(
     name: TSetPrismaModelName,
   ) => PGObject<T, TSetPrismaModelName, Types>
 }
@@ -178,7 +182,7 @@ export type MergerArgs<
 
 export type MergeDefaultPrismaArgs<
   T,
-  TPrismaModelName extends keyof Types['GeneratedType']['models'] | undefined,
+  TPrismaModelName extends keyof ReturnType<Types['GeneratedType']>['models'] | undefined,
   Types extends PGTypes,
 > = GetPrismaArgType<TPrismaModelName, Types, 'include'> extends infer U
   ? U extends undefined
@@ -190,7 +194,7 @@ export type MergeDefaultPrismaArgs<
 
 export type MergePrismaRelayArgs<
   TPrismaArgs extends PGInputFieldMap | undefined,
-  TPrismaModelName extends keyof Types['GeneratedType']['models'] | undefined,
+  TPrismaModelName extends keyof ReturnType<Types['GeneratedType']>['models'] | undefined,
   Types extends PGTypes,
 > = TPrismaArgs & {
   take: PGInputField<number, 'int', Types>
@@ -208,11 +212,11 @@ export type MergePrismaRelayArgs<
 }
 
 export type GetPrismaArgType<
-  TPrismaModelName extends keyof Types['GeneratedType']['models'] | undefined,
+  TPrismaModelName extends keyof ReturnType<Types['GeneratedType']>['models'] | undefined,
   Types extends PGTypes,
   TPrismaArgName extends keyof PrismaArgsBase,
-> = TPrismaModelName extends keyof Types['GeneratedType']['models']
-  ? Types['GeneratedType']['models'][TPrismaModelName][TPrismaArgName]
+> = TPrismaModelName extends keyof ReturnType<Types['GeneratedType']>['models']
+  ? ReturnType<Types['GeneratedType']>['models'][TPrismaModelName][TPrismaArgName]
   : undefined
 
 export type CheckCallability<

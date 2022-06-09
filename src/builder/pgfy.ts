@@ -1,9 +1,21 @@
 import { DMMF } from '@prisma/generator-helper'
+import { createPGEnum } from '../objects/pg-enum'
+import {
+  createPGInputFactoryUnion,
+  createPGInputFactoryWrapper,
+} from '../objects/pg-input-factory'
+import { createInputField } from '../objects/pg-input-field'
 import { createPGObject } from '../objects/pg-object'
 import { createOutputField } from '../objects/pg-output-field'
 import { PGBuilder, PGCache, PGfyResponseType, PGTypes } from '../types/builder'
 import { PGEnum, PGFieldKindAndType } from '../types/common'
 import { PGInputFieldBuilder } from '../types/input'
+import {
+  PGInputFactory,
+  PGInputFactoryField,
+  PGInputFactoryFieldMap,
+  PGInputFactoryWrapper,
+} from '../types/input-factory'
 import { PGObject, PGOutputFieldBuilder, PGOutputFieldMap } from '../types/output'
 import { getScalarTypeName } from './build'
 import { createEnumBuilder } from './enum'
@@ -14,7 +26,7 @@ export const pgfy: <Types extends PGTypes>(
   inputFieldBuilder: PGInputFieldBuilder<Types>,
   outputFieldBuilder: PGOutputFieldBuilder<Types>,
 ) => PGBuilder<Types>['pgfy'] =
-  (cache, inputFieldBuilder, outputFieldBuilder) => (datamodel: DMMF.Datamodel) => {
+  (cache, inputFieldBuilder, outputFieldBuilder) => (dmmf: DMMF.Document) => {
     function convertToPGObject(
       model: DMMF.Model,
       enums: { [name: string]: PGEnum<any> },
@@ -62,22 +74,144 @@ export const pgfy: <Types extends PGTypes>(
       return pgObject
     }
     const objectRef: { [name: string]: PGObject<any> } = {}
-    const enums = datamodel.enums.reduce<PGfyResponseType['enums']>((acc, x) => {
+    const enums = dmmf.datamodel.enums.reduce<PGfyResponseType['enums']>((acc, x) => {
       const pgEnum = createEnumBuilder(cache)(x.name, ...x.values.map((v) => v.name))
       acc[x.name] = pgEnum
       return acc
     }, {})
-    const objects = datamodel.models.reduce<PGfyResponseType['objects']>((acc, x) => {
-      const pgObject = convertToPGObject(x, enums, objectRef)
-      setCache(cache, pgObject)
-      objectRef[x.name] = pgObject
-      acc[x.name] = pgObject
-      return acc
-    }, {})
+    const objects = dmmf.datamodel.models.reduce<PGfyResponseType['objects']>(
+      (acc, x) => {
+        const pgObject = convertToPGObject(x, enums, objectRef)
+        setCache(cache, pgObject)
+        objectRef[x.name] = pgObject
+        acc[x.name] = pgObject
+        return acc
+      },
+      {},
+    )
+
+    const inputFactoryFieldMapRef: {
+      [name: string]: PGInputFactoryFieldMap
+    } = {}
+
+    for (const inputType of dmmf.schema.inputObjectTypes.prisma) {
+      convertToPGInputFactoryWrapper(
+        inputType.name,
+        inputType.fields,
+        inputFactoryFieldMapRef,
+      )
+    }
+
+    const inputRoots = dmmf.schema.outputObjectTypes.prisma
+      .filter((x) => x.name === 'Query' || x.name === 'Mutation')
+      .flatMap((x) => x.fields)
+      .reduce<PGfyResponseType['inputs']>((acc, field) => {
+        const pgInputFactoryWrapper = convertToPGInputFactoryWrapper(
+          field.name,
+          field.args,
+          inputFactoryFieldMapRef,
+        )
+        acc[field.name] = pgInputFactoryWrapper
+        return acc
+      }, {})
+
+    function convertToPGInputFactoryWrapperValue(
+      inputType: DMMF.SchemaArgInputType,
+      inputFactoryFieldMapRef: { [name: string]: PGInputFactoryFieldMap },
+      isList: boolean,
+      isOptional: boolean,
+      isNullable: boolean,
+    ): (() => PGInputFactoryWrapper<any>) | PGInputFactory<any, any> {
+      if (inputType.location === 'inputObjectTypes') {
+        return () => {
+          const inputFactoryWrapper = createPGInputFactoryWrapper<any, any>(
+            inputFactoryFieldMapRef[inputType.type as string],
+          )
+          if (isList) inputFactoryWrapper.list()
+          if (isOptional) inputFactoryWrapper.optional()
+          if (isNullable) inputFactoryWrapper.nullable()
+          return inputFactoryWrapper
+        }
+      }
+      if (inputType.location === 'enumTypes') {
+        const enumType = [
+          ...dmmf.schema.enumTypes.prisma,
+          ...(dmmf.schema.enumTypes.model ?? []),
+        ].find((e) => e.name === inputType.type)
+        if (enumType === undefined)
+          throw new PGError(
+            `Unexpected enumType '${inputType.type as string}''.`,
+            'Error',
+          )
+        const enumFactory = createInputField<any, any, any>({
+          kind: 'enum',
+          type: createPGEnum(enumType.name, ...enumType.values),
+        })
+        if (isList) enumFactory.list()
+        if (isOptional) enumFactory.optional()
+        if (isNullable) enumFactory.nullable()
+        return enumFactory
+      }
+      if (inputType.location === 'scalar') {
+        const inputFactory = createInputField<any, any, any>({
+          kind: 'scalar',
+          type: getScalarTypeName(inputType.type as string, false),
+        })
+        if (isList) inputFactory.list()
+        if (isOptional) inputFactory.optional()
+        if (isNullable) inputFactory.nullable()
+        return inputFactory
+      }
+      throw new PGError(`Unexpected type '${inputType.type as string}''.`, 'Error')
+    }
+
+    function convertToPGInputFactoryWrapper(
+      name: string,
+      args: DMMF.SchemaArg[],
+      inputFactoryFieldMapRef: { [name: string]: PGInputFactoryFieldMap },
+    ): PGInputFactoryWrapper<any> {
+      const fieldMap = args.reduce<PGInputFactoryFieldMap>((acc, arg) => {
+        const dominantInputType = arg.inputTypes[0]
+        if (arg.inputTypes.length > 1) {
+          const factoryMap = arg.inputTypes.reduce<{
+            [name: string]: PGInputFactoryField
+          }>((innerAcc, inputType) => {
+            const fieldName = inputType.isList
+              ? `${inputType.type as string}List`
+              : (inputType.type as string)
+            innerAcc[fieldName] = convertToPGInputFactoryWrapperValue(
+              inputType,
+              inputFactoryFieldMapRef,
+              inputType.isList,
+              !arg.isRequired,
+              arg.isNullable,
+            )
+            return innerAcc
+          }, {})
+          acc[arg.name] = createPGInputFactoryUnion({
+            __default: factoryMap[dominantInputType.type as string],
+            ...factoryMap,
+          })
+          return acc
+        }
+        acc[arg.name] = convertToPGInputFactoryWrapperValue(
+          dominantInputType,
+          inputFactoryFieldMapRef,
+          dominantInputType.isList,
+          !arg.isRequired,
+          arg.isNullable,
+        )
+        return acc
+      }, {})
+      inputFactoryFieldMapRef[name] = fieldMap
+      return createPGInputFactoryWrapper(fieldMap)
+    }
+
     const resp: PGfyResponseType = {
       enums,
       objects,
       models: {},
+      inputs: inputRoots,
     }
     return resp
   }
