@@ -305,7 +305,7 @@ export async function generate(
         .flatMap((x) =>
           x.fields.map((f) => ({
             name: f.name,
-            type: `${_.upperFirst(f.name)}Factory<Types>`,
+            type: `PGInputFactoryWrapper<${_.upperFirst(f.name)}Factory<Types>, Types>`,
           })),
         ),
     })

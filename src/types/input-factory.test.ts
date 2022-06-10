@@ -11,7 +11,7 @@ describe.skip('PGInputFactory', () => {
   it('Type is evaluated correctly even if it contains circular references', () => {
     type UserWhereFactory = PGInputFactoryWrapper<
       {
-        AND: () => PGInputFactoryWrapper<[UserWhereFactory['fieldMap']], PGTypes>
+        AND: () => PGInputFactoryWrapper<[UserWhereFactory['value']['fieldMap']], PGTypes>
         name: PGInputFactoryUnion<{
           StringFilter: () => PGInputFactoryWrapper<
             {
@@ -36,7 +36,7 @@ describe.skip('PGInputFactory', () => {
 
     type PostWhereFactory = PGInputFactoryWrapper<
       {
-        AND: () => PGInputFactoryWrapper<[PostWhereFactory['fieldMap']], PGTypes>
+        AND: () => PGInputFactoryWrapper<[PostWhereFactory['value']['fieldMap']], PGTypes>
         title: () => PGInputFactoryWrapper<
           {
             equals: PGInputFactory<string, 'string', PGTypes>

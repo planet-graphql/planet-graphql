@@ -1,9 +1,8 @@
-import { z } from 'zod'
 import { PGTypes } from './builder'
-import { TypeOfPGModelBase } from './common'
-import { GetSchemaType, PGInput, PGInputField } from './input'
+import { PGFieldValue, TypeOfPGModelBase } from './common'
+import { PGInput, PGInputField } from './input'
 
-type PGInputFactoryField =
+export type PGInputFactoryField =
   | (() => PGInputFactoryWrapper<any>)
   | PGInputFactoryWrapper<any>
   | PGInputFactoryUnion<any>
@@ -17,7 +16,7 @@ export interface PGInputFactoryFieldMap {
   [name: string]: PGInputFactoryField
 }
 
-type PGEditInputFactoryFieldMap<
+export type PGEditInputFactoryFieldMap<
   TFieldMap extends PGInputFactoryFieldMap | PGInputFactoryFieldMap[] | null | undefined,
 > = {
   [P in keyof ExtractPGInputFactoryFieldMap<TFieldMap>]: TypeOfPGInputFactoryMapField<
@@ -30,7 +29,9 @@ export interface PGInputFactoryUnion<
     __default: PGInputFactoryField
   } & PGInputFactoryFieldMap,
 > {
-  factoryMap: TFactoryMap
+  value: {
+    factoryMap: TFactoryMap
+  }
   // NOTE: 実装側でも`T extends () => any ? ReturnType<T> : T`をすれば良さそう。
   select: <TName extends keyof TFactoryMap>(
     name: TName,
@@ -72,18 +73,9 @@ export interface PGInputFactoryBase<
 
 export interface PGInputFactory<
   T,
-  TypeName extends string = string,
+  TypeName extends string = any,
   Types extends PGTypes = any,
-> extends PGInputFactoryBase<PGInputFactory<T>, TypeName, Types> {
-  default: (value: Exclude<T extends any[] ? [] : T, undefined>) => this
-  validation: (
-    builder: (
-      schema: GetSchemaType<TypeName, Types>,
-      context: Types['Context'],
-    ) => z.ZodSchema,
-  ) => this
-  __type: T
-}
+> extends PGInputField<T, TypeName, Types> {}
 
 type ExcludeNullish<T> = Exclude<T, null | undefined>
 type ExtractNullish<T> = Extract<T, null | undefined>
@@ -95,13 +87,29 @@ type ExtractPGInputFactoryFieldMap<
 >
 
 export interface PGInputFactoryWrapper<
-  TFieldMap extends PGInputFactoryFieldMap | PGInputFactoryFieldMap[] | null | undefined,
+  T extends PGInputFactoryFieldMap | PGInputFactoryFieldMap[] | null | undefined,
   Types extends PGTypes = any,
-> extends PGInputFactoryBase<PGInputFactoryWrapper<TFieldMap>, any, Types> {
-  fieldMap: TFieldMap
-  default: (
-    value: TFieldMap extends any[] ? [] : TFieldMap extends null ? null : never,
-  ) => this
+> extends PGInputFactoryBase<PGInputFactoryWrapper<T>, any, Types> {
+  value: PGFieldValue & {
+    fieldMap: ExcludeNullish<T> extends Array<infer U> ? U : ExcludeNullish<T>
+    validator?: (
+      value: Exclude<
+        ConvertPGInputFactoryFieldMapField<
+          PGInputFactoryWrapper<T, Types>
+        > extends PGInputField<infer U, any>
+          ? U extends Array<infer V>
+            ? V extends PGInput<any>
+              ? TypeOfPGModelBase<V>
+              : V
+            : U extends PGInput<any>
+            ? TypeOfPGModelBase<U>
+            : U
+          : never,
+        undefined
+      >,
+    ) => boolean
+  }
+  default: (value: T extends any[] ? [] : T extends null ? null : never) => this
   validation: (
     builder: (
       value: Exclude<
@@ -120,18 +128,18 @@ export interface PGInputFactoryWrapper<
   ) => this
   edit: <
     TEditedFieldMap extends {
-      [P in keyof ExtractPGInputFactoryFieldMap<TFieldMap>]?: PGInputFactoryField
+      [P in keyof ExtractPGInputFactoryFieldMap<T>]?: PGInputFactoryField
     },
   >(
     // NOTE: 実装側でも`T extends () => any ? ReturnType<T> : T`をすれば良さそう。
-    x: (fieldMap: PGEditInputFactoryFieldMap<TFieldMap>) => TEditedFieldMap,
+    x: (fieldMap: PGEditInputFactoryFieldMap<T>) => TEditedFieldMap,
   ) => {
     [P in keyof TEditedFieldMap]: Exclude<TEditedFieldMap[P], undefined>
   } extends infer U
     ? U extends PGInputFactoryFieldMap
-      ? ExcludeNullish<TFieldMap> extends any[]
-        ? PGInputFactoryWrapper<[U] | ExtractNullish<TFieldMap>, Types>
-        : PGInputFactoryWrapper<U | ExtractNullish<TFieldMap>, Types>
+      ? ExcludeNullish<T> extends any[]
+        ? PGInputFactoryWrapper<[U] | ExtractNullish<T>, Types>
+        : PGInputFactoryWrapper<U | ExtractNullish<T>, Types>
       : never
     : never
   build: <TWrap extends boolean>(
@@ -140,8 +148,8 @@ export interface PGInputFactoryWrapper<
   ) => Exclude<TWrap, undefined> extends true
     ? ConvertPGInputFactoryFieldMapField<this>
     : {
-        [P in keyof ExtractPGInputFactoryFieldMap<TFieldMap>]: ConvertPGInputFactoryFieldMapField<
-          ExtractPGInputFactoryFieldMap<TFieldMap>[P]
+        [P in keyof ExtractPGInputFactoryFieldMap<T>]: ConvertPGInputFactoryFieldMapField<
+          ExtractPGInputFactoryFieldMap<T>[P]
         >
       }
 }

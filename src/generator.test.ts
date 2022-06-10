@@ -484,7 +484,7 @@ type Input3Factory<Types extends PGTypes> = {
     };
 
 interface Inputs<Types extends PGTypes> {
-    findFirstSomeModel: FindFirstSomeModelFactory<Types>;
+    findFirstSomeModel: PGInputFactoryWrapper<FindFirstSomeModelFactory<Types>, Types>;
 }
 
 export interface PGfyResponse<Types extends PGTypes> {
