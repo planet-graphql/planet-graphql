@@ -1,6 +1,6 @@
 import { GraphQLResolveInfo } from 'graphql'
 import { Promisable } from 'type-fest'
-import { PGCache, PGTypes } from './builder'
+import { PGBuilder, PGCache, PGTypes } from './builder'
 import { PGOutputField } from './output'
 
 export type GraphQLResolveParams<Types extends PGTypes> = {
@@ -44,7 +44,13 @@ export interface PGFeature<
 > {
   name: string
   cacheKey?: (params: GraphQLResolveParams<Types>) => string
-  beforeResolve: (
+  beforeResolve?: (
     params: PGFeatureBeforeResolveParams<Types>,
   ) => Promisable<PGFeatureBeforeResolveResponse<TResolveResponseExtentions, Types>>
+  beforeConvertToGraphQLFieldConfig?: (
+    field: PGOutputField<any>,
+    fieldName: string,
+    sourceTypeName: string,
+    builder: PGBuilder<PGTypes>,
+  ) => PGOutputField<any>
 }

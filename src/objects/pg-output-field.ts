@@ -3,7 +3,7 @@ import { withFilter } from 'graphql-subscriptions'
 import _ from 'lodash'
 import { getContextCache } from '../builder/utils'
 import { DefaultFeatures } from '../features'
-import { GraphqlTypeRef, PGCache, PGTypes } from '../types/builder'
+import { GraphqlTypeRef, PGBuilder, PGTypes } from '../types/builder'
 import { PGFieldKindAndType } from '../types/common'
 import { GraphQLResolveParams, PGFeatureBeforeResolveResponse } from '../types/feature'
 import { PGInputFieldBuilder } from '../types/input'
@@ -32,24 +32,51 @@ export function createOutputField<T, Types extends PGTypes>(
       return field
     },
     args: (x) => {
-      field.value.args = x(inputFieldBuilder)
+      const args = x(inputFieldBuilder)
+      field.value.args = Object.assign({}, field.value.args, args)
       return field
     },
     prismaArgs: (x) => {
-      const prismaArgsMap = x(inputFieldBuilder)
-      for (const field of Object.values(prismaArgsMap)) {
+      const prismaArgs = x(inputFieldBuilder)
+      for (const field of Object.values(prismaArgs)) {
         field.value.isPrisma = true
       }
-      field.value.args = Object.assign({}, field.value.args, prismaArgsMap)
+      field.value.args = Object.assign({}, field.value.args, prismaArgs)
       return field
     },
-    prismaRelayArgs: (x) => {
-      const relayInputFieldMap = getRelayInputFieldMap<Types>()
-      const prismaRelayArgsMap = x(relayInputFieldMap)
-      for (const field of Object.values(prismaRelayArgsMap)) {
-        field.value.isPrisma = true
+    relay: () => {
+      field.value.relay = {
+        isRelay: true,
       }
-      field.value.args = Object.assign({}, field.value.args, prismaRelayArgsMap)
+      const relayArgs = getRelayInputFieldMap<Types>()
+      field.value.args = Object.assign({}, field.value.args, relayArgs)
+      return field
+    },
+    relayArgs: (x) => {
+      const relayArgs = getRelayInputFieldMap<Types>()
+      const editedRelayArgs = x(relayArgs)
+      field.value.args = Object.assign({}, field.value.args, editedRelayArgs)
+      return field
+    },
+    relayTotalCount: (x) => {
+      field.value.relay = {
+        ...field.value.relay,
+        totalCount: x,
+      }
+      return field
+    },
+    relayCursor: (x) => {
+      field.value.relay = {
+        ...field.value.relay,
+        cursor: x,
+      }
+      return field
+    },
+    relayOrderBy: (x) => {
+      field.value.relay = {
+        ...field.value.relay,
+        orderBy: x,
+      }
       return field
     },
     resolve: (x) => {
@@ -80,13 +107,26 @@ export function createOutputField<T, Types extends PGTypes>(
 
 export function convertToGraphQLFieldConfig(
   field: PGOutputField<any>,
-  cache: PGCache,
+  fieldName: string,
+  sourceTypeName: string,
+  builder: PGBuilder<any>,
   graphqlTypeRef: GraphqlTypeRef,
 ): GraphQLFieldConfig<any, any, any> {
+  const cache = builder.cache()
+  for (const feature of DefaultFeatures) {
+    if (feature.beforeConvertToGraphQLFieldConfig !== undefined) {
+      field = feature.beforeConvertToGraphQLFieldConfig(
+        field,
+        fieldName,
+        sourceTypeName,
+        builder,
+      )
+    }
+  }
   return {
-    type: getGraphQLFieldConfigType(field, cache, graphqlTypeRef),
+    type: getGraphQLFieldConfigType(field, builder, graphqlTypeRef),
     args: _.mapValues(field.value.args ?? {}, (pgInputField) =>
-      convertToGraphQLInputFieldConfig(pgInputField, cache, graphqlTypeRef),
+      convertToGraphQLInputFieldConfig(pgInputField, builder, graphqlTypeRef),
     ),
     resolve: async (source, args, context, info) => {
       const parentTypeName = info.parentType.name
@@ -97,6 +137,9 @@ export function convertToGraphQLFieldConfig(
 
       let resolveParams: GraphQLResolveParams<PGTypes> = { source, args, context, info }
       for (const feature of DefaultFeatures) {
+        if (feature.beforeResolve === undefined) {
+          continue
+        }
         const contextCache = getContextCache<
           PGFeatureBeforeResolveResponse<object, PGTypes>
         >(context, feature.name)

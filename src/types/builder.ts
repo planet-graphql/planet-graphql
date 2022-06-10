@@ -6,7 +6,6 @@ import {
   GraphQLScalarType,
   GraphQLSchema,
 } from 'graphql'
-import { ReadonlyDeep } from 'type-fest'
 import { IsUnknown } from 'type-fest/source/set-return-type'
 import { z } from 'zod'
 import { DefaultScalars } from '../lib/scalars'
@@ -107,7 +106,11 @@ export interface PGBuilder<
     params: PGResolveParams<TSource, any, any, any, TResolve>,
     batchLoadFn: (sourceList: readonly TSource[]) => ResolveResponse<TResolve[]>,
   ) => ResolveResponse<TResolve>
-  cache: () => ReadonlyDeep<PGCache>
+  cache: () => PGCache
+  utils: {
+    inputFieldBuilder: PGInputFieldBuilder<Types>
+    outputFieldBuilder: PGOutputFieldBuilder<Types>
+  }
 }
 
 export interface PGCache {

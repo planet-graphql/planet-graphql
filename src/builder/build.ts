@@ -4,7 +4,7 @@ import { convertToGraphQLEnum } from '../objects/pg-enum'
 import { convertToGraphQLInputObject } from '../objects/pg-input'
 import { convertToGraphQLObject } from '../objects/pg-object'
 import { convertToGraphQLFieldConfig } from '../objects/pg-output-field'
-import { GraphqlTypeRef, PGBuilder, PGCache, PGTypes } from '../types/builder'
+import { GraphqlTypeRef, PGBuilder, PGTypes } from '../types/builder'
 
 export function getScalarTypeName(prismaTypeName: string, isPrismaId: boolean): string {
   if (isPrismaId) return 'id'
@@ -12,8 +12,10 @@ export function getScalarTypeName(prismaTypeName: string, isPrismaId: boolean): 
 }
 
 export const build: <Types extends PGTypes>(
-  cache: PGCache,
-) => PGBuilder<Types>['build'] = (cache) => () => {
+  getBuilder: () => PGBuilder<Types>,
+) => PGBuilder<Types>['build'] = (getBuilder) => () => {
+  const builder = getBuilder()
+  const cache = builder.cache()
   const typeRef: GraphqlTypeRef = () => ({
     enums,
     objects,
@@ -21,15 +23,21 @@ export const build: <Types extends PGTypes>(
   })
   const enums = _.mapValues(cache.enum, (pgEnum) => convertToGraphQLEnum(pgEnum))
   const objects = _.mapValues(cache.object, (pgObject) =>
-    convertToGraphQLObject(pgObject, cache, typeRef),
+    convertToGraphQLObject(pgObject, builder, typeRef),
   )
   const inputs = _.mapValues(cache.input, (pgInput) =>
-    convertToGraphQLInputObject(pgInput, cache, typeRef),
+    convertToGraphQLInputObject(pgInput, builder, typeRef),
   )
   const query = new GraphQLObjectType({
     name: 'Query',
     fields: _.mapValues(cache.query, (pgRootFieldConfig) =>
-      convertToGraphQLFieldConfig(pgRootFieldConfig.field, cache, typeRef),
+      convertToGraphQLFieldConfig(
+        pgRootFieldConfig.field,
+        pgRootFieldConfig.name,
+        'Query',
+        builder,
+        typeRef,
+      ),
     ),
   })
   const mutation =
@@ -37,7 +45,13 @@ export const build: <Types extends PGTypes>(
       ? new GraphQLObjectType({
           name: 'Mutation',
           fields: _.mapValues(cache.mutation, (pgRootFieldConfig) =>
-            convertToGraphQLFieldConfig(pgRootFieldConfig.field, cache, typeRef),
+            convertToGraphQLFieldConfig(
+              pgRootFieldConfig.field,
+              pgRootFieldConfig.name,
+              'Mutation',
+              builder,
+              typeRef,
+            ),
           ),
         })
       : undefined
@@ -46,7 +60,13 @@ export const build: <Types extends PGTypes>(
       ? new GraphQLObjectType({
           name: 'Subscription',
           fields: _.mapValues(cache.subscription, (pgRootFieldConfig) =>
-            convertToGraphQLFieldConfig(pgRootFieldConfig.field, cache, typeRef),
+            convertToGraphQLFieldConfig(
+              pgRootFieldConfig.field,
+              pgRootFieldConfig.name,
+              'Subscription',
+              builder,
+              typeRef,
+            ),
           ),
         })
       : undefined

@@ -1,25 +1,14 @@
 import { graphql } from 'graphql'
 import { expectType, TypeEqual } from 'ts-expect'
 import { getPGBuilder } from '..'
-
-type SomePrismaArgs = {
-  select: any
-  include: { some: any }
-  where: any
-  orderBy: any | any[]
-  cursor: any
-  take: number
-  skip: number
-  distinct: any | any[]
-}
-type GeneratedType = {
-  enums: {}
-  objects: {}
-  models: {
-    User: SomePrismaArgs
-    Post: SomePrismaArgs
-  }
-}
+import { mergeDefaultOutputField, mergeDefaultPGObject } from '../builder/test-utils'
+import { SomePGTypes, SomePostPrismaArgs, SomeUserPrismaArgs } from '../types/test.util'
+import {
+  createConnectionObject,
+  encodeCursor,
+  getPageInfo,
+  getPrismaRelayArgs,
+} from './prisma'
 
 describe('prismaArgsFeature', () => {
   it('Separates received args into prismaArgs and args', async () => {
@@ -64,7 +53,7 @@ describe('prismaArgsFeature', () => {
   it('Generates and returns include args from fields set as relations in Prisma', async () => {
     let args: any
     let prismaArgs: any
-    const pg = getPGBuilder<{ Context: any; GeneratedType: GeneratedType }>()()
+    const pg = getPGBuilder<SomePGTypes>()()
 
     const user = pg
       .object('user', (b) => ({
@@ -88,9 +77,12 @@ describe('prismaArgsFeature', () => {
           args = params.args
           prismaArgs = params.prismaArgs
           expectType<TypeEqual<typeof params.args, never>>(true)
-          expectType<TypeEqual<typeof params.prismaArgs, { include: { some: any } }>>(
-            true,
-          )
+          expectType<
+            TypeEqual<
+              typeof params.prismaArgs,
+              { include: SomeUserPrismaArgs['include'] | undefined }
+            >
+          >(true)
           return []
         }),
     )
@@ -118,7 +110,7 @@ describe('prismaArgsFeature', () => {
   it('Merges and returns generated include clauses and prismaArgs', async () => {
     let prismaArgs: any
     let postsFieldPrismaArgs: any
-    const pg = getPGBuilder<{ Context: any; GeneratedType: GeneratedType }>()()
+    const pg = getPGBuilder<SomePGTypes>()()
 
     const user = pg
       .object('user', (b) => ({
@@ -140,7 +132,7 @@ describe('prismaArgsFeature', () => {
               TypeEqual<
                 typeof params.prismaArgs,
                 {
-                  include: { some: any }
+                  include: SomePostPrismaArgs['include'] | undefined
                   take: number
                   where: {
                     isPublic: boolean
@@ -173,7 +165,7 @@ describe('prismaArgsFeature', () => {
             TypeEqual<
               typeof params.prismaArgs,
               {
-                include: { some: any }
+                include: SomeUserPrismaArgs['include'] | undefined
                 take: number
               }
             >
@@ -219,6 +211,488 @@ describe('prismaArgsFeature', () => {
       where: {
         isPublic: true,
       },
+    })
+  })
+})
+
+describe('prismaRelayFeature', () => {
+  it('Converts the return value to Relay format', async () => {
+    const pg = getPGBuilder<SomePGTypes>()()
+    const user = pg
+      .object('User', (b) => ({
+        id: b.id(),
+      }))
+      .prismaModel('User')
+    pg.query('users', (f) =>
+      f
+        .object(() => user)
+        .relay()
+        .relayTotalCount(() => 1)
+        .resolve(() => {
+          return [{ id: '1' }]
+        }),
+    )
+
+    const query = `
+      query {
+        users {
+          edges {
+            node {
+              id
+            }
+            cursor
+          }
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+          }
+          totalCount
+        }
+      }
+    `
+    const response = await graphql({
+      schema: pg.build(),
+      source: query,
+      contextValue: {},
+    })
+
+    expect(response).toEqual({
+      data: {
+        users: {
+          edges: [
+            {
+              node: {
+                id: '1',
+              },
+              cursor: 'eyJpZCI6IjEifQ==',
+            },
+          ],
+          pageInfo: {
+            hasNextPage: false,
+            hasPreviousPage: false,
+            startCursor: 'eyJpZCI6IjEifQ==',
+            endCursor: 'eyJpZCI6IjEifQ==',
+          },
+          totalCount: 1,
+        },
+      },
+    })
+  })
+
+  it('Converts relay args to prisma args', async () => {
+    let args
+    let prismaArgs
+    const pg = getPGBuilder<SomePGTypes>()()
+    const user = pg
+      .object('User', (b) => ({
+        id: b.id(),
+      }))
+      .prismaModel('User')
+    pg.query('users', (f) =>
+      f
+        .object(() => user)
+        .relay()
+        .resolve((params) => {
+          args = params.args
+          prismaArgs = params.prismaArgs
+          expectType<
+            TypeEqual<
+              typeof args,
+              {
+                first: number | undefined
+                after: string | undefined
+                last: number | undefined
+                before: string | undefined
+              }
+            >
+          >(true)
+          expectType<
+            TypeEqual<
+              typeof prismaArgs,
+              {
+                include: SomeUserPrismaArgs['include'] | undefined
+                cursor: SomeUserPrismaArgs['cursor'] | undefined
+                take: SomeUserPrismaArgs['take'] | undefined
+                skip: SomeUserPrismaArgs['skip'] | undefined
+                orderBy: SomeUserPrismaArgs['orderBy']
+              }
+            >
+          >(true)
+          return [{ id: '1' }]
+        }),
+    )
+    const query = `
+      query {
+        users(first: 1) {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    `
+    await graphql({
+      schema: pg.build(),
+      source: query,
+      contextValue: {},
+    })
+
+    expect(args).toEqual({
+      first: 1,
+    })
+    expect(prismaArgs).toEqual({
+      take: 2,
+      orderBy: { id: 'asc' },
+    })
+  })
+
+  describe('Create cursor function is set', () => {
+    it('Uses set function to create cursors', async () => {
+      const pg = getPGBuilder<SomePGTypes>()()
+      const user = pg
+        .object('User', (b) => ({
+          id: b.id(),
+          email: b.string(),
+        }))
+        .prismaModel('User')
+      pg.query('users', (f) =>
+        f
+          .object(() => user)
+          .relay()
+          .relayCursor((node) => {
+            expectType<TypeEqual<typeof node, { id: string; email: string }>>(true)
+            return { email: node.email }
+          })
+          .resolve(() => {
+            return [{ id: '1', email: 'xxx@xxx.com' }]
+          }),
+      )
+
+      const query = `
+        query {
+          users {
+            edges {
+              cursor
+            }
+          }
+        }
+      `
+      const response = await graphql({
+        schema: pg.build(),
+        source: query,
+        contextValue: {},
+      })
+
+      expect((response.data as any).users.edges[0].cursor).toEqual(
+        encodeCursor({ email: 'xxx@xxx.com' }),
+      )
+    })
+  })
+
+  describe('Default OrderBy args is set', () => {
+    it('Uses set default OrderBy args ', async () => {
+      let prismaArgs
+      const pg = getPGBuilder<SomePGTypes>()()
+      const user = pg
+        .object('User', (b) => ({
+          id: b.id(),
+          email: b.string(),
+        }))
+        .prismaModel('User')
+      pg.query('users', (f) =>
+        f
+          .object(() => user)
+          .relay()
+          .relayOrderBy({
+            email: 'desc',
+          })
+          .resolve((params) => {
+            prismaArgs = params.prismaArgs
+            return [{ id: '1' }]
+          }),
+      )
+      const query = `
+        query {
+          users {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      `
+      await graphql({
+        schema: pg.build(),
+        source: query,
+        contextValue: {},
+      })
+
+      expect(prismaArgs).toEqual({
+        orderBy: { email: 'desc' },
+      })
+    })
+  })
+
+  describe('OrderBy args is passed as PrismaArgs', () => {
+    it('Uses passed OrderBy args', async () => {
+      let prismaArgs
+      const pg = getPGBuilder<SomePGTypes>()()
+      const user = pg
+        .object('User', (b) => ({
+          id: b.id(),
+          email: b.string(),
+        }))
+        .prismaModel('User')
+      pg.query('users', (f) =>
+        f
+          .object(() => user)
+          .relay()
+          .prismaArgs((b) => ({
+            orderBy: b.input(() =>
+              pg.input('UsersOrderBy', (b) => ({
+                email: b.string(),
+                id: b.string(),
+              })),
+            ),
+          }))
+          .resolve((params) => {
+            prismaArgs = params.prismaArgs
+            return [{ id: '1' }]
+          }),
+      )
+      const query = `
+        query {
+          users(orderBy: { email: "asc", id: "desc" }) {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      `
+      await graphql({
+        schema: pg.build(),
+        source: query,
+        contextValue: {},
+      })
+
+      expect(prismaArgs).toEqual({
+        orderBy: { email: 'asc', id: 'desc' },
+      })
+    })
+  })
+})
+
+describe('createConnectionObject', () => {
+  it('Returns a PGObject that matches the Relay format', () => {
+    const pg = getPGBuilder()()
+    const nodeObject = pg.object('Node', (b) => ({
+      id: b.id(),
+    }))
+    const resultConnectionObject = createConnectionObject(
+      () => nodeObject,
+      'Prefix',
+      pg,
+      true,
+    )
+    const resultEdgeObject = resultConnectionObject.fieldMap.edges.value.type()
+    const resultPageInfoObject = resultConnectionObject.fieldMap.pageInfo.value.type()
+    const resultNodeObject = resultEdgeObject.fieldMap.node.value.type()
+
+    const expectConnectionObject = mergeDefaultPGObject({
+      name: 'PrefixConnection',
+      fieldMap: {
+        edges: mergeDefaultOutputField({
+          kind: 'object',
+          type: expect.any(Function),
+          isList: true,
+        }),
+        pageInfo: mergeDefaultOutputField({
+          kind: 'object',
+          type: expect.any(Function),
+        }),
+        totalCount: mergeDefaultOutputField({
+          kind: 'scalar',
+          type: 'int',
+        }),
+      },
+    })
+
+    const expectEdgeObject = mergeDefaultPGObject({
+      name: 'PrefixEdge',
+      fieldMap: {
+        node: mergeDefaultOutputField({
+          kind: 'object',
+          type: expect.any(Function),
+        }),
+        cursor: mergeDefaultOutputField({
+          kind: 'scalar',
+          type: 'string',
+        }),
+      },
+    })
+
+    const expectPageInfoObject = mergeDefaultPGObject({
+      name: 'PageInfo',
+      fieldMap: {
+        hasNextPage: mergeDefaultOutputField({
+          kind: 'scalar',
+          type: 'boolean',
+        }),
+        hasPreviousPage: mergeDefaultOutputField({
+          kind: 'scalar',
+          type: 'boolean',
+        }),
+        startCursor: mergeDefaultOutputField({
+          kind: 'scalar',
+          type: 'string',
+          isNullable: true,
+          isOptional: true,
+        }),
+        endCursor: mergeDefaultOutputField({
+          kind: 'scalar',
+          type: 'string',
+          isNullable: true,
+          isOptional: true,
+        }),
+      },
+    })
+
+    expect(resultConnectionObject).toEqual(expectConnectionObject)
+    expect(resultEdgeObject).toEqual(expectEdgeObject)
+    expect(resultPageInfoObject).toEqual(expectPageInfoObject)
+    expect(resultNodeObject).toEqual(nodeObject)
+  })
+})
+
+describe('getPageInfo', () => {
+  describe('only "first" arg passed', () => {
+    it('Returns a correct PageInfo', () => {
+      const result = getPageInfo(2, [{ node: { id: 1 }, cursor: 'cursor' }], {
+        first: 1,
+      })
+      expect(result).toEqual({
+        hasNextPage: true,
+        hasPreviousPage: false,
+        startCursor: 'cursor',
+        endCursor: 'cursor',
+      })
+    })
+  })
+  describe('only "after" args passed', () => {
+    it('Returns a correct PageInfo', () => {
+      const result = getPageInfo(1, [{ node: { id: 1 }, cursor: 'cursor' }], {
+        after: 'afterCursor',
+      })
+      expect(result).toEqual({
+        hasNextPage: false,
+        hasPreviousPage: true,
+        startCursor: 'cursor',
+        endCursor: 'cursor',
+      })
+    })
+  })
+  describe('only "last" arg passed', () => {
+    it('Returns a correct PageInfo', () => {
+      const result = getPageInfo(2, [{ node: { id: 1 }, cursor: 'cursor' }], {
+        last: 1,
+      })
+      expect(result).toEqual({
+        hasNextPage: false,
+        hasPreviousPage: true,
+        startCursor: 'cursor',
+        endCursor: 'cursor',
+      })
+    })
+  })
+  describe('only "before" args passed', () => {
+    it('Returns a correct PageInfo', () => {
+      const result = getPageInfo(1, [{ node: { id: 1 }, cursor: 'cursor' }], {
+        before: 'beforeCursor',
+      })
+      expect(result).toEqual({
+        hasNextPage: true,
+        hasPreviousPage: false,
+        startCursor: 'cursor',
+        endCursor: 'cursor',
+      })
+    })
+  })
+  describe('no relay args passed', () => {
+    it('Returns a correct PageInfo', () => {
+      const result = getPageInfo(1, [{ node: { id: 1 }, cursor: 'cursor' }], {})
+      expect(result).toEqual({
+        hasNextPage: false,
+        hasPreviousPage: false,
+        startCursor: 'cursor',
+        endCursor: 'cursor',
+      })
+    })
+  })
+  describe('no edges', () => {
+    it('Returns a correct PageInfo', () => {
+      const result = getPageInfo(0, [], {})
+      expect(result).toEqual({
+        hasNextPage: false,
+        hasPreviousPage: false,
+        startCursor: null,
+        endCursor: null,
+      })
+    })
+  })
+})
+
+describe('getPrismaRelayArgs', () => {
+  describe('only "first" arg passed', () => {
+    it('Returns "take"', () => {
+      const result = getPrismaRelayArgs({ first: 3 }, [{ id: 'asc' }])
+      expect(result).toEqual({
+        take: 3 + 1,
+        orderBy: [{ id: 'asc' }],
+      })
+    })
+  })
+
+  describe('"first" and "after" args passed', () => {
+    it('Returns "take", "skip" and "cursor" created by decoding "after"', () => {
+      const result = getPrismaRelayArgs({ first: 3, after: encodeCursor({ id: '1' }) }, [
+        { id: 'asc' },
+      ])
+      expect(result).toEqual({
+        take: 3 + 1,
+        skip: 1,
+        cursor: { id: '1' },
+        orderBy: [{ id: 'asc' }],
+      })
+    })
+  })
+
+  describe('only "last" arg passed', () => {
+    it('Returns "take" and reversed "orderBy"', () => {
+      const result = getPrismaRelayArgs({ last: 3 }, [{ id: 'asc' }])
+      expect(result).toEqual({
+        take: 3 + 1,
+        orderBy: [{ id: 'desc' }],
+      })
+    })
+  })
+
+  describe('"last" and "before" args passed', () => {
+    it('Returns "take", "skip", "cursor" created by decoding "after" and reversed "orderBy"', () => {
+      const result = getPrismaRelayArgs({ last: 3, before: encodeCursor({ id: '1' }) }, [
+        { id: 'asc' },
+      ])
+      expect(result).toEqual({
+        take: 3 + 1,
+        skip: 1,
+        cursor: { id: '1' },
+        orderBy: [{ id: 'desc' }],
+      })
     })
   })
 })

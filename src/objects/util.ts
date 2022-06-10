@@ -1,5 +1,5 @@
 import { GraphQLInputType, GraphQLList, GraphQLNonNull, GraphQLOutputType } from 'graphql'
-import { GraphqlTypeRef, PGCache } from '../types/builder'
+import { GraphqlTypeRef, PGBuilder } from '../types/builder'
 import { PGInputField } from '../types/input'
 import { PGOutputField } from '../types/output'
 import { convertToGraphQLInputObject } from './pg-input'
@@ -9,9 +9,10 @@ export function getGraphQLFieldConfigType<
   T extends PGInputField<any> | PGOutputField<any>,
 >(
   pgField: T,
-  cache: PGCache,
+  builder: PGBuilder<any>,
   graphqlTypeRef: GraphqlTypeRef,
 ): T extends PGInputField<any> ? GraphQLInputType : GraphQLOutputType {
+  const cache = builder.cache()
   const { enums, objects, inputs } = graphqlTypeRef()
   let type: any
   switch (pgField.value.kind) {
@@ -48,20 +49,20 @@ export function getGraphQLFieldConfigType<
         if (inputs[pgInputOrPgOutput.name] !== undefined) {
           type = inputs[pgInputOrPgOutput.name]
         } else {
-          type = convertToGraphQLInputObject(pgInputOrPgOutput, cache, graphqlTypeRef)
+          type = convertToGraphQLInputObject(pgInputOrPgOutput, builder, graphqlTypeRef)
           inputs[pgInputOrPgOutput.name] = type
         }
       } else {
         if (objects[pgInputOrPgOutput.name] !== undefined) {
           type = objects[pgInputOrPgOutput.name]
         } else {
-          type = convertToGraphQLObject(pgInputOrPgOutput, cache, graphqlTypeRef)
+          type = convertToGraphQLObject(pgInputOrPgOutput, builder, graphqlTypeRef)
           objects[pgField.value.type().name] = type
         }
       }
     }
   }
-  if (!pgField.value.isNullable || !pgField.value.isOptional) {
+  if (!pgField.value.isNullable && !pgField.value.isOptional) {
     type = new GraphQLNonNull(type)
   }
   if (pgField.value.isList) {

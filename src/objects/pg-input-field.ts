@@ -1,6 +1,6 @@
 import { GraphQLInputFieldConfig } from 'graphql'
 import _ from 'lodash'
-import { GraphqlTypeRef, PGCache, PGTypes } from '../types/builder'
+import { GraphqlTypeRef, PGBuilder, PGTypes } from '../types/builder'
 import { PGFieldKindAndType } from '../types/common'
 import { PGInputField, PGRelayInputFieldMap } from '../types/input'
 import { getGraphQLFieldConfigType } from './util'
@@ -47,11 +47,11 @@ export function createInputField<T, TypeName extends string, Types extends PGTyp
 
 export function convertToGraphQLInputFieldConfig(
   field: PGInputField<any>,
-  cache: PGCache,
+  builder: PGBuilder<any>,
   graphqlTypeRef: GraphqlTypeRef,
 ): GraphQLInputFieldConfig {
   return {
-    type: getGraphQLFieldConfigType(field, cache, graphqlTypeRef),
+    type: getGraphQLFieldConfigType(field, builder, graphqlTypeRef),
     defaultValue: getInputFieldDefaultValue(field),
   }
 }

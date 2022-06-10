@@ -2,28 +2,92 @@ import { Decimal } from '@prisma/client/runtime'
 import { expectType, TypeEqual } from 'ts-expect'
 import { JsonValue } from 'type-fest'
 import { PGTypes } from './builder'
-import { PGEnum } from './common'
+import { NeverWithNote, PGEnum } from './common'
 import { PGInputField } from './input'
 import {
   PGOutputFieldOptionsDefault,
   PGOutputField,
   PGOutputFieldBuilder,
   UpdatePGOptions,
+  PGObject,
 } from './output'
+import { SomePGTypes, SomeUserPrismaArgs } from './test.util'
 
 describe('PGOutputField', () => {
   describe('list', () => {
     it('Arrays any T other than null and undefined', () => {
-      type InputField = PGOutputField<string | null>
-      type T = ReturnType<InputField['list']>
+      type OutputField = PGOutputField<string | null>
+      type T = ReturnType<OutputField['list']>
       expectType<TypeEqual<T, PGOutputField<string[] | null>>>(true)
     })
 
     describe('already arrayed', () => {
       it('Does not change anything', () => {
-        type InputField = PGOutputField<string[] | null>
-        type T = ReturnType<InputField['list']>
+        type OutputField = PGOutputField<string[] | null>
+        type T = ReturnType<OutputField['list']>
         expectType<TypeEqual<T, PGOutputField<string[] | null>>>(true)
+      })
+    })
+  })
+
+  describe('relay', () => {
+    it('Sets isRelay to true & Adds relay args into args & Adds prisma relay args into prismaArgs', () => {
+      type User = PGObject<{}, { PrismaModelName: 'User' }, SomePGTypes>
+      type OutputField = PGOutputField<
+        () => User,
+        any,
+        {
+          Args: undefined
+          PrismaArgs: undefined
+          IsRelay: false
+        },
+        SomePGTypes
+      >
+      type T = ReturnType<OutputField['relay']>
+      expectType<
+        TypeEqual<
+          T,
+          PGOutputField<
+            Array<() => User>,
+            any,
+            {
+              Args: {
+                first: PGInputField<number | undefined, 'int', SomePGTypes>
+                after: PGInputField<string | undefined, 'string', SomePGTypes>
+                last: PGInputField<number | undefined, 'int', SomePGTypes>
+                before: PGInputField<string | undefined, 'string', SomePGTypes>
+              }
+              PrismaArgs: {
+                take: PGInputField<number | undefined, 'int', SomePGTypes>
+                skip: PGInputField<number | undefined, 'int', SomePGTypes>
+                cursor: PGInputField<
+                  SomeUserPrismaArgs['cursor'] | undefined,
+                  'input',
+                  SomePGTypes
+                >
+                orderBy: PGInputField<SomeUserPrismaArgs['orderBy'], 'input', SomePGTypes>
+              }
+              IsRelay: true
+            },
+            SomePGTypes
+          >
+        >
+      >(true)
+    })
+
+    describe('already relayed', () => {
+      it('Does not allow to call', () => {
+        type OutputField = PGOutputField<
+          string,
+          any,
+          {
+            Args: undefined
+            PrismaArgs: undefined
+            IsRelay: true
+          }
+        >
+        type T = OutputField['relay']
+        expectType<TypeEqual<T, NeverWithNote<'Already called relay() method'>>>(true)
       })
     })
   })
@@ -75,6 +139,7 @@ describe('UpdatePGOutputFieldOptions', () => {
           id: PGInputField<string, 'id', PGTypes>
         }
         PrismaArgs: undefined
+        IsRelay: false
       }
     >
   >(true)
