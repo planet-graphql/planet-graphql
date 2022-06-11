@@ -9,12 +9,6 @@ import { PGObject, PGOutputField, PGOutputFieldMap } from '../types/output'
 export const prismaArgsFeature: PGFeature = {
   name: 'prismaArgs',
   beforeResolve: ({ field, resolveParams }) => {
-    if (field.value.resolve === undefined) {
-      return {
-        isCallNext: true,
-      }
-    }
-
     const args = pickArgs(
       resolveParams.args,
       field.value.args,

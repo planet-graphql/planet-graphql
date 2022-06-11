@@ -129,6 +129,10 @@ export function convertToGraphQLFieldConfig(
       convertToGraphQLInputFieldConfig(pgInputField, builder, graphqlTypeRef),
     ),
     resolve: async (source, args, context, info) => {
+      if (field.value.resolve === undefined) {
+        return defaultFieldResolver(source, args, context, info)
+      }
+
       const parentTypeName = info.parentType.name
       const isRootField =
         parentTypeName === 'Query' ||
@@ -182,15 +186,7 @@ export function convertToGraphQLFieldConfig(
           throw response.resolveError
         }
       }
-      if (field.value.resolve !== undefined) {
-        return field.value.resolve(resolveParams as any)
-      }
-      return defaultFieldResolver(
-        resolveParams.source,
-        resolveParams.args,
-        resolveParams.context,
-        resolveParams.info,
-      )
+      return field.value.resolve(resolveParams as any)
     },
     subscribe: field.value.subscribe,
   }
