@@ -6,7 +6,6 @@ import {
   GraphQLScalarType,
   GraphQLSchema,
 } from 'graphql'
-import { ReadonlyDeep } from 'type-fest'
 import { IsUnknown } from 'type-fest/source/set-return-type'
 import { z } from 'zod'
 import { DefaultScalars } from '../lib/scalars'
@@ -23,6 +22,7 @@ import { PGInput, PGInputFieldBuilder, PGInputFieldMap } from './input'
 import { PGInputFactoryWrapper } from './input-factory'
 import {
   PGObject,
+  PGObjectOptionsDefault,
   PGOutputField,
   PGOutputFieldBuilder,
   PGOutputFieldMap,
@@ -82,7 +82,7 @@ export interface PGBuilder<
   object: <T extends PGOutputFieldMap>(
     name: string,
     fieldMap: (b: PGOutputFieldBuilder<Types>) => T,
-  ) => PGObject<T, any, Types>
+  ) => PGObject<T, PGObjectOptionsDefault<Types>, Types>
   enum: <T extends string[]>(name: string, ...values: T) => PGEnum<T>
   input: <T extends PGInputFieldMap>(
     name: string,
@@ -106,7 +106,11 @@ export interface PGBuilder<
     params: PGResolveParams<TSource, any, any, any, TResolve>,
     batchLoadFn: (sourceList: readonly TSource[]) => ResolveResponse<TResolve[]>,
   ) => ResolveResponse<TResolve>
-  cache: () => ReadonlyDeep<PGCache>
+  cache: () => PGCache
+  utils: {
+    inputFieldBuilder: PGInputFieldBuilder<Types>
+    outputFieldBuilder: PGOutputFieldBuilder<Types>
+  }
 }
 
 export interface PGCache {

@@ -45,10 +45,11 @@ export const getPGBuilder: InitPGBuilder =
       query: rootFieldBuilder(cache, outputFieldBuilder, 'query'),
       mutation: rootFieldBuilder(cache, outputFieldBuilder, 'mutation'),
       subscription: rootFieldBuilder(cache, outputFieldBuilder, 'subscription'),
-      build: build(cache),
+      build: build(() => builder),
       pgfy: pgfy(cache, inputFieldBuilder, outputFieldBuilder),
       dataloader,
       cache: () => cache,
+      utils: { inputFieldBuilder, outputFieldBuilder },
     }
 
     return builder

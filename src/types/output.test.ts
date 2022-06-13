@@ -2,32 +2,92 @@ import { Decimal } from '@prisma/client/runtime'
 import { expectType, TypeEqual } from 'ts-expect'
 import { JsonValue } from 'type-fest'
 import { PGTypes } from './builder'
-import { PGEnum } from './common'
-import { PGOutputField, PGOutputFieldBuilder } from './output'
+import { NeverWithNote, PGEnum } from './common'
+import { PGInputField } from './input'
+import {
+  PGOutputFieldOptionsDefault,
+  PGOutputField,
+  PGOutputFieldBuilder,
+  UpdatePGOptions,
+  PGObject,
+} from './output'
+import { SomePGTypes, SomeUserPrismaArgs } from './test.util'
 
 describe('PGOutputField', () => {
   describe('list', () => {
     it('Arrays any T other than null and undefined', () => {
-      type InputField = PGOutputField<string | null, any, undefined, undefined, PGTypes>
-      type T = ReturnType<InputField['list']>
-      expectType<
-        TypeEqual<T, PGOutputField<string[] | null, any, undefined, undefined, PGTypes>>
-      >(true)
+      type OutputField = PGOutputField<string | null>
+      type T = ReturnType<OutputField['list']>
+      expectType<TypeEqual<T, PGOutputField<string[] | null>>>(true)
     })
 
     describe('already arrayed', () => {
       it('Does not change anything', () => {
-        type InputField = PGOutputField<
-          string[] | null,
-          any,
-          undefined,
-          undefined,
-          PGTypes
+        type OutputField = PGOutputField<string[] | null>
+        type T = ReturnType<OutputField['list']>
+        expectType<TypeEqual<T, PGOutputField<string[] | null>>>(true)
+      })
+    })
+  })
+
+  describe('relay', () => {
+    it('Sets isRelay to true & Adds relay args into args & Adds prisma relay args into prismaArgs', () => {
+      type User = PGObject<{}, { PrismaModelName: 'User' }, SomePGTypes>
+      type OutputField = PGOutputField<
+        () => User,
+        any,
+        {
+          Args: undefined
+          PrismaArgs: undefined
+          IsRelay: false
+        },
+        SomePGTypes
+      >
+      type T = ReturnType<OutputField['relay']>
+      expectType<
+        TypeEqual<
+          T,
+          PGOutputField<
+            Array<() => User>,
+            any,
+            {
+              Args: {
+                first: PGInputField<number | undefined, 'int', SomePGTypes>
+                after: PGInputField<string | undefined, 'string', SomePGTypes>
+                last: PGInputField<number | undefined, 'int', SomePGTypes>
+                before: PGInputField<string | undefined, 'string', SomePGTypes>
+              }
+              PrismaArgs: {
+                take: PGInputField<number | undefined, 'int', SomePGTypes>
+                skip: PGInputField<number | undefined, 'int', SomePGTypes>
+                cursor: PGInputField<
+                  SomeUserPrismaArgs['cursor'] | undefined,
+                  'input',
+                  SomePGTypes
+                >
+                orderBy: PGInputField<SomeUserPrismaArgs['orderBy'], 'input', SomePGTypes>
+              }
+              IsRelay: true
+            },
+            SomePGTypes
+          >
         >
-        type T = ReturnType<InputField['list']>
-        expectType<
-          TypeEqual<T, PGOutputField<string[] | null, any, undefined, undefined, PGTypes>>
-        >(true)
+      >(true)
+    })
+
+    describe('already relayed', () => {
+      it('Does not allow to call', () => {
+        type OutputField = PGOutputField<
+          string,
+          any,
+          {
+            Args: undefined
+            PrismaArgs: undefined
+            IsRelay: true
+          }
+        >
+        type T = OutputField['relay']
+        expectType<TypeEqual<T, NeverWithNote<'Already called relay() method'>>>(true)
       })
     })
   })
@@ -40,27 +100,47 @@ describe('PGOutputFieldBuilder', () => {
       TypeEqual<
         T,
         {
-          id: () => PGOutputField<string, any, undefined, undefined, PGTypes>
-          string: () => PGOutputField<string, any, undefined, undefined, PGTypes>
-          boolean: () => PGOutputField<boolean, any, undefined, undefined, PGTypes>
-          int: () => PGOutputField<number, any, undefined, undefined, PGTypes>
-          bigInt: () => PGOutputField<bigint, any, undefined, undefined, PGTypes>
-          float: () => PGOutputField<number, any, undefined, undefined, PGTypes>
-          dateTime: () => PGOutputField<Date, any, undefined, undefined, PGTypes>
-          json: () => PGOutputField<JsonValue, any, undefined, undefined, PGTypes>
-          bytes: () => PGOutputField<Buffer, any, undefined, undefined, PGTypes>
-          decimal: () => PGOutputField<Decimal, any, undefined, undefined, PGTypes>
+          id: () => PGOutputField<string, any, PGOutputFieldOptionsDefault, PGTypes>
+          string: () => PGOutputField<string, any, PGOutputFieldOptionsDefault, PGTypes>
+          boolean: () => PGOutputField<boolean, any, PGOutputFieldOptionsDefault, PGTypes>
+          int: () => PGOutputField<number, any, PGOutputFieldOptionsDefault, PGTypes>
+          bigInt: () => PGOutputField<bigint, any, PGOutputFieldOptionsDefault, PGTypes>
+          float: () => PGOutputField<number, any, PGOutputFieldOptionsDefault, PGTypes>
+          dateTime: () => PGOutputField<Date, any, PGOutputFieldOptionsDefault, PGTypes>
+          json: () => PGOutputField<JsonValue, any, PGOutputFieldOptionsDefault, PGTypes>
+          bytes: () => PGOutputField<Buffer, any, PGOutputFieldOptionsDefault, PGTypes>
+          decimal: () => PGOutputField<Decimal, any, PGOutputFieldOptionsDefault, PGTypes>
           object: <T extends Function>(
             type: T,
-          ) => PGOutputField<T, any, undefined, undefined, PGTypes>
+          ) => PGOutputField<T, any, PGOutputFieldOptionsDefault, PGTypes>
           relation: <T extends Function>(
             type: T,
-          ) => PGOutputField<T, any, undefined, undefined, PGTypes>
+          ) => PGOutputField<T, any, PGOutputFieldOptionsDefault, PGTypes>
           enum: <T extends PGEnum<any>>(
             type: T,
-          ) => PGOutputField<T, any, undefined, undefined, PGTypes>
+          ) => PGOutputField<T, any, PGOutputFieldOptionsDefault, PGTypes>
         }
       >
     >(true)
   })
+})
+
+describe('UpdatePGOutputFieldOptions', () => {
+  type T = UpdatePGOptions<
+    PGOutputFieldOptionsDefault,
+    'Args',
+    { id: PGInputField<string, 'id', PGTypes> }
+  >
+  expectType<
+    TypeEqual<
+      T,
+      {
+        Args: {
+          id: PGInputField<string, 'id', PGTypes>
+        }
+        PrismaArgs: undefined
+        IsRelay: false
+      }
+    >
+  >(true)
 })

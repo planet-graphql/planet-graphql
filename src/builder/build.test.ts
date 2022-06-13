@@ -5,7 +5,7 @@ import _ from 'lodash'
 import { getPGBuilder } from '..'
 import { PGfyResponseType, PGTypes } from '../types/builder'
 import { PGEnum, PGModel } from '../types/common'
-import { PGObject, PGOutputField } from '../types/output'
+import { PGObject, PGOutputFieldOptionsDefault, PGOutputField } from '../types/output'
 
 describe('build', () => {
   let dmmf: DMMF.Document
@@ -41,27 +41,30 @@ describe('build', () => {
   })
   it('Builds a GraphQLSchema', async () => {
     type UserFieldMapType<Types extends PGTypes> = {
-      id: PGOutputField<bigint, any, undefined, undefined, Types>
-      name: PGOutputField<string, any, undefined, undefined, Types>
-      income: PGOutputField<Decimal, any, undefined, undefined, Types>
+      id: PGOutputField<bigint, any, PGOutputFieldOptionsDefault, Types>
+      name: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>
+      income: PGOutputField<Decimal, any, PGOutputFieldOptionsDefault, Types>
       posts: PGOutputField<
         Array<PGModel<PostFieldMapType<Types>>>,
         any,
-        undefined,
-        undefined,
+        PGOutputFieldOptionsDefault,
         Types
       >
-      role: PGOutputField<PGEnum<UserRoleValuesType>, any, undefined, undefined, Types>
+      role: PGOutputField<
+        PGEnum<UserRoleValuesType>,
+        any,
+        PGOutputFieldOptionsDefault,
+        Types
+      >
     }
     type PostFieldMapType<Types extends PGTypes> = {
-      id: PGOutputField<number, any, undefined, undefined, Types>
-      title: PGOutputField<string, any, undefined, undefined, Types>
-      userId: PGOutputField<bigint, any, undefined, undefined, Types>
+      id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>
+      title: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>
+      userId: PGOutputField<bigint, any, PGOutputFieldOptionsDefault, Types>
       user: PGOutputField<
-        PGObject<UserFieldMapType<Types>, 'User', Types>,
+        PGObject<UserFieldMapType<Types>, { PrismaModelName: 'User' }, Types>,
         any,
-        undefined,
-        undefined,
+        PGOutputFieldOptionsDefault,
         Types
       >
     }
@@ -71,8 +74,8 @@ describe('build', () => {
     }
 
     type PGfyResponseObjects<Types extends PGTypes> = {
-      User: PGObject<UserFieldMapType<Types>, 'User', Types>
-      Post: PGObject<PostFieldMapType<Types>, 'Post', Types>
+      User: PGObject<UserFieldMapType<Types>, { PrismaModelName: 'User' }, Types>
+      Post: PGObject<PostFieldMapType<Types>, { PrismaModelName: 'Post' }, Types>
     }
 
     interface PGfyResponse<Types extends PGTypes> extends PGfyResponseType<Types> {

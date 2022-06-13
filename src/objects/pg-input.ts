@@ -1,7 +1,7 @@
 import { GraphQLInputObjectType } from 'graphql'
 import _ from 'lodash'
 import { setCache } from '../builder/utils'
-import { PGTypes, PGCache, GraphqlTypeRef } from '../types/builder'
+import { PGTypes, PGCache, GraphqlTypeRef, PGBuilder } from '../types/builder'
 import { PGInputFieldMap, PGInputFieldBuilder, PGInput } from '../types/input'
 import { convertToGraphQLInputFieldConfig, createInputField } from './pg-input-field'
 
@@ -49,14 +49,14 @@ export function createPGInput<T extends PGInputFieldMap, Types extends PGTypes>(
 
 export function convertToGraphQLInputObject(
   pgInput: PGInput<PGInputFieldMap>,
-  cache: PGCache,
+  builder: PGBuilder<any>,
   graphqlTypeRef: GraphqlTypeRef,
 ): GraphQLInputObjectType {
   return new GraphQLInputObjectType({
     name: pgInput.name,
     fields: () =>
       _.mapValues(pgInput.fieldMap, (field) =>
-        convertToGraphQLInputFieldConfig(field, cache, graphqlTypeRef),
+        convertToGraphQLInputFieldConfig(field, builder, graphqlTypeRef),
       ),
   })
 }

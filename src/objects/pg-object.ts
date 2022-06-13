@@ -1,7 +1,7 @@
 import { GraphQLObjectType } from 'graphql'
 import _ from 'lodash'
 import { setCache } from '../builder/utils'
-import { PGTypes, PGCache, GraphqlTypeRef } from '../types/builder'
+import { PGTypes, PGCache, GraphqlTypeRef, PGBuilder } from '../types/builder'
 import { PGInputFieldBuilder } from '../types/input'
 import {
   PGOutputFieldMap,
@@ -71,14 +71,20 @@ export function createPGObject<TFieldMap extends PGOutputFieldMap, Types extends
 
 export function convertToGraphQLObject(
   pgObject: PGObject<PGOutputFieldMap>,
-  cache: PGCache,
+  builder: PGBuilder<any>,
   graphqlTypeRef: GraphqlTypeRef,
 ): GraphQLObjectType {
   return new GraphQLObjectType({
     name: pgObject.name,
     fields: () =>
-      _.mapValues(pgObject.fieldMap, (field) =>
-        convertToGraphQLFieldConfig(field, cache, graphqlTypeRef),
+      _.mapValues(pgObject.fieldMap, (field, fieldName) =>
+        convertToGraphQLFieldConfig(
+          field,
+          fieldName,
+          pgObject.name,
+          builder,
+          graphqlTypeRef,
+        ),
       ),
   })
 }
