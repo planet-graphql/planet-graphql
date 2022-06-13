@@ -114,7 +114,7 @@ export const prismaRelayFeature: PGFeature = {
         getDefaultOrderBy(typeObject)
       const prismaRelayArgs = getPrismaRelayArgs(params.args, orderBy)
       const prismaArgs = Object.assign({}, params.prismaArgs, prismaRelayArgs)
-      const nodes = originalResolve?.({ ...params, prismaArgs }) ?? []
+      const nodes = (await originalResolve?.({ ...params, prismaArgs })) ?? []
 
       const edgeLength = params.args.first ?? params.args.last
       const edges = getEdges(nodes, edgeLength, createCursorFn)
