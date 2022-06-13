@@ -1,4 +1,4 @@
-import { Simplify } from 'type-fest'
+import { Promisable, Simplify } from 'type-fest'
 import { z } from 'zod'
 import { PGConfig, PGTypeConfig, PGTypes } from './builder'
 import {
@@ -17,14 +17,20 @@ export interface PGInput<T extends PGInputFieldMap, Types extends PGTypes = any>
   fieldMap: T
   kind: 'input'
   value: {
-    validator?: (value: TypeOfPGFieldMap<T>, context: Types['Context']) => boolean
+    validator?: (
+      value: TypeOfPGFieldMap<T>,
+      context: Types['Context'],
+    ) => Promisable<boolean>
   }
   copy: (name: string) => this
   update: <SetT extends PGEditInputFieldMap<T>>(
     editFieldMap: (f: T, b: PGInputFieldBuilder<Types>) => SetT,
   ) => PGInput<{ [P in keyof SetT]: Exclude<SetT[P], undefined> }, Types>
   validation: (
-    validator?: (value: TypeOfPGFieldMap<T>, context: Types['Context']) => boolean,
+    validator?: (
+      value: TypeOfPGFieldMap<T>,
+      context: Types['Context'],
+    ) => Promisable<boolean>,
   ) => this
 }
 
@@ -37,7 +43,6 @@ export type GetSchemaType<
 
 export type PGInputFieldValidator<TypeName extends string, Types extends PGTypes> = (
   schema: GetSchemaType<TypeName, Types>,
-  context: Types['Context'],
 ) => z.ZodSchema
 
 export interface PGInputField<
