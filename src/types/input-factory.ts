@@ -1,4 +1,4 @@
-import { PGTypes } from './builder'
+import { PGBuilder, PGTypes } from './builder'
 import { PGFieldValue, TypeOfPGModelBase } from './common'
 import { PGInput, PGInputField } from './input'
 
@@ -39,7 +39,7 @@ export interface PGInputFactoryUnion<
 }
 
 export interface PGInputFactoryBase<
-  T extends PGInputFactory<any> | PGInputFactoryWrapper<any>,
+  T extends PGInputFactoryWrapper<any>,
   TypeName extends string = any,
   Types extends PGTypes = any,
 > {
@@ -79,19 +79,16 @@ export interface PGInputFactory<
 
 type ExcludeNullish<T> = Exclude<T, null | undefined>
 type ExtractNullish<T> = Extract<T, null | undefined>
-type ExtractPGInputFactoryFieldMap<
+export type ExtractPGInputFactoryFieldMap<
   T extends PGInputFactoryFieldMap | PGInputFactoryFieldMap[] | null | undefined,
-> = Cast<
-  ExcludeNullish<T> extends Array<infer U> ? U : ExcludeNullish<T>,
-  PGInputFactoryFieldMap
->
+> = T extends Array<infer U> ? U : ExcludeNullish<T>
 
 export interface PGInputFactoryWrapper<
   T extends PGInputFactoryFieldMap | PGInputFactoryFieldMap[] | null | undefined,
   Types extends PGTypes = any,
 > extends PGInputFactoryBase<PGInputFactoryWrapper<T>, any, Types> {
   value: PGFieldValue & {
-    fieldMap: ExcludeNullish<T> extends Array<infer U> ? U : ExcludeNullish<T>
+    fieldMap: ExtractPGInputFactoryFieldMap<T>
     validator?: (
       value: Exclude<
         ConvertPGInputFactoryFieldMapField<
@@ -144,6 +141,7 @@ export interface PGInputFactoryWrapper<
     : never
   build: <TWrap extends boolean>(
     inputNamePrefix: string,
+    builder: PGBuilder<any>,
     wrap?: TWrap,
   ) => Exclude<TWrap, undefined> extends true
     ? ConvertPGInputFactoryFieldMapField<this>
@@ -157,8 +155,12 @@ export interface PGInputFactoryWrapper<
 type Cast<T, P> = T extends P ? T : P
 
 type ConvertPGInputFactoryFieldMapField<T extends PGInputFactoryField> =
-  T extends () => any
+  T extends PGInputFactory<infer U, infer V, infer W>
+    ? PGInputField<U, V, W>
+    : T extends () => any
     ? ConvertPGInputFactoryFieldMapField<ReturnType<T>>
+    : T extends PGInputFactoryUnion<infer U>
+    ? ConvertPGInputFactoryFieldMapField<U['__default']>
     : T extends PGInputFactoryWrapper<infer U, infer V>
     ? PGInput<{
         [P in keyof ExtractPGInputFactoryFieldMap<U>]: ConvertPGInputFactoryFieldMapField<
@@ -171,6 +173,4 @@ type ConvertPGInputFactoryFieldMapField<T extends PGInputFactoryField> =
         ? PGInputField<[PGInput<TFieldMap>] | ExtractNullish<U>, 'input', V>
         : PGInputField<PGInput<TFieldMap> | ExtractNullish<U>, 'input', V>
       : never
-    : T extends PGInputFactory<infer U, infer V, infer W>
-    ? PGInputField<U, V, W>
     : never
