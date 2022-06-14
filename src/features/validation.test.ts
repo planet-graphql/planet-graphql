@@ -105,7 +105,7 @@ describe('modifyArgValueOfNullableOrOptionalField', () => {
   })
 })
 
-describe('optionalArgsFeature', () => {
+describe('validationFeature', () => {
   it('Validates args with schema', async () => {
     const pg = getPGBuilder<SomePGTypes<{ role: 'User' | 'Admin' }>>()()
     pg.query('someQuery', (b) =>
@@ -239,8 +239,12 @@ describe('validateArgs', () => {
   describe('Args are null or undefined', () => {
     it('Skips validation as the correctness of null and undefined is guaranteed by the optionalArgsFeature', async () => {
       const fieldMap = {
-        optional: createInputField({ kind: 'scalar', type: 'string' }).optional(),
-        nullable: createInputField({ kind: 'scalar', type: 'string' }).nullable(),
+        optional: createInputField({ kind: 'scalar', type: 'string' })
+          .optional()
+          .validation(() => z.string().min(1)),
+        nullable: createInputField({ kind: 'scalar', type: 'string' })
+          .nullable()
+          .validation(() => z.string().min(1)),
       }
       const cache = createBuilderCache(DefaultScalars)
       const result = await validateArgs(
