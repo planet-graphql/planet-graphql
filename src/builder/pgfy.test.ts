@@ -2,7 +2,7 @@ import { DMMF } from '@prisma/generator-helper'
 import { getDMMF } from '@prisma/sdk'
 import { getPGBuilder } from '..'
 import { DefaultScalars } from '../lib/scalars'
-import { PGConfig, PGfyResponseType, PGTypes } from '../types/builder'
+import { PGBuilder, PGTypes } from '../types/builder'
 import { PGEnum } from '../types/common'
 import {
   PGInputFactory,
@@ -80,7 +80,7 @@ describe('pgfy', () => {
 
     it('Generates PGEnum, PGObject and PGInputFactory based on the Prisma schema', () => {
       const pg = getPGBuilder()()
-      const result = pg.pgfy(dmmf)
+      const result = pg.pgfy(pg, dmmf)
       expect(result).toMatchSnapshot()
     })
   })
@@ -100,7 +100,7 @@ describe('pgfy', () => {
 
     it('Generates PGEnum and PGObject based on the Prisma schema & Set them in the Build Cache', async () => {
       const pg = getPGBuilder()()
-      const result = pg.pgfy(dmmf)
+      const result = pg.pgfy(pg, dmmf)
       const expectSomeEnum: PGEnum<['AAA', 'BBB', 'CCC']> = {
         kind: 'enum',
         name: 'SomeEnum',
@@ -250,7 +250,6 @@ describe('pgfy', () => {
           Model2: expectModel2,
           Model3: expectModel3,
         },
-        models: {},
         inputs: {},
       })
       expect(pg.cache()).toEqual({
@@ -570,21 +569,28 @@ describe('pgfy', () => {
       findFirstSomeModel: PGInputFactoryWrapper<FindFirstSomeModelFactory<Types>, Types>
     }
 
-    interface PGfyResponse<Types extends PGTypes> extends PGfyResponseType<Types> {
-      prismaModelArgs: {}
-      objects: {}
-      enums: {}
-      inputs: Inputs<Types>
-    }
+    type PGfyResponse<T extends PGBuilder> = T extends PGBuilder<infer U>
+      ? {
+          enums: {}
+          objects: {}
+          inputs: Inputs<U>
+        }
+      : any
 
     type TypeConfig = {
       Context: any
-      GeneratedType: <T extends PGTypes>(arg: T) => PGfyResponse<T>
+      Prisma: {
+        Args: {}
+        PGfy: <T extends PGBuilder<any>>(
+          builder: T,
+          dmmf: DMMF.Document,
+        ) => PGfyResponse<T>
+      }
     }
 
     it('Generates PGInputFactory based on the Prisma schema & Set them in the Build Cache', () => {
       const pg = getPGBuilder<TypeConfig>()()
-      const result = pg.pgfy(dmmf)
+      const result = pg.pgfy(pg, dmmf)
       const expectValue = {
         enums: {},
         inputs: {
@@ -615,17 +621,14 @@ describe('pgfy', () => {
             },
           }),
         },
-        models: {},
         objects: {},
       }
       expect(result).toEqual(expectValue)
     })
     it('Returns a PGInputFactoryWrapper that recursively sets the same PGInputFactoryWrapper using the edit method', () => {
       const pg = getPGBuilder<TypeConfig>()()
-      const result = pg.pgfy(dmmf)
-      const editInputFactory = (
-        result as PGfyResponse<PGTypes<TypeConfig, PGConfig>>
-      ).inputs.findFirstSomeModel.edit((f) => ({
+      const result = pg.pgfy(pg, dmmf)
+      const editInputFactory = result.inputs.findFirstSomeModel.edit((f) => ({
         args1: f.args1.select('Input1').edit((f) => ({
           field1: f.field1,
           AND: f.AND.edit((f) => ({
@@ -669,10 +672,8 @@ describe('pgfy', () => {
     })
     it('Returns a PGInputFactoryWrapper with multiple PGInputFactoryWrappers mutually configured using the edit method', () => {
       const pg = getPGBuilder<TypeConfig>()()
-      const result = pg.pgfy(dmmf)
-      const editInputFactory = (
-        result as PGfyResponse<PGTypes<TypeConfig, PGConfig>>
-      ).inputs.findFirstSomeModel.edit((f) => ({
+      const result = pg.pgfy(pg, dmmf)
+      const editInputFactory = result.inputs.findFirstSomeModel.edit((f) => ({
         args2: f.args2.edit((f) => ({
           Input3s: f.Input3s.edit((f) => ({
             Input2: f.Input2.edit((f) => ({
@@ -712,10 +713,8 @@ describe('pgfy', () => {
     })
     it('Returns a PGInputFactoryWrapper with the scalar type set using the edit method', () => {
       const pg = getPGBuilder<TypeConfig>()()
-      const result = pg.pgfy(dmmf)
-      const editInputFactory = (
-        result as PGfyResponse<PGTypes<TypeConfig, PGConfig>>
-      ).inputs.findFirstSomeModel.edit((f) => ({
+      const result = pg.pgfy(pg, dmmf)
+      const editInputFactory = result.inputs.findFirstSomeModel.edit((f) => ({
         args3: f.args3.nullable(),
       }))
 
@@ -732,10 +731,8 @@ describe('pgfy', () => {
     })
     it('Returns a PGInputFactoryWrapper with the enum type set using the edit method', () => {
       const pg = getPGBuilder<TypeConfig>()()
-      const result = pg.pgfy(dmmf)
-      const editInputFactory = (
-        result as PGfyResponse<PGTypes<TypeConfig, PGConfig>>
-      ).inputs.findFirstSomeModel.edit((f) => ({
+      const result = pg.pgfy(pg, dmmf)
+      const editInputFactory = result.inputs.findFirstSomeModel.edit((f) => ({
         args4: f.args4.nullable(),
       }))
 

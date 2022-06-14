@@ -25,18 +25,14 @@ export type SomePostPrismaArgs = {
   distinct: { postDistinct: any }
 }
 
-export type SomeGeneratedType = {
-  enums: {}
-  inputs: {}
-  objects: {}
-  models: {
-    User: SomeUserPrismaArgs
-    Post: SomePostPrismaArgs
-  }
-}
-
 export type SomePGTypes<Context = any> = {
   Context: Context
-  GeneratedType: () => SomeGeneratedType
+  Prisma: {
+    Args: {
+      User: SomeUserPrismaArgs
+      Post: SomePostPrismaArgs
+    }
+    PGfy: any
+  }
   ScalarMap: PGScalarMap<typeof DefaultScalars>
 }

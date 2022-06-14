@@ -3,7 +3,7 @@ import { getDMMF } from '@prisma/sdk'
 import { graphql, GraphQLError } from 'graphql'
 import _ from 'lodash'
 import { getPGBuilder } from '..'
-import { PGfyResponseType, PGTypes } from '../types/builder'
+import { PGBuilder, PGTypeConfig, PGTypes } from '../types/builder'
 import { PGEnum, PGModel } from '../types/common'
 import { PGObject, PGOutputFieldOptionsDefault, PGOutputField } from '../types/output'
 
@@ -78,19 +78,27 @@ describe('build', () => {
       Post: PGObject<PostFieldMapType<Types>, { PrismaModelName: 'Post' }, Types>
     }
 
-    interface PGfyResponse<Types extends PGTypes> extends PGfyResponseType<Types> {
-      enums: PGfyResponseEnums
-      objects: PGfyResponseObjects<Types>
-      models: {}
-    }
+    type PGfyResponse<T extends PGBuilder> = T extends PGBuilder<infer U>
+      ? {
+          enums: PGfyResponseEnums
+          objects: PGfyResponseObjects<U>
+          inputs: {}
+        }
+      : any
 
-    type TypeConfig = {
+    interface TypeConfig extends PGTypeConfig {
       Context: any
-      GeneratedType: <T extends PGTypes>(arg: T) => PGfyResponse<T>
+      Prisma: {
+        Args: {}
+        PGfy: <T extends PGBuilder<any>>(
+          builder: T,
+          dmmf: DMMF.Document,
+        ) => PGfyResponse<T>
+      }
     }
 
     const pg = getPGBuilder<TypeConfig>()()
-    const pgfyResult = pg.pgfy(dmmf)
+    const pgfyResult = pg.pgfy(pg, dmmf)
 
     const user = pgfyResult.objects.User
 

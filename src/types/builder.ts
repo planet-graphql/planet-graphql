@@ -33,16 +33,23 @@ export interface PGConfig {
   scalars: { [name: string]: PGScalarLike }
 }
 
-export interface PGfyResponseType<T extends PGTypes = any> {
-  models: Record<string, PrismaArgsBase>
-  enums: Record<string, PGEnum<any>>
-  objects: Record<string, PGObject<any, any, T>>
-  inputs: Record<string, PGInputFactoryWrapper<any, T>>
-}
+export type PGfyResponseType<T extends PGBuilder> = T extends PGBuilder<infer U>
+  ? {
+      enums: Record<string, PGEnum<any>>
+      objects: Record<string, PGObject<any, any, U>>
+      inputs: Record<string, PGInputFactoryWrapper<any, U>>
+    }
+  : any
 
 export interface PGTypeConfig {
   Context: object
-  GeneratedType: <T extends PGTypes>(arg: T) => PGfyResponseType<T>
+  Prisma: {
+    Args: Record<string, PrismaArgsBase>
+    PGfy: <T extends PGBuilder<any>>(
+      builder: T,
+      dmmf: DMMF.Document,
+    ) => PGfyResponseType<T>
+  }
 }
 
 export type PGScalarMap<T extends PGConfig['scalars']> = {
@@ -67,7 +74,7 @@ export type InitPGBuilder = <TypeConfig extends PGTypeConfig>() => <
   Config extends PGConfig,
 >(
   config?: Config,
-) => PGBuilder<PGTypes<TypeConfig, Config>, PGfyResponseType<PGTypes<TypeConfig, Config>>>
+) => PGBuilder<PGTypes<TypeConfig, Config>>
 
 export interface PGRootFieldConfig {
   name: string
@@ -77,7 +84,6 @@ export interface PGRootFieldConfig {
 
 export interface PGBuilder<
   Types extends PGTypes<PGTypeConfig, PGConfig> = PGTypes<PGTypeConfig, PGConfig>,
-  PGfyType extends PGfyResponseType<Types> = any,
 > {
   object: <T extends PGOutputFieldMap>(
     name: string,
@@ -101,7 +107,7 @@ export interface PGBuilder<
     fields: (b: PGOutputFieldBuilder<Types>) => TOutput,
   ) => PGRootFieldConfig
   build: () => GraphQLSchema
-  pgfy: (dmmf: DMMF.Document) => PGfyType
+  pgfy: Types['Prisma']['PGfy']
   dataloader: <TResolve, TSource>(
     params: PGResolveParams<TSource, any, any, any, TResolve>,
     batchLoadFn: (sourceList: readonly TSource[]) => ResolveResponse<TResolve[]>,

@@ -26,7 +26,7 @@ export const pgfy: <Types extends PGTypes>(
   inputFieldBuilder: PGInputFieldBuilder<Types>,
   outputFieldBuilder: PGOutputFieldBuilder<Types>,
 ) => PGBuilder<Types>['pgfy'] =
-  (cache, inputFieldBuilder, outputFieldBuilder) => (dmmf: DMMF.Document) => {
+  (cache, inputFieldBuilder, outputFieldBuilder) => (_, dmmf) => {
     function convertToPGObject(
       model: DMMF.Model,
       enums: { [name: string]: PGEnum<any> },
@@ -74,12 +74,15 @@ export const pgfy: <Types extends PGTypes>(
       return pgObject
     }
     const objectRef: { [name: string]: PGObject<any> } = {}
-    const enums = dmmf.datamodel.enums.reduce<PGfyResponseType['enums']>((acc, x) => {
-      const pgEnum = createEnumBuilder(cache)(x.name, ...x.values.map((v) => v.name))
-      acc[x.name] = pgEnum
-      return acc
-    }, {})
-    const objects = dmmf.datamodel.models.reduce<PGfyResponseType['objects']>(
+    const enums = dmmf.datamodel.enums.reduce<PGfyResponseType<PGBuilder>['enums']>(
+      (acc, x) => {
+        const pgEnum = createEnumBuilder(cache)(x.name, ...x.values.map((v) => v.name))
+        acc[x.name] = pgEnum
+        return acc
+      },
+      {},
+    )
+    const objects = dmmf.datamodel.models.reduce<PGfyResponseType<PGBuilder>['objects']>(
       (acc, x) => {
         const pgObject = convertToPGObject(x, enums, objectRef)
         setCache(cache, pgObject)
@@ -105,7 +108,7 @@ export const pgfy: <Types extends PGTypes>(
     const inputRoots = dmmf.schema.outputObjectTypes.prisma
       .filter((x) => x.name === 'Query' || x.name === 'Mutation')
       .flatMap((x) => x.fields)
-      .reduce<PGfyResponseType['inputs']>((acc, field) => {
+      .reduce<PGfyResponseType<PGBuilder>['inputs']>((acc, field) => {
         const pgInputFactoryWrapper = convertToPGInputFactoryWrapper(
           field.name,
           field.args,
@@ -207,11 +210,10 @@ export const pgfy: <Types extends PGTypes>(
       return createPGInputFactoryWrapper(fieldMap)
     }
 
-    const resp: PGfyResponseType = {
+    const resp: PGfyResponseType<PGBuilder> = {
       enums,
       objects,
-      models: {},
       inputs: inputRoots,
     }
-    return resp
+    return resp as any
   }
