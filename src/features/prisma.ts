@@ -9,12 +9,6 @@ import { PGObject, PGOutputField, PGOutputFieldMap } from '../types/output'
 export const prismaArgsFeature: PGFeature = {
   name: 'prismaArgs',
   beforeResolve: ({ field, resolveParams }) => {
-    if (field.value.resolve === undefined) {
-      return {
-        isCallNext: true,
-      }
-    }
-
     const args = pickArgs(
       resolveParams.args,
       field.value.args,
@@ -120,7 +114,7 @@ export const prismaRelayFeature: PGFeature = {
         getDefaultOrderBy(typeObject)
       const prismaRelayArgs = getPrismaRelayArgs(params.args, orderBy)
       const prismaArgs = Object.assign({}, params.prismaArgs, prismaRelayArgs)
-      const nodes = originalResolve?.({ ...params, prismaArgs }) ?? []
+      const nodes = (await originalResolve?.({ ...params, prismaArgs })) ?? []
 
       const edgeLength = params.args.first ?? params.args.last
       const edges = getEdges(nodes, edgeLength, createCursorFn)
