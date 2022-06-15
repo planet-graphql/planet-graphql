@@ -205,7 +205,7 @@ export async function generate(
     moduleSpecifier: `${prismaImportPath}/runtime`,
   })
   outputFile.addImportDeclaration({
-    namedImports: ['PGTypes'],
+    namedImports: ['PGTypes', 'PGBuilder'],
     moduleSpecifier: '@prismagql/prismagql/lib/types/builder',
   })
   outputFile.addImportDeclaration({
@@ -226,9 +226,9 @@ export async function generate(
       type: `["${x.values.map((v) => v.name).join('", "')}"]`,
     })),
   )
-  for (const m of dmmf.datamodel.models) {
-    outputFile
-      .addTypeAlias({
+  outputFile.addTypeAliases(
+    dmmf.datamodel.models.map((m) => {
+      return {
         name: getModelTypeName(m.name),
         // FIXME:
         // I would like to fix the indent that is going wrong.
@@ -239,12 +239,10 @@ export async function generate(
             type: getPGFieldType(f),
           })),
         }),
-      })
-      .addTypeParameter({
-        name: 'Types',
-        constraint: 'PGTypes',
-      })
-  }
+        typeParameters: [{ name: 'Types', constraint: 'PGTypes' }],
+      }
+    }),
+  )
   outputFile.addTypeAlias({
     name: 'PGfyResponseEnums',
     type: objectType({
@@ -279,28 +277,30 @@ export async function generate(
       })),
     }),
   })
-  for (const e of [
-    ...dmmf.schema.enumTypes.prisma,
-    ...(dmmf.schema.enumTypes.model ?? []),
-  ]) {
-    outputFile.addTypeAlias({
-      name: `${e.name}Factory`,
-      type: `PGEnum<[${e.values.map((v) => `'${v}'`).join(', ')}]>`,
-    })
-  }
-  for (const factory of getInputFactories(dmmf.schema)) {
-    outputFile
-      .addTypeAlias({
+  outputFile.addTypeAliases(
+    [...dmmf.schema.enumTypes.prisma, ...(dmmf.schema.enumTypes.model ?? [])].map((e) => {
+      return {
+        name: `${e.name}Factory`,
+        type: `PGEnum<[${e.values.map((v) => `'${v}'`).join(', ')}]>`,
+      }
+    }),
+  )
+  outputFile.addTypeAliases(
+    getInputFactories(dmmf.schema).map((factory) => {
+      return {
         name: factory.name,
+        typeParameters: [
+          {
+            name: 'Types',
+            constraint: 'PGTypes',
+          },
+        ],
         type: objectType({
           properties: factory.type,
         }),
-      })
-      .addTypeParameter({
-        name: 'Types',
-        constraint: 'PGTypes',
-      })
-  }
+      }
+    }),
+  )
   outputFile
     .addInterface({
       name: 'Inputs',
@@ -318,20 +318,34 @@ export async function generate(
       constraint: 'PGTypes',
     })
   outputFile
-    .addInterface({
+    .addTypeAlias({
       name: 'PGfyResponse',
-      properties: [
-        { name: 'objects', type: 'PGfyResponseObjects<Types>' },
-        { name: 'enums', type: 'PGfyResponseEnums' },
-        { name: 'models', type: 'PGfyResponseModels' },
-        { name: 'inputs', type: 'Inputs<Types>' },
-      ],
-      isExported: true,
+      type: `T extends PGBuilder<infer U>
+? {
+   enums: PGfyResponseEnums
+   objects: PGfyResponseObjects<U>
+   inputs: Inputs<U>
+  }
+: any`,
     })
     .addTypeParameter({
-      name: 'Types',
-      constraint: 'PGTypes',
+      name: 'T',
+      constraint: 'PGBuilder',
     })
+  outputFile.addInterface({
+    name: 'PrismaGeneratedType',
+    properties: [
+      { name: 'Args', type: 'PGfyResponseModels' },
+      {
+        name: 'PGfy',
+        type: `<T extends PGBuilder<any>>(
+  builder: T,
+  dmmf: DMMF.Document,
+) => PGfyResponse<T>`,
+      },
+    ],
+    isExported: true,
+  })
 
   // FIXME:
   // I think it would be easier to test if I just do `emitToMemory()` in generate
