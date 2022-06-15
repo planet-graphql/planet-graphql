@@ -22,9 +22,6 @@ export const getPGBuilder: InitPGBuilder =
   <Config extends PGConfig>(config?: Config) => {
     type Types = PGTypes<TypeConfig, Config>
 
-    const types: Types = { GeneratedType: () => {} } as any
-    const pgfyResponse = types.GeneratedType(types)
-
     const scalarMap = {
       ...DefaultScalars,
       ...config?.scalars,
@@ -38,7 +35,7 @@ export const getPGBuilder: InitPGBuilder =
 
     const cache = createBuilderCache(scalarMap)
 
-    const builder: PGBuilder<Types, typeof pgfyResponse> = {
+    const builder: PGBuilder<Types> = {
       object: createObjectBuilder(cache, outputFieldBuilder, inputFieldBuilder),
       enum: createEnumBuilder(cache),
       input: createInputBuilder(cache, inputFieldBuilder),

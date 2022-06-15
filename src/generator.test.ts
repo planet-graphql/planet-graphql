@@ -90,7 +90,7 @@ describe('generate', () => {
       const result = fs.readFileSync(outputPath, 'utf8')
 
       expect(result).toMatchSnapshot()
-    }, 30_000)
+    })
 
     it('File is overwritten even if it exists and no exception is raised', async () => {
       const dmmf: DMMF.Document = {
@@ -133,7 +133,7 @@ describe('generate', () => {
 
       expect(result).toBe(`import { Prisma } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime";
-import { PGTypes } from "@prismagql/prismagql/lib/types/builder";
+import { PGTypes, PGBuilder } from "@prismagql/prismagql/lib/types/builder";
 import { PGEnum, RequiredNonNullable } from "@prismagql/prismagql/lib/types/common";
 import { PGObject, PGOutputField, PGOutputFieldOptionsDefault } from "@prismagql/prismagql/lib/types/output";
 import { PGInputFactoryWrapper, PGInputFactoryUnion, PGInputFactory } from "@prismagql/prismagql/lib/types/input-factory";
@@ -189,11 +189,20 @@ type PGfyResponseModels = {
 interface Inputs<Types extends PGTypes> {
 }
 
-export interface PGfyResponse<Types extends PGTypes> {
-    objects: PGfyResponseObjects<Types>;
-    enums: PGfyResponseEnums;
-    models: PGfyResponseModels;
-    inputs: Inputs<Types>;
+type PGfyResponse<T extends PGBuilder> = T extends PGBuilder<infer U>
+    ? {
+       enums: PGfyResponseEnums
+       objects: PGfyResponseObjects<U>
+       inputs: Inputs<U>
+      }
+    : any;
+
+export interface PrismaGeneratedType {
+    Args: PGfyResponseModels;
+    PGfy: <T extends PGBuilder<any>>(
+          builder: T,
+          dmmf: DMMF.Document,
+        ) => PGfyResponse<T>;
 }
 `)
     })
@@ -448,7 +457,7 @@ export interface PGfyResponse<Types extends PGTypes> {
       const result = fs.readFileSync(outputPath, 'utf8')
       expect(result).toEqual(`import { Prisma } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime";
-import { PGTypes } from "@prismagql/prismagql/lib/types/builder";
+import { PGTypes, PGBuilder } from "@prismagql/prismagql/lib/types/builder";
 import { PGEnum, RequiredNonNullable } from "@prismagql/prismagql/lib/types/common";
 import { PGObject, PGOutputField, PGOutputFieldOptionsDefault } from "@prismagql/prismagql/lib/types/output";
 import { PGInputFactoryWrapper, PGInputFactoryUnion, PGInputFactory } from "@prismagql/prismagql/lib/types/input-factory";
@@ -487,11 +496,20 @@ interface Inputs<Types extends PGTypes> {
     findFirstSomeModel: PGInputFactoryWrapper<FindFirstSomeModelFactory<Types>, Types>;
 }
 
-export interface PGfyResponse<Types extends PGTypes> {
-    objects: PGfyResponseObjects<Types>;
-    enums: PGfyResponseEnums;
-    models: PGfyResponseModels;
-    inputs: Inputs<Types>;
+type PGfyResponse<T extends PGBuilder> = T extends PGBuilder<infer U>
+    ? {
+       enums: PGfyResponseEnums
+       objects: PGfyResponseObjects<U>
+       inputs: Inputs<U>
+      }
+    : any;
+
+export interface PrismaGeneratedType {
+    Args: PGfyResponseModels;
+    PGfy: <T extends PGBuilder<any>>(
+          builder: T,
+          dmmf: DMMF.Document,
+        ) => PGfyResponse<T>;
 }
 `)
     })
