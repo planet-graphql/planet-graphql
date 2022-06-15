@@ -17,6 +17,7 @@
   ],
   "scripts": {
     "test": "jest --runInBand",
+    "test:coverage": "jest --runInBand --coverage",
     "build": "tsc --build"
   },
   "bin": {

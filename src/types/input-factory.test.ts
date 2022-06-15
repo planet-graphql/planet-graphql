@@ -1,4 +1,5 @@
 import { expectType, TypeEqual } from 'ts-expect'
+import { getPGBuilder } from '..'
 import { PGTypes } from './builder'
 import { PGInput, PGInputField } from './input'
 import {
@@ -49,6 +50,7 @@ describe.skip('PGInputFactory', () => {
       PGTypes
     >
 
+    const pg = getPGBuilder()()
     const userWhere: UserWhereFactory = null as any
     const postWhere: PostWhereFactory = null as any
 
@@ -75,7 +77,7 @@ describe.skip('PGInputFactory', () => {
           })),
         })),
       }))
-      .build('UserWhere', true)
+      .build('UserWhere', pg, true)
 
     expectType<
       TypeEqual<
@@ -137,7 +139,7 @@ describe.skip('PGInputFactory', () => {
           in: f.in,
         })),
       }))
-      .build('PostWhere')
+      .build('PostWhere', pg)
 
     expectType<
       TypeEqual<

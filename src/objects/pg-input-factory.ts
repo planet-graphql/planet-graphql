@@ -1,4 +1,6 @@
-import { PGTypes } from '../types/builder'
+import _ from 'lodash'
+import { PGBuilder, PGTypes } from '../types/builder'
+import { PGInputField } from '../types/input'
 import {
   PGEditInputFactoryFieldMap,
   PGInputFactoryField,
@@ -8,6 +10,52 @@ import {
   PGInputFactoryWrapper,
 } from '../types/input-factory'
 import { createInputField } from './pg-input-field'
+
+export function createBuildFieldMap(
+  field: PGInputFactoryField,
+  prefix: string,
+  name: string,
+  builder: PGBuilder,
+): PGInputField<any> {
+  if (typeof field === 'function' || 'fieldMap' in field.value) {
+    const factoryWrapper = (
+      typeof field === 'function' ? field() : field
+    ) as PGInputFactoryWrapper<any>
+
+    const newPGInput = builder.input(
+      `${prefix}${_.upperFirst(name)}`,
+      () => factoryWrapper.build(`${prefix}${_.upperFirst(name)}`, builder) as any,
+    )
+    if (factoryWrapper.value.validator !== undefined)
+      newPGInput.validation(factoryWrapper.value.validator)
+
+    const newPGInputField = createInputField({
+      kind: 'object',
+      type: () => newPGInput,
+    })
+    if (factoryWrapper.value.isOptional) newPGInputField.optional()
+    if (factoryWrapper.value.isNullable) newPGInputField.nullable()
+    if (factoryWrapper.value.isList) newPGInputField.list()
+    if (factoryWrapper.value.default !== undefined)
+      newPGInputField.default(factoryWrapper.value.default)
+
+    return newPGInputField
+  }
+  if ('factoryMap' in field.value) {
+    return createBuildFieldMap(
+      (field as PGInputFactoryUnion<any>).value.factoryMap.__default,
+      prefix,
+      name,
+      builder,
+    )
+  }
+  if (field.value.kind === 'enum') {
+    const cache = builder.cache()
+    if (cache.enum[field.value.type.name] === undefined)
+      cache.enum[field.value.type.name] = field.value.type
+  }
+  return field as PGInputField<any>
+}
 
 export function createPGInputFactoryUnion<
   TFactoryMap extends {
@@ -67,7 +115,7 @@ export function createPGInputFactoryWrapper<
       return pgInputFactoryWrapper
     },
     edit: (e) => {
-      const editFieldMap = Object.entries(fieldMap).reduce<{
+      const editFieldMap = Object.entries(pgInputFactoryWrapper.value.fieldMap).reduce<{
         [name: string]:
           | PGInputFactoryWrapper<any>
           | PGInputFactoryUnion<any>
@@ -80,12 +128,21 @@ export function createPGInputFactoryWrapper<
       pgInputFactoryWrapper.value.fieldMap = result
       return pgInputFactoryWrapper as any
     },
-    // TODO: Implement the build method.
-    build: () => {
-      return createInputField({
-        kind: 'object',
-        type: Function,
-      }) as any
+    build: (name, builder, wrap) => {
+      const pgInputFieldMap = Object.entries(
+        pgInputFactoryWrapper.value.fieldMap as PGInputFactoryFieldMap,
+      ).reduce<{
+        [name: string]: PGInputField<any>
+      }>((acc, [key, factory]) => {
+        acc[key] = createBuildFieldMap(factory, name, key, builder)
+        return acc
+      }, {})
+      return wrap === true
+        ? (createInputField({
+            kind: 'object',
+            type: () => builder.input(name, () => pgInputFieldMap),
+          }) as any)
+        : pgInputFieldMap
     },
   }
   return pgInputFactoryWrapper
