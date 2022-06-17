@@ -1,19 +1,16 @@
 import { getPGBuilder } from '..'
 import {
   mergeDefaultInputFactoryUnion,
-  mergeDefaultInputFactoryWrapper,
+  mergeDefaultInputFactory,
   mergeDefaultInputField,
   mergeDefaultPGInput,
 } from '../builder/test-utils'
 import { createPGEnum } from './pg-enum'
-import {
-  createPGInputFactoryUnion,
-  createPGInputFactoryWrapper,
-} from './pg-input-factory'
+import { createPGInputFactoryUnion, createPGInputFactory } from './pg-input-factory'
 import { createInputField } from './pg-input-field'
 
-describe('createPGInputFactoryWrapper', () => {
-  it('Returns the entity of PGInputFactoryWrapper', () => {
+describe('createPGInputFactory', () => {
+  it('Returns the entity of PGInputFactory', () => {
     const fieldMap = {
       id: createInputField<string, 'string', any>({
         kind: 'scalar',
@@ -24,8 +21,8 @@ describe('createPGInputFactoryWrapper', () => {
         type: 'string',
       }),
     }
-    const factoryWrapper = createPGInputFactoryWrapper(fieldMap)
-    expect(factoryWrapper).toEqual(mergeDefaultInputFactoryWrapper({ fieldMap }))
+    const pgInputFactory = createPGInputFactory(fieldMap)
+    expect(pgInputFactory).toEqual(mergeDefaultInputFactory({ fieldMap }))
   })
 })
 describe('createPGInputFactoryUnion', () => {
@@ -48,7 +45,7 @@ describe('createPGInputFactoryUnion', () => {
     expect(factoryUnion).toEqual(mergeDefaultInputFactoryUnion({ factoryMap }))
   })
 })
-describe('PGInputFactoryWrapper', () => {
+describe('PGInputFactory', () => {
   describe('nullish', () => {
     it('Returns with isNullable and isOptional of value as true', () => {
       const fieldMap = {
@@ -57,12 +54,12 @@ describe('PGInputFactoryWrapper', () => {
           type: 'string',
         }),
       }
-      const factoryWrapper = createPGInputFactoryWrapper(fieldMap).nullish()
-      expect(factoryWrapper).toEqual(
-        mergeDefaultInputFactoryWrapper({ fieldMap, isNullable: true, isOptional: true }),
+      const pgInputFactory = createPGInputFactory(fieldMap).nullish()
+      expect(pgInputFactory).toEqual(
+        mergeDefaultInputFactory({ fieldMap, isNullable: true, isOptional: true }),
       )
-      expect(factoryWrapper.nullish(false)).toEqual(
-        mergeDefaultInputFactoryWrapper({ fieldMap }),
+      expect(pgInputFactory.nullish(false)).toEqual(
+        mergeDefaultInputFactory({ fieldMap }),
       )
     })
   })
@@ -74,12 +71,12 @@ describe('PGInputFactoryWrapper', () => {
           type: 'string',
         }),
       }
-      const factoryWrapper = createPGInputFactoryWrapper(fieldMap).nullable()
-      expect(factoryWrapper).toEqual(
-        mergeDefaultInputFactoryWrapper({ fieldMap, isNullable: true }),
+      const pgInputFactory = createPGInputFactory(fieldMap).nullable()
+      expect(pgInputFactory).toEqual(
+        mergeDefaultInputFactory({ fieldMap, isNullable: true }),
       )
-      expect(factoryWrapper.nullable(false)).toEqual(
-        mergeDefaultInputFactoryWrapper({ fieldMap }),
+      expect(pgInputFactory.nullable(false)).toEqual(
+        mergeDefaultInputFactory({ fieldMap }),
       )
     })
   })
@@ -91,12 +88,12 @@ describe('PGInputFactoryWrapper', () => {
           type: 'string',
         }),
       }
-      const factoryWrapper = createPGInputFactoryWrapper(fieldMap).optional()
-      expect(factoryWrapper).toEqual(
-        mergeDefaultInputFactoryWrapper({ fieldMap, isOptional: true }),
+      const pgInputFactory = createPGInputFactory(fieldMap).optional()
+      expect(pgInputFactory).toEqual(
+        mergeDefaultInputFactory({ fieldMap, isOptional: true }),
       )
-      expect(factoryWrapper.optional(false)).toEqual(
-        mergeDefaultInputFactoryWrapper({ fieldMap }),
+      expect(pgInputFactory.optional(false)).toEqual(
+        mergeDefaultInputFactory({ fieldMap }),
       )
     })
   })
@@ -108,9 +105,9 @@ describe('PGInputFactoryWrapper', () => {
           type: 'string',
         }),
       }
-      const factoryWrapper = createPGInputFactoryWrapper(fieldMap).list()
-      expect(factoryWrapper).toEqual(
-        mergeDefaultInputFactoryWrapper({ fieldMap: fieldMap, isList: true }),
+      const pgInputFactory = createPGInputFactory(fieldMap).list()
+      expect(pgInputFactory).toEqual(
+        mergeDefaultInputFactory({ fieldMap: fieldMap, isList: true }),
       )
     })
   })
@@ -122,11 +119,9 @@ describe('PGInputFactoryWrapper', () => {
           type: 'string',
         }),
       }
-      const factoryWrapper = createPGInputFactoryWrapper(fieldMap)
-        .nullable()
-        .default(null)
-      expect(factoryWrapper).toEqual(
-        mergeDefaultInputFactoryWrapper({ fieldMap, isNullable: true, default: null }),
+      const pgInputFactory = createPGInputFactory(fieldMap).nullable().default(null)
+      expect(pgInputFactory).toEqual(
+        mergeDefaultInputFactory({ fieldMap, isNullable: true, default: null }),
       )
     })
   })
@@ -138,19 +133,19 @@ describe('PGInputFactoryWrapper', () => {
           type: 'string',
         }),
       }
-      const factoryWrapper = createPGInputFactoryWrapper(fieldMap).validation(
+      const pgInputFactory = createPGInputFactory(fieldMap).validation(
         (value) => value.someField !== '',
       )
-      expect(factoryWrapper).toEqual(
-        mergeDefaultInputFactoryWrapper({ fieldMap, validator: expect.any(Function) }),
+      expect(pgInputFactory).toEqual(
+        mergeDefaultInputFactory({ fieldMap, validator: expect.any(Function) }),
       )
       expect(
-        factoryWrapper.value.validator?.({
+        pgInputFactory.value.validator?.({
           someField: 'xxx',
         }),
       ).toEqual(true)
       expect(
-        factoryWrapper.value.validator?.({
+        pgInputFactory.value.validator?.({
           someField: '',
         }),
       ).toEqual(false)
@@ -158,13 +153,13 @@ describe('PGInputFactoryWrapper', () => {
   })
   describe('edit', () => {
     it('Returns a new PGInputFactory after editing each Field of the original', () => {
-      const original = createPGInputFactoryWrapper({
+      const original = createPGInputFactory({
         someField: createInputField<string, 'string', any>({
           kind: 'scalar',
           type: 'string',
         }),
         someObject: () =>
-          createPGInputFactoryWrapper({
+          createPGInputFactory({
             innerField: createInputField<string, 'string', any>({
               kind: 'scalar',
               type: 'string',
@@ -178,24 +173,24 @@ describe('PGInputFactoryWrapper', () => {
         })),
       }))
 
-      const expectFactoryWrapper = mergeDefaultInputFactoryWrapper({
+      const expectFactory = mergeDefaultInputFactory({
         fieldMap: {
           someField: mergeDefaultInputField({ kind: 'scalar', type: 'string' }),
-          someObject: mergeDefaultInputFactoryWrapper({
+          someObject: mergeDefaultInputFactory({
             fieldMap: {
               innerField: mergeDefaultInputField({ kind: 'scalar', type: 'string' }),
             },
           }),
         },
       })
-      expect(edit).toEqual(expectFactoryWrapper)
+      expect(edit).toEqual(expectFactory)
     })
   })
   describe('build', () => {
     describe('scalarType and enumType', () => {
       it('PGInputField is generated from PGInputFactory & Input is cached', () => {
         const pg = getPGBuilder()()
-        const pgInputFactory = createPGInputFactoryWrapper({
+        const pgInputFactory = createPGInputFactory({
           someScalar: createInputField({
             kind: 'scalar',
             type: 'string',
@@ -236,13 +231,13 @@ describe('PGInputFactoryWrapper', () => {
       })
     })
     describe('InputType', () => {
-      it('PGInputField is generated from PGInputFactoryWrapper & Input is cached', () => {
+      it('PGInputField is generated from PGInputFactory & Input is cached', () => {
         const pg = getPGBuilder()()
-        const pgInputFactory = createPGInputFactoryWrapper({
+        const pgInputFactory = createPGInputFactory({
           someObject: () =>
-            createPGInputFactoryWrapper({
+            createPGInputFactory({
               innerObject: () =>
-                createPGInputFactoryWrapper({
+                createPGInputFactory({
                   field: createInputField({
                     kind: 'scalar',
                     type: 'string',
@@ -313,11 +308,11 @@ describe('PGInputFactoryWrapper', () => {
           }),
         })
       })
-      it('returns after the value set in Value of PGInputFactoryWrapper is inherited', () => {
+      it('returns after the value set in Value of PGInputFactory is inherited', () => {
         const pg = getPGBuilder()()
-        const pgInputFactory = createPGInputFactoryWrapper({
+        const pgInputFactory = createPGInputFactory({
           someObject: () =>
-            createPGInputFactoryWrapper({
+            createPGInputFactory({
               field: createInputField({
                 kind: 'scalar',
                 type: 'string',
@@ -369,7 +364,7 @@ describe('PGInputFactoryWrapper', () => {
     describe('UnionType', () => {
       it('PGInputField is generated from default of PGInputFactoryUnion', () => {
         const pg = getPGBuilder()()
-        const pgInputInput = createPGInputFactoryWrapper({
+        const pgInputInput = createPGInputFactory({
           someUnion: createPGInputFactoryUnion({
             __default: createInputField({
               kind: 'scalar',
@@ -401,7 +396,7 @@ describe('PGInputFactoryWrapper', () => {
       it('PGInputField is generated from PGInputFactory with wrap & Input is cached', () => {
         const pg = getPGBuilder()()
 
-        const pgInputFactory = createPGInputFactoryWrapper({
+        const pgInputFactory = createPGInputFactory({
           field: createInputField({
             kind: 'scalar',
             type: 'string',
@@ -433,17 +428,17 @@ describe('PGInputFactoryWrapper', () => {
       })
     })
     describe('Recursive InputType', () => {
-      it('PGInputField is generated from PGInputFactoryWrapper & Input is cached', () => {
+      it('PGInputField is generated from PGInputFactory & Input is cached', () => {
         const pg = getPGBuilder()()
         const fieldMap = {
           field: createInputField({
             kind: 'scalar',
             type: 'string',
           }),
-          AND: () => createPGInputFactoryWrapper(fieldMap),
+          AND: () => createPGInputFactory(fieldMap),
         }
 
-        const pgInputFactory = createPGInputFactoryWrapper(fieldMap)
+        const pgInputFactory = createPGInputFactory(fieldMap)
         const pgInput = pgInputFactory
           .edit((f) => ({
             AND: f.AND.edit((f) => ({
@@ -485,20 +480,20 @@ describe('PGInputFactoryWrapper', () => {
       })
     })
     describe('Cross-referenced InputType', () => {
-      it('PGInputField is generated from PGInputFactoryWrapper & Input is cached', () => {
+      it('PGInputField is generated from PGInputFactory & Input is cached', () => {
         const pg = getPGBuilder()()
         const fieldMap1 = {
           field1: createInputField({
             kind: 'scalar',
             type: 'string',
           }),
-          input2s: () => createPGInputFactoryWrapper(fieldMap2).list(),
+          input2s: () => createPGInputFactory(fieldMap2).list(),
         }
         const fieldMap2 = {
-          input1: () => createPGInputFactoryWrapper(fieldMap1),
+          input1: () => createPGInputFactory(fieldMap1),
         }
 
-        const pgInputInput1 = createPGInputFactoryWrapper(fieldMap1)
+        const pgInputInput1 = createPGInputFactory(fieldMap1)
 
         const pgInput1 = pgInputInput1
           .edit((f) => ({

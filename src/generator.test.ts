@@ -136,7 +136,8 @@ import { Decimal } from "@prisma/client/runtime";
 import { PGTypes, PGBuilder } from "@prismagql/prismagql/lib/types/builder";
 import { PGEnum, RequiredNonNullable } from "@prismagql/prismagql/lib/types/common";
 import { PGObject, PGOutputField, PGOutputFieldOptionsDefault } from "@prismagql/prismagql/lib/types/output";
-import { PGInputFactoryWrapper, PGInputFactoryUnion, PGInputFactory } from "@prismagql/prismagql/lib/types/input-factory";
+import { PGInputFactory, PGInputFactoryUnion } from "@prismagql/prismagql/lib/types/input-factory";
+import { PGInputField } from "@prismagql/prismagql/lib/types/input";
 
 type SomeEnumValuesType = ["AAA", "BBB", "CCC"];
 type SomeEnum2ValuesType = ["Aaa", "Bbb", "Ccc"];
@@ -460,7 +461,8 @@ import { Decimal } from "@prisma/client/runtime";
 import { PGTypes, PGBuilder } from "@prismagql/prismagql/lib/types/builder";
 import { PGEnum, RequiredNonNullable } from "@prismagql/prismagql/lib/types/common";
 import { PGObject, PGOutputField, PGOutputFieldOptionsDefault } from "@prismagql/prismagql/lib/types/output";
-import { PGInputFactoryWrapper, PGInputFactoryUnion, PGInputFactory } from "@prismagql/prismagql/lib/types/input-factory";
+import { PGInputFactory, PGInputFactoryUnion } from "@prismagql/prismagql/lib/types/input-factory";
+import { PGInputField } from "@prismagql/prismagql/lib/types/input";
 
 type PGfyResponseEnums = {};
 type PGfyResponseObjects<Types extends PGTypes> = {};
@@ -470,30 +472,30 @@ type Enum2Factory = PGEnum<['asc', 'desc']>;
 type Enum3Factory = PGEnum<['AAA', 'BBB']>;
 type FindFirstSomeModelFactory<Types extends PGTypes> = {
         args1: PGInputFactoryUnion<{
-            __default: () => PGInputFactoryWrapper<Array<Input1Factory<Types>> | undefined, Types>,
-            Input1List: () => PGInputFactoryWrapper<Array<Input1Factory<Types>> | undefined, Types>,
-            Input1: () => PGInputFactoryWrapper<Input1Factory<Types> | undefined, Types>
+            __default: () => PGInputFactory<Array<Input1Factory<Types>> | undefined, Types>,
+            Input1List: () => PGInputFactory<Array<Input1Factory<Types>> | undefined, Types>,
+            Input1: () => PGInputFactory<Input1Factory<Types> | undefined, Types>
             }>;
-        args2: () => PGInputFactoryWrapper<Input2Factory<Types> | null | undefined, Types>;
-        args3: PGInputFactory<number, 'int', Types>;
-        args4: PGInputFactory<Enum1Factory[] | undefined, 'enum', Types>;
+        args2: () => PGInputFactory<Input2Factory<Types> | null | undefined, Types>;
+        args3: PGInputField<number, 'int', Types>;
+        args4: PGInputField<Enum1Factory[] | undefined, 'enum', Types>;
     };
 type Input1Factory<Types extends PGTypes> = {
-        field1: PGInputFactory<Enum2Factory, 'enum', Types>;
-        field2: PGInputFactory<Enum3Factory | undefined, 'enum', Types>;
-        recursiveField: () => PGInputFactoryWrapper<Input1Factory<Types> | undefined, Types>;
+        field1: PGInputField<Enum2Factory, 'enum', Types>;
+        field2: PGInputField<Enum3Factory | undefined, 'enum', Types>;
+        recursiveField: () => PGInputFactory<Input1Factory<Types> | undefined, Types>;
     };
 type Input2Factory<Types extends PGTypes> = {
-        field1: PGInputFactory<bigint | null | undefined, 'bigInt', Types>;
-        circularField: () => PGInputFactoryWrapper<Input3Factory<Types> | undefined, Types>;
+        field1: PGInputField<bigint | null | undefined, 'bigInt', Types>;
+        circularField: () => PGInputFactory<Input3Factory<Types> | undefined, Types>;
     };
 type Input3Factory<Types extends PGTypes> = {
-        field1: PGInputFactory<Enum2Factory | undefined, 'enum', Types>;
-        circularField: () => PGInputFactoryWrapper<Input2Factory<Types>, Types>;
+        field1: PGInputField<Enum2Factory | undefined, 'enum', Types>;
+        circularField: () => PGInputFactory<Input2Factory<Types>, Types>;
     };
 
 interface Inputs<Types extends PGTypes> {
-    findFirstSomeModel: PGInputFactoryWrapper<FindFirstSomeModelFactory<Types>, Types>;
+    findFirstSomeModel: PGInputFactory<FindFirstSomeModelFactory<Types>, Types>;
 }
 
 type PGfyResponse<T extends PGBuilder> = T extends PGBuilder<infer U>
@@ -518,7 +520,7 @@ export interface PrismaGeneratedType {
 
 describe('getInputsTypeProperty', () => {
   describe('inputObjectTypes', () => {
-    it('returns PGInputFactoryWrapper of type inputTypes', () => {
+    it('returns PGInputFactory of type inputTypes', () => {
       const args: DMMF.SchemaArg = {
         name: 'arg',
         isRequired: false,
@@ -534,12 +536,12 @@ describe('getInputsTypeProperty', () => {
       }
       const result = getInputsTypeProperty(args)
       expect(result).toEqual(
-        '() => PGInputFactoryWrapper<InputFactory<Types> | null | undefined, Types>',
+        '() => PGInputFactory<InputFactory<Types> | null | undefined, Types>',
       )
     })
   })
   describe('Array of inputObjectTypes', () => {
-    it('returns PGInputFactoryUnion & PGInputFactoryWrapper of type inputTypes', () => {
+    it('returns PGInputFactoryUnion & PGInputFactory of type inputTypes', () => {
       const args: DMMF.SchemaArg = {
         name: 'arg',
         isRequired: true,
@@ -561,9 +563,9 @@ describe('getInputsTypeProperty', () => {
       }
       const result = getInputsTypeProperty(args)
       expect(result).toEqual(`PGInputFactoryUnion<{
-__default: () => PGInputFactoryWrapper<Array<InputFactory<Types>>, Types>,
-InputList: () => PGInputFactoryWrapper<Array<InputFactory<Types>>, Types>,
-Input: () => PGInputFactoryWrapper<InputFactory<Types>, Types>
+__default: () => PGInputFactory<Array<InputFactory<Types>>, Types>,
+InputList: () => PGInputFactory<Array<InputFactory<Types>>, Types>,
+Input: () => PGInputFactory<InputFactory<Types>, Types>
 }>`)
     })
   })
@@ -582,7 +584,7 @@ Input: () => PGInputFactoryWrapper<InputFactory<Types>, Types>
         ],
       }
       const result = getInputsTypeProperty(args)
-      expect(result).toEqual(`PGInputFactory<number | null, 'int', Types>`)
+      expect(result).toEqual(`PGInputField<number | null, 'int', Types>`)
     })
   })
   describe('enumTypes', () => {
@@ -601,7 +603,7 @@ Input: () => PGInputFactoryWrapper<InputFactory<Types>, Types>
         ],
       }
       const result = getInputsTypeProperty(args)
-      expect(result).toEqual(`PGInputFactory<EnumFactory[] | undefined, 'enum', Types>`)
+      expect(result).toEqual(`PGInputField<EnumFactory[] | undefined, 'enum', Types>`)
     })
   })
 })
@@ -660,19 +662,19 @@ describe('shapeInputs', () => {
       type: [
         {
           name: 'arg1',
-          type: '() => PGInputFactoryWrapper<Input1Factory<Types> | undefined, Types>',
+          type: '() => PGInputFactory<Input1Factory<Types> | undefined, Types>',
         },
         {
           name: 'arg2',
           type: `PGInputFactoryUnion<{
-__default: () => PGInputFactoryWrapper<Array<Input2Factory<Types>> | undefined, Types>,
-Input2List: () => PGInputFactoryWrapper<Array<Input2Factory<Types>> | undefined, Types>,
-Input2: () => PGInputFactoryWrapper<Input2Factory<Types> | undefined, Types>
+__default: () => PGInputFactory<Array<Input2Factory<Types>> | undefined, Types>,
+Input2List: () => PGInputFactory<Array<Input2Factory<Types>> | undefined, Types>,
+Input2: () => PGInputFactory<Input2Factory<Types> | undefined, Types>
 }>`,
         },
         {
           name: 'arg3',
-          type: "PGInputFactory<number | undefined, 'int', Types>",
+          type: "PGInputField<number | undefined, 'int', Types>",
         },
       ],
       inputTypes: ['Input1Factory', 'Input2Factory'],
@@ -778,11 +780,11 @@ describe('getFactories', () => {
         type: [
           {
             name: 'args1',
-            type: '() => PGInputFactoryWrapper<Input1Factory<Types> | null | undefined, Types>',
+            type: '() => PGInputFactory<Input1Factory<Types> | null | undefined, Types>',
           },
           {
             name: 'args2',
-            type: "PGInputFactory<Enum2Factory, 'enum', Types>",
+            type: "PGInputField<Enum2Factory, 'enum', Types>",
           },
         ],
         inputTypes: ['Input1Factory'],
@@ -792,7 +794,7 @@ describe('getFactories', () => {
         type: [
           {
             name: 'field1',
-            type: "PGInputFactory<Enum1Factory, 'enum', Types>",
+            type: "PGInputField<Enum1Factory, 'enum', Types>",
           },
         ],
         inputTypes: [],
