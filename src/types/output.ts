@@ -96,7 +96,11 @@ export interface PGOutputField<
     }
   }
   nullable: MethodGuard<
-    () => PGOutputField<T | null, TSource, TOptions, Types>,
+    <IsNullable extends boolean = true>(
+      isNullable?: IsNullable,
+    ) => IsNullable extends false
+      ? PGOutputField<Exclude<T, null>, TSource, TOptions, Types>
+      : PGOutputField<T | null, TSource, TOptions, Types>,
     IsAny<TSource>,
     TypeChangeMethodNote
   >

@@ -54,9 +54,21 @@ export interface PGInputField<
     isPrisma?: boolean
     validator?: PGInputFieldValidator<TypeName, Types>
   }
-  nullable: () => PGInputField<T | null, TypeName, Types>
-  optional: () => PGInputField<T | undefined, TypeName, Types>
-  nullish: () => PGInputField<T | null | undefined, TypeName, Types>
+  nullable: <IsNullable extends boolean = true>(
+    isNullable?: IsNullable,
+  ) => IsNullable extends false
+    ? PGInputField<Exclude<T, null>, TypeName, Types>
+    : PGInputField<T | null, TypeName, Types>
+  optional: <IsOptional extends boolean = true>(
+    isOptional?: IsOptional,
+  ) => IsOptional extends false
+    ? PGInputField<Exclude<T, undefined>, TypeName, Types>
+    : PGInputField<T | undefined, TypeName, Types>
+  nullish: <IsNullish extends boolean = true>(
+    isNullish?: IsNullish,
+  ) => IsNullish extends false
+    ? PGInputField<Exclude<T, null | undefined>, TypeName, Types>
+    : PGInputField<T | null | undefined, TypeName, Types>
   list: () => ExcludeNullish<T> extends any[]
     ? this
     : PGInputField<Array<ExcludeNullish<T>> | ExtractNullish<T>, TypeName, Types>

@@ -26,9 +26,9 @@ export function createOutputField<T, Types extends PGTypes>(
       field.value.isList = true
       return field
     },
-    nullable: () => {
-      field.value.isOptional = true
-      field.value.isNullable = true
+    nullable: (isNullable) => {
+      field.value.isOptional = isNullable ?? true
+      field.value.isNullable = isNullable ?? true
       return field
     },
     args: (x) => {

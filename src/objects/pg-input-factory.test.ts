@@ -57,9 +57,12 @@ describe('PGInputFactoryWrapper', () => {
           type: 'string',
         }),
       }
-      const factoryWrapper = createPGInputFactoryWrapper(fieldMap)
-      expect(factoryWrapper.nullish()).toEqual(
+      const factoryWrapper = createPGInputFactoryWrapper(fieldMap).nullish()
+      expect(factoryWrapper).toEqual(
         mergeDefaultInputFactoryWrapper({ fieldMap, isNullable: true, isOptional: true }),
+      )
+      expect(factoryWrapper.nullish(false)).toEqual(
+        mergeDefaultInputFactoryWrapper({ fieldMap }),
       )
     })
   })
@@ -75,6 +78,9 @@ describe('PGInputFactoryWrapper', () => {
       expect(factoryWrapper).toEqual(
         mergeDefaultInputFactoryWrapper({ fieldMap, isNullable: true }),
       )
+      expect(factoryWrapper.nullable(false)).toEqual(
+        mergeDefaultInputFactoryWrapper({ fieldMap }),
+      )
     })
   })
   describe('optional', () => {
@@ -88,6 +94,9 @@ describe('PGInputFactoryWrapper', () => {
       const factoryWrapper = createPGInputFactoryWrapper(fieldMap).optional()
       expect(factoryWrapper).toEqual(
         mergeDefaultInputFactoryWrapper({ fieldMap, isOptional: true }),
+      )
+      expect(factoryWrapper.optional(false)).toEqual(
+        mergeDefaultInputFactoryWrapper({ fieldMap }),
       )
     })
   })

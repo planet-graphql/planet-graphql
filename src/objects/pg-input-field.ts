@@ -19,17 +19,17 @@ export function createInputField<T, TypeName extends string, Types extends PGTyp
       field.value.isList = true
       return field
     },
-    nullable: () => {
-      field.value.isNullable = true
+    nullable: (isNullable) => {
+      field.value.isNullable = isNullable ?? true
       return field
     },
-    optional: () => {
-      field.value.isOptional = true
+    optional: (isOptional) => {
+      field.value.isOptional = isOptional ?? true
       return field
     },
-    nullish: () => {
-      field.value.isOptional = true
-      field.value.isNullable = true
+    nullish: (isNullish) => {
+      field.value.isOptional = isNullish ?? true
+      field.value.isNullable = isNullish ?? true
       return field
     },
     default: (value: any) => {

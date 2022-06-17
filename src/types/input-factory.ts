@@ -43,17 +43,41 @@ export interface PGInputFactoryBase<
   TypeName extends string = any,
   Types extends PGTypes = any,
 > {
-  nullish: () => T extends PGInputFactory<infer U>
+  nullish: <IsNullish extends boolean = true>(
+    isNullish?: IsNullish,
+  ) => IsNullish extends false
+    ? T extends PGInputFactory<infer U>
+      ? PGInputFactory<Exclude<U, null | undefined>, TypeName, Types>
+      : T extends PGInputFactoryWrapper<infer U>
+      ? PGInputFactoryWrapper<Exclude<U, null | undefined>, Types>
+      : never
+    : T extends PGInputFactory<infer U>
     ? PGInputFactory<U | null | undefined, TypeName, Types>
     : T extends PGInputFactoryWrapper<infer U>
     ? PGInputFactoryWrapper<U | null | undefined, Types>
     : never
-  nullable: () => T extends PGInputFactory<infer U>
+  nullable: <IsNullable extends boolean = true>(
+    isNullable?: IsNullable,
+  ) => IsNullable extends false
+    ? T extends PGInputFactory<infer U>
+      ? PGInputFactory<Exclude<U, null>, TypeName, Types>
+      : T extends PGInputFactoryWrapper<infer U>
+      ? PGInputFactoryWrapper<Exclude<U, null>, Types>
+      : never
+    : T extends PGInputFactory<infer U>
     ? PGInputFactory<U | null, TypeName, Types>
     : T extends PGInputFactoryWrapper<infer U>
     ? PGInputFactoryWrapper<U | null, Types>
     : never
-  optional: () => T extends PGInputFactory<infer U>
+  optional: <IsOptinal extends boolean = true>(
+    isOptional?: IsOptinal,
+  ) => IsOptinal extends false
+    ? T extends PGInputFactory<infer U>
+      ? PGInputFactory<Exclude<U, undefined>, TypeName, Types>
+      : T extends PGInputFactoryWrapper<infer U>
+      ? PGInputFactoryWrapper<Exclude<U, undefined>, Types>
+      : never
+    : T extends PGInputFactory<infer U>
     ? PGInputFactory<U | undefined, TypeName, Types>
     : T extends PGInputFactoryWrapper<infer U>
     ? PGInputFactoryWrapper<U | undefined, Types>

@@ -89,17 +89,17 @@ export function createPGInputFactoryWrapper<
       isNullable: false,
       isList: false,
     },
-    nullish: () => {
-      pgInputFactoryWrapper.value.isNullable = true
-      pgInputFactoryWrapper.value.isOptional = true
+    nullish: (isNullish) => {
+      pgInputFactoryWrapper.value.isNullable = isNullish ?? true
+      pgInputFactoryWrapper.value.isOptional = isNullish ?? true
       return pgInputFactoryWrapper
     },
-    nullable: () => {
-      pgInputFactoryWrapper.value.isNullable = true
+    nullable: (isNullable) => {
+      pgInputFactoryWrapper.value.isNullable = isNullable ?? true
       return pgInputFactoryWrapper
     },
-    optional: () => {
-      pgInputFactoryWrapper.value.isOptional = true
+    optional: (isOptional) => {
+      pgInputFactoryWrapper.value.isOptional = isOptional ?? true
       return pgInputFactoryWrapper
     },
     list: () => {
