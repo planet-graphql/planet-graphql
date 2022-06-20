@@ -6,11 +6,6 @@ import { convertToGraphQLObject } from '../objects/pg-object'
 import { convertToGraphQLFieldConfig } from '../objects/pg-output-field'
 import { GraphqlTypeRef, PGBuilder, PGTypes } from '../types/builder'
 
-export function getScalarTypeName(prismaTypeName: string, isPrismaId: boolean): string {
-  if (isPrismaId) return 'id'
-  return _.lowerFirst(prismaTypeName)
-}
-
 export const build: <Types extends PGTypes>(
   getBuilder: () => PGBuilder<Types>,
 ) => PGBuilder<Types>['build'] = (getBuilder) => () => {

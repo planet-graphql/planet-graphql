@@ -9,7 +9,7 @@ import {
 import { Simplify } from 'type-fest'
 import { IsUnknown } from 'type-fest/source/set-return-type'
 import { z } from 'zod'
-import { DefaultScalars } from '../lib/scalars'
+import { DefaultScalars } from '../objects/pg-scalar'
 import {
   PGEnum,
   PGScalar,

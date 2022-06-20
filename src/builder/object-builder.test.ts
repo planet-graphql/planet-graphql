@@ -1,7 +1,7 @@
-import { DefaultScalars } from '../lib/scalars'
 import { createPGEnum } from '../objects/pg-enum'
 import { createPGObject } from '../objects/pg-object'
 import { createOutputField } from '../objects/pg-output-field'
+import { DefaultScalars } from '../objects/pg-scalar'
 import { mergeDefaultOutputField, mergeDefaultPGObject } from '../test-utils'
 import { PGTypes } from '../types/builder'
 import { createPGInputFieldBuilder } from './input-builder'

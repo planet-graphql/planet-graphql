@@ -8,7 +8,7 @@ import { pgfy } from './builder/pgfy'
 import { createRootFieldBuilder } from './builder/root-field-builder'
 import { createUnionBuilder } from './builder/union-builder'
 import { createBuilderCache } from './builder/utils'
-import { DefaultScalars } from './lib/scalars'
+import { DefaultScalars } from './objects/pg-scalar'
 import {
   InitPGBuilder,
   PGBuilder,

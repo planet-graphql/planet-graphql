@@ -1,4 +1,5 @@
 import { DMMF } from '@prisma/generator-helper'
+import _ from 'lodash'
 import { createPGEnum } from '../objects/pg-enum'
 import {
   createPGInputFactoryUnion,
@@ -16,7 +17,6 @@ import {
   PGInputFactory,
 } from '../types/input-factory'
 import { PGObject, PGOutputFieldBuilder, PGOutputFieldMap } from '../types/output'
-import { getScalarTypeName } from './build'
 import { createEnumBuilder } from './enum-builder'
 import { PGError, setCache } from './utils'
 
@@ -215,3 +215,8 @@ export const pgfy: <Types extends PGTypes>(
     }
     return resp as any
   }
+
+export function getScalarTypeName(prismaTypeName: string, isPrismaId: boolean): string {
+  if (isPrismaId) return 'id'
+  return _.lowerFirst(prismaTypeName)
+}

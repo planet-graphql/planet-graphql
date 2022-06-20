@@ -1,7 +1,7 @@
 import { DMMF } from '@prisma/generator-helper'
 import { getDMMF } from '@prisma/sdk'
 import { getPGBuilder } from '..'
-import { DefaultScalars } from '../lib/scalars'
+import { DefaultScalars } from '../objects/pg-scalar'
 import {
   mergeDefaultPGObject,
   mergeDefaultOutputField,
