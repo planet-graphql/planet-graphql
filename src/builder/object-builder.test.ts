@@ -72,7 +72,7 @@ describe('createPGOutputFieldBuilder', () => {
   it('Returns a builder to create a enum type outputField', () => {
     const inputFieldBuilder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
     const builder = createPGOutputFieldBuilder<PGTypes>(DefaultScalars, inputFieldBuilder)
-    const someEnum = createPGEnum('SomeEnum', 'A', 'B')
+    const someEnum = createPGEnum('SomeEnum', ['A', 'B'] as const)
 
     expect(builder.enum(someEnum)).toEqual(
       mergeDefaultOutputField({

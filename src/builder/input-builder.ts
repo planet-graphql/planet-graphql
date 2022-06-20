@@ -8,10 +8,10 @@ import { setCache } from './utils'
 export const createInputBuilder: <Types extends PGTypes>(
   cache: PGCache,
   inputFieldBuilder: PGInputFieldBuilder<Types>,
-) => PGBuilder<Types>['input'] = (cache, inputFieldBuilder) => (name, fieldMap) => {
+) => PGBuilder<Types>['input'] = (cache, inputFieldBuilder) => (config) => {
   const pgInput = createPGInput(
-    name,
-    fieldMap(inputFieldBuilder),
+    config.name,
+    config.fields(inputFieldBuilder),
     cache,
     inputFieldBuilder,
   )

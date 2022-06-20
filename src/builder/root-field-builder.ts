@@ -11,11 +11,10 @@ export const createRootFieldBuilder: <Types extends PGTypes>(
   outputFieldBuilder,
   kind,
 ) => {
-  return (name, field) => {
-    if (cache[kind][name] !== undefined) return cache[kind][name]
-    const pgField = field(outputFieldBuilder)
+  return (config) => {
+    const pgField = config.field(outputFieldBuilder)
     const resolver: PGRootFieldConfig = {
-      name,
+      name: config.name,
       field: pgField,
       kind,
     }

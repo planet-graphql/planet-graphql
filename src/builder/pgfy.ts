@@ -75,7 +75,10 @@ export const pgfy: <Types extends PGTypes>(
     const objectRef: { [name: string]: PGObject<any> } = {}
     const enums = dmmf.datamodel.enums.reduce<PGfyResponseType<PGBuilder>['enums']>(
       (acc, x) => {
-        const pgEnum = createEnumBuilder(cache)(x.name, ...x.values.map((v) => v.name))
+        const pgEnum = createEnumBuilder(cache)({
+          name: x.name,
+          values: x.values.map((v) => v.name),
+        })
         acc[x.name] = pgEnum
         return acc
       },
@@ -143,7 +146,7 @@ export const pgfy: <Types extends PGTypes>(
           )
         const enumFactory = createInputField<any, any, any>({
           kind: 'enum',
-          type: createPGEnum(enumType.name, ...enumType.values),
+          type: createPGEnum(enumType.name, enumType.values),
         })
         if (isList) enumFactory.list()
         if (isOptional) enumFactory.optional()

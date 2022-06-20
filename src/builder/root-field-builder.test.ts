@@ -14,25 +14,30 @@ describe('rootFieldBuilder', () => {
         age: f.int(),
       }),
     })
-    const someInput = pg.input('SomeInput', (f) => ({
-      age: f.int(),
-    }))
+    const someInput = pg.input({
+      name: 'SomeInput',
+      fields: (f) => ({
+        age: f.int(),
+      }),
+    })
 
-    const result = pg.query('someQuery', (f) =>
-      f
-        .object(() => someObject)
-        .args((f) => ({
-          name: f.string(),
-          profile: f.input(() => someInput),
-        }))
-        .resolve(({ args }) => {
-          return {
-            id: 'id',
-            name: args.name,
-            age: args.profile.age,
-          }
-        }),
-    )
+    const result = pg.query({
+      name: 'someQuery',
+      field: (b) =>
+        b
+          .object(() => someObject)
+          .args((f) => ({
+            name: f.string(),
+            profile: f.input(() => someInput),
+          }))
+          .resolve(({ args }) => {
+            return {
+              id: 'id',
+              name: args.name,
+              age: args.profile.age,
+            }
+          }),
+    })
 
     const expectValue = {
       name: 'someQuery',
@@ -58,40 +63,26 @@ describe('rootFieldBuilder', () => {
     expect(pg.cache().query.someQuery).toEqual(expectValue)
   })
 
-  it('Returns an existing resource because a resource with the same name cannot be created', () => {
-    const pg = getPGBuilder()()
-
-    pg.query('SomeQuery', (f) => f.string().resolve(() => ''))
-
-    expect(pg.query('SomeQuery', (f) => f.int().resolve(() => 1))).toEqual({
-      name: 'SomeQuery',
-      field: mergeDefaultOutputField({
-        kind: 'scalar',
-        type: 'string',
-        resolve: expect.any(Function),
-      }),
-      kind: 'query',
-    })
-  })
-
   describe('subscription', () => {
     it('Returns a value in response to a publish according to the conditions set in the filter', async () => {
       const pubsub = new PubSub()
       const pg = getPGBuilder()()
 
-      pg.query('SomeQuery', (f) => f.string())
-      pg.subscription('SomeSubscription', (f) =>
-        f
-          .string()
-          .args((f) => ({
-            someArg: f.string(),
-          }))
-          .resolve((params) => params.source)
-          .subscribe((params) => ({
-            pubSubIter: pubsub.asyncIterator('somethingUpdated'),
-            filter: () => params.args.someArg === 'arg',
-          })),
-      )
+      pg.query({ name: 'SomeQuery', field: (b) => b.string() })
+      pg.subscription({
+        name: 'SomeSubscription',
+        field: (b) =>
+          b
+            .string()
+            .args((f) => ({
+              someArg: f.string(),
+            }))
+            .resolve((params) => params.source)
+            .subscribe((params) => ({
+              pubSubIter: pubsub.asyncIterator('somethingUpdated'),
+              filter: () => params.args.someArg === 'arg',
+            })),
+      })
 
       const schema = pg.build()
 
@@ -114,38 +105,6 @@ describe('rootFieldBuilder', () => {
 
       const result = await (await subscriptionResp.next()).value
       expect(result).toEqual({ data: { SomeSubscription: 'hi' } })
-    })
-    it('Returns an existing resource because a resource with the same name cannot be created', () => {
-      const pg = getPGBuilder()()
-      const pubsub = new PubSub()
-      pg.subscription('SomeSubscription', (f) =>
-        f
-          .string()
-          .resolve((params) => '')
-          .subscribe((params) => ({
-            pubSubIter: pubsub.asyncIterator('somethingUpdated'),
-          })),
-      )
-
-      expect(
-        pg.subscription('SomeSubscription', (f) =>
-          f
-            .int()
-            .resolve((params) => 0)
-            .subscribe((params) => ({
-              pubSubIter: pubsub.asyncIterator('somethingUpdated'),
-            })),
-        ),
-      ).toEqual({
-        name: 'SomeSubscription',
-        field: mergeDefaultOutputField({
-          kind: 'scalar',
-          type: 'string',
-          resolve: expect.any(Function),
-          subscribe: expect.any(Function),
-        }),
-        kind: 'subscription',
-      })
     })
   })
 })

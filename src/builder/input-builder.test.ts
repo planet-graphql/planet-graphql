@@ -1,21 +1,23 @@
+import { getPGBuilder } from '..'
 import { DefaultScalars } from '../lib/scalars'
 import { createPGEnum } from '../objects/pg-enum'
 import { createPGInput } from '../objects/pg-input'
 import { createInputField } from '../objects/pg-input-field'
 import { mergeDefaultInputField, mergeDefaultPGInput } from '../test-utils'
 import { PGTypes } from '../types/builder'
-import { createInputBuilder, createPGInputFieldBuilder } from './input-builder'
+import { createPGInputFieldBuilder } from './input-builder'
 import { createBuilderCache } from './utils'
 
-describe('createInputBuilder', () => {
-  it('Returns a builder that generates PGInput & sets generated PGInputs in cache', () => {
-    const cache = createBuilderCache(DefaultScalars)
-    const fieldBuilder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
-    const builder = createInputBuilder<PGTypes>(cache, fieldBuilder)
+describe('InputBuilder', () => {
+  it('Returns a PGInput & Sets it to the Build Cache', () => {
+    const builder = getPGBuilder()()
 
-    const input = builder('SomeInput', (b) => ({
-      id: b.id(),
-    }))
+    const result = builder.input({
+      name: 'SomeInput',
+      fields: (b) => ({
+        id: b.id(),
+      }),
+    })
 
     const expectValue = mergeDefaultPGInput({
       name: 'SomeInput',
@@ -26,11 +28,12 @@ describe('createInputBuilder', () => {
         }),
       },
     })
-
-    expect(input).toEqual(expectValue)
-    expect(cache.input.SomeInput).toEqual(expectValue)
+    expect(result).toEqual(expectValue)
+    expect(builder.cache().input.SomeInput).toEqual(expectValue)
   })
 })
+
+describe('createInputBuilder', () => {})
 
 describe('createPGInputFieldBuilder', () => {
   it('Returns a PGInputFieldBuilder created for the argument ScalarMap', () => {
@@ -56,7 +59,7 @@ describe('createPGInputFieldBuilder', () => {
 
   it('Returns a builder to create a enum type inputField', () => {
     const builder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
-    const someEnum = createPGEnum('SomeEnum', 'A', 'B')
+    const someEnum = createPGEnum('SomeEnum', ['A', 'B'] as const)
 
     expect(builder.enum(someEnum)).toEqual(
       mergeDefaultInputField({

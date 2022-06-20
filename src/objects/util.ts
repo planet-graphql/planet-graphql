@@ -38,9 +38,12 @@ export function getGraphQLFieldConfigType<
         //     .object(() => user)
         //     .args(f) => ({
         //       input: f.input(() =>
-        //         pg.input('CreateUserInput', (f) => (f) => ({
-        //           name: f.string(),
-        //         })),
+        //         pg.input({
+        //           name: 'CreateUserInput',
+        //           fields: (f) => (f) => ({
+        //             name: f.string(),
+        //           }),
+        //         }),
         //       ),
         //     }))
         //     ...

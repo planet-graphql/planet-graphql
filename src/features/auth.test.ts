@@ -6,12 +6,14 @@ describe('authFeature', () => {
     it('Raises an exception so that an error is returned', async () => {
       const pg = getPGBuilder()()
 
-      pg.query('someQuery', (b) =>
-        b
-          .string()
-          .auth(() => false)
-          .resolve(() => ''),
-      )
+      pg.query({
+        name: 'someQuery',
+        field: (b) =>
+          b
+            .string()
+            .auth(() => false)
+            .resolve(() => ''),
+      })
 
       const query = `query { someQuery }`
 
@@ -33,13 +35,15 @@ describe('authFeature', () => {
       it('Returns a null for user convenience', async () => {
         const pg = getPGBuilder()()
 
-        pg.query('someQuery', (b) =>
-          b
-            .string()
-            .nullable()
-            .auth(() => false)
-            .resolve(() => ''),
-        )
+        pg.query({
+          name: 'someQuery',
+          field: (b) =>
+            b
+              .string()
+              .nullable()
+              .auth(() => false)
+              .resolve(() => ''),
+        })
 
         const query = `query { someQuery }`
 
@@ -59,13 +63,15 @@ describe('authFeature', () => {
       it('Returns an empty array for user convenience', async () => {
         const pg = getPGBuilder()()
 
-        pg.query('someQuery', (b) =>
-          b
-            .string()
-            .list()
-            .auth(() => false)
-            .resolve(() => ['a', 'b']),
-        )
+        pg.query({
+          name: 'someQuery',
+          field: (b) =>
+            b
+              .string()
+              .list()
+              .auth(() => false)
+              .resolve(() => ['a', 'b']),
+        })
 
         const query = `query { someQuery }`
 
@@ -86,12 +92,14 @@ describe('authFeature', () => {
     it('Do nothing and return a set resolve return value', async () => {
       const pg = getPGBuilder()()
 
-      pg.query('someQuery', (b) =>
-        b
-          .string()
-          .auth(() => true)
-          .resolve(() => ''),
-      )
+      pg.query({
+        name: 'someQuery',
+        field: (b) =>
+          b
+            .string()
+            .auth(() => true)
+            .resolve(() => ''),
+      })
 
       const query = `query { someQuery }`
 

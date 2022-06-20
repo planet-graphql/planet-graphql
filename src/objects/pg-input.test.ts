@@ -12,9 +12,12 @@ describe('PGInput', () => {
 
   describe('copy', () => {
     it('Returns the same input with only the name changed & Set it to Builder Cache', () => {
-      const original = buider.input('Original', (b) => ({
-        id: b.id(),
-      }))
+      const original = buider.input({
+        name: 'Original',
+        fields: (b) => ({
+          id: b.id(),
+        }),
+      })
       const copy = original.copy('Copy')
 
       const expectValue = mergeDefaultPGInput({
@@ -32,9 +35,12 @@ describe('PGInput', () => {
     })
     it('Returns an entirely new input, so changes do not affect the original', () => {
       const copy = buider
-        .input('Original', (b) => ({
-          id: b.id(),
-        }))
+        .input({
+          name: 'Original',
+          fields: (b) => ({
+            id: b.id(),
+          }),
+        })
         .copy('Copy')
         .update((f, b) => {
           return {
@@ -77,10 +83,13 @@ describe('PGInput', () => {
 
   describe('update', () => {
     it('Returns updated object & Changes the object in Builder Cache', () => {
-      const original = buider.input('Original', (b) => ({
-        id: b.id(),
-        name: b.string(),
-      }))
+      const original = buider.input({
+        name: 'Original',
+        fields: (b) => ({
+          id: b.id(),
+          name: b.string(),
+        }),
+      })
 
       const updated = original.update((f, b) => ({
         ...f,

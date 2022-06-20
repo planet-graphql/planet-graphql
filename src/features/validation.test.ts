@@ -13,29 +13,31 @@ describe('optionalArgsFeature', () => {
     const pg = getPGBuilder()()
 
     let args
-    pg.query('someQuery', (b) =>
-      b
-        .string()
-        .args((b) => ({
-          nullable: b.string().nullable(),
-          optional: b.string().optional(),
-          nullish: b.string().nullish(),
-        }))
-        .resolve((params) => {
-          expectType<
-            TypeEqual<
-              typeof params.args,
-              {
-                nullable: string | null
-                optional: string | undefined
-                nullish: string | null | undefined
-              }
-            >
-          >(true)
-          args = params.args
-          return ''
-        }),
-    )
+    pg.query({
+      name: 'someQuery',
+      field: (b) =>
+        b
+          .string()
+          .args((b) => ({
+            nullable: b.string().nullable(),
+            optional: b.string().optional(),
+            nullish: b.string().nullish(),
+          }))
+          .resolve((params) => {
+            expectType<
+              TypeEqual<
+                typeof params.args,
+                {
+                  nullable: string | null
+                  optional: string | undefined
+                  nullish: string | null | undefined
+                }
+              >
+            >(true)
+            args = params.args
+            return ''
+          }),
+    })
 
     const query = `query {
       someQuery(optional: null)
@@ -84,14 +86,20 @@ describe('modifyArgValueOfNullableOrOptionalField', () => {
   describe('An arg is object', () => {
     it('Recursively modify arg value', () => {
       const pg = getPGBuilder()()
-      const input = pg.input('Some', (b) => ({
-        inner: b.input(() =>
-          pg.input('Inner', () => ({
-            nullable: b.string().nullable(),
-            optional: b.string().optional(),
-          })),
-        ),
-      }))
+      const input = pg.input({
+        name: 'Some',
+        fields: (b) => ({
+          inner: b.input(() =>
+            pg.input({
+              name: 'Inner',
+              fields: () => ({
+                nullable: b.string().nullable(),
+                optional: b.string().optional(),
+              }),
+            }),
+          ),
+        }),
+      })
       const fieldMap = input.fieldMap
       const args = {
         inner: {
@@ -108,22 +116,27 @@ describe('modifyArgValueOfNullableOrOptionalField', () => {
 describe('validationFeature', () => {
   it('Validates args with schema', async () => {
     const pg = getPGBuilder<SomePGTypes<{ role: 'User' | 'Admin' }>>()()
-    pg.query('someQuery', (b) =>
-      b
-        .string()
-        .args((b) => ({
-          a: b.string().validation((schema) => schema.max(1)),
-          b: b.input(() =>
-            pg
-              .input('SomeInput', (b) => ({
-                b1: b.int().validation((schema) => schema.positive()),
-                b2: b.string(),
-              }))
-              .validation((value) => String(value.b1) === value.b2),
-          ),
-        }))
-        .resolve(() => ''),
-    )
+    pg.query({
+      name: 'someQuery',
+      field: (b) =>
+        b
+          .string()
+          .args((b) => ({
+            a: b.string().validation((schema) => schema.max(1)),
+            b: b.input(() =>
+              pg
+                .input({
+                  name: 'SomeInput',
+                  fields: (b) => ({
+                    b1: b.int().validation((schema) => schema.positive()),
+                    b2: b.string(),
+                  }),
+                })
+                .validation((value) => String(value.b1) === value.b2),
+            ),
+          }))
+          .resolve(() => ''),
+    })
     const query = `
       query {
         someQuery (
@@ -181,10 +194,13 @@ describe('validateArgs', () => {
   it('Validate args with validator set in PGInput', async () => {
     const pg = getPGBuilder()()
     const input = pg
-      .input('SomeInput', (b) => ({
-        a: b.string(),
-        b: b.string(),
-      }))
+      .input({
+        name: 'SomeInput',
+        fields: (b) => ({
+          a: b.string(),
+          b: b.string(),
+        }),
+      })
       .validation((value) => value.a === value.b)
     const fieldMap = {
       arg: createInputField({ kind: 'object', type: () => input }),
@@ -206,9 +222,12 @@ describe('validateArgs', () => {
 
   it('Validate args with validator set in PGInputField inside PGInput', async () => {
     const pg = getPGBuilder()()
-    const input = pg.input('SomeInput', (b) => ({
-      a: b.string().validation((schema) => schema.max(1)),
-    }))
+    const input = pg.input({
+      name: 'SomeInput',
+      fields: (b) => ({
+        a: b.string().validation((schema) => schema.max(1)),
+      }),
+    })
     const fieldMap = {
       arg: createInputField({ kind: 'object', type: () => input }),
     }

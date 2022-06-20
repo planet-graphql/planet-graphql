@@ -114,23 +114,23 @@ export interface PGBuilder<
     name: string
     fields: (b: PGOutputFieldBuilder<Types>) => T
   }) => PGInterface<T>
-  enum: <T extends string[]>(name: string, ...values: T) => PGEnum<T>
-  input: <T extends PGInputFieldMap>(
-    name: string,
-    fieldMap: (b: PGInputFieldBuilder<Types>) => T,
-  ) => PGInput<T, Types>
-  query: <TOutput extends PGOutputField<any>>(
-    name: string,
-    field: (b: PGOutputFieldBuilder<Types>) => TOutput,
-  ) => PGRootFieldConfig
-  mutation: <TOutput extends PGOutputField<any>>(
-    name: string,
-    field: (b: PGOutputFieldBuilder<Types>) => TOutput,
-  ) => PGRootFieldConfig
-  subscription: <TOutput extends PGOutputField<any>>(
-    name: string,
-    fields: (b: PGOutputFieldBuilder<Types>) => TOutput,
-  ) => PGRootFieldConfig
+  enum: <T extends readonly string[]>(config: { name: string; values: T }) => PGEnum<T>
+  input: <T extends PGInputFieldMap>(config: {
+    name: string
+    fields: (b: PGInputFieldBuilder<Types>) => T
+  }) => PGInput<T, Types>
+  query: <TOutput extends PGOutputField<any>>(config: {
+    name: string
+    field: (b: PGOutputFieldBuilder<Types>) => TOutput
+  }) => PGRootFieldConfig
+  mutation: <TOutput extends PGOutputField<any>>(config: {
+    name: string
+    field: (b: PGOutputFieldBuilder<Types>) => TOutput
+  }) => PGRootFieldConfig
+  subscription: <TOutput extends PGOutputField<any>>(config: {
+    name: string
+    field: (b: PGOutputFieldBuilder<Types>) => TOutput
+  }) => PGRootFieldConfig
   build: () => GraphQLSchema
   pgfy: Types['Prisma']['PGfy']
   dataloader: <TResolve, TSource>(
@@ -138,10 +138,6 @@ export interface PGBuilder<
     batchLoadFn: (sourceList: readonly TSource[]) => ResolveResponse<TResolve[]>,
   ) => ResolveResponse<TResolve>
   cache: () => PGCache
-  utils: {
-    inputFieldBuilder: PGInputFieldBuilder<Types>
-    outputFieldBuilder: PGOutputFieldBuilder<Types>
-  }
 }
 
 export interface PGCache {

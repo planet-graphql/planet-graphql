@@ -31,21 +31,23 @@ describe('DataloaderBuilder', () => {
         id: f.id(),
       }),
     })
-    pg.query('users', (f) =>
-      f
-        .object(() => user)
-        .list()
-        .resolve(() => [
-          {
-            id: 'user1',
-            posts: [{ id: 'post1' }],
-          },
-          {
-            id: 'user2',
-            posts: [{ id: 'post2' }, { id: 'post3' }],
-          },
-        ]),
-    )
+    pg.query({
+      name: 'users',
+      field: (b) =>
+        b
+          .object(() => user)
+          .list()
+          .resolve(() => [
+            {
+              id: 'user1',
+              posts: [{ id: 'post1' }],
+            },
+            {
+              id: 'user2',
+              posts: [{ id: 'post2' }, { id: 'post3' }],
+            },
+          ]),
+    })
     const query = `
       query {
         users {

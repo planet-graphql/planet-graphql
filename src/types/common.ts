@@ -69,7 +69,7 @@ export interface PGField<T> {
 
 export type TypeOfPGField<T extends PGField<any>> = TypeOfPGFieldType<T['__type']>
 
-export interface PGEnum<TFieldValues extends string[]> {
+export interface PGEnum<TFieldValues extends readonly string[]> {
   name: string
   values: TFieldValues
   kind: 'enum'

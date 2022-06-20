@@ -50,7 +50,6 @@ export const getPGBuilder: InitPGBuilder =
       pgfy: pgfy(cache, inputFieldBuilder, outputFieldBuilder),
       dataloader: dataloaderBuilder,
       cache: () => cache,
-      utils: { inputFieldBuilder, outputFieldBuilder },
     }
 
     return builder

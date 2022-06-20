@@ -5,7 +5,10 @@ describe('build', () => {
   describe('No Mutation is defined', () => {
     it('Builds a GraphQLSchema', async () => {
       const pg = getPGBuilder()()
-      pg.query('someQuery', (f) => f.string().resolve(() => 'hi'))
+      pg.query({
+        name: 'someQuery',
+        field: (b) => b.string().resolve(() => 'hi'),
+      })
       const schema = pg.build()
       const query = `
         query {
@@ -20,7 +23,10 @@ describe('build', () => {
   describe('No Query is defined', () => {
     it('Returns errors because GraphQL.js requires at least one Query', async () => {
       const pg = getPGBuilder()()
-      pg.mutation('someMutation', (f) => f.string().resolve(() => 'hi'))
+      pg.mutation({
+        name: 'someMutation',
+        field: (b) => b.string().resolve(() => 'hi'),
+      })
       const schema = pg.build()
       const query = `
         mutation {
