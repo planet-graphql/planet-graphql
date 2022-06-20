@@ -2,9 +2,11 @@ import { build } from './builder/build'
 import { dataloader } from './builder/dataloader'
 import { createEnumBuilder } from './builder/enum'
 import { createPGInputFieldBuilder, createInputBuilder } from './builder/input'
+import { createInterfaceBuilder } from './builder/interface'
 import { createPGOutputFieldBuilder, createObjectBuilder } from './builder/object'
 import { pgfy } from './builder/pgfy'
 import { rootFieldBuilder } from './builder/root-field'
+import { createUnionBuilder } from './builder/union'
 import { createBuilderCache } from './builder/utils'
 import { DefaultScalars } from './lib/scalars'
 import {
@@ -37,6 +39,8 @@ export const getPGBuilder: InitPGBuilder =
 
     const builder: PGBuilder<Types> = {
       object: createObjectBuilder(cache, outputFieldBuilder, inputFieldBuilder),
+      union: createUnionBuilder(cache),
+      interface: createInterfaceBuilder(cache, outputFieldBuilder),
       enum: createEnumBuilder(cache),
       input: createInputBuilder(cache, inputFieldBuilder),
       query: rootFieldBuilder(cache, outputFieldBuilder, 'query'),

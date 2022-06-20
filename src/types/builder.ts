@@ -6,26 +6,30 @@ import {
   GraphQLScalarType,
   GraphQLSchema,
 } from 'graphql'
+import { Simplify } from 'type-fest'
 import { IsUnknown } from 'type-fest/source/set-return-type'
 import { z } from 'zod'
 import { DefaultScalars } from '../lib/scalars'
 import {
   PGEnum,
-  PGFieldMap,
-  PGModel,
   PGScalar,
   PGScalarLike,
   PGResolveParams,
   ResolveResponse,
+  TypeOfPGFieldMap,
+  TypeOfPGUnion,
 } from './common'
 import { PGInput, PGInputFieldBuilder, PGInputFieldMap } from './input'
 import { PGInputFactory } from './input-factory'
 import {
+  ConvertPGInterfacesToFieldMap,
+  PGInterface,
   PGObject,
   PGObjectOptionsDefault,
   PGOutputField,
   PGOutputFieldBuilder,
   PGOutputFieldMap,
+  PGUnion,
   PrismaArgsBase,
 } from './output'
 
@@ -36,7 +40,7 @@ export interface PGConfig {
 export type PGfyResponseType<T extends PGBuilder> = T extends PGBuilder<infer U>
   ? {
       enums: Record<string, PGEnum<any>>
-      objects: Record<string, PGObject<any, any, U>>
+      objects: Record<string, PGObject<any, any, any, U>>
       inputs: Record<string, PGInputFactory<any, U>>
     }
   : any
@@ -85,10 +89,31 @@ export interface PGRootFieldConfig {
 export interface PGBuilder<
   Types extends PGTypes<PGTypeConfig, PGConfig> = PGTypes<PGTypeConfig, PGConfig>,
 > {
-  object: <T extends PGOutputFieldMap>(
-    name: string,
-    fieldMap: (b: PGOutputFieldBuilder<Types>) => T,
-  ) => PGObject<T, PGObjectOptionsDefault<Types>, Types>
+  object: <
+    T extends PGOutputFieldMap,
+    TInterfaces extends Array<PGInterface<any>> | undefined = undefined,
+  >(config: {
+    name: string
+    fields: (b: PGOutputFieldBuilder<Types>) => T
+    interfaces?: TInterfaces
+    isTypeOf?: (
+      value: TypeOfPGFieldMap<T & ConvertPGInterfacesToFieldMap<TInterfaces>>,
+    ) => boolean
+  }) => PGObject<
+    Simplify<T & ConvertPGInterfacesToFieldMap<TInterfaces>>,
+    TInterfaces,
+    PGObjectOptionsDefault<Types>,
+    Types
+  >
+  union: <T extends Array<PGObject<any>>>(config: {
+    name: string
+    types: T
+    resolveType?: (value: TypeOfPGUnion<PGUnion<T>>) => T[number] | null
+  }) => PGUnion<T>
+  interface: <T extends PGOutputFieldMap>(config: {
+    name: string
+    fields: (b: PGOutputFieldBuilder<Types>) => T
+  }) => PGInterface<T>
   enum: <T extends string[]>(name: string, ...values: T) => PGEnum<T>
   input: <T extends PGInputFieldMap>(
     name: string,
@@ -121,8 +146,9 @@ export interface PGBuilder<
 
 export interface PGCache {
   scalar: { [name: string]: PGScalarLike }
-  model: { [name: string]: PGModel<PGFieldMap> }
   object: { [name: string]: PGObject<PGOutputFieldMap> }
+  union: { [name: string]: PGUnion<Array<PGObject<any>>> }
+  interface: { [name: string]: PGInterface<PGOutputFieldMap> }
   input: { [name: string]: PGInput<PGInputFieldMap> }
   enum: { [name: string]: PGEnum<string[]> }
   query: { [name: string]: PGRootFieldConfig }

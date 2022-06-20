@@ -8,54 +8,50 @@ import {
   PGOutputFieldBuilder,
   PGObject,
   PGModifyOutputFieldMap,
+  PGInterface,
+  PGObjectOptionsDefault,
 } from '../types/output'
+import { convertToGraphQLInterface } from './pg-interface'
 import { convertToGraphQLFieldConfig, createOutputField } from './pg-output-field'
 
-export function createPGObject<TFieldMap extends PGOutputFieldMap, Types extends PGTypes>(
+export function createPGObject<
+  T extends PGOutputFieldMap,
+  TInterfaces extends Array<PGInterface<any>>,
+  Types extends PGTypes,
+>(
   name: string,
-  fieldMap: TFieldMap,
+  fieldMap: PGOutputFieldMap,
   cache: PGCache,
   outputFieldBuilder: PGOutputFieldBuilder<Types>,
   inputFieldBuilder: PGInputFieldBuilder<Types>,
-): PGObject<TFieldMap> {
-  const pgObject: PGObject<TFieldMap> = {
+  interfaces?: TInterfaces,
+  isTypeOf?: (value: any) => boolean,
+): PGObject<T, TInterfaces, PGObjectOptionsDefault<Types>, Types> {
+  const interfacesFieldMap = interfaces?.reduce<PGOutputFieldMap>((acc, x) => {
+    return Object.assign(acc, copyOutputFieldMap(x.value.fieldMap, inputFieldBuilder))
+  }, {})
+  const totalFieldMap = Object.assign(fieldMap, interfacesFieldMap)
+  const pgObject: PGObject<T, TInterfaces, PGObjectOptionsDefault<Types>, Types> = {
     name,
-    fieldMap,
+    fieldMap: totalFieldMap as T,
     kind: 'object',
-    copy: (name) => {
-      const newFieldMap = _.mapValues(pgObject.fieldMap, (field) => {
-        const clonedValue = _.cloneDeep(field.value)
-        const newField = createOutputField(clonedValue, inputFieldBuilder)
-        newField.value = clonedValue
-        return newField
-      })
-      const copy = createPGObject(
-        name,
-        newFieldMap,
+    interfaces: interfaces,
+    isTypeOf,
+    copy: (config) => {
+      const orifinalFieldMap = copyOutputFieldMap(pgObject.fieldMap, inputFieldBuilder)
+      const appendFieldMap = config.fields(orifinalFieldMap as any, outputFieldBuilder)
+      const updatedFieldMap = Object.assign(appendFieldMap, orifinalFieldMap)
+      const copy = createPGObject<any, TInterfaces, Types>(
+        config.name,
+        updatedFieldMap,
         cache,
         outputFieldBuilder,
         inputFieldBuilder,
+        pgObject.interfaces,
+        pgObject.isTypeOf,
       )
       setCache(cache, copy)
-      return copy as PGObject<any>
-    },
-    update: (c) => {
-      const clonedFieldMap = _.mapValues(pgObject.fieldMap, (field) => {
-        const clonedValue = _.cloneDeep(field.value)
-        const newField = createOutputField(clonedValue, inputFieldBuilder)
-        newField.value = clonedValue
-        return newField
-      }) as any
-      const newFieldMap = c(clonedFieldMap, outputFieldBuilder)
-      const updated = createPGObject(
-        name,
-        newFieldMap as any,
-        cache,
-        outputFieldBuilder,
-        inputFieldBuilder,
-      )
-      setCache(cache, updated)
-      return updated
+      return copy
     },
     modify: (c) => {
       c(pgObject.fieldMap as PGModifyOutputFieldMap<any>)
@@ -70,7 +66,7 @@ export function createPGObject<TFieldMap extends PGOutputFieldMap, Types extends
 }
 
 export function convertToGraphQLObject(
-  pgObject: PGObject<PGOutputFieldMap>,
+  pgObject: PGObject<PGOutputFieldMap, Array<PGInterface<any>> | undefined>,
   builder: PGBuilder<any>,
   graphqlTypeRef: GraphqlTypeRef,
 ): GraphQLObjectType {
@@ -86,5 +82,21 @@ export function convertToGraphQLObject(
           graphqlTypeRef,
         ),
       ),
+    interfaces: pgObject.interfaces?.map((x) =>
+      convertToGraphQLInterface(x, builder, graphqlTypeRef),
+    ),
+    isTypeOf: pgObject.isTypeOf,
+  })
+}
+
+export function copyOutputFieldMap<Types extends PGTypes>(
+  fieldMap: PGOutputFieldMap,
+  inputFieldBuilder: PGInputFieldBuilder<Types>,
+): PGOutputFieldMap {
+  return _.mapValues(fieldMap, (field) => {
+    const clonedValue = _.cloneDeep(field.value)
+    const newField = createOutputField(clonedValue, inputFieldBuilder)
+    newField.value = clonedValue
+    return newField
   })
 }

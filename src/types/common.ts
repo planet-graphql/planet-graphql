@@ -4,6 +4,7 @@ import { JsonValue, PartialDeep, Promisable, RequireAtLeastOne } from 'type-fest
 import { IsAny } from 'type-fest/source/set-return-type'
 import { z } from 'zod'
 import { PGInput, PGInputField } from './input'
+import { PGInterface, PGUnion } from './output'
 
 export type ExcludeNullish<T> = Exclude<T, null | undefined>
 export type ExtractNullish<T> = Extract<T, null | undefined>
@@ -50,6 +51,8 @@ export type TypeOfPGFieldType<T> = IsAny<T> extends true
   ? TypeOfPGEnum<T>
   : T extends PGModelBase<any>
   ? TypeOfPGModelBase<T>
+  : T extends PGUnion<any>
+  ? TypeOfPGUnion<T>
   : T
 
 export type PGFieldValue = {
@@ -74,6 +77,14 @@ export interface PGEnum<TFieldValues extends string[]> {
 
 export type TypeOfPGEnum<T extends PGEnum<any>> = T['values'][number]
 
+export type TypeOfPGUnion<T extends PGUnion<any>> = TypeOfPGModelBase<
+  T['value']['types'][number]
+>
+
+export type TypeOfPGInterface<T extends PGInterface<any>> = TypeOfPGFieldMap<
+  T['value']['fieldMap']
+>
+
 export interface PGFieldMap {
   [name: string]: PGField<any>
 }
@@ -89,15 +100,6 @@ export interface PGModelBase<TFieldMap extends PGFieldMap> {
 export type TypeOfPGModelBase<T extends PGModelBase<any>> = TypeOfPGFieldMap<
   T['fieldMap']
 >
-
-export interface PGModel<TFieldMap extends PGFieldMap, TPrismaFindManyArgs = {}> {
-  name: string
-  fieldMap: TFieldMap
-  kind: 'model'
-  __type: {
-    prismaFindManyArgs: TPrismaFindManyArgs
-  }
-}
 
 export type IsObject<T> = T extends any[]
   ? false

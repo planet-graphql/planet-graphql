@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import { PGCache, PGConfig, PGRootFieldConfig } from '../types/builder'
-import { PGEnum, PGModel } from '../types/common'
+import { PGEnum } from '../types/common'
 import { PGInput } from '../types/input'
-import { PGObject } from '../types/output'
+import { PGInterface, PGObject, PGUnion } from '../types/output'
 
 export class PGError extends Error {
   constructor(message: string, public code: string, public detail?: any) {
@@ -16,8 +16,9 @@ export class PGError extends Error {
 export function createBuilderCache(scalarMap: PGConfig['scalars']): PGCache {
   return {
     scalar: scalarMap,
-    model: {},
     object: {},
+    union: {},
+    interface: {},
     input: {},
     enum: {},
     query: {},
@@ -28,7 +29,13 @@ export function createBuilderCache(scalarMap: PGConfig['scalars']): PGCache {
 
 export function setCache(
   cache: PGCache,
-  value: PGModel<any> | PGObject<any> | PGInput<any> | PGEnum<any> | PGRootFieldConfig,
+  value:
+    | PGObject<any>
+    | PGUnion<any>
+    | PGInterface<any>
+    | PGInput<any>
+    | PGEnum<any>
+    | PGRootFieldConfig,
 ): void {
   cache[value.kind][value.name] = value
 }

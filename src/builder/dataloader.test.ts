@@ -37,17 +37,23 @@ describe('dataloader', () => {
 
     const pg = getPGBuilder()()
 
-    const user = pg.object('User', (f) => ({
-      id: f.id(),
-      posts: f.object(() => post).list(),
-      latestPost: f.object(() => post).nullable(),
-    }))
+    const user = pg.object({
+      name: 'User',
+      fields: (f) => ({
+        id: f.id(),
+        posts: f.object(() => post).list(),
+        latestPost: f.object(() => post).nullable(),
+      }),
+    })
 
-    const post = pg.object('Post', (f) => ({
-      id: f.id(),
-      title: f.string(),
-      userId: f.string(),
-    }))
+    const post = pg.object({
+      name: 'Post',
+      fields: (f) => ({
+        id: f.id(),
+        title: f.string(),
+        userId: f.string(),
+      }),
+    })
 
     const spy = jest.fn()
 

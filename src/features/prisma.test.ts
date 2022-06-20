@@ -56,17 +56,23 @@ describe('prismaArgsFeature', () => {
     const pg = getPGBuilder<SomePGTypes>()()
 
     const user = pg
-      .object('user', (b) => ({
-        id: b.id(),
-        posts: b.relation(() => post).list(),
-      }))
+      .object({
+        name: 'user',
+        fields: (b) => ({
+          id: b.id(),
+          posts: b.relation(() => post).list(),
+        }),
+      })
       .prismaModel('User')
 
     const post = pg
-      .object('post', (b) => ({
-        id: b.id(),
-        user: b.object(() => user),
-      }))
+      .object({
+        name: 'post',
+        fields: (b) => ({
+          id: b.id(),
+          user: b.object(() => user),
+        }),
+      })
       .prismaModel('Post')
 
     pg.query('users', (b) =>
@@ -113,43 +119,49 @@ describe('prismaArgsFeature', () => {
     const pg = getPGBuilder<SomePGTypes>()()
 
     const user = pg
-      .object('user', (b) => ({
-        id: b.id(),
-        posts: b
-          .relation(() => post)
-          .list()
-          .prismaArgs((b) => ({
-            where: b.input(() =>
-              pg.input('UserWhere', (b) => ({
-                isPublic: b.boolean(),
-              })),
-            ),
-            take: b.int(),
-          }))
-          .resolve((params) => {
-            postsFieldPrismaArgs = params.prismaArgs
-            expectType<
-              TypeEqual<
-                typeof params.prismaArgs,
-                {
-                  include: SomePostPrismaArgs['include'] | undefined
-                  take: number
-                  where: {
-                    isPublic: boolean
+      .object({
+        name: 'user',
+        fields: (b) => ({
+          id: b.id(),
+          posts: b
+            .relation(() => post)
+            .list()
+            .prismaArgs((b) => ({
+              where: b.input(() =>
+                pg.input('UserWhere', (b) => ({
+                  isPublic: b.boolean(),
+                })),
+              ),
+              take: b.int(),
+            }))
+            .resolve((params) => {
+              postsFieldPrismaArgs = params.prismaArgs
+              expectType<
+                TypeEqual<
+                  typeof params.prismaArgs,
+                  {
+                    include: SomePostPrismaArgs['include'] | undefined
+                    take: number
+                    where: {
+                      isPublic: boolean
+                    }
                   }
-                }
-              >
-            >(true)
-            return []
-          }),
-      }))
+                >
+              >(true)
+              return []
+            }),
+        }),
+      })
       .prismaModel('User')
 
     const post = pg
-      .object('post', (b) => ({
-        id: b.id(),
-        user: b.object(() => user),
-      }))
+      .object({
+        name: 'post',
+        fields: (b) => ({
+          id: b.id(),
+          user: b.object(() => user),
+        }),
+      })
       .prismaModel('Post')
 
     pg.query('users', (b) =>
@@ -219,9 +231,12 @@ describe('prismaRelayFeature', () => {
   it('Converts the return value to Relay format', async () => {
     const pg = getPGBuilder<SomePGTypes>()()
     const user = pg
-      .object('User', (b) => ({
-        id: b.id(),
-      }))
+      .object({
+        name: 'User',
+        fields: (b) => ({
+          id: b.id(),
+        }),
+      })
       .prismaModel('User')
     pg.query('users', (f) =>
       f
@@ -286,9 +301,12 @@ describe('prismaRelayFeature', () => {
     let prismaArgs
     const pg = getPGBuilder<SomePGTypes>()()
     const user = pg
-      .object('User', (b) => ({
-        id: b.id(),
-      }))
+      .object({
+        name: 'User',
+        fields: (b) => ({
+          id: b.id(),
+        }),
+      })
       .prismaModel('User')
     pg.query('users', (f) =>
       f
@@ -353,10 +371,13 @@ describe('prismaRelayFeature', () => {
     it('Uses set function to create cursors', async () => {
       const pg = getPGBuilder<SomePGTypes>()()
       const user = pg
-        .object('User', (b) => ({
-          id: b.id(),
-          email: b.string(),
-        }))
+        .object({
+          name: 'User',
+          fields: (b) => ({
+            id: b.id(),
+            email: b.string(),
+          }),
+        })
         .prismaModel('User')
       pg.query('users', (f) =>
         f
@@ -397,10 +418,13 @@ describe('prismaRelayFeature', () => {
       let prismaArgs
       const pg = getPGBuilder<SomePGTypes>()()
       const user = pg
-        .object('User', (b) => ({
-          id: b.id(),
-          email: b.string(),
-        }))
+        .object({
+          name: 'User',
+          fields: (b) => ({
+            id: b.id(),
+            email: b.string(),
+          }),
+        })
         .prismaModel('User')
       pg.query('users', (f) =>
         f
@@ -442,10 +466,13 @@ describe('prismaRelayFeature', () => {
       let prismaArgs
       const pg = getPGBuilder<SomePGTypes>()()
       const user = pg
-        .object('User', (b) => ({
-          id: b.id(),
-          email: b.string(),
-        }))
+        .object({
+          name: 'User',
+          fields: (b) => ({
+            id: b.id(),
+            email: b.string(),
+          }),
+        })
         .prismaModel('User')
       pg.query('users', (f) =>
         f
@@ -491,9 +518,12 @@ describe('prismaRelayFeature', () => {
 describe('createConnectionObject', () => {
   it('Returns a PGObject that matches the Relay format', () => {
     const pg = getPGBuilder()()
-    const nodeObject = pg.object('Node', (b) => ({
-      id: b.id(),
-    }))
+    const nodeObject = pg.object({
+      name: 'Node',
+      fields: (b) => ({
+        id: b.id(),
+      }),
+    })
     const resultConnectionObject = createConnectionObject(
       () => nodeObject,
       'Prefix',

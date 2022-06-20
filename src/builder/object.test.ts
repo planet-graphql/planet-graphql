@@ -22,9 +22,12 @@ describe('createObjectBuilder', () => {
       inputFieldBuilder,
     )
 
-    const object = builder('SomeObject', (b) => ({
-      id: b.id(),
-    }))
+    const object = builder({
+      name: 'SomeObject',
+      fields: (b) => ({
+        id: b.id(),
+      }),
+    })
 
     const expectValue = mergeDefaultPGObject({
       name: 'SomeObject',

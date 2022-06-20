@@ -137,11 +137,14 @@ export function createConnectionObject(
   builder: PGBuilder<PGTypes>,
   isIncludeTotalCount: boolean,
 ): PGObject<any> {
-  return builder.object(`${namePrefix}Connection`, (b) => ({
-    edges: b.object(() => createEdgeObject(nodeType, namePrefix, builder)).list(),
-    pageInfo: b.object(() => createPageInfoObject(builder)),
-    ...(isIncludeTotalCount ? { totalCount: b.int() } : {}),
-  }))
+  return builder.object({
+    name: `${namePrefix}Connection`,
+    fields: (b) => ({
+      edges: b.object(() => createEdgeObject(nodeType, namePrefix, builder)).list(),
+      pageInfo: b.object(() => createPageInfoObject(builder)),
+      ...(isIncludeTotalCount ? { totalCount: b.int() } : {}),
+    }),
+  })
 }
 
 export function createEdgeObject(
@@ -149,21 +152,27 @@ export function createEdgeObject(
   namePrefix: string,
   builder: PGBuilder<PGTypes>,
 ): PGObject<any> {
-  return builder.object(`${namePrefix}Edge`, (b) => ({
-    node: b.object(nodeType),
-    cursor: b.string(),
-  }))
+  return builder.object({
+    name: `${namePrefix}Edge`,
+    fields: (b) => ({
+      node: b.object(nodeType),
+      cursor: b.string(),
+    }),
+  })
 }
 
 export function createPageInfoObject(builder: PGBuilder<PGTypes>): PGObject<any> {
   return (
     builder.cache().object.PageInfo ??
-    builder.object(`PageInfo`, (b) => ({
-      hasNextPage: b.boolean(),
-      hasPreviousPage: b.boolean(),
-      startCursor: b.string().nullable(),
-      endCursor: b.string().nullable(),
-    }))
+    builder.object({
+      name: 'PageInfo',
+      fields: (b) => ({
+        hasNextPage: b.boolean(),
+        hasPreviousPage: b.boolean(),
+        startCursor: b.string().nullable(),
+        endCursor: b.string().nullable(),
+      }),
+    })
   )
 }
 

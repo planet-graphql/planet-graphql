@@ -262,10 +262,11 @@ describe('pgfy', () => {
           Model3: expectModel3,
         },
         input: {},
-        model: {},
+        interface: {},
         query: {},
         mutation: {},
         subscription: {},
+        union: {},
       })
       // NOTE: Modelの参照が正しく設定されているかの確認
       const model1OneToOneFieldValueType =

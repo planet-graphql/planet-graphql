@@ -1,6 +1,3 @@
-import { ReadonlyDeep } from 'type-fest'
-import { PGCache } from '../types/builder'
-import { PGField, PGModel } from '../types/common'
 import { PGInput, PGInputField } from '../types/input'
 import { PGInputFactoryUnion, PGInputFactory } from '../types/input-factory'
 import { PGObject, PGOutputField } from '../types/output'
@@ -27,7 +24,6 @@ export function mergeDefaultPGObject(object: Partial<PGObject<any>>): PGObject<a
       fieldMap: {},
       kind: 'object',
       copy: expect.any(Function),
-      update: expect.any(Function),
       modify: expect.any(Function),
       prismaModel: expect.any(Function),
     },
@@ -126,30 +122,5 @@ export function mergeDefaultInputFactoryUnion(
       value,
     ),
     select: expect.any(Function),
-  }
-}
-
-export function pgObjectToPGModel<TPrismaWhere = any>(): <T extends PGObject<any, any>>(
-  object: T,
-  pgCache?: ReadonlyDeep<PGCache>,
-) => PGModel<
-  T extends PGObject<infer U>
-    ? {
-        [P in keyof U]: U[P] extends PGOutputField<infer V, any, any> ? PGField<V> : never
-      }
-    : never,
-  TPrismaWhere
-> {
-  return (object, pgCache) => {
-    const model = {
-      name: object.name,
-      kind: 'model',
-      fieldMap: object.fieldMap,
-    } as any
-    if (pgCache !== undefined) {
-      const readableCache = pgCache as PGCache
-      readableCache.model[model.name] = model
-    }
-    return model
   }
 }

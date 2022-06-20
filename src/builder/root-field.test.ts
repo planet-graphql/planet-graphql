@@ -6,11 +6,14 @@ import { mergeDefaultInputField, mergeDefaultOutputField } from './test-utils'
 describe('rootFieldBuilder', () => {
   it('Creates a new PGRootFieldConfig & Set it to the Build Cache', () => {
     const pg = getPGBuilder()()
-    const someObject = pg.object('SomeObject', (f) => ({
-      id: f.id(),
-      name: f.string(),
-      age: f.int(),
-    }))
+    const someObject = pg.object({
+      name: 'SomeObject',
+      fields: (f) => ({
+        id: f.id(),
+        name: f.string(),
+        age: f.int(),
+      }),
+    })
     const someInput = pg.input('SomeInput', (f) => ({
       age: f.int(),
     }))
