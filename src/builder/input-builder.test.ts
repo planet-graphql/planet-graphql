@@ -4,7 +4,7 @@ import { createPGInput } from '../objects/pg-input'
 import { createInputField } from '../objects/pg-input-field'
 import { mergeDefaultInputField, mergeDefaultPGInput } from '../test-utils'
 import { PGTypes } from '../types/builder'
-import { createInputBuilder, createPGInputFieldBuilder } from './input'
+import { createInputBuilder, createPGInputFieldBuilder } from './input-builder'
 import { createBuilderCache } from './utils'
 
 describe('createInputBuilder', () => {

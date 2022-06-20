@@ -4,8 +4,8 @@ import { createPGObject } from '../objects/pg-object'
 import { createOutputField } from '../objects/pg-output-field'
 import { mergeDefaultOutputField, mergeDefaultPGObject } from '../test-utils'
 import { PGTypes } from '../types/builder'
-import { createPGInputFieldBuilder } from './input'
-import { createObjectBuilder, createPGOutputFieldBuilder } from './object'
+import { createPGInputFieldBuilder } from './input-builder'
+import { createObjectBuilder, createPGOutputFieldBuilder } from './object-builder'
 import { createBuilderCache } from './utils'
 
 describe('createObjectBuilder', () => {

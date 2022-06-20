@@ -17,7 +17,7 @@ import {
 } from '../types/input-factory'
 import { PGObject, PGOutputFieldBuilder, PGOutputFieldMap } from '../types/output'
 import { getScalarTypeName } from './build'
-import { createEnumBuilder } from './enum'
+import { createEnumBuilder } from './enum-builder'
 import { PGError, setCache } from './utils'
 
 export const pgfy: <Types extends PGTypes>(

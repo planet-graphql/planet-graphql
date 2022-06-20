@@ -2,7 +2,7 @@ import { PGBuilder, PGCache, PGRootFieldConfig, PGTypes } from '../types/builder
 import { PGOutputFieldBuilder } from '../types/output'
 import { setCache } from './utils'
 
-export const rootFieldBuilder: <Types extends PGTypes>(
+export const createRootFieldBuilder: <Types extends PGTypes>(
   cache: PGCache,
   outputFieldBuilder: PGOutputFieldBuilder<Types>,
   kind: PGRootFieldConfig['kind'],
