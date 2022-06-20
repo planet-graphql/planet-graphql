@@ -2,10 +2,10 @@ import { DefaultScalars } from '../lib/scalars'
 import { createPGEnum } from '../objects/pg-enum'
 import { createPGObject } from '../objects/pg-object'
 import { createOutputField } from '../objects/pg-output-field'
+import { mergeDefaultOutputField, mergeDefaultPGObject } from '../test-utils'
 import { PGTypes } from '../types/builder'
 import { createPGInputFieldBuilder } from './input'
 import { createObjectBuilder, createPGOutputFieldBuilder } from './object'
-import { mergeDefaultOutputField, mergeDefaultPGObject } from './test-utils'
 import { createBuilderCache } from './utils'
 
 describe('createObjectBuilder', () => {

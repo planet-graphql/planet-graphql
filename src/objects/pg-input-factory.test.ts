@@ -2,9 +2,9 @@ import { getPGBuilder } from '..'
 import {
   mergeDefaultInputFactoryUnion,
   mergeDefaultInputFactory,
-  mergeDefaultInputField,
   mergeDefaultPGInput,
-} from '../builder/test-utils'
+  mergeDefaultInputField,
+} from '../test-utils'
 import { createPGEnum } from './pg-enum'
 import { createPGInputFactoryUnion, createPGInputFactory } from './pg-input-factory'
 import { createInputField } from './pg-input-field'

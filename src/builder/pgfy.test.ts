@@ -2,18 +2,18 @@ import { DMMF } from '@prisma/generator-helper'
 import { getDMMF } from '@prisma/sdk'
 import { getPGBuilder } from '..'
 import { DefaultScalars } from '../lib/scalars'
-import { PGBuilder, PGTypes } from '../types/builder'
-import { PGEnum } from '../types/common'
-import { PGInputField } from '../types/input'
-import { PGInputFactoryUnion, PGInputFactory } from '../types/input-factory'
-import { PGObject } from '../types/output'
 import {
   mergeDefaultPGObject,
   mergeDefaultOutputField,
   mergeDefaultInputFactory,
   mergeDefaultInputFactoryUnion,
   mergeDefaultInputField,
-} from './test-utils'
+} from '../test-utils'
+import { PGBuilder, PGTypes } from '../types/builder'
+import { PGEnum } from '../types/common'
+import { PGInputField } from '../types/input'
+import { PGInputFactoryUnion, PGInputFactory } from '../types/input-factory'
+import { PGObject } from '../types/output'
 
 const datamodel = /* Prisma */ `
   datasource db {

@@ -1,7 +1,7 @@
 import { graphql } from 'graphql'
 import { expectType, TypeEqual } from 'ts-expect'
 import { getPGBuilder } from '..'
-import { mergeDefaultOutputField, mergeDefaultPGObject } from '../builder/test-utils'
+import { mergeDefaultOutputField, mergeDefaultPGObject } from '../test-utils'
 import { SomePGTypes, SomePostPrismaArgs, SomeUserPrismaArgs } from '../types/test.util'
 import {
   createConnectionObject,

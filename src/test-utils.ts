@@ -1,6 +1,6 @@
-import { PGInput, PGInputField } from '../types/input'
-import { PGInputFactoryUnion, PGInputFactory } from '../types/input-factory'
-import { PGObject, PGOutputField } from '../types/output'
+import { PGInput, PGInputField } from './types/input'
+import { PGInputFactoryUnion, PGInputFactory } from './types/input-factory'
+import { PGObject, PGOutputField } from './types/output'
 
 export function mergeDefaultPGInput(input: Partial<PGInput<any>>): PGInput<any> {
   return Object.assign(

@@ -2,9 +2,9 @@ import { DefaultScalars } from '../lib/scalars'
 import { createPGEnum } from '../objects/pg-enum'
 import { createPGInput } from '../objects/pg-input'
 import { createInputField } from '../objects/pg-input-field'
+import { mergeDefaultInputField, mergeDefaultPGInput } from '../test-utils'
 import { PGTypes } from '../types/builder'
 import { createInputBuilder, createPGInputFieldBuilder } from './input'
-import { mergeDefaultInputField, mergeDefaultPGInput } from './test-utils'
 import { createBuilderCache } from './utils'
 
 describe('createInputBuilder', () => {

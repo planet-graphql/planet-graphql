@@ -1,6 +1,6 @@
 import { expectType, TypeEqual } from 'ts-expect'
 import { getPGBuilder } from '..'
-import { mergeDefaultPGObject, mergeDefaultOutputField } from '../builder/test-utils'
+import { mergeDefaultPGObject, mergeDefaultOutputField } from '../test-utils'
 import { PGTypes } from '../types/builder'
 import {
   PGObject,

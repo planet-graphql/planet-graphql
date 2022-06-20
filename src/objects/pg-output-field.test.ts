@@ -1,6 +1,6 @@
 import { createPGInputFieldBuilder } from '../builder/input'
-import { mergeDefaultOutputField } from '../builder/test-utils'
 import { DefaultScalars } from '../lib/scalars'
+import { mergeDefaultOutputField } from '../test-utils'
 import { PGTypes } from '../types/builder'
 import { createOutputField } from './pg-output-field'
 

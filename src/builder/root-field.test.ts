@@ -1,7 +1,7 @@
 import { ExecutionResult, parse, subscribe } from 'graphql'
 import { PubSub } from 'graphql-subscriptions'
 import { getPGBuilder } from '..'
-import { mergeDefaultInputField, mergeDefaultOutputField } from './test-utils'
+import { mergeDefaultInputField, mergeDefaultOutputField } from '../test-utils'
 
 describe('rootFieldBuilder', () => {
   it('Creates a new PGRootFieldConfig & Set it to the Build Cache', () => {
