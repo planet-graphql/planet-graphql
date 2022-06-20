@@ -4,16 +4,13 @@ import { getPGBuilder } from '..'
 import { DefaultScalars } from '../lib/scalars'
 import { PGBuilder, PGTypes } from '../types/builder'
 import { PGEnum } from '../types/common'
-import {
-  PGInputFactory,
-  PGInputFactoryUnion,
-  PGInputFactoryWrapper,
-} from '../types/input-factory'
+import { PGInputField } from '../types/input'
+import { PGInputFactoryUnion, PGInputFactory } from '../types/input-factory'
 import { PGObject } from '../types/output'
 import {
   mergeDefaultPGObject,
   mergeDefaultOutputField,
-  mergeDefaultInputFactoryWrapper,
+  mergeDefaultInputFactory,
   mergeDefaultInputFactoryUnion,
   mergeDefaultInputField,
 } from './test-utils'
@@ -536,37 +533,30 @@ describe('pgfy', () => {
     type Enum3Factory = PGEnum<['AAA', 'BBB']>
     type FindFirstSomeModelFactory<Types extends PGTypes> = {
       args1: PGInputFactoryUnion<{
-        __default: () => PGInputFactoryWrapper<
-          Array<Input1Factory<Types>> | undefined,
-          Types
-        >
-        Input1List: () => PGInputFactoryWrapper<
-          Array<Input1Factory<Types>> | undefined,
-          Types
-        >
-        Input1: () => PGInputFactoryWrapper<Input1Factory<Types> | undefined, Types>
+        __default: () => PGInputFactory<Array<Input1Factory<Types>> | undefined, Types>
+        Input1List: () => PGInputFactory<Array<Input1Factory<Types>> | undefined, Types>
+        Input1: () => PGInputFactory<Input1Factory<Types> | undefined, Types>
       }>
-      args2: () => PGInputFactoryWrapper<Input2Factory<Types> | null | undefined, Types>
-      args3: PGInputFactory<number, 'int', Types>
-      args4: PGInputFactory<Enum1Factory[] | undefined, 'enum', Types>
+      args2: () => PGInputFactory<Input2Factory<Types> | null | undefined, Types>
+      args3: PGInputField<number, 'int', Types>
+      args4: PGInputField<Enum1Factory[] | undefined, 'enum', Types>
     }
     type Input1Factory<Types extends PGTypes> = {
-      field1: PGInputFactory<Enum2Factory, 'enum', Types>
-      field2: PGInputFactory<Enum3Factory | undefined, 'enum', Types>
-      AND: () => PGInputFactoryWrapper<Input1Factory<Types> | undefined, Types>
+      field1: PGInputField<Enum2Factory, 'enum', Types>
+      field2: PGInputField<Enum3Factory | undefined, 'enum', Types>
+      AND: () => PGInputFactory<Input1Factory<Types> | undefined, Types>
     }
     type Input2Factory<Types extends PGTypes> = {
-      field1: PGInputFactory<bigint | null | undefined, 'bigInt', Types>
-      Input3s: () => PGInputFactoryWrapper<Array<Input3Factory<Types>>, Types>
+      field1: PGInputField<bigint | null | undefined, 'bigInt', Types>
+      Input3s: () => PGInputFactory<Array<Input3Factory<Types>>, Types>
     }
     type Input3Factory<Types extends PGTypes> = {
-      field1: PGInputFactory<Enum2Factory | undefined, 'enum', Types>
-      Input2: () => PGInputFactoryWrapper<Input2Factory<Types> | undefined, Types>
+      field1: PGInputField<Enum2Factory | undefined, 'enum', Types>
+      Input2: () => PGInputFactory<Input2Factory<Types> | undefined, Types>
     }
 
-    interface Inputs<Types extends PGTypes>
-      extends Record<string, PGInputFactoryWrapper<any>> {
-      findFirstSomeModel: PGInputFactoryWrapper<FindFirstSomeModelFactory<Types>, Types>
+    interface Inputs<Types extends PGTypes> extends Record<string, PGInputFactory<any>> {
+      findFirstSomeModel: PGInputFactory<FindFirstSomeModelFactory<Types>, Types>
     }
 
     type PGfyResponse<T extends PGBuilder> = T extends PGBuilder<infer U>
@@ -594,7 +584,7 @@ describe('pgfy', () => {
       const expectValue = {
         enums: {},
         inputs: {
-          findFirstSomeModel: mergeDefaultInputFactoryWrapper({
+          findFirstSomeModel: mergeDefaultInputFactory({
             fieldMap: {
               args1: mergeDefaultInputFactoryUnion({
                 factoryMap: {
@@ -625,7 +615,7 @@ describe('pgfy', () => {
       }
       expect(result).toEqual(expectValue)
     })
-    it('Returns a PGInputFactoryWrapper that recursively sets the same PGInputFactoryWrapper using the edit method', () => {
+    it('Returns a PGInputFactory that recursively sets the same PGInputFactory using the edit method', () => {
       const pg = getPGBuilder<TypeConfig>()()
       const result = pg.pgfy(pg, dmmf)
       const editInputFactory = result.inputs.findFirstSomeModel.edit((f) => ({
@@ -637,9 +627,9 @@ describe('pgfy', () => {
         })),
       }))
 
-      const expectEditValue = mergeDefaultInputFactoryWrapper({
+      const expectEditValue = mergeDefaultInputFactory({
         fieldMap: {
-          args1: mergeDefaultInputFactoryWrapper({
+          args1: mergeDefaultInputFactory({
             fieldMap: {
               field1: mergeDefaultInputField({
                 kind: 'enum',
@@ -649,7 +639,7 @@ describe('pgfy', () => {
                   kind: 'enum',
                 },
               }),
-              AND: mergeDefaultInputFactoryWrapper({
+              AND: mergeDefaultInputFactory({
                 fieldMap: {
                   field2: mergeDefaultInputField({
                     kind: 'enum',
@@ -670,7 +660,7 @@ describe('pgfy', () => {
       })
       expect(editInputFactory).toEqual(expectEditValue)
     })
-    it('Returns a PGInputFactoryWrapper with multiple PGInputFactoryWrappers mutually configured using the edit method', () => {
+    it('Returns a PGInputFactory with multiple PGInputFactorys mutually configured using the edit method', () => {
       const pg = getPGBuilder<TypeConfig>()()
       const result = pg.pgfy(pg, dmmf)
       const editInputFactory = result.inputs.findFirstSomeModel.edit((f) => ({
@@ -683,13 +673,13 @@ describe('pgfy', () => {
         })),
       }))
 
-      const expectEditValue = mergeDefaultInputFactoryWrapper({
+      const expectEditValue = mergeDefaultInputFactory({
         fieldMap: {
-          args2: mergeDefaultInputFactoryWrapper({
+          args2: mergeDefaultInputFactory({
             fieldMap: {
-              Input3s: mergeDefaultInputFactoryWrapper({
+              Input3s: mergeDefaultInputFactory({
                 fieldMap: {
-                  Input2: mergeDefaultInputFactoryWrapper({
+                  Input2: mergeDefaultInputFactory({
                     fieldMap: {
                       field1: mergeDefaultInputField({
                         kind: 'scalar',
@@ -711,14 +701,14 @@ describe('pgfy', () => {
       })
       expect(editInputFactory).toEqual(expectEditValue)
     })
-    it('Returns a PGInputFactoryWrapper with the scalar type set using the edit method', () => {
+    it('Returns a PGInputFactory with the scalar type set using the edit method', () => {
       const pg = getPGBuilder<TypeConfig>()()
       const result = pg.pgfy(pg, dmmf)
       const editInputFactory = result.inputs.findFirstSomeModel.edit((f) => ({
         args3: f.args3.nullable(),
       }))
 
-      const expectEditValue = mergeDefaultInputFactoryWrapper({
+      const expectEditValue = mergeDefaultInputFactory({
         fieldMap: {
           args3: mergeDefaultInputField({
             kind: 'scalar',
@@ -729,14 +719,14 @@ describe('pgfy', () => {
       })
       expect(editInputFactory).toEqual(expectEditValue)
     })
-    it('Returns a PGInputFactoryWrapper with the enum type set using the edit method', () => {
+    it('Returns a PGInputFactory with the enum type set using the edit method', () => {
       const pg = getPGBuilder<TypeConfig>()()
       const result = pg.pgfy(pg, dmmf)
       const editInputFactory = result.inputs.findFirstSomeModel.edit((f) => ({
         args4: f.args4.nullable(),
       }))
 
-      const expectEditValue = mergeDefaultInputFactoryWrapper({
+      const expectEditValue = mergeDefaultInputFactory({
         fieldMap: {
           args4: mergeDefaultInputField({
             kind: 'enum',

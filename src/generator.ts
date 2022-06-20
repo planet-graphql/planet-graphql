@@ -71,12 +71,12 @@ export function getInputsTypeProperty(arg: DMMF.SchemaArg): string {
     const listPrefix = inputType.isList ? 'Array<' : ''
     const listSuffix = inputType.isList ? '>' : ''
     if (inputType.location === 'inputObjectTypes') {
-      return `() => PGInputFactoryWrapper<${listPrefix}${_.upperFirst(
+      return `() => PGInputFactory<${listPrefix}${_.upperFirst(
         inputType.type as string,
       )}Factory<Types>${listSuffix}${nullishSuffix}, Types>`
     }
     if (inputType.location === 'scalar') {
-      return `PGInputFactory<${
+      return `PGInputField<${
         inputType.isList
           ? `${
               inputType.type === 'Null' ? 'null' : getTSType(inputType.type as string)
@@ -87,7 +87,7 @@ export function getInputsTypeProperty(arg: DMMF.SchemaArg): string {
       }${nullishSuffix}, '${_.lowerFirst(inputType.type as string)}', Types>`
     }
     if (inputType.location === 'enumTypes') {
-      return `PGInputFactory<${
+      return `PGInputField<${
         inputType.isList
           ? `${_.upperFirst(inputType.type as string)}Factory[]`
           : `${_.upperFirst(inputType.type as string)}Factory`
@@ -217,8 +217,12 @@ export async function generate(
     moduleSpecifier: '@prismagql/prismagql/lib/types/output',
   })
   outputFile.addImportDeclaration({
-    namedImports: ['PGInputFactoryWrapper', 'PGInputFactoryUnion', 'PGInputFactory'],
+    namedImports: ['PGInputFactory', 'PGInputFactoryUnion'],
     moduleSpecifier: '@prismagql/prismagql/lib/types/input-factory',
+  })
+  outputFile.addImportDeclaration({
+    namedImports: ['PGInputField'],
+    moduleSpecifier: '@prismagql/prismagql/lib/types/input',
   })
   outputFile.addTypeAliases(
     dmmf.datamodel.enums.map((x) => ({
@@ -309,7 +313,7 @@ export async function generate(
         .flatMap((x) =>
           x.fields.map((f) => ({
             name: f.name,
-            type: `PGInputFactoryWrapper<${_.upperFirst(f.name)}Factory<Types>, Types>`,
+            type: `PGInputFactory<${_.upperFirst(f.name)}Factory<Types>, Types>`,
           })),
         ),
     })

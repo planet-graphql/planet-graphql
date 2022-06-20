@@ -2,30 +2,26 @@ import { expectType, TypeEqual } from 'ts-expect'
 import { getPGBuilder } from '..'
 import { PGTypes } from './builder'
 import { PGInput, PGInputField } from './input'
-import {
-  PGInputFactoryWrapper,
-  PGInputFactoryUnion,
-  PGInputFactory,
-} from './input-factory'
+import { PGInputFactory, PGInputFactoryUnion } from './input-factory'
 
 describe.skip('PGInputFactory', () => {
   it('Type is evaluated correctly even if it contains circular references', () => {
-    type UserWhereFactory = PGInputFactoryWrapper<
+    type UserWhereFactory = PGInputFactory<
       {
-        AND: () => PGInputFactoryWrapper<[UserWhereFactory['value']['fieldMap']], PGTypes>
+        AND: () => PGInputFactory<[UserWhereFactory['value']['fieldMap']], PGTypes>
         name: PGInputFactoryUnion<{
-          StringFilter: () => PGInputFactoryWrapper<
+          StringFilter: () => PGInputFactory<
             {
-              equals: PGInputFactory<string, 'string', PGTypes>
-              in: PGInputFactory<string[], 'string', PGTypes>
+              equals: PGInputField<string, 'string', PGTypes>
+              in: PGInputField<string[], 'string', PGTypes>
             },
             PGTypes
           >
-          String: PGInputFactory<string, 'string', PGTypes>
-          __default: PGInputFactory<string, 'string', PGTypes>
+          String: PGInputField<string, 'string', PGTypes>
+          __default: PGInputField<string, 'string', PGTypes>
         }>
-        age: PGInputFactory<number, 'int', PGTypes>
-        posts: () => PGInputFactoryWrapper<
+        age: PGInputField<number, 'int', PGTypes>
+        posts: () => PGInputFactory<
           {
             every: () => PostWhereFactory
           },
@@ -35,13 +31,13 @@ describe.skip('PGInputFactory', () => {
       PGTypes
     >
 
-    type PostWhereFactory = PGInputFactoryWrapper<
+    type PostWhereFactory = PGInputFactory<
       {
-        AND: () => PGInputFactoryWrapper<[PostWhereFactory['value']['fieldMap']], PGTypes>
-        title: () => PGInputFactoryWrapper<
+        AND: () => PGInputFactory<[PostWhereFactory['value']['fieldMap']], PGTypes>
+        title: () => PGInputFactory<
           {
-            equals: PGInputFactory<string, 'string', PGTypes>
-            in: PGInputFactory<string[], 'string', PGTypes>
+            equals: PGInputField<string, 'string', PGTypes>
+            in: PGInputField<string[], 'string', PGTypes>
           },
           PGTypes
         >

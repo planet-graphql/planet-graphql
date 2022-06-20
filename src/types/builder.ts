@@ -19,7 +19,7 @@ import {
   ResolveResponse,
 } from './common'
 import { PGInput, PGInputFieldBuilder, PGInputFieldMap } from './input'
-import { PGInputFactoryWrapper } from './input-factory'
+import { PGInputFactory } from './input-factory'
 import {
   PGObject,
   PGObjectOptionsDefault,
@@ -37,7 +37,7 @@ export type PGfyResponseType<T extends PGBuilder> = T extends PGBuilder<infer U>
   ? {
       enums: Record<string, PGEnum<any>>
       objects: Record<string, PGObject<any, any, U>>
-      inputs: Record<string, PGInputFactoryWrapper<any, U>>
+      inputs: Record<string, PGInputFactory<any, U>>
     }
   : any
 

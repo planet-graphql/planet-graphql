@@ -3,10 +3,10 @@ import { PGFieldValue, TypeOfPGModelBase } from './common'
 import { PGInput, PGInputField } from './input'
 
 export type PGInputFactoryField =
-  | (() => PGInputFactoryWrapper<any>)
-  | PGInputFactoryWrapper<any>
+  | (() => PGInputFactory<any>)
+  | PGInputFactory<any>
   | PGInputFactoryUnion<any>
-  | PGInputFactory<any, any>
+  | PGInputField<any>
 
 type TypeOfPGInputFactoryMapField<T extends PGInputFactoryField> = T extends () => any
   ? ReturnType<T>
@@ -38,86 +38,24 @@ export interface PGInputFactoryUnion<
   ) => TypeOfPGInputFactoryMapField<TFactoryMap[TName]>
 }
 
-export interface PGInputFactoryBase<
-  T extends PGInputFactoryWrapper<any>,
-  TypeName extends string = any,
-  Types extends PGTypes = any,
-> {
-  nullish: <IsNullish extends boolean = true>(
-    isNullish?: IsNullish,
-  ) => IsNullish extends false
-    ? T extends PGInputFactory<infer U>
-      ? PGInputFactory<Exclude<U, null | undefined>, TypeName, Types>
-      : T extends PGInputFactoryWrapper<infer U>
-      ? PGInputFactoryWrapper<Exclude<U, null | undefined>, Types>
-      : never
-    : T extends PGInputFactory<infer U>
-    ? PGInputFactory<U | null | undefined, TypeName, Types>
-    : T extends PGInputFactoryWrapper<infer U>
-    ? PGInputFactoryWrapper<U | null | undefined, Types>
-    : never
-  nullable: <IsNullable extends boolean = true>(
-    isNullable?: IsNullable,
-  ) => IsNullable extends false
-    ? T extends PGInputFactory<infer U>
-      ? PGInputFactory<Exclude<U, null>, TypeName, Types>
-      : T extends PGInputFactoryWrapper<infer U>
-      ? PGInputFactoryWrapper<Exclude<U, null>, Types>
-      : never
-    : T extends PGInputFactory<infer U>
-    ? PGInputFactory<U | null, TypeName, Types>
-    : T extends PGInputFactoryWrapper<infer U>
-    ? PGInputFactoryWrapper<U | null, Types>
-    : never
-  optional: <IsOptinal extends boolean = true>(
-    isOptional?: IsOptinal,
-  ) => IsOptinal extends false
-    ? T extends PGInputFactory<infer U>
-      ? PGInputFactory<Exclude<U, undefined>, TypeName, Types>
-      : T extends PGInputFactoryWrapper<infer U>
-      ? PGInputFactoryWrapper<Exclude<U, undefined>, Types>
-      : never
-    : T extends PGInputFactory<infer U>
-    ? PGInputFactory<U | undefined, TypeName, Types>
-    : T extends PGInputFactoryWrapper<infer U>
-    ? PGInputFactoryWrapper<U | undefined, Types>
-    : never
-  list: () => T extends PGInputFactory<infer U>
-    ? ExcludeNullish<U> extends any[]
-      ? this
-      : PGInputFactory<Array<ExcludeNullish<U>> | ExtractNullish<T>, TypeName, Types>
-    : T extends PGInputFactoryWrapper<infer U>
-    ? ExcludeNullish<U> extends any[]
-      ? this
-      : ExcludeNullish<U> extends PGInputFactoryFieldMap
-      ? PGInputFactoryWrapper<Array<ExcludeNullish<U>> | ExtractNullish<T>, Types>
-      : never
-    : never
-}
-
-export interface PGInputFactory<
-  T,
-  TypeName extends string = any,
-  Types extends PGTypes = any,
-> extends PGInputField<T, TypeName, Types> {}
-
 type ExcludeNullish<T> = Exclude<T, null | undefined>
 type ExtractNullish<T> = Extract<T, null | undefined>
 export type ExtractPGInputFactoryFieldMap<
   T extends PGInputFactoryFieldMap | PGInputFactoryFieldMap[] | null | undefined,
 > = T extends Array<infer U> ? U : ExcludeNullish<T>
 
-export interface PGInputFactoryWrapper<
+export interface PGInputFactory<
   T extends PGInputFactoryFieldMap | PGInputFactoryFieldMap[] | null | undefined,
   Types extends PGTypes = any,
-> extends PGInputFactoryBase<PGInputFactoryWrapper<T>, any, Types> {
+> {
   value: PGFieldValue & {
     fieldMap: ExtractPGInputFactoryFieldMap<T>
     validator?: (
       value: Exclude<
-        ConvertPGInputFactoryFieldMapField<
-          PGInputFactoryWrapper<T, Types>
-        > extends PGInputField<infer U, any>
+        ConvertPGInputFactoryFieldMapField<PGInputFactory<T, Types>> extends PGInputField<
+          infer U,
+          any
+        >
           ? U extends Array<infer V>
             ? V extends PGInput<any>
               ? TypeOfPGModelBase<V>
@@ -130,6 +68,26 @@ export interface PGInputFactoryWrapper<
       >,
     ) => boolean
   }
+  nullish: <IsNullish extends boolean = true>(
+    isNullish?: IsNullish,
+  ) => IsNullish extends false
+    ? PGInputFactory<Exclude<T, null | undefined>, Types>
+    : PGInputFactory<T | null | undefined, Types>
+  nullable: <IsNullable extends boolean = true>(
+    isNullable?: IsNullable,
+  ) => IsNullable extends false
+    ? PGInputFactory<Exclude<T, null>, Types>
+    : PGInputFactory<T | null, Types>
+  optional: <IsOptinal extends boolean = true>(
+    isOptional?: IsOptinal,
+  ) => IsOptinal extends false
+    ? PGInputFactory<Exclude<T, undefined>, Types>
+    : PGInputFactory<T | undefined, Types>
+  list: () => ExcludeNullish<T> extends any[]
+    ? this
+    : ExcludeNullish<T> extends PGInputFactoryFieldMap
+    ? PGInputFactory<Array<ExcludeNullish<T>> | ExtractNullish<T>, Types>
+    : never
   default: (value: T extends any[] ? [] : T extends null ? null : never) => this
   validation: (
     builder: (
@@ -159,8 +117,8 @@ export interface PGInputFactoryWrapper<
   } extends infer U
     ? U extends PGInputFactoryFieldMap
       ? ExcludeNullish<T> extends any[]
-        ? PGInputFactoryWrapper<[U] | ExtractNullish<T>, Types>
-        : PGInputFactoryWrapper<U | ExtractNullish<T>, Types>
+        ? PGInputFactory<[U] | ExtractNullish<T>, Types>
+        : PGInputFactory<U | ExtractNullish<T>, Types>
       : never
     : never
   build: <TWrap extends boolean>(
@@ -179,13 +137,13 @@ export interface PGInputFactoryWrapper<
 type Cast<T, P> = T extends P ? T : P
 
 type ConvertPGInputFactoryFieldMapField<T extends PGInputFactoryField> =
-  T extends PGInputFactory<infer U, infer V, infer W>
-    ? PGInputField<U, V, W>
+  T extends PGInputField<any>
+    ? T
     : T extends () => any
     ? ConvertPGInputFactoryFieldMapField<ReturnType<T>>
     : T extends PGInputFactoryUnion<infer U>
     ? ConvertPGInputFactoryFieldMapField<U['__default']>
-    : T extends PGInputFactoryWrapper<infer U, infer V>
+    : T extends PGInputFactory<infer U, infer V>
     ? PGInput<{
         [P in keyof ExtractPGInputFactoryFieldMap<U>]: ConvertPGInputFactoryFieldMapField<
           ExtractPGInputFactoryFieldMap<U>[P]

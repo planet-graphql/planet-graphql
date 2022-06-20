@@ -2,7 +2,7 @@ import { ReadonlyDeep } from 'type-fest'
 import { PGCache } from '../types/builder'
 import { PGField, PGModel } from '../types/common'
 import { PGInput, PGInputField } from '../types/input'
-import { PGInputFactoryUnion, PGInputFactoryWrapper } from '../types/input-factory'
+import { PGInputFactoryUnion, PGInputFactory } from '../types/input-factory'
 import { PGObject, PGOutputField } from '../types/output'
 
 export function mergeDefaultPGInput(input: Partial<PGInput<any>>): PGInput<any> {
@@ -89,9 +89,9 @@ export function mergeDefaultOutputField(
   }
 }
 
-export function mergeDefaultInputFactoryWrapper(
-  value: Partial<PGInputFactoryWrapper<any>['value']>,
-): PGInputFactoryWrapper<any> {
+export function mergeDefaultInputFactory(
+  value: Partial<PGInputFactory<any>['value']>,
+): PGInputFactory<any> {
   return {
     value: Object.assign(
       {
