@@ -46,7 +46,7 @@ export function getPrismaArgs(
     return prismaArgs
   }
   const fieldTypeObject: PGObject<PGOutputFieldMap> = fieldType()
-  const isPrismaObject = fieldTypeObject.prismaModelName !== undefined
+  const isPrismaObject = fieldTypeObject.value.prismaModelName !== undefined
   if (!isPrismaObject) {
     return prismaArgs
   }
@@ -54,7 +54,7 @@ export function getPrismaArgs(
   const resolveTreeMap = _.values(resolveTree.fieldsByTypeName)[0]
   const includeArgs = Object.entries(resolveTreeMap).reduce<Record<string, any>>(
     (acc, [fieldName, tree]) => {
-      const pgOutputField = fieldTypeObject.fieldMap[fieldName]
+      const pgOutputField = fieldTypeObject.value.fieldMap[fieldName]
       const isRelationField = pgOutputField.value.isPrismaRelation === true
       if (isRelationField) {
         acc[fieldName] = getPrismaArgs(pgOutputField, tree, depth + 1)
@@ -232,7 +232,7 @@ export function getPageInfo(
 export function getDefaultCursor(
   pgObject: PGObject<PGOutputFieldMap>,
 ): (node: any) => object {
-  const idFieldEntry = Object.entries(pgObject.fieldMap).find(([_, field]) => {
+  const idFieldEntry = Object.entries(pgObject.value.fieldMap).find(([_, field]) => {
     return field.value.type === 'id'
   })
   if (idFieldEntry === undefined) {
@@ -251,7 +251,7 @@ export function decodeCursor(cursor: string): object {
 }
 
 export function getDefaultOrderBy(pgObject: PGObject<PGOutputFieldMap>): object {
-  const idFieldEntry = Object.entries(pgObject.fieldMap).find(([_, field]) => {
+  const idFieldEntry = Object.entries(pgObject.value.fieldMap).find(([_, field]) => {
     return field.value.type === 'id'
   })
   if (idFieldEntry === undefined) {

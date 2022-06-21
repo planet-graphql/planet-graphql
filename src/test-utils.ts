@@ -6,9 +6,10 @@ export function mergeDefaultPGInput(input: Partial<PGInput<any>>): PGInput<any> 
   return Object.assign(
     {
       name: '',
-      fieldMap: {},
-      value: {},
       kind: 'input',
+      value: {
+        fieldMap: {},
+      },
       copy: expect.any(Function),
       update: expect.any(Function),
       validation: expect.any(Function),
@@ -21,8 +22,10 @@ export function mergeDefaultPGObject(object: Partial<PGObject<any>>): PGObject<a
   return Object.assign(
     {
       name: '',
-      fieldMap: {},
       kind: 'object',
+      value: {
+        fieldMap: {},
+      },
       copy: expect.any(Function),
       modify: expect.any(Function),
       prismaModel: expect.any(Function),

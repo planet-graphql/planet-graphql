@@ -552,66 +552,73 @@ describe('createConnectionObject', () => {
       pg,
       true,
     )
-    const resultEdgeObject = resultConnectionObject.fieldMap.edges.value.type()
-    const resultPageInfoObject = resultConnectionObject.fieldMap.pageInfo.value.type()
-    const resultNodeObject = resultEdgeObject.fieldMap.node.value.type()
+    const resultEdgeObject = resultConnectionObject.value.fieldMap.edges.value.type()
+    const resultPageInfoObject =
+      resultConnectionObject.value.fieldMap.pageInfo.value.type()
+    const resultNodeObject = resultEdgeObject.value.fieldMap.node.value.type()
 
     const expectConnectionObject = mergeDefaultPGObject({
       name: 'PrefixConnection',
-      fieldMap: {
-        edges: mergeDefaultOutputField({
-          kind: 'object',
-          type: expect.any(Function),
-          isList: true,
-        }),
-        pageInfo: mergeDefaultOutputField({
-          kind: 'object',
-          type: expect.any(Function),
-        }),
-        totalCount: mergeDefaultOutputField({
-          kind: 'scalar',
-          type: 'int',
-        }),
+      value: {
+        fieldMap: {
+          edges: mergeDefaultOutputField({
+            kind: 'object',
+            type: expect.any(Function),
+            isList: true,
+          }),
+          pageInfo: mergeDefaultOutputField({
+            kind: 'object',
+            type: expect.any(Function),
+          }),
+          totalCount: mergeDefaultOutputField({
+            kind: 'scalar',
+            type: 'int',
+          }),
+        },
       },
     })
 
     const expectEdgeObject = mergeDefaultPGObject({
       name: 'PrefixEdge',
-      fieldMap: {
-        node: mergeDefaultOutputField({
-          kind: 'object',
-          type: expect.any(Function),
-        }),
-        cursor: mergeDefaultOutputField({
-          kind: 'scalar',
-          type: 'string',
-        }),
+      value: {
+        fieldMap: {
+          node: mergeDefaultOutputField({
+            kind: 'object',
+            type: expect.any(Function),
+          }),
+          cursor: mergeDefaultOutputField({
+            kind: 'scalar',
+            type: 'string',
+          }),
+        },
       },
     })
 
     const expectPageInfoObject = mergeDefaultPGObject({
       name: 'PageInfo',
-      fieldMap: {
-        hasNextPage: mergeDefaultOutputField({
-          kind: 'scalar',
-          type: 'boolean',
-        }),
-        hasPreviousPage: mergeDefaultOutputField({
-          kind: 'scalar',
-          type: 'boolean',
-        }),
-        startCursor: mergeDefaultOutputField({
-          kind: 'scalar',
-          type: 'string',
-          isNullable: true,
-          isOptional: true,
-        }),
-        endCursor: mergeDefaultOutputField({
-          kind: 'scalar',
-          type: 'string',
-          isNullable: true,
-          isOptional: true,
-        }),
+      value: {
+        fieldMap: {
+          hasNextPage: mergeDefaultOutputField({
+            kind: 'scalar',
+            type: 'boolean',
+          }),
+          hasPreviousPage: mergeDefaultOutputField({
+            kind: 'scalar',
+            type: 'boolean',
+          }),
+          startCursor: mergeDefaultOutputField({
+            kind: 'scalar',
+            type: 'string',
+            isNullable: true,
+            isOptional: true,
+          }),
+          endCursor: mergeDefaultOutputField({
+            kind: 'scalar',
+            type: 'string',
+            isNullable: true,
+            isOptional: true,
+          }),
+        },
       },
     })
 

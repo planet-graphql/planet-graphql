@@ -22,11 +22,13 @@ describe('InputBuilder', () => {
 
     const expectValue = mergeDefaultPGInput({
       name: 'SomeInput',
-      fieldMap: {
-        id: mergeDefaultInputField({
-          kind: 'scalar',
-          type: 'id',
-        }),
+      value: {
+        fieldMap: {
+          id: mergeDefaultInputField({
+            kind: 'scalar',
+            type: 'id',
+          }),
+        },
       },
     })
     expect(result).toEqual(expectValue)

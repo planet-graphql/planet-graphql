@@ -4,7 +4,7 @@ import { JsonValue, PartialDeep, Promisable, RequireAtLeastOne } from 'type-fest
 import { IsAny } from 'type-fest/source/set-return-type'
 import { z } from 'zod'
 import { PGInput, PGInputField } from './input'
-import { PGInterface, PGUnion } from './output'
+import { PGUnion } from './output'
 
 export type ExcludeNullish<T> = Exclude<T, null | undefined>
 export type ExtractNullish<T> = Extract<T, null | undefined>
@@ -52,8 +52,6 @@ export type TypeOfPGFieldType<T> = IsAny<T> extends true
   ? TypeOfPGModelBase<T>
   : T extends PGUnion<any>
   ? TypeOfPGUnion<T>
-  : T extends PGInterface<any>
-  ? TypeOfPGInterface<T>
   : T
 
 export type PGFieldValue = {
@@ -82,10 +80,6 @@ export type TypeOfPGUnion<T extends PGUnion<any>> = TypeOfPGModelBase<
   T['value']['types'][number]
 >
 
-export type TypeOfPGInterface<T extends PGInterface<any>> = TypeOfPGFieldMap<
-  T['value']['fieldMap']
->
-
 export interface PGFieldMap {
   [name: string]: PGField<any>
 }
@@ -95,11 +89,13 @@ export type TypeOfPGFieldMap<T extends PGFieldMap> = {
 }
 
 export interface PGModelBase<TFieldMap extends PGFieldMap> {
-  fieldMap: TFieldMap
+  value: {
+    fieldMap: TFieldMap
+  }
 }
 
 export type TypeOfPGModelBase<T extends PGModelBase<any>> = TypeOfPGFieldMap<
-  T['fieldMap']
+  T['value']['fieldMap']
 >
 
 export type IsObject<T> = T extends any[]

@@ -22,11 +22,13 @@ describe('PGInput', () => {
 
       const expectValue = mergeDefaultPGInput({
         name: 'Copy',
-        fieldMap: {
-          id: mergeDefaultInputField({
-            kind: 'scalar',
-            type: 'id',
-          }),
+        value: {
+          fieldMap: {
+            id: mergeDefaultInputField({
+              kind: 'scalar',
+              type: 'id',
+            }),
+          },
         },
       })
       expect(copy).toEqual(expectValue)
@@ -51,27 +53,31 @@ describe('PGInput', () => {
 
       const expectOriginalValue = mergeDefaultPGInput({
         name: 'Original',
-        fieldMap: {
-          id: mergeDefaultInputField({
-            kind: 'scalar',
-            type: 'id',
-          }),
+        value: {
+          fieldMap: {
+            id: mergeDefaultInputField({
+              kind: 'scalar',
+              type: 'id',
+            }),
+          },
         },
       })
 
       const expectCopyValue = mergeDefaultPGInput({
         name: 'Copy',
-        fieldMap: {
-          id: mergeDefaultInputField({
-            kind: 'scalar',
-            type: 'id',
-            isNullable: true,
-            isOptional: true,
-          }),
-          name: mergeDefaultInputField({
-            kind: 'scalar',
-            type: 'string',
-          }),
+        value: {
+          fieldMap: {
+            id: mergeDefaultInputField({
+              kind: 'scalar',
+              type: 'id',
+              isNullable: true,
+              isOptional: true,
+            }),
+            name: mergeDefaultInputField({
+              kind: 'scalar',
+              type: 'string',
+            }),
+          },
         },
       })
 
@@ -99,35 +105,39 @@ describe('PGInput', () => {
 
       const expectOriginalValue = mergeDefaultPGInput({
         name: 'Original',
-        fieldMap: {
-          id: mergeDefaultInputField({
-            kind: 'scalar',
-            type: 'id',
-          }),
-          name: mergeDefaultInputField({
-            kind: 'scalar',
-            type: 'string',
-          }),
+        value: {
+          fieldMap: {
+            id: mergeDefaultInputField({
+              kind: 'scalar',
+              type: 'id',
+            }),
+            name: mergeDefaultInputField({
+              kind: 'scalar',
+              type: 'string',
+            }),
+          },
         },
       })
 
       const expectUpdatedValue = mergeDefaultPGInput({
         name: 'Original',
-        fieldMap: {
-          id: mergeDefaultInputField({
-            kind: 'scalar',
-            type: 'id',
-          }),
-          name: mergeDefaultInputField({
-            kind: 'scalar',
-            type: 'string',
-            isNullable: true,
-            isOptional: true,
-          }),
-          age: mergeDefaultInputField({
-            kind: 'scalar',
-            type: 'int',
-          }),
+        value: {
+          fieldMap: {
+            id: mergeDefaultInputField({
+              kind: 'scalar',
+              type: 'id',
+            }),
+            name: mergeDefaultInputField({
+              kind: 'scalar',
+              type: 'string',
+              isNullable: true,
+              isOptional: true,
+            }),
+            age: mergeDefaultInputField({
+              kind: 'scalar',
+              type: 'int',
+            }),
+          },
         },
       })
 

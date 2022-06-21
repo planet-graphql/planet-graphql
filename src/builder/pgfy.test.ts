@@ -115,125 +115,131 @@ describe('pgfy', () => {
       }
       const expectModel1: PGObject<any> = mergeDefaultPGObject({
         name: 'Model1',
-        prismaModelName: 'Model1',
-        fieldMap: {
-          id: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'id',
-          }),
-          string: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'string',
-          }),
-          json: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'json',
-          }),
-          int: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'int',
-          }),
-          float: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'float',
-          }),
-          boolean: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'boolean',
-          }),
-          bigInt: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'bigInt',
-          }),
-          dateTime: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'dateTime',
-          }),
-          bytes: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'bytes',
-          }),
-          decimal: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'decimal',
-          }),
-          nullable: mergeDefaultOutputField({
-            isOptional: true,
-            isNullable: true,
-            kind: 'scalar',
-            type: 'string',
-          }),
-          list: mergeDefaultOutputField({
-            isList: true,
-            kind: 'scalar',
-            type: 'string',
-          }),
-          enum: mergeDefaultOutputField({
-            kind: 'enum',
-            type: expectSomeEnum,
-          }),
-          enumList: mergeDefaultOutputField({
-            isList: true,
-            kind: 'enum',
-            type: expectSomeEnum2,
-          }),
-          enumNullable: mergeDefaultOutputField({
-            isOptional: true,
-            isNullable: true,
-            kind: 'enum',
-            type: expectSomeEnum3,
-          }),
-          oneToOne: mergeDefaultOutputField({
-            isOptional: true,
-            isNullable: true,
-            isPrismaRelation: true,
-            kind: 'object',
-            type: expect.any(Function),
-          }),
-          oneToMany: mergeDefaultOutputField({
-            isList: true,
-            isPrismaRelation: true,
-            kind: 'object',
-            type: expect.any(Function),
-          }),
+        value: {
+          prismaModelName: 'Model1',
+          fieldMap: {
+            id: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'id',
+            }),
+            string: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'string',
+            }),
+            json: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'json',
+            }),
+            int: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'int',
+            }),
+            float: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'float',
+            }),
+            boolean: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'boolean',
+            }),
+            bigInt: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'bigInt',
+            }),
+            dateTime: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'dateTime',
+            }),
+            bytes: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'bytes',
+            }),
+            decimal: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'decimal',
+            }),
+            nullable: mergeDefaultOutputField({
+              isOptional: true,
+              isNullable: true,
+              kind: 'scalar',
+              type: 'string',
+            }),
+            list: mergeDefaultOutputField({
+              isList: true,
+              kind: 'scalar',
+              type: 'string',
+            }),
+            enum: mergeDefaultOutputField({
+              kind: 'enum',
+              type: expectSomeEnum,
+            }),
+            enumList: mergeDefaultOutputField({
+              isList: true,
+              kind: 'enum',
+              type: expectSomeEnum2,
+            }),
+            enumNullable: mergeDefaultOutputField({
+              isOptional: true,
+              isNullable: true,
+              kind: 'enum',
+              type: expectSomeEnum3,
+            }),
+            oneToOne: mergeDefaultOutputField({
+              isOptional: true,
+              isNullable: true,
+              isPrismaRelation: true,
+              kind: 'object',
+              type: expect.any(Function),
+            }),
+            oneToMany: mergeDefaultOutputField({
+              isList: true,
+              isPrismaRelation: true,
+              kind: 'object',
+              type: expect.any(Function),
+            }),
+          },
         },
       })
       const expectModel2: PGObject<any> = mergeDefaultPGObject({
         name: 'Model2',
-        prismaModelName: 'Model2',
-        fieldMap: {
-          id: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'id',
-          }),
-          model1: mergeDefaultOutputField({
-            isPrismaRelation: true,
-            kind: 'object',
-            type: expect.any(Function),
-          }),
-          model1Id: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'int',
-          }),
+        value: {
+          prismaModelName: 'Model2',
+          fieldMap: {
+            id: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'id',
+            }),
+            model1: mergeDefaultOutputField({
+              isPrismaRelation: true,
+              kind: 'object',
+              type: expect.any(Function),
+            }),
+            model1Id: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'int',
+            }),
+          },
         },
       })
       const expectModel3: PGObject<any> = mergeDefaultPGObject({
         name: 'Model3',
-        prismaModelName: 'Model3',
-        fieldMap: {
-          id: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'id',
-          }),
-          model1: mergeDefaultOutputField({
-            isPrismaRelation: true,
-            kind: 'object',
-            type: expect.any(Function),
-          }),
-          model1Id: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'int',
-          }),
+        value: {
+          prismaModelName: 'Model3',
+          fieldMap: {
+            id: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'id',
+            }),
+            model1: mergeDefaultOutputField({
+              isPrismaRelation: true,
+              kind: 'object',
+              type: expect.any(Function),
+            }),
+            model1Id: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'int',
+            }),
+          },
         },
       })
       expect(result).toEqual({
@@ -270,28 +276,28 @@ describe('pgfy', () => {
       })
       // NOTE: Modelの参照が正しく設定されているかの確認
       const model1OneToOneFieldValueType =
-        result.objects.Model1.fieldMap.oneToOne.value.type
+        result.objects.Model1.value.fieldMap.oneToOne.value.type
       expect(
         typeof model1OneToOneFieldValueType === 'function'
           ? model1OneToOneFieldValueType()
           : null,
       ).toEqual({ ...expectModel2, kind: 'object' })
       const model1OneToManyFieldValueType =
-        result.objects.Model1.fieldMap.oneToMany.value.type
+        result.objects.Model1.value.fieldMap.oneToMany.value.type
       expect(
         typeof model1OneToManyFieldValueType === 'function'
           ? model1OneToManyFieldValueType()
           : null,
       ).toEqual({ ...expectModel3, kind: 'object' })
       const model2RelationFieldValueType =
-        result.objects.Model2.fieldMap.model1.value.type
+        result.objects.Model2.value.fieldMap.model1.value.type
       expect(
         typeof model2RelationFieldValueType === 'function'
           ? model2RelationFieldValueType()
           : null,
       ).toEqual({ ...expectModel1, kind: 'object' })
       const model3RelationFieldValueType =
-        result.objects.Model3.fieldMap.model1.value.type
+        result.objects.Model3.value.fieldMap.model1.value.type
       expect(
         typeof model3RelationFieldValueType === 'function'
           ? model3RelationFieldValueType()

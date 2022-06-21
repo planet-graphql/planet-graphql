@@ -14,9 +14,9 @@ import {
 
 export interface PGInput<T extends PGInputFieldMap, Types extends PGTypes = any> {
   name: string
-  fieldMap: T
   kind: 'input'
   value: {
+    fieldMap: T
     validator?: (
       value: TypeOfPGFieldMap<T>,
       context: Types['Context'],

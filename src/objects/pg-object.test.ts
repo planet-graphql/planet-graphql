@@ -38,21 +38,23 @@ describe('PGObject', () => {
 
         const expectValue = mergeDefaultPGObject({
           name: 'SomeObject',
-          fieldMap: {
-            id: mergeDefaultOutputField({
-              kind: 'scalar',
-              type: 'int',
-            }),
-            a: mergeDefaultOutputField({
-              kind: 'scalar',
-              type: 'string',
-            }),
-            b: mergeDefaultOutputField({
-              kind: 'scalar',
-              type: 'string',
-            }),
+          value: {
+            fieldMap: {
+              id: mergeDefaultOutputField({
+                kind: 'scalar',
+                type: 'int',
+              }),
+              a: mergeDefaultOutputField({
+                kind: 'scalar',
+                type: 'string',
+              }),
+              b: mergeDefaultOutputField({
+                kind: 'scalar',
+                type: 'string',
+              }),
+            },
+            interfaces: [interfaceA, interfaceB],
           },
-          interfaces: [interfaceA, interfaceB],
         })
 
         expect(object).toEqual(expectValue)
@@ -102,15 +104,17 @@ describe('PGObject', () => {
 
       const expectValue = mergeDefaultPGObject({
         name: 'Copy',
-        fieldMap: {
-          id: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'id',
-          }),
-          name: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'string',
-          }),
+        value: {
+          fieldMap: {
+            id: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'id',
+            }),
+            name: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'string',
+            }),
+          },
         },
       })
       expect(copy).toEqual(expectValue)
@@ -150,26 +154,30 @@ describe('PGObject', () => {
 
       const expectOriginalValue = mergeDefaultPGObject({
         name: 'Original',
-        fieldMap: {
-          id: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'id',
-          }),
+        value: {
+          fieldMap: {
+            id: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'id',
+            }),
+          },
         },
       })
       const expectCopyValue = mergeDefaultPGObject({
         name: 'Copy',
-        fieldMap: {
-          id: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'id',
-            isNullable: true,
-            isOptional: true,
-          }),
-          name: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'string',
-          }),
+        value: {
+          fieldMap: {
+            id: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'id',
+              isNullable: true,
+              isOptional: true,
+            }),
+            name: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'string',
+            }),
+          },
         },
       })
       expect(original).toEqual(expectOriginalValue)
@@ -196,16 +204,18 @@ describe('PGObject', () => {
 
       const expectModifiedValue = mergeDefaultPGObject({
         name: 'Original',
-        fieldMap: {
-          id: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'id',
-            resolve: expect.any(Function),
-          }),
-          name: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'string',
-          }),
+        value: {
+          fieldMap: {
+            id: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'id',
+              resolve: expect.any(Function),
+            }),
+            name: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'string',
+            }),
+          },
         },
       })
       expect(original).toEqual(expectModifiedValue)

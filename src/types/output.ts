@@ -30,11 +30,13 @@ export interface PGObject<
   Types extends PGTypes = any,
 > {
   name: string
-  fieldMap: T
   kind: 'object'
-  interfaces?: TInterfaces
-  isTypeOf?: (value: any) => boolean
-  prismaModelName?: keyof Types['Prisma']['Args']
+  value: {
+    fieldMap: T
+    interfaces?: TInterfaces
+    isTypeOf?: (value: any) => boolean
+    prismaModelName?: keyof Types['Prisma']['Args']
+  }
   copy: <
     TUpdate extends ConvertPGInterfacesToFieldMap<TInterfaces>,
     TOriginal extends T,

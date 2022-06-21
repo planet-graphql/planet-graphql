@@ -100,7 +100,7 @@ describe('modifyArgValueOfNullableOrOptionalField', () => {
           ),
         }),
       })
-      const fieldMap = input.fieldMap
+      const fieldMap = input.value.fieldMap
       const args = {
         inner: {
           nullable: undefined,

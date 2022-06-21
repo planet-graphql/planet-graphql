@@ -5,6 +5,7 @@ import {
   mergeDefaultPGInput,
   mergeDefaultInputField,
 } from '../test-utils'
+import { PGInput } from '../types/input'
 import { createPGEnum } from './pg-enum'
 import { createPGInputFactoryUnion, createPGInputFactory } from './pg-input-factory'
 import { createInputField } from './pg-input-field'
@@ -260,50 +261,60 @@ describe('PGInputFactory', () => {
           }),
         })
 
-        const someObjectValue = (pgInput.someObject.value.type as Function)()
-        const innerObjectValue = (
-          someObjectValue.fieldMap.innerObject.value.type as Function
+        const someObjectValue: PGInput<any> = (
+          pgInput.someObject.value.type as Function
+        )()
+        const innerObjectValue: PGInput<any> = (
+          someObjectValue.value.fieldMap.innerObject.value.type as Function
         )()
 
         expect(someObjectValue).toEqual(
           mergeDefaultPGInput({
             name: 'SomeInputSomeObject',
-            fieldMap: {
-              innerObject: mergeDefaultInputField({
-                kind: 'object',
-                type: expect.any(Function),
-              }),
+            value: {
+              fieldMap: {
+                innerObject: mergeDefaultInputField({
+                  kind: 'object',
+                  type: expect.any(Function),
+                }),
+              },
             },
           }),
         )
         expect(innerObjectValue).toEqual(
           mergeDefaultPGInput({
             name: 'SomeInputSomeObjectInnerObject',
-            fieldMap: {
-              field: mergeDefaultInputField({
-                kind: 'scalar',
-                type: 'string',
-              }),
+            value: {
+              fieldMap: {
+                field: mergeDefaultInputField({
+                  kind: 'scalar',
+                  type: 'string',
+                }),
+              },
             },
           }),
         )
         expect(pg.cache().input).toEqual({
           SomeInputSomeObject: mergeDefaultPGInput({
             name: 'SomeInputSomeObject',
-            fieldMap: {
-              innerObject: mergeDefaultInputField({
-                kind: 'object',
-                type: expect.any(Function),
-              }),
+            value: {
+              fieldMap: {
+                innerObject: mergeDefaultInputField({
+                  kind: 'object',
+                  type: expect.any(Function),
+                }),
+              },
             },
           }),
           SomeInputSomeObjectInnerObject: mergeDefaultPGInput({
             name: 'SomeInputSomeObjectInnerObject',
-            fieldMap: {
-              field: mergeDefaultInputField({
-                kind: 'scalar',
-                type: 'string',
-              }),
+            value: {
+              fieldMap: {
+                field: mergeDefaultInputField({
+                  kind: 'scalar',
+                  type: 'string',
+                }),
+              },
             },
           }),
         })
@@ -342,17 +353,17 @@ describe('PGInputFactory', () => {
             default: null,
           }),
         })
-        const someObject = (pgInput.someObject.value.type as Function)()
+        const someObject: PGInput<any> = (pgInput.someObject.value.type as Function)()
         expect(someObject).toEqual(
           mergeDefaultPGInput({
             name: 'SomeInputSomeObject',
-            fieldMap: {
-              field: mergeDefaultInputField({
-                kind: 'scalar',
-                type: 'string',
-              }),
-            },
             value: {
+              fieldMap: {
+                field: mergeDefaultInputField({
+                  kind: 'scalar',
+                  type: 'string',
+                }),
+              },
               validator: expect.any(Function),
             },
           }),
@@ -417,11 +428,13 @@ describe('PGInputFactory', () => {
         expect(pg.cache().input).toEqual({
           SomeInput: mergeDefaultPGInput({
             name: 'SomeInput',
-            fieldMap: {
-              field: mergeDefaultInputField({
-                kind: 'scalar',
-                type: 'string',
-              }),
+            value: {
+              fieldMap: {
+                field: mergeDefaultInputField({
+                  kind: 'scalar',
+                  type: 'string',
+                }),
+              },
             },
           }),
         })
@@ -447,7 +460,7 @@ describe('PGInputFactory', () => {
           }))
           .build('SomeInput', pg)
 
-        const someObjectValue = (pgInput.AND.value.type as Function)()
+        const someObjectValue: PGInput<any> = (pgInput.AND.value.type as Function)()
 
         expect(pgInput).toEqual({
           AND: mergeDefaultInputField({
@@ -458,22 +471,26 @@ describe('PGInputFactory', () => {
         expect(someObjectValue).toEqual(
           mergeDefaultPGInput({
             name: 'SomeInputAND',
-            fieldMap: {
-              field: mergeDefaultInputField({
-                kind: 'scalar',
-                type: 'string',
-              }),
+            value: {
+              fieldMap: {
+                field: mergeDefaultInputField({
+                  kind: 'scalar',
+                  type: 'string',
+                }),
+              },
             },
           }),
         )
         expect(pg.cache().input).toEqual({
           SomeInputAND: mergeDefaultPGInput({
             name: 'SomeInputAND',
-            fieldMap: {
-              field: mergeDefaultInputField({
-                kind: 'scalar',
-                type: 'string',
-              }),
+            value: {
+              fieldMap: {
+                field: mergeDefaultInputField({
+                  kind: 'scalar',
+                  type: 'string',
+                }),
+              },
             },
           }),
         })
@@ -513,48 +530,58 @@ describe('PGInputFactory', () => {
           }),
         })
 
-        const singleCross = (pgInput1.input2s.value.type as Function)()
-        const doubleCross = (singleCross.fieldMap.input1.value.type as Function)()
+        const singleCross: PGInput<any> = (pgInput1.input2s.value.type as Function)()
+        const doubleCross: PGInput<any> = (
+          singleCross.value.fieldMap.input1.value.type as Function
+        )()
 
         expect(singleCross).toEqual(
           mergeDefaultPGInput({
             name: 'SomeInputInput2s',
-            fieldMap: {
-              input1: mergeDefaultInputField({
-                kind: 'object',
-                type: expect.any(Function),
-              }),
+            value: {
+              fieldMap: {
+                input1: mergeDefaultInputField({
+                  kind: 'object',
+                  type: expect.any(Function),
+                }),
+              },
             },
           }),
         )
         expect(doubleCross).toEqual(
           mergeDefaultPGInput({
             name: 'SomeInputInput2sInput1',
-            fieldMap: {
-              field1: mergeDefaultInputField({
-                kind: 'scalar',
-                type: 'string',
-              }),
+            value: {
+              fieldMap: {
+                field1: mergeDefaultInputField({
+                  kind: 'scalar',
+                  type: 'string',
+                }),
+              },
             },
           }),
         )
         expect(pg.cache().input).toEqual({
           SomeInputInput2s: mergeDefaultPGInput({
             name: 'SomeInputInput2s',
-            fieldMap: {
-              input1: mergeDefaultInputField({
-                kind: 'object',
-                type: expect.any(Function),
-              }),
+            value: {
+              fieldMap: {
+                input1: mergeDefaultInputField({
+                  kind: 'object',
+                  type: expect.any(Function),
+                }),
+              },
             },
           }),
           SomeInputInput2sInput1: mergeDefaultPGInput({
             name: 'SomeInputInput2sInput1',
-            fieldMap: {
-              field1: mergeDefaultInputField({
-                kind: 'scalar',
-                type: 'string',
-              }),
+            value: {
+              fieldMap: {
+                field1: mergeDefaultInputField({
+                  kind: 'scalar',
+                  type: 'string',
+                }),
+              },
             },
           }),
         })

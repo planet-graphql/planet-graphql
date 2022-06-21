@@ -31,11 +31,13 @@ describe('createObjectBuilder', () => {
 
     const expectValue = mergeDefaultPGObject({
       name: 'SomeObject',
-      fieldMap: {
-        id: mergeDefaultOutputField({
-          kind: 'scalar',
-          type: 'id',
-        }),
+      value: {
+        fieldMap: {
+          id: mergeDefaultOutputField({
+            kind: 'scalar',
+            type: 'id',
+          }),
+        },
       },
     })
 

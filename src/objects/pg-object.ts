@@ -33,12 +33,17 @@ export function createPGObject<
   const totalFieldMap = Object.assign(fieldMap, interfacesFieldMap)
   const pgObject: PGObject<T, TInterfaces, PGObjectOptionsDefault<Types>, Types> = {
     name,
-    fieldMap: totalFieldMap as T,
     kind: 'object',
-    interfaces: interfaces,
-    isTypeOf,
+    value: {
+      fieldMap: totalFieldMap as T,
+      interfaces: interfaces,
+      isTypeOf,
+    },
     copy: (config) => {
-      const orifinalFieldMap = copyOutputFieldMap(pgObject.fieldMap, inputFieldBuilder)
+      const orifinalFieldMap = copyOutputFieldMap(
+        pgObject.value.fieldMap,
+        inputFieldBuilder,
+      )
       const appendFieldMap = config.fields(orifinalFieldMap as any, outputFieldBuilder)
       const updatedFieldMap = Object.assign(appendFieldMap, orifinalFieldMap)
       const copy = createPGObject<any, TInterfaces, Types>(
@@ -47,18 +52,18 @@ export function createPGObject<
         cache,
         outputFieldBuilder,
         inputFieldBuilder,
-        pgObject.interfaces,
-        pgObject.isTypeOf,
+        pgObject.value.interfaces,
+        pgObject.value.isTypeOf,
       )
       setCache(cache, copy)
       return copy
     },
     modify: (c) => {
-      c(pgObject.fieldMap as PGModifyOutputFieldMap<any>)
+      c(pgObject.value.fieldMap as PGModifyOutputFieldMap<any>)
       return pgObject
     },
     prismaModel: (name) => {
-      pgObject.prismaModelName = name
+      pgObject.value.prismaModelName = name
       return pgObject
     },
   }
@@ -73,7 +78,7 @@ export function convertToGraphQLObject(
   return new GraphQLObjectType({
     name: pgObject.name,
     fields: () =>
-      _.mapValues(pgObject.fieldMap, (field, fieldName) =>
+      _.mapValues(pgObject.value.fieldMap, (field, fieldName) =>
         convertToGraphQLFieldConfig(
           field,
           fieldName,
@@ -83,18 +88,18 @@ export function convertToGraphQLObject(
         ),
       ),
     interfaces:
-      pgObject.interfaces === undefined
+      pgObject.value.interfaces === undefined
         ? undefined
         : () => {
             const { interfaces } = graphqlTypeRef()
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            return pgObject.interfaces!.map(
+            return pgObject.value.interfaces!.map(
               (x) =>
                 interfaces[x.name] ??
                 convertToGraphQLInterface(x, builder, graphqlTypeRef),
             )
           },
-    isTypeOf: pgObject.isTypeOf,
+    isTypeOf: pgObject.value.isTypeOf,
   })
 }
 
