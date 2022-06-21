@@ -37,7 +37,6 @@ export type PGFieldKindAndType =
     }
   | {
       kind: 'object'
-      // NOTE: () => PGObject<any> | PGInput<any>
       type: Function
     }
 
@@ -53,6 +52,8 @@ export type TypeOfPGFieldType<T> = IsAny<T> extends true
   ? TypeOfPGModelBase<T>
   : T extends PGUnion<any>
   ? TypeOfPGUnion<T>
+  : T extends PGInterface<any>
+  ? TypeOfPGInterface<T>
   : T
 
 export type PGFieldValue = {

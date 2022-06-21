@@ -1,3 +1,4 @@
+import { graphql } from 'graphql'
 import { getPGBuilder } from '..'
 import { createPGEnum } from '../objects/pg-enum'
 import { createPGInput } from '../objects/pg-input'
@@ -30,6 +31,43 @@ describe('InputBuilder', () => {
     })
     expect(result).toEqual(expectValue)
     expect(builder.cache().input.SomeInput).toEqual(expectValue)
+  })
+
+  it('Returns a PGInput that can be used as an input type', async () => {
+    const pg = getPGBuilder()()
+    const someInput = pg.input({
+      name: 'SomeInput',
+      fields: (b) => ({
+        arg: b.string(),
+      }),
+    })
+    pg.query({
+      name: 'someQuery',
+      field: (b) =>
+        b
+          .string()
+          .args((b) => ({
+            input: b.input(() => someInput),
+          }))
+          .resolve(({ args }) => args.input.arg),
+    })
+    const query = `
+      query {
+        someQuery(input: { arg: "hi" })
+      }
+    `
+
+    const response = await graphql({
+      schema: pg.build(),
+      source: query,
+      contextValue: {},
+    })
+
+    expect(response).toEqual({
+      data: {
+        someQuery: 'hi',
+      },
+    })
   })
 })
 

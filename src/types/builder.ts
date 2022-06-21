@@ -2,9 +2,11 @@ import { DMMF } from '@prisma/client/runtime'
 import {
   GraphQLEnumType,
   GraphQLInputObjectType,
+  GraphQLInterfaceType,
   GraphQLObjectType,
   GraphQLScalarType,
   GraphQLSchema,
+  GraphQLUnionType,
 } from 'graphql'
 import { Simplify } from 'type-fest'
 import { IsUnknown } from 'type-fest/source/set-return-type'
@@ -155,5 +157,7 @@ export interface PGCache {
 export type GraphqlTypeRef = () => {
   enums: { [name: string]: GraphQLEnumType }
   objects: { [name: string]: GraphQLObjectType }
+  interfaces: { [name: string]: GraphQLInterfaceType }
+  unions: { [name: string]: GraphQLUnionType }
   inputs: { [name: string]: GraphQLInputObjectType }
 }

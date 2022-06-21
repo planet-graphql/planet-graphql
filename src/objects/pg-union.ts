@@ -28,10 +28,12 @@ export function convertToGraphQLUnion(
           return pgObject?.name
         }
       : undefined
-  const { objects } = graphqlTypeRef()
   return new GraphQLUnionType({
     name: pgUnion.name,
-    types: () => pgUnion.value.types.map((x) => objects[x.name]),
+    types: () => {
+      const { objects } = graphqlTypeRef()
+      return pgUnion.value.types.map((x) => objects[x.name])
+    },
     resolveType,
   })
 }

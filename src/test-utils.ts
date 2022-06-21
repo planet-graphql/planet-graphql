@@ -1,6 +1,6 @@
 import { PGInput, PGInputField } from './types/input'
 import { PGInputFactoryUnion, PGInputFactory } from './types/input-factory'
-import { PGObject, PGOutputField } from './types/output'
+import { PGInterface, PGObject, PGOutputField, PGUnion } from './types/output'
 
 export function mergeDefaultPGInput(input: Partial<PGInput<any>>): PGInput<any> {
   return Object.assign(
@@ -28,6 +28,34 @@ export function mergeDefaultPGObject(object: Partial<PGObject<any>>): PGObject<a
       prismaModel: expect.any(Function),
     },
     object,
+  )
+}
+
+export function mergeDefaultPGInterface(
+  someInterface: Partial<PGInterface<any>>,
+): PGInterface<any> {
+  return Object.assign(
+    {
+      name: '',
+      kind: 'interface',
+      value: {
+        fieldMap: {},
+      },
+    },
+    someInterface,
+  )
+}
+
+export function mergeDefaultPGUnion(someUnion: Partial<PGUnion<any>>): PGUnion<any> {
+  return Object.assign(
+    {
+      name: '',
+      kind: 'union',
+      value: {
+        types: [],
+      },
+    },
+    someUnion,
   )
 }
 

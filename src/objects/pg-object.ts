@@ -82,9 +82,18 @@ export function convertToGraphQLObject(
           graphqlTypeRef,
         ),
       ),
-    interfaces: pgObject.interfaces?.map((x) =>
-      convertToGraphQLInterface(x, builder, graphqlTypeRef),
-    ),
+    interfaces:
+      pgObject.interfaces === undefined
+        ? undefined
+        : () => {
+            const { interfaces } = graphqlTypeRef()
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return pgObject.interfaces!.map(
+              (x) =>
+                interfaces[x.name] ??
+                convertToGraphQLInterface(x, builder, graphqlTypeRef),
+            )
+          },
     isTypeOf: pgObject.isTypeOf,
   })
 }

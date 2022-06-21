@@ -2,8 +2,10 @@ import { GraphQLObjectType, GraphQLSchema } from 'graphql'
 import _ from 'lodash'
 import { convertToGraphQLEnum } from '../objects/pg-enum'
 import { convertToGraphQLInputObject } from '../objects/pg-input'
+import { convertToGraphQLInterface } from '../objects/pg-interface'
 import { convertToGraphQLObject } from '../objects/pg-object'
 import { convertToGraphQLFieldConfig } from '../objects/pg-output-field'
+import { convertToGraphQLUnion } from '../objects/pg-union'
 import { GraphqlTypeRef, PGBuilder, PGTypes } from '../types/builder'
 
 export const build: <Types extends PGTypes>(
@@ -14,11 +16,19 @@ export const build: <Types extends PGTypes>(
   const typeRef: GraphqlTypeRef = () => ({
     enums,
     objects,
+    interfaces,
+    unions,
     inputs,
   })
   const enums = _.mapValues(cache.enum, (pgEnum) => convertToGraphQLEnum(pgEnum))
   const objects = _.mapValues(cache.object, (pgObject) =>
     convertToGraphQLObject(pgObject, builder, typeRef),
+  )
+  const interfaces = _.mapValues(cache.interface, (pgInterface) =>
+    convertToGraphQLInterface(pgInterface, builder, typeRef),
+  )
+  const unions = _.mapValues(cache.union, (pgUnion) =>
+    convertToGraphQLUnion(pgUnion, typeRef),
   )
   const inputs = _.mapValues(cache.input, (pgInput) =>
     convertToGraphQLInputObject(pgInput, builder, typeRef),
@@ -69,5 +79,6 @@ export const build: <Types extends PGTypes>(
     query: query,
     mutation: mutation,
     subscription: subscription,
+    types: Object.values(objects),
   })
 }
