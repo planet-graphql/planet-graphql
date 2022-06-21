@@ -198,7 +198,7 @@ describe('PGInputFactory', () => {
           }),
           someEnum: createInputField({
             kind: 'enum',
-            type: createPGEnum('SomeEnum', ['AAA', 'BBB'] as const),
+            type: createPGEnum('SomeEnum', ['AAA', 'BBB']),
           }),
         })
         const pgInput = pgInputFactory
