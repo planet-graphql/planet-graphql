@@ -1,12 +1,14 @@
 import { build } from './builder/build'
-import { dataloader } from './builder/dataloader'
-import { createEnumBuilder } from './builder/enum'
-import { createPGInputFieldBuilder, createInputBuilder } from './builder/input'
-import { createPGOutputFieldBuilder, createObjectBuilder } from './builder/object'
+import { dataloaderBuilder } from './builder/dataloader-builder'
+import { createEnumBuilder } from './builder/enum-builder'
+import { createPGInputFieldBuilder, createInputBuilder } from './builder/input-builder'
+import { createInterfaceBuilder } from './builder/interface-builder'
+import { createPGOutputFieldBuilder, createObjectBuilder } from './builder/object-builder'
 import { pgfy } from './builder/pgfy'
-import { rootFieldBuilder } from './builder/root-field'
+import { createRootFieldBuilder } from './builder/root-field-builder'
+import { createUnionBuilder } from './builder/union-builder'
 import { createBuilderCache } from './builder/utils'
-import { DefaultScalars } from './lib/scalars'
+import { DefaultScalars } from './objects/pg-scalar'
 import {
   InitPGBuilder,
   PGBuilder,
@@ -37,16 +39,17 @@ export const getPGBuilder: InitPGBuilder =
 
     const builder: PGBuilder<Types> = {
       object: createObjectBuilder(cache, outputFieldBuilder, inputFieldBuilder),
+      union: createUnionBuilder(cache),
+      interface: createInterfaceBuilder(cache, outputFieldBuilder),
       enum: createEnumBuilder(cache),
       input: createInputBuilder(cache, inputFieldBuilder),
-      query: rootFieldBuilder(cache, outputFieldBuilder, 'query'),
-      mutation: rootFieldBuilder(cache, outputFieldBuilder, 'mutation'),
-      subscription: rootFieldBuilder(cache, outputFieldBuilder, 'subscription'),
+      query: createRootFieldBuilder(cache, outputFieldBuilder, 'query'),
+      mutation: createRootFieldBuilder(cache, outputFieldBuilder, 'mutation'),
+      subscription: createRootFieldBuilder(cache, outputFieldBuilder, 'subscription'),
       build: build(() => builder),
       pgfy: pgfy(cache, inputFieldBuilder, outputFieldBuilder),
-      dataloader,
+      dataloader: dataloaderBuilder,
       cache: () => cache,
-      utils: { inputFieldBuilder, outputFieldBuilder },
     }
 
     return builder

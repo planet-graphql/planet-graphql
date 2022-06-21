@@ -46,7 +46,7 @@ export function getPrismaArgs(
     return prismaArgs
   }
   const fieldTypeObject: PGObject<PGOutputFieldMap> = fieldType()
-  const isPrismaObject = fieldTypeObject.prismaModelName !== undefined
+  const isPrismaObject = fieldTypeObject.value.prismaModelName !== undefined
   if (!isPrismaObject) {
     return prismaArgs
   }
@@ -54,7 +54,7 @@ export function getPrismaArgs(
   const resolveTreeMap = _.values(resolveTree.fieldsByTypeName)[0]
   const includeArgs = Object.entries(resolveTreeMap).reduce<Record<string, any>>(
     (acc, [fieldName, tree]) => {
-      const pgOutputField = fieldTypeObject.fieldMap[fieldName]
+      const pgOutputField = fieldTypeObject.value.fieldMap[fieldName]
       const isRelationField = pgOutputField.value.isPrismaRelation === true
       if (isRelationField) {
         acc[fieldName] = getPrismaArgs(pgOutputField, tree, depth + 1)
@@ -137,11 +137,14 @@ export function createConnectionObject(
   builder: PGBuilder<PGTypes>,
   isIncludeTotalCount: boolean,
 ): PGObject<any> {
-  return builder.object(`${namePrefix}Connection`, (b) => ({
-    edges: b.object(() => createEdgeObject(nodeType, namePrefix, builder)).list(),
-    pageInfo: b.object(() => createPageInfoObject(builder)),
-    ...(isIncludeTotalCount ? { totalCount: b.int() } : {}),
-  }))
+  return builder.object({
+    name: `${namePrefix}Connection`,
+    fields: (b) => ({
+      edges: b.object(() => createEdgeObject(nodeType, namePrefix, builder)).list(),
+      pageInfo: b.object(() => createPageInfoObject(builder)),
+      ...(isIncludeTotalCount ? { totalCount: b.int() } : {}),
+    }),
+  })
 }
 
 export function createEdgeObject(
@@ -149,21 +152,27 @@ export function createEdgeObject(
   namePrefix: string,
   builder: PGBuilder<PGTypes>,
 ): PGObject<any> {
-  return builder.object(`${namePrefix}Edge`, (b) => ({
-    node: b.object(nodeType),
-    cursor: b.string(),
-  }))
+  return builder.object({
+    name: `${namePrefix}Edge`,
+    fields: (b) => ({
+      node: b.object(nodeType),
+      cursor: b.string(),
+    }),
+  })
 }
 
 export function createPageInfoObject(builder: PGBuilder<PGTypes>): PGObject<any> {
   return (
     builder.cache().object.PageInfo ??
-    builder.object(`PageInfo`, (b) => ({
-      hasNextPage: b.boolean(),
-      hasPreviousPage: b.boolean(),
-      startCursor: b.string().nullable(),
-      endCursor: b.string().nullable(),
-    }))
+    builder.object({
+      name: 'PageInfo',
+      fields: (b) => ({
+        hasNextPage: b.boolean(),
+        hasPreviousPage: b.boolean(),
+        startCursor: b.string().nullable(),
+        endCursor: b.string().nullable(),
+      }),
+    })
   )
 }
 
@@ -223,7 +232,7 @@ export function getPageInfo(
 export function getDefaultCursor(
   pgObject: PGObject<PGOutputFieldMap>,
 ): (node: any) => object {
-  const idFieldEntry = Object.entries(pgObject.fieldMap).find(([_, field]) => {
+  const idFieldEntry = Object.entries(pgObject.value.fieldMap).find(([_, field]) => {
     return field.value.type === 'id'
   })
   if (idFieldEntry === undefined) {
@@ -242,7 +251,7 @@ export function decodeCursor(cursor: string): object {
 }
 
 export function getDefaultOrderBy(pgObject: PGObject<PGOutputFieldMap>): object {
-  const idFieldEntry = Object.entries(pgObject.fieldMap).find(([_, field]) => {
+  const idFieldEntry = Object.entries(pgObject.value.fieldMap).find(([_, field]) => {
     return field.value.type === 'id'
   })
   if (idFieldEntry === undefined) {

@@ -1,4 +1,4 @@
-import { DefaultScalars } from '../lib/scalars'
+import { DefaultScalars } from '../objects/pg-scalar'
 import { PGScalarMap } from './builder'
 
 export type SortOrder = 'asc' | 'desc'

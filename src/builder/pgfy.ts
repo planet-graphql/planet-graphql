@@ -1,4 +1,5 @@
 import { DMMF } from '@prisma/generator-helper'
+import _ from 'lodash'
 import { createPGEnum } from '../objects/pg-enum'
 import {
   createPGInputFactoryUnion,
@@ -16,8 +17,7 @@ import {
   PGInputFactory,
 } from '../types/input-factory'
 import { PGObject, PGOutputFieldBuilder, PGOutputFieldMap } from '../types/output'
-import { getScalarTypeName } from './build'
-import { createEnumBuilder } from './enum'
+import { createEnumBuilder } from './enum-builder'
 import { PGError, setCache } from './utils'
 
 export const pgfy: <Types extends PGTypes>(
@@ -75,7 +75,10 @@ export const pgfy: <Types extends PGTypes>(
     const objectRef: { [name: string]: PGObject<any> } = {}
     const enums = dmmf.datamodel.enums.reduce<PGfyResponseType<PGBuilder>['enums']>(
       (acc, x) => {
-        const pgEnum = createEnumBuilder(cache)(x.name, ...x.values.map((v) => v.name))
+        const pgEnum = createEnumBuilder(cache)({
+          name: x.name,
+          values: x.values.map((v) => v.name),
+        })
         acc[x.name] = pgEnum
         return acc
       },
@@ -143,7 +146,7 @@ export const pgfy: <Types extends PGTypes>(
           )
         const enumFactory = createInputField<any, any, any>({
           kind: 'enum',
-          type: createPGEnum(enumType.name, ...enumType.values),
+          type: createPGEnum(enumType.name, enumType.values),
         })
         if (isList) enumFactory.list()
         if (isOptional) enumFactory.optional()
@@ -212,3 +215,8 @@ export const pgfy: <Types extends PGTypes>(
     }
     return resp as any
   }
+
+export function getScalarTypeName(prismaTypeName: string, isPrismaId: boolean): string {
+  if (isPrismaId) return 'id'
+  return _.lowerFirst(prismaTypeName)
+}

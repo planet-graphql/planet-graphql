@@ -1,4 +1,4 @@
-import { mergeDefaultInputField } from '../builder/test-utils'
+import { mergeDefaultInputField } from '../test-utils'
 import { PGTypes } from '../types/builder'
 import { createInputField } from './pg-input-field'
 

@@ -1,11 +1,11 @@
-import { DefaultScalars } from '../lib/scalars'
 import { createPGEnum } from '../objects/pg-enum'
 import { createPGObject } from '../objects/pg-object'
 import { createOutputField } from '../objects/pg-output-field'
+import { DefaultScalars } from '../objects/pg-scalar'
+import { mergeDefaultOutputField, mergeDefaultPGObject } from '../test-utils'
 import { PGTypes } from '../types/builder'
-import { createPGInputFieldBuilder } from './input'
-import { createObjectBuilder, createPGOutputFieldBuilder } from './object'
-import { mergeDefaultOutputField, mergeDefaultPGObject } from './test-utils'
+import { createPGInputFieldBuilder } from './input-builder'
+import { createObjectBuilder, createPGOutputFieldBuilder } from './object-builder'
 import { createBuilderCache } from './utils'
 
 describe('createObjectBuilder', () => {
@@ -22,17 +22,22 @@ describe('createObjectBuilder', () => {
       inputFieldBuilder,
     )
 
-    const object = builder('SomeObject', (b) => ({
-      id: b.id(),
-    }))
+    const object = builder({
+      name: 'SomeObject',
+      fields: (b) => ({
+        id: b.id(),
+      }),
+    })
 
     const expectValue = mergeDefaultPGObject({
       name: 'SomeObject',
-      fieldMap: {
-        id: mergeDefaultOutputField({
-          kind: 'scalar',
-          type: 'id',
-        }),
+      value: {
+        fieldMap: {
+          id: mergeDefaultOutputField({
+            kind: 'scalar',
+            type: 'id',
+          }),
+        },
       },
     })
 
@@ -69,7 +74,7 @@ describe('createPGOutputFieldBuilder', () => {
   it('Returns a builder to create a enum type outputField', () => {
     const inputFieldBuilder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
     const builder = createPGOutputFieldBuilder<PGTypes>(DefaultScalars, inputFieldBuilder)
-    const someEnum = createPGEnum('SomeEnum', 'A', 'B')
+    const someEnum = createPGEnum('SomeEnum', ['A', 'B'] as const)
 
     expect(builder.enum(someEnum)).toEqual(
       mergeDefaultOutputField({

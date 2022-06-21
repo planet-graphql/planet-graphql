@@ -51,7 +51,10 @@ export function modifyArgValueOfNullableOrOptionalField(
         const inputType: PGInput<PGInputFieldMap> = (
           fieldMap[fieldName].value.type as Function
         )()
-        acc[fieldName] = modifyArgValueOfNullableOrOptionalField(inputType.fieldMap, arg)
+        acc[fieldName] = modifyArgValueOfNullableOrOptionalField(
+          inputType.value.fieldMap,
+          arg,
+        )
         return acc
       }
       if (arg !== undefined) {
@@ -150,7 +153,7 @@ export async function validateArgs(
       errors.push(
         ...(await validateArgs(
           `${pathPrefix}.${fieldName}`,
-          pgInput.fieldMap,
+          pgInput.value.fieldMap,
           arg,
           cache,
           context,

@@ -10,6 +10,8 @@ import {
   PGOutputFieldBuilder,
   UpdatePGOptions,
   PGObject,
+  PGInterface,
+  ConvertPGInterfacesToFieldMap,
 } from './output'
 import { SomePGTypes, SomeUserPrismaArgs } from './test.util'
 
@@ -32,7 +34,7 @@ describe('PGOutputField', () => {
 
   describe('relay', () => {
     it('Sets isRelay to true & Adds relay args into args & Adds prisma relay args into prismaArgs', () => {
-      type User = PGObject<{}, { PrismaModelName: 'User' }, SomePGTypes>
+      type User = PGObject<{}, undefined, { PrismaModelName: 'User' }, SomePGTypes>
       type OutputField = PGOutputField<
         () => User,
         any,
@@ -119,6 +121,30 @@ describe('PGOutputFieldBuilder', () => {
           enum: <T extends PGEnum<any>>(
             type: T,
           ) => PGOutputField<T, any, PGOutputFieldOptionsDefault, PGTypes>
+        }
+      >
+    >(true)
+  })
+})
+
+describe('ConvertPGInterfacesToFieldMap', () => {
+  it('Returns the field types that the object should have to satisfy interfaces', () => {
+    type InterfaceA = PGInterface<{
+      a: PGOutputField<string>
+    }>
+    type InterfaceB = PGInterface<{
+      b: PGOutputField<string>
+    }>
+
+    type T = ConvertPGInterfacesToFieldMap<[InterfaceA, InterfaceB]>
+
+    expectType<
+      TypeEqual<
+        T,
+        {
+          a: PGOutputField<string>
+        } & {
+          b: PGOutputField<string>
         }
       >
     >(true)

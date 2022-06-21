@@ -1,158 +1,202 @@
 import { expectType, TypeEqual } from 'ts-expect'
 import { getPGBuilder } from '..'
-import { mergeDefaultPGObject, mergeDefaultOutputField } from '../builder/test-utils'
-import { PGBuilder, PGTypes } from '../types/builder'
-import { PGObject, PGOutputFieldOptionsDefault, PGOutputField } from '../types/output'
+import { mergeDefaultPGObject, mergeDefaultOutputField } from '../test-utils'
+import { PGTypes } from '../types/builder'
+import {
+  PGObject,
+  PGOutputFieldOptionsDefault,
+  PGOutputField,
+  PGInterface,
+  PGObjectOptionsDefault,
+} from '../types/output'
 
 describe('PGObject', () => {
-  let buider: PGBuilder<PGTypes>
-  beforeEach(() => {
-    buider = getPGBuilder()()
-  })
+  describe('builder', () => {
+    describe('Interface is specified', () => {
+      it('Returns an object with fields defined in the interfaces', () => {
+        const builder = getPGBuilder()()
+        const interfaceA = builder.interface({
+          name: 'A',
+          fields: (b) => ({
+            a: b.string(),
+          }),
+        })
+        const interfaceB = builder.interface({
+          name: 'B',
+          fields: (b) => ({
+            b: b.string(),
+          }),
+        })
 
+        const object = builder.object({
+          name: 'SomeObject',
+          interfaces: [interfaceA, interfaceB],
+          fields: (b) => ({
+            id: b.int(),
+          }),
+        })
+
+        const expectValue = mergeDefaultPGObject({
+          name: 'SomeObject',
+          value: {
+            fieldMap: {
+              id: mergeDefaultOutputField({
+                kind: 'scalar',
+                type: 'int',
+              }),
+              a: mergeDefaultOutputField({
+                kind: 'scalar',
+                type: 'string',
+              }),
+              b: mergeDefaultOutputField({
+                kind: 'scalar',
+                type: 'string',
+              }),
+            },
+            interfaces: [interfaceA, interfaceB],
+          },
+        })
+
+        expect(object).toEqual(expectValue)
+        expect(builder.cache().object.SomeObject).toEqual(expectValue)
+        expectType<
+          TypeEqual<
+            typeof object,
+            PGObject<
+              {
+                id: PGOutputField<number, any, PGOutputFieldOptionsDefault, PGTypes>
+                a: PGOutputField<string, any, PGOutputFieldOptionsDefault, PGTypes>
+                b: PGOutputField<string, any, PGOutputFieldOptionsDefault, PGTypes>
+              },
+              Array<
+                | PGInterface<{
+                    a: PGOutputField<string, any, PGOutputFieldOptionsDefault, PGTypes>
+                  }>
+                | PGInterface<{
+                    b: PGOutputField<string, any, PGOutputFieldOptionsDefault, PGTypes>
+                  }>
+              >,
+              PGObjectOptionsDefault<PGTypes>,
+              PGTypes
+            >
+          >
+        >(true)
+      })
+    })
+  })
   describe('copy', () => {
-    it('Returns the same object with only the name changed & Set it to Builder Cache', () => {
-      const original = buider.object('Original', (b) => ({
-        id: b.id(),
-      }))
-      const copy = original.copy('Copy')
+    it('Copies the object and adjust to specified fields & Set it to Builder Cache', () => {
+      const builder = getPGBuilder()()
+      const original = builder.object({
+        name: 'Original',
+        fields: (b) => ({
+          id: b.id(),
+        }),
+      })
+
+      const copy = original.copy({
+        name: 'Copy',
+        fields: (f, b) => ({
+          ...f,
+          name: b.string(),
+        }),
+      })
 
       const expectValue = mergeDefaultPGObject({
         name: 'Copy',
-        fieldMap: {
-          id: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'id',
-          }),
+        value: {
+          fieldMap: {
+            id: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'id',
+            }),
+            name: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'string',
+            }),
+          },
         },
       })
       expect(copy).toEqual(expectValue)
-      expect(buider.cache().object.Copy).toEqual(expectValue)
-      expectType<TypeEqual<typeof original, typeof copy>>(true)
-    })
-
-    it('Returns an entirely new object, so changes do not affect the original', () => {
-      const copy = buider
-        .object('Original', (b) => ({
-          id: b.id(),
-        }))
-        .copy('Copy')
-        .update((f, b) => {
-          return {
-            id: f.id.nullable(),
-            name: b.string(),
-          }
-        })
-
-      const expectOriginalValue = mergeDefaultPGObject({
-        name: 'Original',
-        fieldMap: {
-          id: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'id',
-          }),
-        },
-      })
-
-      const expectCopyValue = mergeDefaultPGObject({
-        name: 'Copy',
-        fieldMap: {
-          id: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'id',
-            isNullable: true,
-            isOptional: true,
-          }),
-          name: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'string',
-          }),
-        },
-      })
-
-      expect(buider.cache().object.Original).toEqual(expectOriginalValue)
-      expect(buider.cache().object.Copy).toEqual(expectCopyValue)
-      expect(copy).toEqual(expectCopyValue)
-    })
-  })
-  describe('update', () => {
-    it('Returns updated object & Changes the object in Builder Cache', () => {
-      const original = buider.object('Original', (b) => ({
-        id: b.id(),
-        name: b.string(),
-      }))
-
-      const updated = original.update((f, b) => ({
-        ...f,
-        name: f.name.nullable(),
-        age: b.int(),
-      }))
-
-      const expectOriginalValue = mergeDefaultPGObject({
-        name: 'Original',
-        fieldMap: {
-          id: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'id',
-          }),
-          name: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'string',
-          }),
-        },
-      })
-
-      const expectUpdatedValue = mergeDefaultPGObject({
-        name: 'Original',
-        fieldMap: {
-          id: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'id',
-          }),
-          name: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'string',
-            isNullable: true,
-            isOptional: true,
-          }),
-          age: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'int',
-          }),
-        },
-      })
-
-      expect(original).toEqual(expectOriginalValue)
-      expect(updated).toEqual(expectUpdatedValue)
-      expect(buider.cache().object.Original).toEqual(expectUpdatedValue)
+      expect(builder.cache().object.Copy).toEqual(expectValue)
       expectType<
         TypeEqual<
-          typeof updated,
+          typeof copy,
           PGObject<
             {
               id: PGOutputField<string, any, PGOutputFieldOptionsDefault, PGTypes>
-              name: PGOutputField<
-                string | null,
-                any,
-                PGOutputFieldOptionsDefault,
-                PGTypes
-              >
-              age: PGOutputField<number, any, PGOutputFieldOptionsDefault, PGTypes>
+              name: PGOutputField<string, any, PGOutputFieldOptionsDefault, PGTypes>
             },
-            any,
+            undefined,
+            PGObjectOptionsDefault<PGTypes>,
             PGTypes
           >
         >
       >(true)
     })
+
+    it('Returns an entirely new instance, so changes do not affect the original', () => {
+      const builder = getPGBuilder()()
+      const original = builder.object({
+        name: 'Original',
+        fields: (b) => ({
+          id: b.id(),
+        }),
+      })
+
+      const copy = original.copy({
+        name: 'Copy',
+        fields: (f, b) => ({
+          id: f.id.nullable(),
+          name: b.string(),
+        }),
+      })
+
+      const expectOriginalValue = mergeDefaultPGObject({
+        name: 'Original',
+        value: {
+          fieldMap: {
+            id: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'id',
+            }),
+          },
+        },
+      })
+      const expectCopyValue = mergeDefaultPGObject({
+        name: 'Copy',
+        value: {
+          fieldMap: {
+            id: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'id',
+              isNullable: true,
+              isOptional: true,
+            }),
+            name: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'string',
+            }),
+          },
+        },
+      })
+      expect(original).toEqual(expectOriginalValue)
+      expect(builder.cache().object.Original).toEqual(expectOriginalValue)
+      expect(copy).toEqual(expectCopyValue)
+      expect(builder.cache().object.Copy).toEqual(expectCopyValue)
+    })
   })
 
   describe('modify', () => {
     it('Returns only value changed object & Changes the object in Builder Cache', () => {
-      const original = buider.object('Original', (b) => ({
-        id: b.id(),
-        name: b.string(),
-      }))
+      const builder = getPGBuilder()()
+      const original = builder.object({
+        name: 'Original',
+        fields: (f) => ({
+          id: f.id(),
+          name: f.string(),
+        }),
+      })
 
       const modified = original.modify((f) => ({
         id: f.id.resolve((params) => `id: ${params.source.id}`),
@@ -160,22 +204,23 @@ describe('PGObject', () => {
 
       const expectModifiedValue = mergeDefaultPGObject({
         name: 'Original',
-        fieldMap: {
-          id: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'id',
-            resolve: expect.any(Function),
-          }),
-          name: mergeDefaultOutputField({
-            kind: 'scalar',
-            type: 'string',
-          }),
+        value: {
+          fieldMap: {
+            id: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'id',
+              resolve: expect.any(Function),
+            }),
+            name: mergeDefaultOutputField({
+              kind: 'scalar',
+              type: 'string',
+            }),
+          },
         },
       })
-
       expect(original).toEqual(expectModifiedValue)
       expect(modified).toEqual(expectModifiedValue)
-      expect(buider.cache().object.Original).toEqual(expectModifiedValue)
+      expect(builder.cache().object.Original).toEqual(expectModifiedValue)
       expectType<TypeEqual<typeof original, typeof modified>>(true)
     })
   })

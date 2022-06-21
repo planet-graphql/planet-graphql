@@ -11,13 +11,15 @@ export const createObjectBuilder: <Types extends PGTypes>(
   outputFieldBuilder: PGOutputFieldBuilder<Types>,
   inputFieldBuilder: PGInputFieldBuilder<Types>,
 ) => PGBuilder<Types>['object'] =
-  (cache, outputFieldBuilder, inputFieldBuilder) => (name, fieldMap) => {
-    const pgObject = createPGObject(
-      name,
-      fieldMap(outputFieldBuilder),
+  (cache, outputFieldBuilder, inputFieldBuilder) => (config) => {
+    const pgObject = createPGObject<any, any, any>(
+      config.name,
+      config.fields(outputFieldBuilder),
       cache,
       outputFieldBuilder,
       inputFieldBuilder,
+      config.interfaces,
+      config.isTypeOf,
     )
     setCache(cache, pgObject)
     return pgObject

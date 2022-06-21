@@ -1,36 +1,79 @@
-import { DefaultScalars } from '../lib/scalars'
+import { graphql } from 'graphql'
+import { getPGBuilder } from '..'
 import { createPGEnum } from '../objects/pg-enum'
 import { createPGInput } from '../objects/pg-input'
 import { createInputField } from '../objects/pg-input-field'
+import { DefaultScalars } from '../objects/pg-scalar'
+import { mergeDefaultInputField, mergeDefaultPGInput } from '../test-utils'
 import { PGTypes } from '../types/builder'
-import { createInputBuilder, createPGInputFieldBuilder } from './input'
-import { mergeDefaultInputField, mergeDefaultPGInput } from './test-utils'
+import { createPGInputFieldBuilder } from './input-builder'
 import { createBuilderCache } from './utils'
 
-describe('createInputBuilder', () => {
-  it('Returns a builder that generates PGInput & sets generated PGInputs in cache', () => {
-    const cache = createBuilderCache(DefaultScalars)
-    const fieldBuilder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
-    const builder = createInputBuilder<PGTypes>(cache, fieldBuilder)
+describe('InputBuilder', () => {
+  it('Returns a PGInput & Sets it to the Build Cache', () => {
+    const builder = getPGBuilder()()
 
-    const input = builder('SomeInput', (b) => ({
-      id: b.id(),
-    }))
+    const result = builder.input({
+      name: 'SomeInput',
+      fields: (b) => ({
+        id: b.id(),
+      }),
+    })
 
     const expectValue = mergeDefaultPGInput({
       name: 'SomeInput',
-      fieldMap: {
-        id: mergeDefaultInputField({
-          kind: 'scalar',
-          type: 'id',
-        }),
+      value: {
+        fieldMap: {
+          id: mergeDefaultInputField({
+            kind: 'scalar',
+            type: 'id',
+          }),
+        },
       },
     })
+    expect(result).toEqual(expectValue)
+    expect(builder.cache().input.SomeInput).toEqual(expectValue)
+  })
 
-    expect(input).toEqual(expectValue)
-    expect(cache.input.SomeInput).toEqual(expectValue)
+  it('Returns a PGInput that can be used as an input type', async () => {
+    const pg = getPGBuilder()()
+    const someInput = pg.input({
+      name: 'SomeInput',
+      fields: (b) => ({
+        arg: b.string(),
+      }),
+    })
+    pg.query({
+      name: 'someQuery',
+      field: (b) =>
+        b
+          .string()
+          .args((b) => ({
+            input: b.input(() => someInput),
+          }))
+          .resolve(({ args }) => args.input.arg),
+    })
+    const query = `
+      query {
+        someQuery(input: { arg: "hi" })
+      }
+    `
+
+    const response = await graphql({
+      schema: pg.build(),
+      source: query,
+      contextValue: {},
+    })
+
+    expect(response).toEqual({
+      data: {
+        someQuery: 'hi',
+      },
+    })
   })
 })
+
+describe('createInputBuilder', () => {})
 
 describe('createPGInputFieldBuilder', () => {
   it('Returns a PGInputFieldBuilder created for the argument ScalarMap', () => {
@@ -56,7 +99,7 @@ describe('createPGInputFieldBuilder', () => {
 
   it('Returns a builder to create a enum type inputField', () => {
     const builder = createPGInputFieldBuilder<PGTypes>(DefaultScalars)
-    const someEnum = createPGEnum('SomeEnum', 'A', 'B')
+    const someEnum = createPGEnum('SomeEnum', ['A', 'B'] as const)
 
     expect(builder.enum(someEnum)).toEqual(
       mergeDefaultInputField({

@@ -1,7 +1,7 @@
 import { graphql } from 'graphql'
 import { expectType, TypeEqual } from 'ts-expect'
 import { getPGBuilder } from '..'
-import { mergeDefaultOutputField, mergeDefaultPGObject } from '../builder/test-utils'
+import { mergeDefaultOutputField, mergeDefaultPGObject } from '../test-utils'
 import { SomePGTypes, SomePostPrismaArgs, SomeUserPrismaArgs } from '../types/test.util'
 import {
   createConnectionObject,
@@ -16,23 +16,25 @@ describe('prismaArgsFeature', () => {
     let prismaArgs: any
     const pg = getPGBuilder()()
 
-    pg.query('someQuery', (b) =>
-      b
-        .boolean()
-        .args((b) => ({
-          a1: b.boolean(),
-        }))
-        .prismaArgs((b) => ({
-          a2: b.boolean(),
-        }))
-        .resolve((params) => {
-          args = params.args
-          prismaArgs = params.prismaArgs
-          expectType<TypeEqual<typeof params.args, { a1: boolean }>>(true)
-          expectType<TypeEqual<typeof params.prismaArgs, { a2: boolean }>>(true)
-          return true
-        }),
-    )
+    pg.query({
+      name: 'someQuery',
+      field: (b) =>
+        b
+          .boolean()
+          .args((b) => ({
+            a1: b.boolean(),
+          }))
+          .prismaArgs((b) => ({
+            a2: b.boolean(),
+          }))
+          .resolve((params) => {
+            args = params.args
+            prismaArgs = params.prismaArgs
+            expectType<TypeEqual<typeof params.args, { a1: boolean }>>(true)
+            expectType<TypeEqual<typeof params.prismaArgs, { a2: boolean }>>(true)
+            return true
+          }),
+    })
 
     const query = `
       query {
@@ -56,36 +58,44 @@ describe('prismaArgsFeature', () => {
     const pg = getPGBuilder<SomePGTypes>()()
 
     const user = pg
-      .object('user', (b) => ({
-        id: b.id(),
-        posts: b.relation(() => post).list(),
-      }))
+      .object({
+        name: 'user',
+        fields: (b) => ({
+          id: b.id(),
+          posts: b.relation(() => post).list(),
+        }),
+      })
       .prismaModel('User')
 
     const post = pg
-      .object('post', (b) => ({
-        id: b.id(),
-        user: b.object(() => user),
-      }))
+      .object({
+        name: 'post',
+        fields: (b) => ({
+          id: b.id(),
+          user: b.object(() => user),
+        }),
+      })
       .prismaModel('Post')
 
-    pg.query('users', (b) =>
-      b
-        .object(() => user)
-        .list()
-        .resolve((params) => {
-          args = params.args
-          prismaArgs = params.prismaArgs
-          expectType<TypeEqual<typeof params.args, never>>(true)
-          expectType<
-            TypeEqual<
-              typeof params.prismaArgs,
-              { include: SomeUserPrismaArgs['include'] | undefined }
-            >
-          >(true)
-          return []
-        }),
-    )
+    pg.query({
+      name: 'users',
+      field: (b) =>
+        b
+          .object(() => user)
+          .list()
+          .resolve((params) => {
+            args = params.args
+            prismaArgs = params.prismaArgs
+            expectType<TypeEqual<typeof params.args, never>>(true)
+            expectType<
+              TypeEqual<
+                typeof params.prismaArgs,
+                { include: SomeUserPrismaArgs['include'] | undefined }
+              >
+            >(true)
+            return []
+          }),
+    })
 
     const query = `
         query {
@@ -113,71 +123,82 @@ describe('prismaArgsFeature', () => {
     const pg = getPGBuilder<SomePGTypes>()()
 
     const user = pg
-      .object('user', (b) => ({
-        id: b.id(),
-        posts: b
-          .relation(() => post)
+      .object({
+        name: 'user',
+        fields: (b) => ({
+          id: b.id(),
+          posts: b
+            .relation(() => post)
+            .list()
+            .prismaArgs((b) => ({
+              where: b.input(() =>
+                pg.input({
+                  name: 'UserWhere',
+                  fields: (b) => ({
+                    isPublic: b.boolean(),
+                  }),
+                }),
+              ),
+              take: b.int(),
+            }))
+            .resolve((params) => {
+              postsFieldPrismaArgs = params.prismaArgs
+              expectType<
+                TypeEqual<
+                  typeof params.prismaArgs,
+                  {
+                    include: SomePostPrismaArgs['include'] | undefined
+                    take: number
+                    where: {
+                      isPublic: boolean
+                    }
+                  }
+                >
+              >(true)
+              return []
+            }),
+        }),
+      })
+      .prismaModel('User')
+
+    const post = pg
+      .object({
+        name: 'post',
+        fields: (b) => ({
+          id: b.id(),
+          user: b.object(() => user),
+        }),
+      })
+      .prismaModel('Post')
+
+    pg.query({
+      name: 'users',
+      field: (b) =>
+        b
+          .object(() => user)
           .list()
           .prismaArgs((b) => ({
-            where: b.input(() =>
-              pg.input('UserWhere', (b) => ({
-                isPublic: b.boolean(),
-              })),
-            ),
             take: b.int(),
           }))
           .resolve((params) => {
-            postsFieldPrismaArgs = params.prismaArgs
+            prismaArgs = params.prismaArgs
             expectType<
               TypeEqual<
                 typeof params.prismaArgs,
                 {
-                  include: SomePostPrismaArgs['include'] | undefined
+                  include: SomeUserPrismaArgs['include'] | undefined
                   take: number
-                  where: {
-                    isPublic: boolean
-                  }
                 }
               >
             >(true)
-            return []
-          }),
-      }))
-      .prismaModel('User')
-
-    const post = pg
-      .object('post', (b) => ({
-        id: b.id(),
-        user: b.object(() => user),
-      }))
-      .prismaModel('Post')
-
-    pg.query('users', (b) =>
-      b
-        .object(() => user)
-        .list()
-        .prismaArgs((b) => ({
-          take: b.int(),
-        }))
-        .resolve((params) => {
-          prismaArgs = params.prismaArgs
-          expectType<
-            TypeEqual<
-              typeof params.prismaArgs,
+            return [
               {
-                include: SomeUserPrismaArgs['include'] | undefined
-                take: number
-              }
-            >
-          >(true)
-          return [
-            {
-              id: '1',
-              posts: [],
-            },
-          ]
-        }),
-    )
+                id: '1',
+                posts: [],
+              },
+            ]
+          }),
+    })
 
     const query = `
         query {
@@ -219,19 +240,24 @@ describe('prismaRelayFeature', () => {
   it('Converts the return value to Relay format', async () => {
     const pg = getPGBuilder<SomePGTypes>()()
     const user = pg
-      .object('User', (b) => ({
-        id: b.id(),
-      }))
-      .prismaModel('User')
-    pg.query('users', (f) =>
-      f
-        .object(() => user)
-        .relay()
-        .relayTotalCount(() => 1)
-        .resolve(() => {
-          return [{ id: '1' }]
+      .object({
+        name: 'User',
+        fields: (b) => ({
+          id: b.id(),
         }),
-    )
+      })
+      .prismaModel('User')
+    pg.query({
+      name: 'users',
+      field: (f) =>
+        f
+          .object(() => user)
+          .relay()
+          .relayTotalCount(() => 1)
+          .resolve(() => {
+            return [{ id: '1' }]
+          }),
+    })
 
     const query = `
       query {
@@ -286,43 +312,48 @@ describe('prismaRelayFeature', () => {
     let prismaArgs
     const pg = getPGBuilder<SomePGTypes>()()
     const user = pg
-      .object('User', (b) => ({
-        id: b.id(),
-      }))
-      .prismaModel('User')
-    pg.query('users', (f) =>
-      f
-        .object(() => user)
-        .relay()
-        .resolve((params) => {
-          args = params.args
-          prismaArgs = params.prismaArgs
-          expectType<
-            TypeEqual<
-              typeof args,
-              {
-                first: number | undefined
-                after: string | undefined
-                last: number | undefined
-                before: string | undefined
-              }
-            >
-          >(true)
-          expectType<
-            TypeEqual<
-              typeof prismaArgs,
-              {
-                include: SomeUserPrismaArgs['include'] | undefined
-                cursor: SomeUserPrismaArgs['cursor'] | undefined
-                take: SomeUserPrismaArgs['take'] | undefined
-                skip: SomeUserPrismaArgs['skip'] | undefined
-                orderBy: SomeUserPrismaArgs['orderBy']
-              }
-            >
-          >(true)
-          return [{ id: '1' }]
+      .object({
+        name: 'User',
+        fields: (b) => ({
+          id: b.id(),
         }),
-    )
+      })
+      .prismaModel('User')
+    pg.query({
+      name: 'users',
+      field: (f) =>
+        f
+          .object(() => user)
+          .relay()
+          .resolve((params) => {
+            args = params.args
+            prismaArgs = params.prismaArgs
+            expectType<
+              TypeEqual<
+                typeof args,
+                {
+                  first: number | undefined
+                  after: string | undefined
+                  last: number | undefined
+                  before: string | undefined
+                }
+              >
+            >(true)
+            expectType<
+              TypeEqual<
+                typeof prismaArgs,
+                {
+                  include: SomeUserPrismaArgs['include'] | undefined
+                  cursor: SomeUserPrismaArgs['cursor'] | undefined
+                  take: SomeUserPrismaArgs['take'] | undefined
+                  skip: SomeUserPrismaArgs['skip'] | undefined
+                  orderBy: SomeUserPrismaArgs['orderBy']
+                }
+              >
+            >(true)
+            return [{ id: '1' }]
+          }),
+    })
     const query = `
       query {
         users(first: 1) {
@@ -353,23 +384,28 @@ describe('prismaRelayFeature', () => {
     it('Uses set function to create cursors', async () => {
       const pg = getPGBuilder<SomePGTypes>()()
       const user = pg
-        .object('User', (b) => ({
-          id: b.id(),
-          email: b.string(),
-        }))
-        .prismaModel('User')
-      pg.query('users', (f) =>
-        f
-          .object(() => user)
-          .relay()
-          .relayCursor((node) => {
-            expectType<TypeEqual<typeof node, { id: string; email: string }>>(true)
-            return { email: node.email }
-          })
-          .resolve(() => {
-            return [{ id: '1', email: 'xxx@xxx.com' }]
+        .object({
+          name: 'User',
+          fields: (b) => ({
+            id: b.id(),
+            email: b.string(),
           }),
-      )
+        })
+        .prismaModel('User')
+      pg.query({
+        name: 'users',
+        field: (f) =>
+          f
+            .object(() => user)
+            .relay()
+            .relayCursor((node) => {
+              expectType<TypeEqual<typeof node, { id: string; email: string }>>(true)
+              return { email: node.email }
+            })
+            .resolve(() => {
+              return [{ id: '1', email: 'xxx@xxx.com' }]
+            }),
+      })
 
       const query = `
         query {
@@ -397,23 +433,28 @@ describe('prismaRelayFeature', () => {
       let prismaArgs
       const pg = getPGBuilder<SomePGTypes>()()
       const user = pg
-        .object('User', (b) => ({
-          id: b.id(),
-          email: b.string(),
-        }))
-        .prismaModel('User')
-      pg.query('users', (f) =>
-        f
-          .object(() => user)
-          .relay()
-          .relayOrderBy({
-            email: 'desc',
-          })
-          .resolve((params) => {
-            prismaArgs = params.prismaArgs
-            return [{ id: '1' }]
+        .object({
+          name: 'User',
+          fields: (b) => ({
+            id: b.id(),
+            email: b.string(),
           }),
-      )
+        })
+        .prismaModel('User')
+      pg.query({
+        name: 'users',
+        field: (f) =>
+          f
+            .object(() => user)
+            .relay()
+            .relayOrderBy({
+              email: 'desc',
+            })
+            .resolve((params) => {
+              prismaArgs = params.prismaArgs
+              return [{ id: '1' }]
+            }),
+      })
       const query = `
         query {
           users {
@@ -442,28 +483,36 @@ describe('prismaRelayFeature', () => {
       let prismaArgs
       const pg = getPGBuilder<SomePGTypes>()()
       const user = pg
-        .object('User', (b) => ({
-          id: b.id(),
-          email: b.string(),
-        }))
-        .prismaModel('User')
-      pg.query('users', (f) =>
-        f
-          .object(() => user)
-          .relay()
-          .prismaArgs((b) => ({
-            orderBy: b.input(() =>
-              pg.input('UsersOrderBy', (b) => ({
-                email: b.string(),
-                id: b.string(),
-              })),
-            ),
-          }))
-          .resolve((params) => {
-            prismaArgs = params.prismaArgs
-            return [{ id: '1' }]
+        .object({
+          name: 'User',
+          fields: (b) => ({
+            id: b.id(),
+            email: b.string(),
           }),
-      )
+        })
+        .prismaModel('User')
+      pg.query({
+        name: 'users',
+        field: (f) =>
+          f
+            .object(() => user)
+            .relay()
+            .prismaArgs((b) => ({
+              orderBy: b.input(() =>
+                pg.input({
+                  name: 'UsersOrderBy',
+                  fields: (b) => ({
+                    email: b.string(),
+                    id: b.string(),
+                  }),
+                }),
+              ),
+            }))
+            .resolve((params) => {
+              prismaArgs = params.prismaArgs
+              return [{ id: '1' }]
+            }),
+      })
       const query = `
         query {
           users(orderBy: { email: "asc", id: "desc" }) {
@@ -491,75 +540,85 @@ describe('prismaRelayFeature', () => {
 describe('createConnectionObject', () => {
   it('Returns a PGObject that matches the Relay format', () => {
     const pg = getPGBuilder()()
-    const nodeObject = pg.object('Node', (b) => ({
-      id: b.id(),
-    }))
+    const nodeObject = pg.object({
+      name: 'Node',
+      fields: (b) => ({
+        id: b.id(),
+      }),
+    })
     const resultConnectionObject = createConnectionObject(
       () => nodeObject,
       'Prefix',
       pg,
       true,
     )
-    const resultEdgeObject = resultConnectionObject.fieldMap.edges.value.type()
-    const resultPageInfoObject = resultConnectionObject.fieldMap.pageInfo.value.type()
-    const resultNodeObject = resultEdgeObject.fieldMap.node.value.type()
+    const resultEdgeObject = resultConnectionObject.value.fieldMap.edges.value.type()
+    const resultPageInfoObject =
+      resultConnectionObject.value.fieldMap.pageInfo.value.type()
+    const resultNodeObject = resultEdgeObject.value.fieldMap.node.value.type()
 
     const expectConnectionObject = mergeDefaultPGObject({
       name: 'PrefixConnection',
-      fieldMap: {
-        edges: mergeDefaultOutputField({
-          kind: 'object',
-          type: expect.any(Function),
-          isList: true,
-        }),
-        pageInfo: mergeDefaultOutputField({
-          kind: 'object',
-          type: expect.any(Function),
-        }),
-        totalCount: mergeDefaultOutputField({
-          kind: 'scalar',
-          type: 'int',
-        }),
+      value: {
+        fieldMap: {
+          edges: mergeDefaultOutputField({
+            kind: 'object',
+            type: expect.any(Function),
+            isList: true,
+          }),
+          pageInfo: mergeDefaultOutputField({
+            kind: 'object',
+            type: expect.any(Function),
+          }),
+          totalCount: mergeDefaultOutputField({
+            kind: 'scalar',
+            type: 'int',
+          }),
+        },
       },
     })
 
     const expectEdgeObject = mergeDefaultPGObject({
       name: 'PrefixEdge',
-      fieldMap: {
-        node: mergeDefaultOutputField({
-          kind: 'object',
-          type: expect.any(Function),
-        }),
-        cursor: mergeDefaultOutputField({
-          kind: 'scalar',
-          type: 'string',
-        }),
+      value: {
+        fieldMap: {
+          node: mergeDefaultOutputField({
+            kind: 'object',
+            type: expect.any(Function),
+          }),
+          cursor: mergeDefaultOutputField({
+            kind: 'scalar',
+            type: 'string',
+          }),
+        },
       },
     })
 
     const expectPageInfoObject = mergeDefaultPGObject({
       name: 'PageInfo',
-      fieldMap: {
-        hasNextPage: mergeDefaultOutputField({
-          kind: 'scalar',
-          type: 'boolean',
-        }),
-        hasPreviousPage: mergeDefaultOutputField({
-          kind: 'scalar',
-          type: 'boolean',
-        }),
-        startCursor: mergeDefaultOutputField({
-          kind: 'scalar',
-          type: 'string',
-          isNullable: true,
-          isOptional: true,
-        }),
-        endCursor: mergeDefaultOutputField({
-          kind: 'scalar',
-          type: 'string',
-          isNullable: true,
-          isOptional: true,
-        }),
+      value: {
+        fieldMap: {
+          hasNextPage: mergeDefaultOutputField({
+            kind: 'scalar',
+            type: 'boolean',
+          }),
+          hasPreviousPage: mergeDefaultOutputField({
+            kind: 'scalar',
+            type: 'boolean',
+          }),
+          startCursor: mergeDefaultOutputField({
+            kind: 'scalar',
+            type: 'string',
+            isNullable: true,
+            isOptional: true,
+          }),
+          endCursor: mergeDefaultOutputField({
+            kind: 'scalar',
+            type: 'string',
+            isNullable: true,
+            isOptional: true,
+          }),
+        },
       },
     })
 

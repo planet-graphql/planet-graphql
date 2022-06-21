@@ -1,5 +1,5 @@
 import { ResolverFn } from 'graphql-subscriptions'
-import { Simplify } from 'type-fest'
+import { Simplify, UnionToIntersection } from 'type-fest'
 import { IsAny, IsNever } from 'type-fest/source/set-return-type'
 import { PGConfig, PGTypeConfig, PGTypes } from './builder'
 import {
@@ -25,17 +25,25 @@ import {
 
 export interface PGObject<
   T extends PGOutputFieldMap,
+  TInterfaces extends Array<PGInterface<any>> | undefined = any,
   TOptions extends PGObjectOptions<Types> = any,
   Types extends PGTypes = any,
 > {
   name: string
-  fieldMap: T
   kind: 'object'
-  prismaModelName?: keyof Types['Prisma']['Args']
-  copy: (name: string) => this
-  update: <SetT extends PGEditOutputFieldMap<T>>(
-    callback: (f: T, b: PGOutputFieldBuilder<Types>) => SetT,
-  ) => PGObject<{ [P in keyof SetT]: Exclude<SetT[P], undefined> }, TOptions, Types>
+  value: {
+    fieldMap: T
+    interfaces?: TInterfaces
+    isTypeOf?: (value: any) => boolean
+    prismaModelName?: keyof Types['Prisma']['Args']
+  }
+  copy: <
+    TUpdate extends ConvertPGInterfacesToFieldMap<TInterfaces>,
+    TOriginal extends T,
+  >(config: {
+    name: string
+    fields: (f: TOriginal, b: PGOutputFieldBuilder<Types>) => TUpdate
+  }) => PGObject<TUpdate, TInterfaces, TOptions, Types>
   modify: (
     callback: (f: PGModifyOutputFieldMap<T>) => Partial<PGModifyOutputFieldMap<T>>,
   ) => this
@@ -43,6 +51,7 @@ export interface PGObject<
     name: TSetPrismaModelName,
   ) => PGObject<
     T,
+    TInterfaces,
     UpdatePGOptions<TOptions, 'PrismaModelName', TSetPrismaModelName>,
     Types
   >
@@ -248,6 +257,23 @@ export interface PGOutputField<
   ) => this
 }
 
+export interface PGUnion<T extends Array<PGObject<any>>> {
+  name: string
+  kind: 'union'
+  value: {
+    types: T
+    resolveType?: (value: any) => PGObject<any> | null
+  }
+}
+
+export interface PGInterface<T extends PGOutputFieldMap> {
+  name: string
+  kind: 'interface'
+  value: {
+    fieldMap: T
+  }
+}
+
 export interface PGOuptutFieldOptions {
   Args: PGInputFieldMap | undefined
   PrismaArgs: PGInputFieldMap | undefined
@@ -274,6 +300,11 @@ export type PGModifyOutputFieldMap<T extends PGOutputFieldMap> = {
     : never
 }
 
+export type ConvertPGInterfacesToFieldMap<T extends Array<PGInterface<any>> | undefined> =
+  T extends Array<PGInterface<any>>
+    ? UnionToIntersection<T[number]['value']['fieldMap']>
+    : {}
+
 export type UpdatePGOptions<
   TCurrentOptions,
   TKeyName extends keyof TCurrentOptions,
@@ -282,7 +313,7 @@ export type UpdatePGOptions<
 
 export type GetPrismaModelName<T, Types extends PGTypes> = (
   ExcludeNullish<T> extends Array<infer U> ? U : ExcludeNullish<T>
-) extends () => PGObject<any, infer U, Types>
+) extends () => PGObject<any, any, infer U, Types>
   ? U['PrismaModelName']
   : undefined
 

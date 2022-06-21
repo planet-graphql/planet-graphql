@@ -1,9 +1,11 @@
 import { GraphQLInputType, GraphQLList, GraphQLNonNull, GraphQLOutputType } from 'graphql'
 import { GraphqlTypeRef, PGBuilder } from '../types/builder'
-import { PGInputField } from '../types/input'
-import { PGOutputField } from '../types/output'
+import { PGInput, PGInputField } from '../types/input'
+import { PGInterface, PGObject, PGOutputField, PGUnion } from '../types/output'
 import { convertToGraphQLInputObject } from './pg-input'
+import { convertToGraphQLInterface } from './pg-interface'
 import { convertToGraphQLObject } from './pg-object'
+import { convertToGraphQLUnion } from './pg-union'
 
 export function getGraphQLFieldConfigType<
   T extends PGInputField<any> | PGOutputField<any>,
@@ -13,7 +15,7 @@ export function getGraphQLFieldConfigType<
   graphqlTypeRef: GraphqlTypeRef,
 ): T extends PGInputField<any> ? GraphQLInputType : GraphQLOutputType {
   const cache = builder.cache()
-  const { enums, objects, inputs } = graphqlTypeRef()
+  const { enums, objects, interfaces, unions, inputs } = graphqlTypeRef()
   let type: any
   switch (pgField.value.kind) {
     case 'enum': {
@@ -25,39 +27,33 @@ export function getGraphQLFieldConfigType<
       break
     }
     case 'object': {
-      const pgInputOrPgOutput = pgField.value.type()
-      const isPGInput = 'default' in pgField
-      if (isPGInput) {
-        // NOTE:
-        // The reason for considering the case where `inputs[name]` and `outputs[name]` are
-        // undefined is that PGOutput/PGInput may be generated only after field.value.type() is executed.
-        // An example is the following pattern:
-        // ```ts
-        // pg.mutation('createUser', (f) =>
-        //   f
-        //     .object(() => user)
-        //     .args(f) => ({
-        //       input: f.input(() =>
-        //         pg.input('CreateUserInput', (f) => (f) => ({
-        //           name: f.string(),
-        //         })),
-        //       ),
-        //     }))
-        //     ...
-        // )
-        // ```
-        if (inputs[pgInputOrPgOutput.name] !== undefined) {
-          type = inputs[pgInputOrPgOutput.name]
-        } else {
-          type = convertToGraphQLInputObject(pgInputOrPgOutput, builder, graphqlTypeRef)
-          inputs[pgInputOrPgOutput.name] = type
+      const pgType: PGObject<any> | PGInterface<any> | PGUnion<any> | PGInput<any> =
+        pgField.value.type()
+      switch (pgType.kind) {
+        case 'object': {
+          type =
+            objects[pgType.name] ??
+            convertToGraphQLObject(pgType, builder, graphqlTypeRef)
+          objects[pgType.name] = type
+          break
         }
-      } else {
-        if (objects[pgInputOrPgOutput.name] !== undefined) {
-          type = objects[pgInputOrPgOutput.name]
-        } else {
-          type = convertToGraphQLObject(pgInputOrPgOutput, builder, graphqlTypeRef)
-          objects[pgField.value.type().name] = type
+        case 'interface': {
+          type =
+            interfaces[pgType.name] ??
+            convertToGraphQLInterface(pgType, builder, graphqlTypeRef)
+          interfaces[pgType.name] = type
+          break
+        }
+        case 'union': {
+          type = unions[pgType.name] ?? convertToGraphQLUnion(pgType, graphqlTypeRef)
+          unions[pgType.name] = type
+          break
+        }
+        case 'input': {
+          type =
+            inputs[pgType.name] ??
+            convertToGraphQLInputObject(pgType, builder, graphqlTypeRef)
+          inputs[pgType.name] = type
         }
       }
     }

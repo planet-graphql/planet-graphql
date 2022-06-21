@@ -1,7 +1,10 @@
 import { GraphQLEnumType, GraphQLEnumValueConfigMap } from 'graphql'
 import { PGEnum } from '../types/common'
 
-export function createPGEnum<T extends string[]>(name: string, ...values: T): PGEnum<T> {
+export function createPGEnum<T extends readonly string[]>(
+  name: string,
+  values: T,
+): PGEnum<T> {
   const pgEnum: PGEnum<T> = {
     name,
     values,
@@ -10,7 +13,7 @@ export function createPGEnum<T extends string[]>(name: string, ...values: T): PG
   return pgEnum
 }
 
-export function convertToGraphQLEnum(pgEnum: PGEnum<string[]>): GraphQLEnumType {
+export function convertToGraphQLEnum(pgEnum: PGEnum<readonly string[]>): GraphQLEnumType {
   return new GraphQLEnumType({
     name: pgEnum.name,
     values: pgEnum.values.reduce<GraphQLEnumValueConfigMap>((acc, x) => {

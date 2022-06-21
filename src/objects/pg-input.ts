@@ -13,11 +13,12 @@ export function createPGInput<T extends PGInputFieldMap, Types extends PGTypes>(
 ): PGInput<T> {
   const pgInput: PGInput<T> = {
     name,
-    fieldMap,
-    value: {},
+    value: {
+      fieldMap,
+    },
     kind: 'input' as const,
     copy: (name) => {
-      const newFieldMap = _.mapValues(pgInput.fieldMap, (field) => {
+      const newFieldMap = _.mapValues(pgInput.value.fieldMap, (field) => {
         const clonedValue = _.cloneDeep(field.value)
         const newField = createInputField(clonedValue)
         newField.value = clonedValue
@@ -28,7 +29,7 @@ export function createPGInput<T extends PGInputFieldMap, Types extends PGTypes>(
       return copy as PGInput<any>
     },
     update: (c) => {
-      const clonedFieldMap = _.mapValues(pgInput.fieldMap, (field) => {
+      const clonedFieldMap = _.mapValues(pgInput.value.fieldMap, (field) => {
         const clonedValue = _.cloneDeep(field.value)
         const newField = createInputField(clonedValue)
         newField.value = clonedValue
@@ -55,7 +56,7 @@ export function convertToGraphQLInputObject(
   return new GraphQLInputObjectType({
     name: pgInput.name,
     fields: () =>
-      _.mapValues(pgInput.fieldMap, (field) =>
+      _.mapValues(pgInput.value.fieldMap, (field) =>
         convertToGraphQLInputFieldConfig(field, builder, graphqlTypeRef),
       ),
   })

@@ -21,10 +21,11 @@ export function createBuildFieldMap(
       typeof field === 'function' ? field() : field
     ) as PGInputFactory<any>
 
-    const newPGInput = builder.input(
-      `${prefix}${_.upperFirst(name)}`,
-      () => pgInputFactory.build(`${prefix}${_.upperFirst(name)}`, builder) as any,
-    )
+    const newPGInput = builder.input({
+      name: `${prefix}${_.upperFirst(name)}`,
+      fields: () =>
+        pgInputFactory.build(`${prefix}${_.upperFirst(name)}`, builder) as any,
+    })
     if (pgInputFactory.value.validator !== undefined)
       newPGInput.validation(pgInputFactory.value.validator)
 
@@ -136,7 +137,11 @@ export function createPGInputFactory<
       return wrap === true
         ? (createInputField({
             kind: 'object',
-            type: () => builder.input(name, () => pgInputFieldMap),
+            type: () =>
+              builder.input({
+                name,
+                fields: () => pgInputFieldMap,
+              }),
           }) as any)
         : pgInputFieldMap
     },

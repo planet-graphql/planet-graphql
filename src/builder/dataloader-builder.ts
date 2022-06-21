@@ -10,7 +10,7 @@ function getLoaderKey(path: GraphQLResolveInfo['path'], key = ''): string {
   return getLoaderKey(path.prev, key)
 }
 
-export const dataloader: PGBuilder['dataloader'] = async (params, batchLoadFn) => {
+export const dataloaderBuilder: PGBuilder['dataloader'] = async (params, batchLoadFn) => {
   const loaderCache = getContextCache<DataLoader<any, any>>(params.context, 'dataloader')
   const loaderKey = getLoaderKey(params.info.path)
   let loader = loaderCache[loaderKey]
