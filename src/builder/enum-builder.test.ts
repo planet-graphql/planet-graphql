@@ -9,7 +9,7 @@ describe('EnumBuilder', () => {
 
     const result = pg.enum({
       name: 'SomeEnum',
-      values: ['A', 'B'] as const,
+      values: ['A', 'B'],
     })
 
     const expectValue = {
@@ -18,7 +18,7 @@ describe('EnumBuilder', () => {
       kind: 'enum',
     }
     expect(result).toEqual(expectValue)
-    expectType<TypeEqual<typeof result, PGEnum<readonly ['A', 'B']>>>(true)
+    expectType<TypeEqual<typeof result, PGEnum<['A', 'B']>>>(true)
     expect(pg.cache().enum.SomeEnum).toEqual(expectValue)
   })
 
@@ -26,7 +26,7 @@ describe('EnumBuilder', () => {
     const pg = getPGBuilder()()
     const someEnum = pg.enum({
       name: 'SomeEnum',
-      values: ['A', 'B'] as const,
+      values: ['A', 'B'],
     })
     pg.query({
       name: 'someQuery',

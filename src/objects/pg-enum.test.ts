@@ -7,7 +7,7 @@ describe('createPGEnum', () => {})
 
 describe('convertToGraphQLEnum', () => {
   it('Converts PGEnum to GraphQLEnumType', () => {
-    const pgEnum = createPGEnum('SomeEnum', ['A', 'B'] as const)
+    const pgEnum = createPGEnum('SomeEnum', ['A', 'B'])
     const graphQLEnum = convertToGraphQLEnum(pgEnum)
     expect(graphQLEnum).toEqual(
       new GraphQLEnumType({

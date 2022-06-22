@@ -116,7 +116,10 @@ export interface PGBuilder<
     name: string
     fields: (b: PGOutputFieldBuilder<Types>) => T
   }) => PGInterface<T>
-  enum: <T extends readonly string[]>(config: { name: string; values: T }) => PGEnum<T>
+  enum: <T extends string[], U extends [...T]>(config: {
+    name: string
+    values: U
+  }) => PGEnum<U>
   input: <T extends PGInputFieldMap>(config: {
     name: string
     fields: (b: PGInputFieldBuilder<Types>) => T
