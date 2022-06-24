@@ -258,13 +258,6 @@ describe('PGPrismaConverter', () => {
               isOptional: true,
               isNullable: true,
             }),
-            // TODO: fix this
-            Null: mergeDefaultInputField({
-              kind: 'scalar',
-              type: 'null',
-              isOptional: true,
-              isNullable: true,
-            }),
           },
         }),
       },
