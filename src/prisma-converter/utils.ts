@@ -89,9 +89,14 @@ export function convertDMMFArgToPGInputFactoryField(
   fieldMapRef: Record<string, PGInputFactoryFieldMap>,
   pgEnumMap: Record<string, PGEnum<any>>,
 ): PGInputFactoryField {
-  const isUnion = arg.inputTypes.length > 1
+  const filteredInputTypes = arg.inputTypes.filter((x) => x.type !== 'Null')
+  const filteredArg = {
+    ...arg,
+    inputTypes: filteredInputTypes,
+  }
+  const isUnion = filteredInputTypes.length > 1
   return isUnion
-    ? convertToDMMFArgToPGInputFactoryUnion(arg, fieldMapRef, pgEnumMap)
+    ? convertToDMMFArgToPGInputFactoryUnion(filteredArg, fieldMapRef, pgEnumMap)
     : convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
         arg.inputTypes[0],
         fieldMapRef,

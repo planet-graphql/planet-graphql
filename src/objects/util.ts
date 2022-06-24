@@ -63,7 +63,7 @@ export function getGraphQLFieldConfigType<
   }
   if (pgField.value.isList) {
     type =
-      !pgField.value.isNullable || !pgField.value.isOptional
+      !pgField.value.isNullable && !pgField.value.isOptional
         ? new GraphQLNonNull(new GraphQLList(type))
         : new GraphQLList(type)
   }

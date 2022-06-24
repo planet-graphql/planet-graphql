@@ -173,6 +173,9 @@ describe('PGPrismaConverter', () => {
 
     const { inputs, enums } = pgpc.convert()
     const findFirstSomeModel = inputs('findFirstSomeModel')
+    const findFirstSomeModelOrderByDefault = (
+      findFirstSomeModel.value.fieldMap.orderBy as PGInputFactoryUnion<any>
+    ).select('SomeModelOrderByWithRelationInput')
     const findFirstSomeModelWhere: PGInputFactory<any> =
       findFirstSomeModel.value.fieldMap.where()
     const findFirstSomeModelWhereAND: PGInputFactory<any> = (
@@ -207,6 +210,27 @@ describe('PGPrismaConverter', () => {
         }),
         where: expect.any(Function),
       },
+    })
+    const expectFindFirstSomeModelOrderByDefault = mergeDefaultInputFactory({
+      fieldMap: {
+        enum: mergeDefaultInputField({
+          kind: 'enum',
+          type: enums('SortOrder'),
+          isOptional: true,
+        }),
+        id: mergeDefaultInputField({
+          kind: 'enum',
+          type: enums('SortOrder'),
+          isOptional: true,
+        }),
+        relations: expect.any(Function),
+        scalar: mergeDefaultInputField({
+          kind: 'enum',
+          type: enums('SortOrder'),
+          isOptional: true,
+        }),
+      },
+      isOptional: true,
     })
     const expectFindFirstSomeModelWhere = mergeDefaultInputFactory({
       fieldMap: {
@@ -258,19 +282,15 @@ describe('PGPrismaConverter', () => {
               isOptional: true,
               isNullable: true,
             }),
-            // TODO: fix this
-            Null: mergeDefaultInputField({
-              kind: 'scalar',
-              type: 'null',
-              isOptional: true,
-              isNullable: true,
-            }),
           },
         }),
       },
       isOptional: true,
     })
     expect(findFirstSomeModel).toEqual(expectFindFirstSomeModel)
+    expect(findFirstSomeModelOrderByDefault).toEqual(
+      expectFindFirstSomeModelOrderByDefault,
+    )
     expect(findFirstSomeModelWhere).toEqual(expectFindFirstSomeModelWhere)
     expect(findFirstSomeModelWhereAND).toEqual(expectFindFirstSomeModelWhere)
   })
@@ -284,12 +304,12 @@ describe('PGPrismaConverter', () => {
     const args = inputs('findManySomeModel')
       .edit((f) => ({
         skip: f.skip,
-        // TODO: Fix Requried
-        // orderBy: f.orderBy,
+        orderBy: f.orderBy,
         // TODO: Fix Maximum call stack size exceeded
         // where: f.where,
       }))
       .build('FindManySomeModel', pg)
+
     pg.query({
       name: 'someModels',
       field: (b) =>
