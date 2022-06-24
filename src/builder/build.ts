@@ -15,7 +15,7 @@ export const build: <Types extends PGTypes>(
   const cache = builder.cache()
   const typeRef: GraphqlTypeRef = () => ({
     enums,
-    objects,
+    objects: Object.assign(objects, objectsFromRef),
     interfaces,
     unions,
     inputs,
@@ -23,6 +23,9 @@ export const build: <Types extends PGTypes>(
   const enums = _.mapValues(cache.enum, (pgEnum) => convertToGraphQLEnum(pgEnum))
   const objects = _.mapValues(cache.object, (pgObject) =>
     convertToGraphQLObject(pgObject, builder, typeRef),
+  )
+  const objectsFromRef = _.mapValues(cache.objectRef, (objectRef) =>
+    convertToGraphQLObject(objectRef.ref(), builder, typeRef),
   )
   const interfaces = _.mapValues(cache.interface, (pgInterface) =>
     convertToGraphQLInterface(pgInterface, builder, typeRef),
@@ -79,6 +82,6 @@ export const build: <Types extends PGTypes>(
     query: query,
     mutation: mutation,
     subscription: subscription,
-    types: Object.values(objects),
+    types: Object.values(typeRef().objects),
   })
 }

@@ -4,7 +4,6 @@ import { createEnumBuilder } from './builder/enum-builder'
 import { createPGInputFieldBuilder, createInputBuilder } from './builder/input-builder'
 import { createInterfaceBuilder } from './builder/interface-builder'
 import { createPGOutputFieldBuilder, createObjectBuilder } from './builder/object-builder'
-import { pgfy } from './builder/pgfy'
 import { createRootFieldBuilder } from './builder/root-field-builder'
 import { createUnionBuilder } from './builder/union-builder'
 import { createBuilderCache } from './builder/utils'
@@ -47,9 +46,12 @@ export const getPGBuilder: InitPGBuilder =
       mutation: createRootFieldBuilder(cache, outputFieldBuilder, 'mutation'),
       subscription: createRootFieldBuilder(cache, outputFieldBuilder, 'subscription'),
       build: build(() => builder),
-      pgfy: pgfy(cache, inputFieldBuilder, outputFieldBuilder),
       dataloader: dataloaderBuilder,
       cache: () => cache,
+      utils: {
+        inputFieldBuilder,
+        outputFieldBuilder,
+      },
     }
 
     return builder
