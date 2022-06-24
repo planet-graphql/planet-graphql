@@ -1,4 +1,3 @@
-import { DMMF } from '@prisma/client/runtime'
 import {
   GraphQLEnumType,
   GraphQLInputObjectType,
@@ -51,10 +50,6 @@ export interface PGTypeConfig {
   Context: object
   Prisma: {
     Args: Record<string, PrismaArgsBase>
-    PGfy: <T extends PGBuilder<any>>(
-      builder: T,
-      dmmf: DMMF.Document,
-    ) => PGfyResponseType<T>
   }
 }
 
@@ -137,17 +132,27 @@ export interface PGBuilder<
     field: (b: PGOutputFieldBuilder<Types>) => TOutput
   }) => PGRootFieldConfig
   build: () => GraphQLSchema
-  pgfy: Types['Prisma']['PGfy']
   dataloader: <TResolve, TSource>(
     params: PGResolveParams<TSource, any, any, any, TResolve>,
     batchLoadFn: (sourceList: readonly TSource[]) => ResolveResponse<TResolve[]>,
   ) => ResolveResponse<TResolve>
   cache: () => PGCache
+  utils: {
+    inputFieldBuilder: PGInputFieldBuilder<Types>
+    outputFieldBuilder: PGOutputFieldBuilder<Types>
+  }
+}
+
+export type PGObjectRef = {
+  name: string
+  kind: 'objectRef'
+  ref: () => PGObject<PGOutputFieldMap>
 }
 
 export interface PGCache {
   scalar: { [name: string]: PGScalarLike }
   object: { [name: string]: PGObject<PGOutputFieldMap> }
+  objectRef: { [name: string]: PGObjectRef }
   union: { [name: string]: PGUnion<Array<PGObject<any>>> }
   interface: { [name: string]: PGInterface<PGOutputFieldMap> }
   input: { [name: string]: PGInput<PGInputFieldMap> }
