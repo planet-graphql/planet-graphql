@@ -143,67 +143,67 @@ type SomeEnumValuesType = ["AAA", "BBB", "CCC"];
 type SomeEnum2ValuesType = ["Aaa", "Bbb", "Ccc"];
 type SomeEnum3ValuesType = ["aaa", "bbb", "ccc"];
 type Model1FieldMapType<Types extends PGTypes> = {
-        id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
-        string: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>;
-        json: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>;
-        int: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
-        float: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
-        boolean: PGOutputField<boolean, any, PGOutputFieldOptionsDefault, Types>;
-        bigInt: PGOutputField<bigint, any, PGOutputFieldOptionsDefault, Types>;
-        dateTime: PGOutputField<Date, any, PGOutputFieldOptionsDefault, Types>;
-        bytes: PGOutputField<Buffer, any, PGOutputFieldOptionsDefault, Types>;
-        decimal: PGOutputField<Decimal, any, PGOutputFieldOptionsDefault, Types>;
-        nullable: PGOutputField<string | null, any, PGOutputFieldOptionsDefault, Types>;
-        list: PGOutputField<string[], any, PGOutputFieldOptionsDefault, Types>;
-        enum: PGOutputField<PGEnum<SomeEnumValuesType>, any, PGOutputFieldOptionsDefault, Types>;
-        enumList: PGOutputField<Array<PGEnum<SomeEnum2ValuesType>>, any, PGOutputFieldOptionsDefault, Types>;
-        enumNullable: PGOutputField<PGEnum<SomeEnum3ValuesType> | null, any, PGOutputFieldOptionsDefault, Types>;
-        oneToOne: PGOutputField<PGObject<Model2FieldMapType<Types>, { PrismaModelName: 'Model2' }, Types> | null, any, PGOutputFieldOptionsDefault, Types>;
-        oneToMany: PGOutputField<Array<PGObject<Model3FieldMapType<Types>, { PrismaModelName: 'Model3' }, Types>>, any, PGOutputFieldOptionsDefault, Types>;
-    };
+    id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
+    string: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>;
+    json: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>;
+    int: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
+    float: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
+    boolean: PGOutputField<boolean, any, PGOutputFieldOptionsDefault, Types>;
+    bigInt: PGOutputField<bigint, any, PGOutputFieldOptionsDefault, Types>;
+    dateTime: PGOutputField<Date, any, PGOutputFieldOptionsDefault, Types>;
+    bytes: PGOutputField<Buffer, any, PGOutputFieldOptionsDefault, Types>;
+    decimal: PGOutputField<Decimal, any, PGOutputFieldOptionsDefault, Types>;
+    nullable: PGOutputField<string | null, any, PGOutputFieldOptionsDefault, Types>;
+    list: PGOutputField<string[], any, PGOutputFieldOptionsDefault, Types>;
+    enum: PGOutputField<PGEnum<SomeEnumValuesType>, any, PGOutputFieldOptionsDefault, Types>;
+    enumList: PGOutputField<Array<PGEnum<SomeEnum2ValuesType>>, any, PGOutputFieldOptionsDefault, Types>;
+    enumNullable: PGOutputField<PGEnum<SomeEnum3ValuesType> | null, any, PGOutputFieldOptionsDefault, Types>;
+    oneToOne: PGOutputField<PGObject<Model2FieldMapType<Types>, { PrismaModelName: 'Model2' }, Types> | null, any, PGOutputFieldOptionsDefault, Types>;
+    oneToMany: PGOutputField<Array<PGObject<Model3FieldMapType<Types>, { PrismaModelName: 'Model3' }, Types>>, any, PGOutputFieldOptionsDefault, Types>;
+};
 type Model2FieldMapType<Types extends PGTypes> = {
-        id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
-        model1: PGOutputField<PGObject<Model1FieldMapType<Types>, { PrismaModelName: 'Model1' }, Types>, any, PGOutputFieldOptionsDefault, Types>;
-        model1Id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
-    };
+    id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
+    model1: PGOutputField<PGObject<Model1FieldMapType<Types>, { PrismaModelName: 'Model1' }, Types>, any, PGOutputFieldOptionsDefault, Types>;
+    model1Id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
+};
 type Model3FieldMapType<Types extends PGTypes> = {
-        id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
-        model1: PGOutputField<PGObject<Model1FieldMapType<Types>, { PrismaModelName: 'Model1' }, Types>, any, PGOutputFieldOptionsDefault, Types>;
-        model1Id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
-    };
+    id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
+    model1: PGOutputField<PGObject<Model1FieldMapType<Types>, { PrismaModelName: 'Model1' }, Types>, any, PGOutputFieldOptionsDefault, Types>;
+    model1Id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
+};
 type PGfyResponseEnums = {
-        SomeEnum: PGEnum<SomeEnumValuesType>;
-        SomeEnum2: PGEnum<SomeEnum2ValuesType>;
-        SomeEnum3: PGEnum<SomeEnum3ValuesType>;
-    };
+    SomeEnum: PGEnum<SomeEnumValuesType>;
+    SomeEnum2: PGEnum<SomeEnum2ValuesType>;
+    SomeEnum3: PGEnum<SomeEnum3ValuesType>;
+};
 type PGfyResponseObjects<Types extends PGTypes> = {
-        Model1: PGObject<Model1FieldMapType<Types>, { PrismaModelName: 'Model1' }, Types>;
-        Model2: PGObject<Model2FieldMapType<Types>, { PrismaModelName: 'Model2' }, Types>;
-        Model3: PGObject<Model3FieldMapType<Types>, { PrismaModelName: 'Model3' }, Types>;
-    };
+    Model1: PGObject<Model1FieldMapType<Types>, { PrismaModelName: 'Model1' }, Types>;
+    Model2: PGObject<Model2FieldMapType<Types>, { PrismaModelName: 'Model2' }, Types>;
+    Model3: PGObject<Model3FieldMapType<Types>, { PrismaModelName: 'Model3' }, Types>;
+};
 type PGfyResponseModels = {
-        Model1: RequiredNonNullable<Prisma.Model1FindManyArgs>;
-        Model2: RequiredNonNullable<Prisma.Model2FindManyArgs>;
-        Model3: RequiredNonNullable<Prisma.Model3FindManyArgs>;
-    };
+    Model1: RequiredNonNullable<Prisma.Model1FindManyArgs>;
+    Model2: RequiredNonNullable<Prisma.Model2FindManyArgs>;
+    Model3: RequiredNonNullable<Prisma.Model3FindManyArgs>;
+};
 
 interface Inputs<Types extends PGTypes> {
 }
 
 type PGfyResponse<T extends PGBuilder> = T extends PGBuilder<infer U>
     ? {
-       enums: PGfyResponseEnums
-       objects: PGfyResponseObjects<U>
-       inputs: Inputs<U>
-      }
+        enums: PGfyResponseEnums
+        objects: PGfyResponseObjects<U>
+        inputs: Inputs<U>
+    }
     : any;
 
 export interface PrismaGeneratedType {
     Args: PGfyResponseModels;
     PGfy: <T extends PGBuilder<any>>(
-          builder: T,
-          dmmf: DMMF.Document,
-        ) => PGfyResponse<T>;
+        builder: T,
+        dmmf: DMMF.Document,
+    ) => PGfyResponse<T>;
 }
 `)
     })
@@ -471,28 +471,28 @@ type Enum1Factory = PGEnum<['id', 'name', 'income', 'role']>;
 type Enum2Factory = PGEnum<['asc', 'desc']>;
 type Enum3Factory = PGEnum<['AAA', 'BBB']>;
 type FindFirstSomeModelFactory<Types extends PGTypes> = {
-        args1: PGInputFactoryUnion<{
-            __default: () => PGInputFactory<Array<Input1Factory<Types>> | undefined, Types>,
-            Input1List: () => PGInputFactory<Array<Input1Factory<Types>> | undefined, Types>,
-            Input1: () => PGInputFactory<Input1Factory<Types> | undefined, Types>
-            }>;
-        args2: () => PGInputFactory<Input2Factory<Types> | null | undefined, Types>;
-        args3: PGInputField<number, 'int', Types>;
-        args4: PGInputField<Enum1Factory[] | undefined, 'enum', Types>;
-    };
+    args1: PGInputFactoryUnion<{
+        __default: () => PGInputFactory<Array<Input1Factory<Types>> | undefined, Types>,
+        Input1List: () => PGInputFactory<Array<Input1Factory<Types>> | undefined, Types>,
+        Input1: () => PGInputFactory<Input1Factory<Types> | undefined, Types>
+    }>;
+    args2: () => PGInputFactory<Input2Factory<Types> | null | undefined, Types>;
+    args3: PGInputField<number, 'int', Types>;
+    args4: PGInputField<Enum1Factory[] | undefined, 'enum', Types>;
+};
 type Input1Factory<Types extends PGTypes> = {
-        field1: PGInputField<Enum2Factory, 'enum', Types>;
-        field2: PGInputField<Enum3Factory | undefined, 'enum', Types>;
-        recursiveField: () => PGInputFactory<Input1Factory<Types> | undefined, Types>;
-    };
+    field1: PGInputField<Enum2Factory, 'enum', Types>;
+    field2: PGInputField<Enum3Factory | undefined, 'enum', Types>;
+    recursiveField: () => PGInputFactory<Input1Factory<Types> | undefined, Types>;
+};
 type Input2Factory<Types extends PGTypes> = {
-        field1: PGInputField<bigint | null | undefined, 'bigInt', Types>;
-        circularField: () => PGInputFactory<Input3Factory<Types> | undefined, Types>;
-    };
+    field1: PGInputField<bigint | null | undefined, 'bigInt', Types>;
+    circularField: () => PGInputFactory<Input3Factory<Types> | undefined, Types>;
+};
 type Input3Factory<Types extends PGTypes> = {
-        field1: PGInputField<Enum2Factory | undefined, 'enum', Types>;
-        circularField: () => PGInputFactory<Input2Factory<Types>, Types>;
-    };
+    field1: PGInputField<Enum2Factory | undefined, 'enum', Types>;
+    circularField: () => PGInputFactory<Input2Factory<Types>, Types>;
+};
 
 interface Inputs<Types extends PGTypes> {
     findFirstSomeModel: PGInputFactory<FindFirstSomeModelFactory<Types>, Types>;
@@ -500,18 +500,18 @@ interface Inputs<Types extends PGTypes> {
 
 type PGfyResponse<T extends PGBuilder> = T extends PGBuilder<infer U>
     ? {
-       enums: PGfyResponseEnums
-       objects: PGfyResponseObjects<U>
-       inputs: Inputs<U>
-      }
+        enums: PGfyResponseEnums
+        objects: PGfyResponseObjects<U>
+        inputs: Inputs<U>
+    }
     : any;
 
 export interface PrismaGeneratedType {
     Args: PGfyResponseModels;
     PGfy: <T extends PGBuilder<any>>(
-          builder: T,
-          dmmf: DMMF.Document,
-        ) => PGfyResponse<T>;
+        builder: T,
+        dmmf: DMMF.Document,
+    ) => PGfyResponse<T>;
 }
 `)
     })

@@ -234,9 +234,6 @@ export async function generate(
     dmmf.datamodel.models.map((m) => {
       return {
         name: getModelTypeName(m.name),
-        // FIXME:
-        // I would like to fix the indent that is going wrong.
-        // At first glance, it looks like a problem on the ts-morph side.
         type: objectType({
           properties: m.fields.map((f) => ({
             name: f.name,
@@ -351,6 +348,7 @@ export async function generate(
     isExported: true,
   })
 
+  outputFile.formatText()
   // FIXME:
   // I think it would be easier to test if I just do `emitToMemory()` in generate
   // and saveFiles in the caller as shown below, but for some reason it doesn't work.
