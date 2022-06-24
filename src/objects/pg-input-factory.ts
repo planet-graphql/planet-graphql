@@ -49,11 +49,6 @@ export function createBuildFieldMap(
       builder,
     )
   }
-  if (field.value.kind === 'enum') {
-    const cache = builder.cache()
-    if (cache.enum[field.value.type.name] === undefined)
-      cache.enum[field.value.type.name] = field.value.type
-  }
   return field as PGInputField<any>
 }
 
