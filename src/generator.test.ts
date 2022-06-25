@@ -142,6 +142,11 @@ import { PGInputField } from "@prismagql/prismagql/lib/types/input";
 type SomeEnumValuesType = ["AAA", "BBB", "CCC"];
 type SomeEnum2ValuesType = ["Aaa", "Bbb", "Ccc"];
 type SomeEnum3ValuesType = ["aaa", "bbb", "ccc"];
+type PGfyResponseEnums = {
+    SomeEnum: PGEnum<SomeEnumValuesType>;
+    SomeEnum2: PGEnum<SomeEnum2ValuesType>;
+    SomeEnum3: PGEnum<SomeEnum3ValuesType>;
+};
 type Model1FieldMapType<Types extends PGTypes> = {
     id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
     string: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>;
@@ -170,11 +175,6 @@ type Model3FieldMapType<Types extends PGTypes> = {
     id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
     model1: PGOutputField<PGObject<Model1FieldMapType<Types>, { PrismaModelName: 'Model1' }, Types>, any, PGOutputFieldOptionsDefault, Types>;
     model1Id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
-};
-type PGfyResponseEnums = {
-    SomeEnum: PGEnum<SomeEnumValuesType>;
-    SomeEnum2: PGEnum<SomeEnum2ValuesType>;
-    SomeEnum3: PGEnum<SomeEnum3ValuesType>;
 };
 type PGfyResponseObjects<Types extends PGTypes> = {
     Model1: PGObject<Model1FieldMapType<Types>, { PrismaModelName: 'Model1' }, Types>;

@@ -2,7 +2,7 @@ import path from 'path'
 import { DMMF } from '@prisma/client/runtime'
 import { generatorHandler } from '@prisma/generator-helper'
 import _ from 'lodash'
-import { Project, Writers } from 'ts-morph'
+import { Project, SourceFile, Writers } from 'ts-morph'
 import { PGError } from './builder/utils'
 
 const { objectType } = Writers
@@ -189,49 +189,64 @@ export function getInputFactories(schema: DMMF.Schema): Array<{
   return factories
 }
 
-export async function generate(
-  dmmf: DMMF.Document,
-  outputPath: string,
-  prismaImportPath: string,
-): Promise<void> {
-  const project = new Project()
-  const outputFile = project.createSourceFile(outputPath, undefined, { overwrite: true })
-  outputFile.addImportDeclaration({
-    namedImports: ['Prisma'],
-    moduleSpecifier: prismaImportPath,
-  })
-  outputFile.addImportDeclaration({
-    namedImports: ['Decimal'],
-    moduleSpecifier: `${prismaImportPath}/runtime`,
-  })
-  outputFile.addImportDeclaration({
-    namedImports: ['PGTypes', 'PGBuilder'],
-    moduleSpecifier: '@prismagql/prismagql/lib/types/builder',
-  })
-  outputFile.addImportDeclaration({
-    namedImports: ['PGEnum', 'RequiredNonNullable'],
-    moduleSpecifier: '@prismagql/prismagql/lib/types/common',
-  })
-  outputFile.addImportDeclaration({
-    namedImports: ['PGObject', 'PGOutputField', 'PGOutputFieldOptionsDefault'],
-    moduleSpecifier: '@prismagql/prismagql/lib/types/output',
-  })
-  outputFile.addImportDeclaration({
-    namedImports: ['PGInputFactory', 'PGInputFactoryUnion'],
-    moduleSpecifier: '@prismagql/prismagql/lib/types/input-factory',
-  })
-  outputFile.addImportDeclaration({
-    namedImports: ['PGInputField'],
-    moduleSpecifier: '@prismagql/prismagql/lib/types/input',
-  })
-  outputFile.addTypeAliases(
-    dmmf.datamodel.enums.map((x) => ({
+export function addImports(sourceFile: SourceFile, prismaImportPath: string): void {
+  sourceFile.addImportDeclarations([
+    {
+      namedImports: ['Prisma'],
+      moduleSpecifier: prismaImportPath,
+    },
+    {
+      namedImports: ['Decimal'],
+      moduleSpecifier: `${prismaImportPath}/runtime`,
+    },
+    {
+      namedImports: ['PGTypes', 'PGBuilder'],
+      moduleSpecifier: '@prismagql/prismagql/lib/types/builder',
+    },
+    {
+      namedImports: ['PGEnum', 'RequiredNonNullable'],
+      moduleSpecifier: '@prismagql/prismagql/lib/types/common',
+    },
+    {
+      namedImports: ['PGObject', 'PGOutputField', 'PGOutputFieldOptionsDefault'],
+      moduleSpecifier: '@prismagql/prismagql/lib/types/output',
+    },
+    {
+      namedImports: ['PGInputFactory', 'PGInputFactoryUnion'],
+      moduleSpecifier: '@prismagql/prismagql/lib/types/input-factory',
+    },
+    {
+      namedImports: ['PGInputField'],
+      moduleSpecifier: '@prismagql/prismagql/lib/types/input',
+    },
+  ])
+}
+
+export function addEnumTypes(
+  sourceFile: SourceFile,
+  dmmfEnums: DMMF.DatamodelEnum[],
+): void {
+  sourceFile.addTypeAliases(
+    dmmfEnums.map((x) => ({
       name: getEnumTypeName(x.name),
       type: `["${x.values.map((v) => v.name).join('", "')}"]`,
     })),
   )
-  outputFile.addTypeAliases(
-    dmmf.datamodel.models.map((m) => {
+
+  sourceFile.addTypeAlias({
+    name: 'PGfyResponseEnums',
+    type: objectType({
+      properties: dmmfEnums.map((x) => ({
+        name: x.name,
+        type: `PGEnum<${getEnumTypeName(x.name)}>`,
+      })),
+    }),
+  })
+}
+
+export function addModelTypes(sourceFile: SourceFile, dmmfModels: DMMF.Model[]): void {
+  sourceFile.addTypeAliases(
+    dmmfModels.map((m) => {
       return {
         name: getModelTypeName(m.name),
         type: objectType({
@@ -244,20 +259,12 @@ export async function generate(
       }
     }),
   )
-  outputFile.addTypeAlias({
-    name: 'PGfyResponseEnums',
-    type: objectType({
-      properties: dmmf.datamodel.enums.map((x) => ({
-        name: x.name,
-        type: `PGEnum<${getEnumTypeName(x.name)}>`,
-      })),
-    }),
-  })
-  outputFile
+
+  sourceFile
     .addTypeAlias({
       name: 'PGfyResponseObjects',
       type: objectType({
-        properties: dmmf.datamodel.models.map((x) => ({
+        properties: dmmfModels.map((x) => ({
           name: x.name,
           type: `PGObject<${getModelTypeName(x.name)}<Types>, { PrismaModelName: '${
             x.name
@@ -269,25 +276,33 @@ export async function generate(
       name: 'Types',
       constraint: 'PGTypes',
     })
-  outputFile.addTypeAlias({
+
+  sourceFile.addTypeAlias({
     name: 'PGfyResponseModels',
     type: objectType({
-      properties: dmmf.datamodel.models.map((x) => ({
+      properties: dmmfModels.map((x) => ({
         name: x.name,
         type: `RequiredNonNullable<Prisma.${x.name}FindManyArgs>`,
       })),
     }),
   })
-  outputFile.addTypeAliases(
-    [...dmmf.schema.enumTypes.prisma, ...(dmmf.schema.enumTypes.model ?? [])].map((e) => {
+}
+
+export function addInputFactoryTypes(
+  sourceFile: SourceFile,
+  dmmfSchema: DMMF.Schema,
+): void {
+  sourceFile.addTypeAliases(
+    [...dmmfSchema.enumTypes.prisma, ...(dmmfSchema.enumTypes.model ?? [])].map((e) => {
       return {
         name: `${e.name}Factory`,
         type: `PGEnum<[${e.values.map((v) => `'${v}'`).join(', ')}]>`,
       }
     }),
   )
-  outputFile.addTypeAliases(
-    getInputFactories(dmmf.schema).map((factory) => {
+
+  sourceFile.addTypeAliases(
+    getInputFactories(dmmfSchema).map((factory) => {
       return {
         name: factory.name,
         typeParameters: [
@@ -302,10 +317,11 @@ export async function generate(
       }
     }),
   )
-  outputFile
+
+  sourceFile
     .addInterface({
       name: 'Inputs',
-      properties: dmmf.schema.outputObjectTypes.prisma
+      properties: dmmfSchema.outputObjectTypes.prisma
         .filter((x) => x.name === 'Query' || x.name === 'Mutation')
         .flatMap((x) =>
           x.fields.map((f) => ({
@@ -318,6 +334,21 @@ export async function generate(
       name: 'Types',
       constraint: 'PGTypes',
     })
+}
+
+export async function generate(
+  dmmf: DMMF.Document,
+  outputPath: string,
+  prismaImportPath: string,
+): Promise<void> {
+  const project = new Project()
+  const outputFile = project.createSourceFile(outputPath, undefined, { overwrite: true })
+
+  addImports(outputFile, prismaImportPath)
+  addEnumTypes(outputFile, dmmf.datamodel.enums)
+  addModelTypes(outputFile, dmmf.datamodel.models)
+  addInputFactoryTypes(outputFile, dmmf.schema)
+
   outputFile
     .addTypeAlias({
       name: 'PGfyResponse',
