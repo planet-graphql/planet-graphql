@@ -138,16 +138,18 @@ import { PGEnum, RequiredNonNullable } from "@prismagql/prismagql/lib/types/comm
 import { PGObject, PGOutputField, PGOutputFieldOptionsDefault } from "@prismagql/prismagql/lib/types/output";
 import { PGInputFactory, PGInputFactoryUnion } from "@prismagql/prismagql/lib/types/input-factory";
 import { PGInputField } from "@prismagql/prismagql/lib/types/input";
+import { PrismaObject } from "@prismagql/prismagql/lib/types/prisma-converter";
+import { getInternalPGPrismaConverter } from "@prismagql/prismagql/lib/prisma-converter/index";
 
 type SomeEnumValuesType = ["AAA", "BBB", "CCC"];
 type SomeEnum2ValuesType = ["Aaa", "Bbb", "Ccc"];
 type SomeEnum3ValuesType = ["aaa", "bbb", "ccc"];
-type PGfyResponseEnums = {
+type PrismaEnumMap = {
     SomeEnum: PGEnum<SomeEnumValuesType>;
     SomeEnum2: PGEnum<SomeEnum2ValuesType>;
     SomeEnum3: PGEnum<SomeEnum3ValuesType>;
 };
-type Model1FieldMapType<Types extends PGTypes> = {
+type Model1FieldMapType<TObjectRef extends { [key: string]: Function | undefined }, Types extends PGTypes> = {
     id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
     string: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>;
     json: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>;
@@ -163,51 +165,96 @@ type Model1FieldMapType<Types extends PGTypes> = {
     enum: PGOutputField<PGEnum<SomeEnumValuesType>, any, PGOutputFieldOptionsDefault, Types>;
     enumList: PGOutputField<Array<PGEnum<SomeEnum2ValuesType>>, any, PGOutputFieldOptionsDefault, Types>;
     enumNullable: PGOutputField<PGEnum<SomeEnum3ValuesType> | null, any, PGOutputFieldOptionsDefault, Types>;
-    oneToOne: PGOutputField<PGObject<Model2FieldMapType<Types>, { PrismaModelName: 'Model2' }, Types> | null, any, PGOutputFieldOptionsDefault, Types>;
-    oneToMany: PGOutputField<Array<PGObject<Model3FieldMapType<Types>, { PrismaModelName: 'Model3' }, Types>>, any, PGOutputFieldOptionsDefault, Types>;
+    oneToOne: PGOutputField<PrismaObjectMap<TObjectRef, Types>['Model2'] | null, any, PGOutputFieldOptionsDefault, Types>;
+    oneToMany: PGOutputField<Array<PrismaObjectMap<TObjectRef, Types>['Model3']>, any, PGOutputFieldOptionsDefault, Types>;
 };
-type Model2FieldMapType<Types extends PGTypes> = {
+type Model2FieldMapType<TObjectRef extends { [key: string]: Function | undefined }, Types extends PGTypes> = {
     id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
-    model1: PGOutputField<PGObject<Model1FieldMapType<Types>, { PrismaModelName: 'Model1' }, Types>, any, PGOutputFieldOptionsDefault, Types>;
+    model1: PGOutputField<PrismaObjectMap<TObjectRef, Types>['Model1'], any, PGOutputFieldOptionsDefault, Types>;
     model1Id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
 };
-type Model3FieldMapType<Types extends PGTypes> = {
+type Model3FieldMapType<TObjectRef extends { [key: string]: Function | undefined }, Types extends PGTypes> = {
     id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
-    model1: PGOutputField<PGObject<Model1FieldMapType<Types>, { PrismaModelName: 'Model1' }, Types>, any, PGOutputFieldOptionsDefault, Types>;
+    model1: PGOutputField<PrismaObjectMap<TObjectRef, Types>['Model1'], any, PGOutputFieldOptionsDefault, Types>;
     model1Id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
 };
-type PGfyResponseObjects<Types extends PGTypes> = {
-    Model1: PGObject<Model1FieldMapType<Types>, { PrismaModelName: 'Model1' }, Types>;
-    Model2: PGObject<Model2FieldMapType<Types>, { PrismaModelName: 'Model2' }, Types>;
-    Model3: PGObject<Model3FieldMapType<Types>, { PrismaModelName: 'Model3' }, Types>;
+type PrismaObjectMap<TObjectRef extends { [key: string]: Function | undefined }, Types extends PGTypes> = {
+    Model1: PrismaObject<TObjectRef, 'Model1', PGObject<Model1FieldMapType<TObjectRef, Types>, undefined, { PrismaModelName: 'Model1' }, Types>>;
+    Model2: PrismaObject<TObjectRef, 'Model2', PGObject<Model2FieldMapType<TObjectRef, Types>, undefined, { PrismaModelName: 'Model2' }, Types>>;
+    Model3: PrismaObject<TObjectRef, 'Model3', PGObject<Model3FieldMapType<TObjectRef, Types>, undefined, { PrismaModelName: 'Model3' }, Types>>;
 };
-type PGfyResponseModels = {
+
+interface PrismaInputFactoryMap<Types extends PGTypes> {
+}
+
+interface PGPrismaConverter<Types extends PGTypes> {
+    convert: <
+        TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function } = {},
+        >(
+        updatedObjectRef?: TObjectRef,
+    ) => {
+        objects: <TName extends keyof PrismaObjectMap<TObjectRef, Types>>(
+            name: TName,
+        ) => PrismaObjectMap<TObjectRef, Types>[TName]
+        relations: <TName extends keyof PrismaObjectMap<TObjectRef, Types>>(
+            name: TName,
+        ) => Omit<PrismaObjectMap<TObjectRef, Types>, TName> extends infer U
+            ? { [P in keyof U]: () => U[P] }
+            : never
+        enums: <TName extends keyof PrismaEnumMap>(name: TName) => PrismaEnumMap[TName]
+        inputs: <TName extends keyof PrismaInputFactoryMap<Types>>(
+            name: TName,
+        ) => PrismaInputFactoryMap<Types>[TName]
+    };
+    update: <
+        TName extends Exclude<keyof PrismaObjectMap<{}, Types>, undefined | number>,
+        TFieldMap extends PGOutputFieldMap,
+        TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function } = {},
+        TInterfaces extends Array<PGInterface<any>> | undefined = undefined,
+        >(config: {
+            name: TName
+            fields: (
+                f: PrismaObjectMap<TObjectRef, Types>[TName] extends infer U
+                    ? U extends PGObject<any>
+                    ? U['value']['fieldMap']
+                    : never
+                    : never,
+                b: PGOutputFieldBuilder<Types>,
+            ) => TFieldMap
+            interfaces?: TInterfaces
+            isTypeOf?: (
+                value: TypeOfPGFieldMap<TFieldMap & ConvertPGInterfacesToFieldMap<TInterfaces>>,
+            ) => boolean
+            relations: TObjectRef
+        }) => PGObject<
+            Simplify<TFieldMap & ConvertPGInterfacesToFieldMap<TInterfaces>>,
+            TInterfaces,
+            TName extends keyof Types['Prisma']['Args']
+            ? { PrismaModelName: TName }
+            : PGObjectOptionsDefault<Types>,
+            Types
+        >;
+}
+
+type InitPGPrismaConverter = <Types extends PGTypes>(
+    builder: PGBuilder<Types>,
+    dmmf: DMMF.Document,
+) => PGPrismaConverter<Types>;
+
+export const getPGPrismaConverter: InitPGPrismaConverter = (builder, dmmf) => getInternalPGPrismaConverter(builder, dmmf);
+
+type PrismaArgsMap = {
     Model1: RequiredNonNullable<Prisma.Model1FindManyArgs>;
     Model2: RequiredNonNullable<Prisma.Model2FindManyArgs>;
     Model3: RequiredNonNullable<Prisma.Model3FindManyArgs>;
 };
-
-interface Inputs<Types extends PGTypes> {
-}
-
-type PGfyResponse<T extends PGBuilder> = T extends PGBuilder<infer U>
-    ? {
-        enums: PGfyResponseEnums
-        objects: PGfyResponseObjects<U>
-        inputs: Inputs<U>
-    }
-    : any;
-
-export interface PrismaGeneratedType {
-    Args: PGfyResponseModels;
-    PGfy: <T extends PGBuilder<any>>(
-        builder: T,
-        dmmf: DMMF.Document,
-    ) => PGfyResponse<T>;
-}
+export type PrismaTypes = {
+    Args: PrismaArgsMap;
+};
 `)
     })
   })
+
   describe('only schema is passed', () => {
     let schema: DMMF.Schema
     const outputPath = '.output-factory.ts'
@@ -463,10 +510,11 @@ import { PGEnum, RequiredNonNullable } from "@prismagql/prismagql/lib/types/comm
 import { PGObject, PGOutputField, PGOutputFieldOptionsDefault } from "@prismagql/prismagql/lib/types/output";
 import { PGInputFactory, PGInputFactoryUnion } from "@prismagql/prismagql/lib/types/input-factory";
 import { PGInputField } from "@prismagql/prismagql/lib/types/input";
+import { PrismaObject } from "@prismagql/prismagql/lib/types/prisma-converter";
+import { getInternalPGPrismaConverter } from "@prismagql/prismagql/lib/prisma-converter/index";
 
-type PGfyResponseEnums = {};
-type PGfyResponseObjects<Types extends PGTypes> = {};
-type PGfyResponseModels = {};
+type PrismaEnumMap = {};
+type PrismaObjectMap<TObjectRef extends { [key: string]: Function | undefined }, Types extends PGTypes> = {};
 type Enum1Factory = PGEnum<['id', 'name', 'income', 'role']>;
 type Enum2Factory = PGEnum<['asc', 'desc']>;
 type Enum3Factory = PGEnum<['AAA', 'BBB']>;
@@ -494,25 +542,70 @@ type Input3Factory<Types extends PGTypes> = {
     circularField: () => PGInputFactory<Input2Factory<Types>, Types>;
 };
 
-interface Inputs<Types extends PGTypes> {
+interface PrismaInputFactoryMap<Types extends PGTypes> {
     findFirstSomeModel: PGInputFactory<FindFirstSomeModelFactory<Types>, Types>;
 }
 
-type PGfyResponse<T extends PGBuilder> = T extends PGBuilder<infer U>
-    ? {
-        enums: PGfyResponseEnums
-        objects: PGfyResponseObjects<U>
-        inputs: Inputs<U>
-    }
-    : any;
-
-export interface PrismaGeneratedType {
-    Args: PGfyResponseModels;
-    PGfy: <T extends PGBuilder<any>>(
-        builder: T,
-        dmmf: DMMF.Document,
-    ) => PGfyResponse<T>;
+interface PGPrismaConverter<Types extends PGTypes> {
+    convert: <
+        TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function } = {},
+        >(
+        updatedObjectRef?: TObjectRef,
+    ) => {
+        objects: <TName extends keyof PrismaObjectMap<TObjectRef, Types>>(
+            name: TName,
+        ) => PrismaObjectMap<TObjectRef, Types>[TName]
+        relations: <TName extends keyof PrismaObjectMap<TObjectRef, Types>>(
+            name: TName,
+        ) => Omit<PrismaObjectMap<TObjectRef, Types>, TName> extends infer U
+            ? { [P in keyof U]: () => U[P] }
+            : never
+        enums: <TName extends keyof PrismaEnumMap>(name: TName) => PrismaEnumMap[TName]
+        inputs: <TName extends keyof PrismaInputFactoryMap<Types>>(
+            name: TName,
+        ) => PrismaInputFactoryMap<Types>[TName]
+    };
+    update: <
+        TName extends Exclude<keyof PrismaObjectMap<{}, Types>, undefined | number>,
+        TFieldMap extends PGOutputFieldMap,
+        TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function } = {},
+        TInterfaces extends Array<PGInterface<any>> | undefined = undefined,
+        >(config: {
+            name: TName
+            fields: (
+                f: PrismaObjectMap<TObjectRef, Types>[TName] extends infer U
+                    ? U extends PGObject<any>
+                    ? U['value']['fieldMap']
+                    : never
+                    : never,
+                b: PGOutputFieldBuilder<Types>,
+            ) => TFieldMap
+            interfaces?: TInterfaces
+            isTypeOf?: (
+                value: TypeOfPGFieldMap<TFieldMap & ConvertPGInterfacesToFieldMap<TInterfaces>>,
+            ) => boolean
+            relations: TObjectRef
+        }) => PGObject<
+            Simplify<TFieldMap & ConvertPGInterfacesToFieldMap<TInterfaces>>,
+            TInterfaces,
+            TName extends keyof Types['Prisma']['Args']
+            ? { PrismaModelName: TName }
+            : PGObjectOptionsDefault<Types>,
+            Types
+        >;
 }
+
+type InitPGPrismaConverter = <Types extends PGTypes>(
+    builder: PGBuilder<Types>,
+    dmmf: DMMF.Document,
+) => PGPrismaConverter<Types>;
+
+export const getPGPrismaConverter: InitPGPrismaConverter = (builder, dmmf) => getInternalPGPrismaConverter(builder, dmmf);
+
+type PrismaArgsMap = {};
+export type PrismaTypes = {
+    Args: PrismaArgsMap;
+};
 `)
     })
   })
@@ -607,6 +700,7 @@ Input: () => PGInputFactory<InputFactory<Types>, Types>
     })
   })
 })
+
 describe('shapeInputs', () => {
   it('returns the factories in the form used by generator method', () => {
     const args: DMMF.SchemaArg[] = [
@@ -681,6 +775,7 @@ Input2: () => PGInputFactory<Input2Factory<Types> | undefined, Types>
     })
   })
 })
+
 describe('getFactories', () => {
   it('returns all factories, including recursion, in the form used by generator method', async () => {
     const schema: DMMF.Schema = {

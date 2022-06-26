@@ -35,7 +35,7 @@ export interface PrismaEnumMap {
   [name: string]: PGEnum<any>
 }
 
-export interface PrismaArgsFactoryMap<Types extends PGTypes> {
+export interface PrismaInputFactoryMap<Types extends PGTypes> {
   [name: string]: PGInputFactory<any, Types>
 }
 
@@ -59,9 +59,9 @@ export interface PGPrismaConverter<Types extends PGTypes> {
       ? { [P in keyof U]: () => U[P] }
       : never
     enums: <TName extends keyof PrismaEnumMap>(name: TName) => PrismaEnumMap[TName]
-    inputs: <TName extends keyof PrismaArgsFactoryMap<Types>>(
+    inputs: <TName extends keyof PrismaInputFactoryMap<Types>>(
       name: TName,
-    ) => PrismaArgsFactoryMap<Types>[TName]
+    ) => PrismaInputFactoryMap<Types>[TName]
   }
   update: <
     TName extends Exclude<keyof PrismaObjectMap<{}, Types>, undefined | number>,

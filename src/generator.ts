@@ -2,7 +2,7 @@ import path from 'path'
 import { DMMF } from '@prisma/client/runtime'
 import { generatorHandler } from '@prisma/generator-helper'
 import _ from 'lodash'
-import { Project, SourceFile, Writers } from 'ts-morph'
+import { Project, SourceFile, VariableDeclarationKind, Writers } from 'ts-morph'
 import { PGError } from './builder/utils'
 
 const { objectType } = Writers
@@ -45,9 +45,7 @@ function getPGFieldType(dmmf: DMMF.Field): string {
       innerType = `PGEnum<${getEnumTypeName(dmmf.type)}>`
       break
     case 'object':
-      innerType = `PGObject<${getModelTypeName(dmmf.type)}<Types>, { PrismaModelName: '${
-        dmmf.type
-      }' }, Types>`
+      innerType = `PrismaObjectMap<TObjectRef, Types>['${dmmf.type}']`
       break
     case 'scalar':
       innerType = `${getTSType(dmmf.type)}`
@@ -219,6 +217,14 @@ export function addImports(sourceFile: SourceFile, prismaImportPath: string): vo
       namedImports: ['PGInputField'],
       moduleSpecifier: '@prismagql/prismagql/lib/types/input',
     },
+    {
+      namedImports: ['PrismaObject'],
+      moduleSpecifier: '@prismagql/prismagql/lib/types/prisma-converter',
+    },
+    {
+      namedImports: ['getInternalPGPrismaConverter'],
+      moduleSpecifier: '@prismagql/prismagql/lib/prisma-converter/index',
+    },
   ])
 }
 
@@ -234,7 +240,7 @@ export function addEnumTypes(
   )
 
   sourceFile.addTypeAlias({
-    name: 'PGfyResponseEnums',
+    name: 'PrismaEnumMap',
     type: objectType({
       properties: dmmfEnums.map((x) => ({
         name: x.name,
@@ -255,37 +261,30 @@ export function addModelTypes(sourceFile: SourceFile, dmmfModels: DMMF.Model[]):
             type: getPGFieldType(f),
           })),
         }),
-        typeParameters: [{ name: 'Types', constraint: 'PGTypes' }],
+        typeParameters: [
+          { name: 'TObjectRef', constraint: '{ [key: string]: Function | undefined }' },
+          { name: 'Types', constraint: 'PGTypes' },
+        ],
       }
     }),
   )
 
   sourceFile
     .addTypeAlias({
-      name: 'PGfyResponseObjects',
+      name: 'PrismaObjectMap',
       type: objectType({
         properties: dmmfModels.map((x) => ({
           name: x.name,
-          type: `PGObject<${getModelTypeName(x.name)}<Types>, { PrismaModelName: '${
-            x.name
-          }' }, Types>`,
+          type: `PrismaObject<TObjectRef, '${x.name}', PGObject<${getModelTypeName(
+            x.name,
+          )}<TObjectRef, Types>, undefined, { PrismaModelName: '${x.name}' }, Types>>`,
         })),
       }),
     })
-    .addTypeParameter({
-      name: 'Types',
-      constraint: 'PGTypes',
-    })
-
-  sourceFile.addTypeAlias({
-    name: 'PGfyResponseModels',
-    type: objectType({
-      properties: dmmfModels.map((x) => ({
-        name: x.name,
-        type: `RequiredNonNullable<Prisma.${x.name}FindManyArgs>`,
-      })),
-    }),
-  })
+    .addTypeParameters([
+      { name: 'TObjectRef', constraint: '{ [key: string]: Function | undefined }' },
+      { name: 'Types', constraint: 'PGTypes' },
+    ])
 }
 
 export function addInputFactoryTypes(
@@ -320,7 +319,7 @@ export function addInputFactoryTypes(
 
   sourceFile
     .addInterface({
-      name: 'Inputs',
+      name: 'PrismaInputFactoryMap',
       properties: dmmfSchema.outputObjectTypes.prisma
         .filter((x) => x.name === 'Query' || x.name === 'Mutation')
         .flatMap((x) =>
@@ -336,6 +335,57 @@ export function addInputFactoryTypes(
     })
 }
 
+export function copyPrismaConverterInterfaces(sourceFile: SourceFile): void {
+  const project = new Project()
+  const file = project.addSourceFileAtPath(
+    path.join(__dirname, './types/prisma-converter.ts'),
+  )
+  const converterInterface = file.getInterfaceOrThrow('PGPrismaConverter')
+  const converterBuilderType = file.getTypeAliasOrThrow('InitPGPrismaConverter')
+
+  sourceFile.addInterface({ ...converterInterface.getStructure(), isExported: false })
+  sourceFile.addTypeAlias({ ...converterBuilderType.getStructure(), isExported: false })
+}
+
+export function addConverterFunction(sourceFile: SourceFile): void {
+  sourceFile.addVariableStatement({
+    declarationKind: VariableDeclarationKind.Const,
+    declarations: [
+      {
+        name: 'getPGPrismaConverter',
+        initializer: '(builder, dmmf) => getInternalPGPrismaConverter(builder, dmmf)',
+        type: 'InitPGPrismaConverter',
+      },
+    ],
+    isExported: true,
+  })
+}
+
+export function addPrismaTypes(sourceFile: SourceFile, dmmfModels: DMMF.Model[]): void {
+  sourceFile.addTypeAlias({
+    name: 'PrismaArgsMap',
+    type: objectType({
+      properties: dmmfModels.map((x) => ({
+        name: x.name,
+        type: `RequiredNonNullable<Prisma.${x.name}FindManyArgs>`,
+      })),
+    }),
+  })
+
+  sourceFile.addTypeAlias({
+    name: 'PrismaTypes',
+    type: objectType({
+      properties: [
+        {
+          name: 'Args',
+          type: 'PrismaArgsMap',
+        },
+      ],
+    }),
+    isExported: true,
+  })
+}
+
 export async function generate(
   dmmf: DMMF.Document,
   outputPath: string,
@@ -348,38 +398,12 @@ export async function generate(
   addEnumTypes(outputFile, dmmf.datamodel.enums)
   addModelTypes(outputFile, dmmf.datamodel.models)
   addInputFactoryTypes(outputFile, dmmf.schema)
-
-  outputFile
-    .addTypeAlias({
-      name: 'PGfyResponse',
-      type: `T extends PGBuilder<infer U>
-? {
-   enums: PGfyResponseEnums
-   objects: PGfyResponseObjects<U>
-   inputs: Inputs<U>
-  }
-: any`,
-    })
-    .addTypeParameter({
-      name: 'T',
-      constraint: 'PGBuilder',
-    })
-  outputFile.addInterface({
-    name: 'PrismaGeneratedType',
-    properties: [
-      { name: 'Args', type: 'PGfyResponseModels' },
-      {
-        name: 'PGfy',
-        type: `<T extends PGBuilder<any>>(
-  builder: T,
-  dmmf: DMMF.Document,
-) => PGfyResponse<T>`,
-      },
-    ],
-    isExported: true,
-  })
+  copyPrismaConverterInterfaces(outputFile)
+  addConverterFunction(outputFile)
+  addPrismaTypes(outputFile, dmmf.datamodel.models)
 
   outputFile.formatText()
+
   // FIXME:
   // I think it would be easier to test if I just do `emitToMemory()` in generate
   // and saveFiles in the caller as shown below, but for some reason it doesn't work.

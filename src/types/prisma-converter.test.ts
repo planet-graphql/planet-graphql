@@ -3,66 +3,76 @@ import { PGTypes } from './builder'
 import { PGObject, PGOutputField, PGOutputFieldOptionsDefault } from './output'
 import { PrismaObject } from './prisma-converter'
 
+type UserFieldMap<
+  TObjectRef extends { [key: string]: Function | undefined },
+  Types extends PGTypes = PGTypes,
+> = {
+  id: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>
+  posts: PGOutputField<
+    [() => SamplePrismaObjectMap<TObjectRef, Types>['Post']],
+    any,
+    PGOutputFieldOptionsDefault,
+    Types
+  >
+}
+
+type PostFieldMap<
+  TObjectRef extends { [key: string]: Function | undefined },
+  Types extends PGTypes = PGTypes,
+> = {
+  id: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>
+  user: PGOutputField<
+    () => SamplePrismaObjectMap<TObjectRef, Types>['User'],
+    any,
+    PGOutputFieldOptionsDefault,
+    Types
+  >
+  comments: PGOutputField<
+    [() => SamplePrismaObjectMap<TObjectRef, Types>['Comment']],
+    any,
+    PGOutputFieldOptionsDefault,
+    Types
+  >
+}
+
 interface SamplePrismaObjectMap<
-  TMap extends { [key: string]: Function | undefined },
+  TObjectRef extends { [key: string]: Function | undefined },
   Types extends PGTypes = PGTypes,
 > {
   User: PrismaObject<
-    TMap,
+    TObjectRef,
     'User',
     PGObject<
-      {
-        id: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>
-        posts: PGOutputField<
-          [() => SamplePrismaObjectMap<TMap, Types>['Post']],
-          any,
-          PGOutputFieldOptionsDefault,
-          Types
-        >
-      },
+      UserFieldMap<TObjectRef, Types>,
       undefined,
       { PrismaModelName: 'User' },
       Types
     >
   >
   Post: PrismaObject<
-    TMap,
+    TObjectRef,
     'Post',
     PGObject<
-      {
-        id: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>
-        user: PGOutputField<
-          () => SamplePrismaObjectMap<TMap, Types>['User'],
-          any,
-          PGOutputFieldOptionsDefault,
-          Types
-        >
-        comments: PGOutputField<
-          [() => SamplePrismaObjectMap<TMap, Types>['Comment']],
-          any,
-          PGOutputFieldOptionsDefault,
-          Types
-        >
-      },
+      PostFieldMap<TObjectRef, Types>,
       undefined,
       { PrismaModelName: 'Post' },
       Types
     >
   >
   Comment: PrismaObject<
-    TMap,
+    TObjectRef,
     'Comment',
     PGObject<
       {
         id: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>
         user: PGOutputField<
-          () => SamplePrismaObjectMap<TMap, Types>['User'],
+          () => SamplePrismaObjectMap<TObjectRef, Types>['User'],
           any,
           PGOutputFieldOptionsDefault,
           Types
         >
         post: PGOutputField<
-          () => SamplePrismaObjectMap<TMap, Types>['Post'],
+          () => SamplePrismaObjectMap<TObjectRef, Types>['Post'],
           any,
           PGOutputFieldOptionsDefault,
           Types
