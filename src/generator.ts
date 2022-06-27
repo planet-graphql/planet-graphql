@@ -94,7 +94,9 @@ export function getInputsTypeProperty(arg: DMMF.SchemaArg): string {
     return ''
   }
 
-  if (arg.inputTypes.length > 1) {
+  const filteredInputTypes = arg.inputTypes.filter((x) => x.type !== 'Null')
+
+  if (filteredInputTypes.length > 1) {
     const unionObject = arg.inputTypes.reduce<{ [name: string]: string }>(
       (acc, inputType) => {
         if (acc.__default === undefined) acc.__default = getProperty(inputType)
@@ -112,7 +114,7 @@ export function getInputsTypeProperty(arg: DMMF.SchemaArg): string {
       })
       .join(',\n')}\n}>`
   }
-  return getProperty(arg.inputTypes[0])
+  return getProperty(filteredInputTypes[0])
 }
 
 export function shapeInputs(

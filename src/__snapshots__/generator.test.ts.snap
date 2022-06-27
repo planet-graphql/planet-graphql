@@ -729,11 +729,7 @@ type Model1CreateInputFactory<Types extends PGTypes> = {
     dateTime: PGInputField<Date, 'dateTime', Types>;
     bytes: PGInputField<Buffer, 'bytes', Types>;
     decimal: PGInputField<Decimal, 'decimal', Types>;
-    nullable: PGInputFactoryUnion<{
-        __default: PGInputField<string | null | undefined, 'string', Types>,
-        String: PGInputField<string | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    nullable: PGInputField<string | null | undefined, 'string', Types>;
     list: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
         Model1CreatelistInput: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
@@ -747,11 +743,7 @@ type Model1CreateInputFactory<Types extends PGTypes> = {
         SomeEnum2List: PGInputField<SomeEnum2Factory[] | undefined, 'enum', Types>,
         SomeEnum2: PGInputField<SomeEnum2Factory[] | undefined, 'enum', Types>
     }>;
-    enumNullable: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    enumNullable: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>;
     oneToOne: () => PGInputFactory<Model2CreateNestedOneWithoutModel1InputFactory<Types> | undefined, Types>;
     oneToMany: () => PGInputFactory<Model3CreateNestedManyWithoutModel1InputFactory<Types> | undefined, Types>;
 };
@@ -770,11 +762,7 @@ type Model1UncheckedCreateInputFactory<Types extends PGTypes> = {
     dateTime: PGInputField<Date, 'dateTime', Types>;
     bytes: PGInputField<Buffer, 'bytes', Types>;
     decimal: PGInputField<Decimal, 'decimal', Types>;
-    nullable: PGInputFactoryUnion<{
-        __default: PGInputField<string | null | undefined, 'string', Types>,
-        String: PGInputField<string | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    nullable: PGInputField<string | null | undefined, 'string', Types>;
     list: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
         Model1CreatelistInput: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
@@ -788,11 +776,7 @@ type Model1UncheckedCreateInputFactory<Types extends PGTypes> = {
         SomeEnum2List: PGInputField<SomeEnum2Factory[] | undefined, 'enum', Types>,
         SomeEnum2: PGInputField<SomeEnum2Factory[] | undefined, 'enum', Types>
     }>;
-    enumNullable: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    enumNullable: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>;
     oneToOne: () => PGInputFactory<Model2UncheckedCreateNestedOneWithoutModel1InputFactory<Types> | undefined, Types>;
     oneToMany: () => PGInputFactory<Model3UncheckedCreateNestedManyWithoutModel1InputFactory<Types> | undefined, Types>;
 };
@@ -972,11 +956,7 @@ type Model1CreateManyInputFactory<Types extends PGTypes> = {
     dateTime: PGInputField<Date, 'dateTime', Types>;
     bytes: PGInputField<Buffer, 'bytes', Types>;
     decimal: PGInputField<Decimal, 'decimal', Types>;
-    nullable: PGInputFactoryUnion<{
-        __default: PGInputField<string | null | undefined, 'string', Types>,
-        String: PGInputField<string | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    nullable: PGInputField<string | null | undefined, 'string', Types>;
     list: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
         Model1CreatelistInput: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
@@ -990,11 +970,7 @@ type Model1CreateManyInputFactory<Types extends PGTypes> = {
         SomeEnum2List: PGInputField<SomeEnum2Factory[] | undefined, 'enum', Types>,
         SomeEnum2: PGInputField<SomeEnum2Factory[] | undefined, 'enum', Types>
     }>;
-    enumNullable: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    enumNullable: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>;
 };
 type Model1UpdateManyMutationInputFactory<Types extends PGTypes> = {
     string: PGInputFactoryUnion<{
@@ -1350,23 +1326,9 @@ type DecimalFilterFactory<Types extends PGTypes> = {
     }>;
 };
 type StringNullableFilterFactory<Types extends PGTypes> = {
-    equals: PGInputFactoryUnion<{
-        __default: PGInputField<string | null | undefined, 'string', Types>,
-        String: PGInputField<string | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    in: PGInputFactoryUnion<{
-        __default: PGInputField<string[] | null | undefined, 'string', Types>,
-        StringList: PGInputField<string[] | null | undefined, 'string', Types>,
-        String: PGInputField<string[] | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    notIn: PGInputFactoryUnion<{
-        __default: PGInputField<string[] | null | undefined, 'string', Types>,
-        StringList: PGInputField<string[] | null | undefined, 'string', Types>,
-        String: PGInputField<string[] | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    equals: PGInputField<string | null | undefined, 'string', Types>;
+    in: PGInputField<string[] | null | undefined, 'string', Types>;
+    notIn: PGInputField<string[] | null | undefined, 'string', Types>;
     lt: PGInputField<string | undefined, 'string', Types>;
     lte: PGInputField<string | undefined, 'string', Types>;
     gt: PGInputField<string | undefined, 'string', Types>;
@@ -1383,17 +1345,8 @@ type StringNullableFilterFactory<Types extends PGTypes> = {
     }>;
 };
 type StringNullableListFilterFactory<Types extends PGTypes> = {
-    equals: PGInputFactoryUnion<{
-        __default: PGInputField<string[] | null | undefined, 'string', Types>,
-        StringList: PGInputField<string[] | null | undefined, 'string', Types>,
-        String: PGInputField<string[] | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    has: PGInputFactoryUnion<{
-        __default: PGInputField<string | null | undefined, 'string', Types>,
-        String: PGInputField<string | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    equals: PGInputField<string[] | null | undefined, 'string', Types>;
+    has: PGInputField<string | null | undefined, 'string', Types>;
     hasEvery: PGInputField<string[] | undefined, 'string', Types>;
     hasSome: PGInputField<string[] | undefined, 'string', Types>;
     isEmpty: PGInputField<boolean | undefined, 'boolean', Types>;
@@ -1409,39 +1362,16 @@ type EnumSomeEnumFilterFactory<Types extends PGTypes> = {
     }>;
 };
 type EnumSomeEnum2NullableListFilterFactory<Types extends PGTypes> = {
-    equals: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum2Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum2List: PGInputField<SomeEnum2Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum2: PGInputField<SomeEnum2Factory[] | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    has: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum2Factory | null | undefined, 'enum', Types>,
-        SomeEnum2: PGInputField<SomeEnum2Factory | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    equals: PGInputField<SomeEnum2Factory[] | null | undefined, 'enum', Types>;
+    has: PGInputField<SomeEnum2Factory | null | undefined, 'enum', Types>;
     hasEvery: PGInputField<SomeEnum2Factory[] | undefined, 'enum', Types>;
     hasSome: PGInputField<SomeEnum2Factory[] | undefined, 'enum', Types>;
     isEmpty: PGInputField<boolean | undefined, 'boolean', Types>;
 };
 type EnumSomeEnum3NullableFilterFactory<Types extends PGTypes> = {
-    equals: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    in: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum3List: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    notIn: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum3List: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    equals: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>;
+    in: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>;
+    notIn: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>;
     not: PGInputFactoryUnion<{
         __default: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
         SomeEnum3: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
@@ -1450,16 +1380,8 @@ type EnumSomeEnum3NullableFilterFactory<Types extends PGTypes> = {
     }>;
 };
 type Model2RelationFilterFactory<Types extends PGTypes> = {
-    is: PGInputFactoryUnion<{
-        __default: () => PGInputFactory<Model2WhereInputFactory<Types> | null | undefined, Types>,
-        Model2WhereInput: () => PGInputFactory<Model2WhereInputFactory<Types> | null | undefined, Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    isNot: PGInputFactoryUnion<{
-        __default: () => PGInputFactory<Model2WhereInputFactory<Types> | null | undefined, Types>,
-        Model2WhereInput: () => PGInputFactory<Model2WhereInputFactory<Types> | null | undefined, Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    is: () => PGInputFactory<Model2WhereInputFactory<Types> | null | undefined, Types>;
+    isNot: () => PGInputFactory<Model2WhereInputFactory<Types> | null | undefined, Types>;
 };
 type Model3ListRelationFilterFactory<Types extends PGTypes> = {
     every: () => PGInputFactory<Model3WhereInputFactory<Types> | undefined, Types>;
@@ -1682,23 +1604,9 @@ type DecimalWithAggregatesFilterFactory<Types extends PGTypes> = {
     _max: () => PGInputFactory<NestedDecimalFilterFactory<Types> | undefined, Types>;
 };
 type StringNullableWithAggregatesFilterFactory<Types extends PGTypes> = {
-    equals: PGInputFactoryUnion<{
-        __default: PGInputField<string | null | undefined, 'string', Types>,
-        String: PGInputField<string | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    in: PGInputFactoryUnion<{
-        __default: PGInputField<string[] | null | undefined, 'string', Types>,
-        StringList: PGInputField<string[] | null | undefined, 'string', Types>,
-        String: PGInputField<string[] | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    notIn: PGInputFactoryUnion<{
-        __default: PGInputField<string[] | null | undefined, 'string', Types>,
-        StringList: PGInputField<string[] | null | undefined, 'string', Types>,
-        String: PGInputField<string[] | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    equals: PGInputField<string | null | undefined, 'string', Types>;
+    in: PGInputField<string[] | null | undefined, 'string', Types>;
+    notIn: PGInputField<string[] | null | undefined, 'string', Types>;
     lt: PGInputField<string | undefined, 'string', Types>;
     lte: PGInputField<string | undefined, 'string', Types>;
     gt: PGInputField<string | undefined, 'string', Types>;
@@ -1731,23 +1639,9 @@ type EnumSomeEnumWithAggregatesFilterFactory<Types extends PGTypes> = {
     _max: () => PGInputFactory<NestedEnumSomeEnumFilterFactory<Types> | undefined, Types>;
 };
 type EnumSomeEnum3NullableWithAggregatesFilterFactory<Types extends PGTypes> = {
-    equals: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    in: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum3List: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    notIn: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum3List: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    equals: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>;
+    in: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>;
+    notIn: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>;
     not: PGInputFactoryUnion<{
         __default: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
         SomeEnum3: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
@@ -1907,11 +1801,7 @@ type DecimalFieldUpdateOperationsInputFactory<Types extends PGTypes> = {
     divide: PGInputField<Decimal | undefined, 'decimal', Types>;
 };
 type NullableStringFieldUpdateOperationsInputFactory<Types extends PGTypes> = {
-    set: PGInputFactoryUnion<{
-        __default: PGInputField<string | null | undefined, 'string', Types>,
-        String: PGInputField<string | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    set: PGInputField<string | null | undefined, 'string', Types>;
 };
 type Model1UpdatelistInputFactory<Types extends PGTypes> = {
     set: PGInputField<string[] | undefined, 'string', Types>;
@@ -1933,11 +1823,7 @@ type Model1UpdateenumListInputFactory<Types extends PGTypes> = {
     }>;
 };
 type NullableEnumSomeEnum3FieldUpdateOperationsInputFactory<Types extends PGTypes> = {
-    set: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    set: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>;
 };
 type Model2UpdateOneWithoutModel1InputFactory<Types extends PGTypes> = {
     create: PGInputFactoryUnion<{
@@ -2237,23 +2123,9 @@ type NestedDecimalFilterFactory<Types extends PGTypes> = {
     }>;
 };
 type NestedStringNullableFilterFactory<Types extends PGTypes> = {
-    equals: PGInputFactoryUnion<{
-        __default: PGInputField<string | null | undefined, 'string', Types>,
-        String: PGInputField<string | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    in: PGInputFactoryUnion<{
-        __default: PGInputField<string[] | null | undefined, 'string', Types>,
-        StringList: PGInputField<string[] | null | undefined, 'string', Types>,
-        String: PGInputField<string[] | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    notIn: PGInputFactoryUnion<{
-        __default: PGInputField<string[] | null | undefined, 'string', Types>,
-        StringList: PGInputField<string[] | null | undefined, 'string', Types>,
-        String: PGInputField<string[] | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    equals: PGInputField<string | null | undefined, 'string', Types>;
+    in: PGInputField<string[] | null | undefined, 'string', Types>;
+    notIn: PGInputField<string[] | null | undefined, 'string', Types>;
     lt: PGInputField<string | undefined, 'string', Types>;
     lte: PGInputField<string | undefined, 'string', Types>;
     gt: PGInputField<string | undefined, 'string', Types>;
@@ -2279,23 +2151,9 @@ type NestedEnumSomeEnumFilterFactory<Types extends PGTypes> = {
     }>;
 };
 type NestedEnumSomeEnum3NullableFilterFactory<Types extends PGTypes> = {
-    equals: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    in: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum3List: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    notIn: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum3List: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    equals: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>;
+    in: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>;
+    notIn: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>;
     not: PGInputFactoryUnion<{
         __default: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
         SomeEnum3: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
@@ -2453,23 +2311,9 @@ type NestedDecimalWithAggregatesFilterFactory<Types extends PGTypes> = {
     _max: () => PGInputFactory<NestedDecimalFilterFactory<Types> | undefined, Types>;
 };
 type NestedStringNullableWithAggregatesFilterFactory<Types extends PGTypes> = {
-    equals: PGInputFactoryUnion<{
-        __default: PGInputField<string | null | undefined, 'string', Types>,
-        String: PGInputField<string | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    in: PGInputFactoryUnion<{
-        __default: PGInputField<string[] | null | undefined, 'string', Types>,
-        StringList: PGInputField<string[] | null | undefined, 'string', Types>,
-        String: PGInputField<string[] | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    notIn: PGInputFactoryUnion<{
-        __default: PGInputField<string[] | null | undefined, 'string', Types>,
-        StringList: PGInputField<string[] | null | undefined, 'string', Types>,
-        String: PGInputField<string[] | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    equals: PGInputField<string | null | undefined, 'string', Types>;
+    in: PGInputField<string[] | null | undefined, 'string', Types>;
+    notIn: PGInputField<string[] | null | undefined, 'string', Types>;
     lt: PGInputField<string | undefined, 'string', Types>;
     lte: PGInputField<string | undefined, 'string', Types>;
     gt: PGInputField<string | undefined, 'string', Types>;
@@ -2488,23 +2332,9 @@ type NestedStringNullableWithAggregatesFilterFactory<Types extends PGTypes> = {
     _max: () => PGInputFactory<NestedStringNullableFilterFactory<Types> | undefined, Types>;
 };
 type NestedIntNullableFilterFactory<Types extends PGTypes> = {
-    equals: PGInputFactoryUnion<{
-        __default: PGInputField<number | null | undefined, 'int', Types>,
-        Int: PGInputField<number | null | undefined, 'int', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    in: PGInputFactoryUnion<{
-        __default: PGInputField<number[] | null | undefined, 'int', Types>,
-        IntList: PGInputField<number[] | null | undefined, 'int', Types>,
-        Int: PGInputField<number[] | null | undefined, 'int', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    notIn: PGInputFactoryUnion<{
-        __default: PGInputField<number[] | null | undefined, 'int', Types>,
-        IntList: PGInputField<number[] | null | undefined, 'int', Types>,
-        Int: PGInputField<number[] | null | undefined, 'int', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    equals: PGInputField<number | null | undefined, 'int', Types>;
+    in: PGInputField<number[] | null | undefined, 'int', Types>;
+    notIn: PGInputField<number[] | null | undefined, 'int', Types>;
     lt: PGInputField<number | undefined, 'int', Types>;
     lte: PGInputField<number | undefined, 'int', Types>;
     gt: PGInputField<number | undefined, 'int', Types>;
@@ -2530,23 +2360,9 @@ type NestedEnumSomeEnumWithAggregatesFilterFactory<Types extends PGTypes> = {
     _max: () => PGInputFactory<NestedEnumSomeEnumFilterFactory<Types> | undefined, Types>;
 };
 type NestedEnumSomeEnum3NullableWithAggregatesFilterFactory<Types extends PGTypes> = {
-    equals: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    in: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum3List: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
-    notIn: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum3List: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    equals: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>;
+    in: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>;
+    notIn: PGInputField<SomeEnum3Factory[] | null | undefined, 'enum', Types>;
     not: PGInputFactoryUnion<{
         __default: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
         SomeEnum3: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
@@ -2671,11 +2487,7 @@ type Model1CreateWithoutOneToOneInputFactory<Types extends PGTypes> = {
     dateTime: PGInputField<Date, 'dateTime', Types>;
     bytes: PGInputField<Buffer, 'bytes', Types>;
     decimal: PGInputField<Decimal, 'decimal', Types>;
-    nullable: PGInputFactoryUnion<{
-        __default: PGInputField<string | null | undefined, 'string', Types>,
-        String: PGInputField<string | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    nullable: PGInputField<string | null | undefined, 'string', Types>;
     list: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
         Model1CreatelistInput: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
@@ -2689,11 +2501,7 @@ type Model1CreateWithoutOneToOneInputFactory<Types extends PGTypes> = {
         SomeEnum2List: PGInputField<SomeEnum2Factory[] | undefined, 'enum', Types>,
         SomeEnum2: PGInputField<SomeEnum2Factory[] | undefined, 'enum', Types>
     }>;
-    enumNullable: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    enumNullable: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>;
     oneToMany: () => PGInputFactory<Model3CreateNestedManyWithoutModel1InputFactory<Types> | undefined, Types>;
 };
 type Model1UncheckedCreateWithoutOneToOneInputFactory<Types extends PGTypes> = {
@@ -2711,11 +2519,7 @@ type Model1UncheckedCreateWithoutOneToOneInputFactory<Types extends PGTypes> = {
     dateTime: PGInputField<Date, 'dateTime', Types>;
     bytes: PGInputField<Buffer, 'bytes', Types>;
     decimal: PGInputField<Decimal, 'decimal', Types>;
-    nullable: PGInputFactoryUnion<{
-        __default: PGInputField<string | null | undefined, 'string', Types>,
-        String: PGInputField<string | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    nullable: PGInputField<string | null | undefined, 'string', Types>;
     list: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
         Model1CreatelistInput: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
@@ -2729,11 +2533,7 @@ type Model1UncheckedCreateWithoutOneToOneInputFactory<Types extends PGTypes> = {
         SomeEnum2List: PGInputField<SomeEnum2Factory[] | undefined, 'enum', Types>,
         SomeEnum2: PGInputField<SomeEnum2Factory[] | undefined, 'enum', Types>
     }>;
-    enumNullable: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    enumNullable: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>;
     oneToMany: () => PGInputFactory<Model3UncheckedCreateNestedManyWithoutModel1InputFactory<Types> | undefined, Types>;
 };
 type Model1CreateOrConnectWithoutOneToOneInputFactory<Types extends PGTypes> = {
@@ -2929,11 +2729,7 @@ type Model1CreateWithoutOneToManyInputFactory<Types extends PGTypes> = {
     dateTime: PGInputField<Date, 'dateTime', Types>;
     bytes: PGInputField<Buffer, 'bytes', Types>;
     decimal: PGInputField<Decimal, 'decimal', Types>;
-    nullable: PGInputFactoryUnion<{
-        __default: PGInputField<string | null | undefined, 'string', Types>,
-        String: PGInputField<string | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    nullable: PGInputField<string | null | undefined, 'string', Types>;
     list: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
         Model1CreatelistInput: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
@@ -2947,11 +2743,7 @@ type Model1CreateWithoutOneToManyInputFactory<Types extends PGTypes> = {
         SomeEnum2List: PGInputField<SomeEnum2Factory[] | undefined, 'enum', Types>,
         SomeEnum2: PGInputField<SomeEnum2Factory[] | undefined, 'enum', Types>
     }>;
-    enumNullable: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    enumNullable: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>;
     oneToOne: () => PGInputFactory<Model2CreateNestedOneWithoutModel1InputFactory<Types> | undefined, Types>;
 };
 type Model1UncheckedCreateWithoutOneToManyInputFactory<Types extends PGTypes> = {
@@ -2969,11 +2761,7 @@ type Model1UncheckedCreateWithoutOneToManyInputFactory<Types extends PGTypes> = 
     dateTime: PGInputField<Date, 'dateTime', Types>;
     bytes: PGInputField<Buffer, 'bytes', Types>;
     decimal: PGInputField<Decimal, 'decimal', Types>;
-    nullable: PGInputFactoryUnion<{
-        __default: PGInputField<string | null | undefined, 'string', Types>,
-        String: PGInputField<string | null | undefined, 'string', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    nullable: PGInputField<string | null | undefined, 'string', Types>;
     list: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
         Model1CreatelistInput: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
@@ -2987,11 +2775,7 @@ type Model1UncheckedCreateWithoutOneToManyInputFactory<Types extends PGTypes> = 
         SomeEnum2List: PGInputField<SomeEnum2Factory[] | undefined, 'enum', Types>,
         SomeEnum2: PGInputField<SomeEnum2Factory[] | undefined, 'enum', Types>
     }>;
-    enumNullable: PGInputFactoryUnion<{
-        __default: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        SomeEnum3: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>,
-        Null: PGInputField<null | null | undefined, 'null', Types>
-    }>;
+    enumNullable: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>;
     oneToOne: () => PGInputFactory<Model2UncheckedCreateNestedOneWithoutModel1InputFactory<Types> | undefined, Types>;
 };
 type Model1CreateOrConnectWithoutOneToManyInputFactory<Types extends PGTypes> = {
