@@ -117,9 +117,11 @@ export function mergeDefaultOutputField(
 }
 
 export function mergeDefaultInputFactory(
+  name: string,
   value: Partial<PGInputFactory<any>['value']>,
 ): PGInputFactory<any> {
   return {
+    name,
     value: Object.assign(
       {
         fieldMap: {},

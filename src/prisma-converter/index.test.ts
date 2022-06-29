@@ -182,7 +182,7 @@ describe('PGPrismaConverter', () => {
       findFirstSomeModelWhere.value.fieldMap.AND as PGInputFactoryUnion<any>
     ).select('SomeModelWhereInput')
 
-    const expectFindFirstSomeModel = mergeDefaultInputFactory({
+    const expectFindFirstSomeModel = mergeDefaultInputFactory('FindFirstSomeModel', {
       fieldMap: {
         cursor: expect.any(Function),
         distinct: mergeDefaultInputField({
@@ -211,82 +211,88 @@ describe('PGPrismaConverter', () => {
         where: expect.any(Function),
       },
     })
-    const expectFindFirstSomeModelOrderByDefault = mergeDefaultInputFactory({
-      fieldMap: {
-        enum: mergeDefaultInputField({
-          kind: 'enum',
-          type: enums('SortOrder'),
-          isOptional: true,
-        }),
-        id: mergeDefaultInputField({
-          kind: 'enum',
-          type: enums('SortOrder'),
-          isOptional: true,
-        }),
-        relations: expect.any(Function),
-        scalar: mergeDefaultInputField({
-          kind: 'enum',
-          type: enums('SortOrder'),
-          isOptional: true,
-        }),
+    const expectFindFirstSomeModelOrderByDefault = mergeDefaultInputFactory(
+      'SomeModelOrderByWithRelationInput',
+      {
+        fieldMap: {
+          enum: mergeDefaultInputField({
+            kind: 'enum',
+            type: enums('SortOrder'),
+            isOptional: true,
+          }),
+          id: mergeDefaultInputField({
+            kind: 'enum',
+            type: enums('SortOrder'),
+            isOptional: true,
+          }),
+          relations: expect.any(Function),
+          scalar: mergeDefaultInputField({
+            kind: 'enum',
+            type: enums('SortOrder'),
+            isOptional: true,
+          }),
+        },
+        isOptional: true,
       },
-      isOptional: true,
-    })
-    const expectFindFirstSomeModelWhere = mergeDefaultInputFactory({
-      fieldMap: {
-        AND: mergeDefaultInputFactoryUnion({
-          factoryMap: {
-            __default: expect.any(Function),
-            SomeModelWhereInput: expect.any(Function),
-            SomeModelWhereInputList: expect.any(Function),
-          },
-        }),
-        NOT: mergeDefaultInputFactoryUnion({
-          factoryMap: {
-            __default: expect.any(Function),
-            SomeModelWhereInput: expect.any(Function),
-            SomeModelWhereInputList: expect.any(Function),
-          },
-        }),
-        OR: expect.any(Function),
-        enum: mergeDefaultInputFactoryUnion({
-          factoryMap: {
-            __default: expect.any(Function),
-            EnumSomeEnumFilter: expect.any(Function),
-            SomeEnum: mergeDefaultInputField({
-              kind: 'enum',
-              type: enums('SomeEnum'),
-              isOptional: true,
-            }),
-          },
-        }),
-        id: mergeDefaultInputFactoryUnion({
-          factoryMap: {
-            __default: expect.any(Function),
-            IntFilter: expect.any(Function),
-            Int: mergeDefaultInputField({
-              kind: 'scalar',
-              type: 'int',
-              isOptional: true,
-            }),
-          },
-        }),
-        relations: expect.any(Function),
-        scalar: mergeDefaultInputFactoryUnion({
-          factoryMap: {
-            __default: expect.any(Function),
-            StringNullableFilter: expect.any(Function),
-            String: mergeDefaultInputField({
-              kind: 'scalar',
-              type: 'string',
-              isOptional: true,
-              isNullable: true,
-            }),
-          },
-        }),
+    )
+    const expectFindFirstSomeModelWhere = mergeDefaultInputFactory(
+      'SomeModelWhereInput',
+      {
+        fieldMap: {
+          AND: mergeDefaultInputFactoryUnion({
+            factoryMap: {
+              __default: expect.any(Function),
+              SomeModelWhereInput: expect.any(Function),
+              SomeModelWhereInputList: expect.any(Function),
+            },
+          }),
+          NOT: mergeDefaultInputFactoryUnion({
+            factoryMap: {
+              __default: expect.any(Function),
+              SomeModelWhereInput: expect.any(Function),
+              SomeModelWhereInputList: expect.any(Function),
+            },
+          }),
+          OR: expect.any(Function),
+          enum: mergeDefaultInputFactoryUnion({
+            factoryMap: {
+              __default: expect.any(Function),
+              EnumSomeEnumFilter: expect.any(Function),
+              SomeEnum: mergeDefaultInputField({
+                kind: 'enum',
+                type: enums('SomeEnum'),
+                isOptional: true,
+              }),
+            },
+          }),
+          id: mergeDefaultInputFactoryUnion({
+            factoryMap: {
+              __default: expect.any(Function),
+              IntFilter: expect.any(Function),
+              Int: mergeDefaultInputField({
+                kind: 'scalar',
+                type: 'int',
+                isOptional: true,
+              }),
+            },
+          }),
+          relations: expect.any(Function),
+          scalar: mergeDefaultInputFactoryUnion({
+            factoryMap: {
+              __default: expect.any(Function),
+              StringNullableFilter: expect.any(Function),
+              String: mergeDefaultInputField({
+                kind: 'scalar',
+                type: 'string',
+                isOptional: true,
+                isNullable: true,
+              }),
+            },
+          }),
+        },
+        isOptional: true,
       },
-      isOptional: true,
-    })
+    )
     expect(findFirstSomeModel).toEqual(expectFindFirstSomeModel)
     expect(findFirstSomeModelOrderByDefault).toEqual(
       expectFindFirstSomeModelOrderByDefault,
@@ -305,8 +311,7 @@ describe('PGPrismaConverter', () => {
       .edit((f) => ({
         skip: f.skip,
         orderBy: f.orderBy,
-        // TODO: Fix Maximum call stack size exceeded
-        // where: f.where,
+        where: f.where,
       }))
       .build('FindManySomeModel', pg)
 
@@ -321,7 +326,7 @@ describe('PGPrismaConverter', () => {
     })
     const query = `
       query {
-        someModels(skip: 1) {
+        someModels(where: { id: { equals: 1 } }, skip: 1) {
           id
         }
       }

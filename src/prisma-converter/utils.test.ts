@@ -270,7 +270,7 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
       ) as () => PGInputFactory<any>
 
       expect(result()).toEqual(
-        mergeDefaultInputFactory({
+        mergeDefaultInputFactory('SomeInput', {
           fieldMap: fieldMap.SomeInput,
         }),
       )
@@ -302,7 +302,7 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
         ) as () => PGInputFactory<any>
 
         expect(result()).toEqual(
-          mergeDefaultInputFactory({
+          mergeDefaultInputFactory('SomeInput', {
             fieldMap: fieldMap.SomeInput,
             isList: true,
             isOptional: true,

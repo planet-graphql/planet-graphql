@@ -141,6 +141,7 @@ export function convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
   if (isInputFactory) {
     return () => {
       const inputFactory = createPGInputFactory<any, any>(
+        inputType.type as string,
         fieldMapRef[inputType.type as string],
       )
       if (inputType.isList) inputFactory.list()

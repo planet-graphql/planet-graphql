@@ -48,6 +48,7 @@ export interface PGInputFactory<
   T extends PGInputFactoryFieldMap | PGInputFactoryFieldMap[] | null | undefined,
   Types extends PGTypes = any,
 > {
+  name: string
   value: PGFieldValue & {
     fieldMap: ExtractPGInputFactoryFieldMap<T>
     validator?: (

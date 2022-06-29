@@ -100,7 +100,10 @@ export function convertToPGInputFactoryMap(
         inputFactoryFieldMapRef,
         pgEnumMap,
       )
-      const inputFactory = createPGInputFactory(fieldMap)
+      const inputFactory = createPGInputFactory(
+        _.upperFirst(dmmfSchemaField.name),
+        fieldMap,
+      )
       acc[dmmfSchemaField.name] = inputFactory
       return acc
     }, {})

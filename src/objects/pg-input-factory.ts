@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import { PGBuilder, PGTypes } from '../types/builder'
-import { PGInputField } from '../types/input'
+import { PGInput, PGInputField, PGInputFieldMap } from '../types/input'
 import {
   PGEditInputFactoryFieldMap,
   PGInputFactoryField,
@@ -10,28 +10,75 @@ import {
 } from '../types/input-factory'
 import { createInputField } from './pg-input-field'
 
-export function createBuildFieldMap(
-  field: PGInputFactoryField,
+export function buildPGInputFactoryInWrap(
   prefix: string,
-  name: string,
+  factory: PGInputFactory<any>,
   builder: PGBuilder,
+  inputRef: Record<string, PGInput<any> | null>,
+): PGInputField<any> {
+  inputRef[factory.name] = null
+  const pgInputFieldMap = buildPGInputFactory(prefix, factory, builder, inputRef)
+  inputRef[factory.name] = builder.input({
+    name: factory.name,
+    fields: () => pgInputFieldMap,
+  })
+  return createInputField({
+    kind: 'object',
+    type: () => inputRef[factory.name],
+  })
+}
+
+export function buildPGInputFactory(
+  prefix: string,
+  factory: PGInputFactory<any>,
+  builder: PGBuilder,
+  inputRef: Record<string, PGInput<any> | null>,
+): PGInputFieldMap {
+  return Object.entries(factory.value.fieldMap as PGInputFactoryFieldMap).reduce<{
+    [name: string]: PGInputField<any>
+  }>((acc, [key, factory]) => {
+    acc[key] = convertPGInputFactoryFieldToPGInputField(
+      `${prefix}${_.upperFirst(key)}`,
+      factory,
+      builder,
+      inputRef,
+    )
+    return acc
+  }, {})
+}
+
+export function convertPGInputFactoryFieldToPGInputField(
+  name: string,
+  field: PGInputFactoryField,
+  builder: PGBuilder,
+  inputRef: Record<string, PGInput<any> | null>,
 ): PGInputField<any> {
   if (typeof field === 'function' || 'fieldMap' in field.value) {
     const pgInputFactory = (
       typeof field === 'function' ? field() : field
     ) as PGInputFactory<any>
-
-    const newPGInput = builder.input({
-      name: `${prefix}${_.upperFirst(name)}`,
-      fields: () =>
-        pgInputFactory.build(`${prefix}${_.upperFirst(name)}`, builder) as any,
-    })
-    if (pgInputFactory.value.validator !== undefined)
-      newPGInput.validation(pgInputFactory.value.validator)
+    if (pgInputFactory.name === '') pgInputFactory.name = name
+    if (inputRef[pgInputFactory.name] === undefined) {
+      const newPGInput = builder.input({
+        name: pgInputFactory.name,
+        fields: () => {
+          const pgInputField = buildPGInputFactoryInWrap(
+            pgInputFactory.name,
+            pgInputFactory,
+            builder,
+            inputRef,
+          )
+          return (pgInputField.value.type as Function)().value.fieldMap
+        },
+      })
+      if (pgInputFactory.value.validator !== undefined)
+        newPGInput.validation(pgInputFactory.value.validator)
+      inputRef[pgInputFactory.name] = newPGInput
+    }
 
     const newPGInputField = createInputField({
       kind: 'object',
-      type: () => newPGInput,
+      type: () => inputRef[pgInputFactory.name],
     })
     if (pgInputFactory.value.isOptional) newPGInputField.optional()
     if (pgInputFactory.value.isNullable) newPGInputField.nullable()
@@ -42,11 +89,11 @@ export function createBuildFieldMap(
     return newPGInputField
   }
   if ('factoryMap' in field.value) {
-    return createBuildFieldMap(
-      (field as PGInputFactoryUnion<any>).value.factoryMap.__default,
-      prefix,
+    return convertPGInputFactoryFieldToPGInputField(
       name,
+      (field as PGInputFactoryUnion<any>).value.factoryMap.__default,
       builder,
+      inputRef,
     )
   }
   return field as PGInputField<any>
@@ -74,8 +121,9 @@ export function createPGInputFactoryUnion<
 export function createPGInputFactory<
   T extends PGInputFactoryFieldMap,
   Types extends PGTypes,
->(fieldMap: T): PGInputFactory<T, Types> {
+>(name: string, fieldMap: T): PGInputFactory<T, Types> {
   const pgInputFactory: PGInputFactory<any> = {
+    name,
     value: {
       fieldMap,
       kind: 'object',
@@ -110,35 +158,35 @@ export function createPGInputFactory<
       return pgInputFactory
     },
     edit: (e) => {
-      const editFieldMap = Object.entries(pgInputFactory.value.fieldMap).reduce<{
+      const fieldMap = Object.entries(pgInputFactory.value.fieldMap).reduce<{
         [name: string]: PGInputFactory<any> | PGInputFactoryUnion<any> | PGInputField<any>
       }>((acc, [key, value]) => {
         acc[key] = typeof value === 'function' ? value() : value
         return acc
       }, {})
-      const result = e(editFieldMap as PGEditInputFactoryFieldMap<any>)
-      pgInputFactory.value.fieldMap = result
-      return pgInputFactory as any
+      const editedFieldMap = e(fieldMap as PGEditInputFactoryFieldMap<any>)
+
+      const editedPGInputFactory: PGInputFactory<any> = createPGInputFactory(
+        '',
+        editedFieldMap as any,
+      )
+      if (pgInputFactory.value.isNullable) editedPGInputFactory.nullable()
+      if (pgInputFactory.value.isOptional) editedPGInputFactory.optional()
+      if (pgInputFactory.value.isList) editedPGInputFactory.list()
+      if (pgInputFactory.value.default !== undefined)
+        editedPGInputFactory.default(pgInputFactory.value.default)
+      if (pgInputFactory.value.validator !== undefined)
+        editedPGInputFactory.validation(pgInputFactory.value.validator)
+      return editedPGInputFactory as any
     },
-    build: (name, builder, wrap) => {
-      const pgInputFieldMap = Object.entries(
-        pgInputFactory.value.fieldMap as PGInputFactoryFieldMap,
-      ).reduce<{
-        [name: string]: PGInputField<any>
-      }>((acc, [key, factory]) => {
-        acc[key] = createBuildFieldMap(factory, name, key, builder)
-        return acc
-      }, {})
-      return wrap === true
-        ? (createInputField({
-            kind: 'object',
-            type: () =>
-              builder.input({
-                name,
-                fields: () => pgInputFieldMap,
-              }),
-          }) as any)
-        : pgInputFieldMap
+    build: (prefix, builder, wrap) => {
+      if (pgInputFactory.name === '') pgInputFactory.name = prefix
+      const inputRef: Record<string, PGInput<any> | null> = {}
+      const result =
+        wrap === true
+          ? (buildPGInputFactoryInWrap(prefix, pgInputFactory, builder, inputRef) as any)
+          : buildPGInputFactory(prefix, pgInputFactory, builder, inputRef)
+      return result
     },
   }
   return pgInputFactory
