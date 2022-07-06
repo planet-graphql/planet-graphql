@@ -79,9 +79,9 @@ export const build: <Types extends PGTypes>(
         })
       : undefined
   return new GraphQLSchema({
-    query: query,
-    mutation: mutation,
-    subscription: subscription,
+    query,
+    mutation,
+    subscription,
     types: Object.values(typeRef().objects),
   })
 }

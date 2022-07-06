@@ -855,8 +855,8 @@ type Model1UpdateInputFactory<Types extends PGTypes> = {
         NullableEnumSomeEnum3FieldUpdateOperationsInput: () => PGInputFactory<NullableEnumSomeEnum3FieldUpdateOperationsInputFactory<Types> | null | undefined, Types>,
         Null: PGInputField<null | null | undefined, 'null', Types>
     }>;
-    oneToOne: () => PGInputFactory<Model2UpdateOneWithoutModel1InputFactory<Types> | undefined, Types>;
-    oneToMany: () => PGInputFactory<Model3UpdateManyWithoutModel1InputFactory<Types> | undefined, Types>;
+    oneToOne: () => PGInputFactory<Model2UpdateOneWithoutModel1NestedInputFactory<Types> | undefined, Types>;
+    oneToMany: () => PGInputFactory<Model3UpdateManyWithoutModel1NestedInputFactory<Types> | undefined, Types>;
 };
 type Model1UncheckedUpdateInputFactory<Types extends PGTypes> = {
     id: PGInputFactoryUnion<{
@@ -938,8 +938,8 @@ type Model1UncheckedUpdateInputFactory<Types extends PGTypes> = {
         NullableEnumSomeEnum3FieldUpdateOperationsInput: () => PGInputFactory<NullableEnumSomeEnum3FieldUpdateOperationsInputFactory<Types> | null | undefined, Types>,
         Null: PGInputField<null | null | undefined, 'null', Types>
     }>;
-    oneToOne: () => PGInputFactory<Model2UncheckedUpdateOneWithoutModel1InputFactory<Types> | undefined, Types>;
-    oneToMany: () => PGInputFactory<Model3UncheckedUpdateManyWithoutModel1InputFactory<Types> | undefined, Types>;
+    oneToOne: () => PGInputFactory<Model2UncheckedUpdateOneWithoutModel1NestedInputFactory<Types> | undefined, Types>;
+    oneToMany: () => PGInputFactory<Model3UncheckedUpdateManyWithoutModel1NestedInputFactory<Types> | undefined, Types>;
 };
 type Model1CreateManyInputFactory<Types extends PGTypes> = {
     id: PGInputField<number | undefined, 'int', Types>;
@@ -1137,7 +1137,7 @@ type Model2UncheckedCreateInputFactory<Types extends PGTypes> = {
     model1Id: PGInputField<number, 'int', Types>;
 };
 type Model2UpdateInputFactory<Types extends PGTypes> = {
-    model1: () => PGInputFactory<Model1UpdateOneRequiredWithoutOneToOneInputFactory<Types> | undefined, Types>;
+    model1: () => PGInputFactory<Model1UpdateOneRequiredWithoutOneToOneNestedInputFactory<Types> | undefined, Types>;
 };
 type Model2UncheckedUpdateInputFactory<Types extends PGTypes> = {
     id: PGInputFactoryUnion<{
@@ -1176,7 +1176,7 @@ type Model3UncheckedCreateInputFactory<Types extends PGTypes> = {
     model1Id: PGInputField<number, 'int', Types>;
 };
 type Model3UpdateInputFactory<Types extends PGTypes> = {
-    model1: () => PGInputFactory<Model1UpdateOneRequiredWithoutOneToManyInputFactory<Types> | undefined, Types>;
+    model1: () => PGInputFactory<Model1UpdateOneRequiredWithoutOneToManyNestedInputFactory<Types> | undefined, Types>;
 };
 type Model3UncheckedUpdateInputFactory<Types extends PGTypes> = {
     id: PGInputFactoryUnion<{
@@ -1245,6 +1245,17 @@ type JsonFilterFactory<Types extends PGTypes> = {
         JsonNullValueFilter: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
         Json: PGInputField<string | undefined, 'json', Types>
     }>;
+    path: PGInputField<string[] | undefined, 'string', Types>;
+    string_contains: PGInputField<string | undefined, 'string', Types>;
+    string_starts_with: PGInputField<string | undefined, 'string', Types>;
+    string_ends_with: PGInputField<string | undefined, 'string', Types>;
+    array_contains: PGInputField<string | null | undefined, 'json', Types>;
+    array_starts_with: PGInputField<string | null | undefined, 'json', Types>;
+    array_ends_with: PGInputField<string | null | undefined, 'json', Types>;
+    lt: PGInputField<string | undefined, 'json', Types>;
+    lte: PGInputField<string | undefined, 'json', Types>;
+    gt: PGInputField<string | undefined, 'json', Types>;
+    gte: PGInputField<string | undefined, 'json', Types>;
     not: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
         JsonNullValueFilter: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
@@ -1496,6 +1507,17 @@ type JsonWithAggregatesFilterFactory<Types extends PGTypes> = {
         JsonNullValueFilter: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
         Json: PGInputField<string | undefined, 'json', Types>
     }>;
+    path: PGInputField<string[] | undefined, 'string', Types>;
+    string_contains: PGInputField<string | undefined, 'string', Types>;
+    string_starts_with: PGInputField<string | undefined, 'string', Types>;
+    string_ends_with: PGInputField<string | undefined, 'string', Types>;
+    array_contains: PGInputField<string | null | undefined, 'json', Types>;
+    array_starts_with: PGInputField<string | null | undefined, 'json', Types>;
+    array_ends_with: PGInputField<string | null | undefined, 'json', Types>;
+    lt: PGInputField<string | undefined, 'json', Types>;
+    lte: PGInputField<string | undefined, 'json', Types>;
+    gt: PGInputField<string | undefined, 'json', Types>;
+    gte: PGInputField<string | undefined, 'json', Types>;
     not: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
         JsonNullValueFilter: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
@@ -1825,7 +1847,7 @@ type Model1UpdateenumListInputFactory<Types extends PGTypes> = {
 type NullableEnumSomeEnum3FieldUpdateOperationsInputFactory<Types extends PGTypes> = {
     set: PGInputField<SomeEnum3Factory | null | undefined, 'enum', Types>;
 };
-type Model2UpdateOneWithoutModel1InputFactory<Types extends PGTypes> = {
+type Model2UpdateOneWithoutModel1NestedInputFactory<Types extends PGTypes> = {
     create: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model2CreateWithoutModel1InputFactory<Types> | undefined, Types>,
         Model2CreateWithoutModel1Input: () => PGInputFactory<Model2CreateWithoutModel1InputFactory<Types> | undefined, Types>,
@@ -1842,7 +1864,7 @@ type Model2UpdateOneWithoutModel1InputFactory<Types extends PGTypes> = {
         Model2UncheckedUpdateWithoutModel1Input: () => PGInputFactory<Model2UncheckedUpdateWithoutModel1InputFactory<Types> | undefined, Types>
     }>;
 };
-type Model3UpdateManyWithoutModel1InputFactory<Types extends PGTypes> = {
+type Model3UpdateManyWithoutModel1NestedInputFactory<Types extends PGTypes> = {
     create: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model3CreateWithoutModel1InputFactory<Types> | undefined, Types>,
         Model3CreateWithoutModel1Input: () => PGInputFactory<Array<Model3CreateWithoutModel1InputFactory<Types>> | undefined, Types>,
@@ -1897,7 +1919,7 @@ type Model3UpdateManyWithoutModel1InputFactory<Types extends PGTypes> = {
         Model3ScalarWhereInputList: () => PGInputFactory<Array<Model3ScalarWhereInputFactory<Types>> | undefined, Types>
     }>;
 };
-type Model2UncheckedUpdateOneWithoutModel1InputFactory<Types extends PGTypes> = {
+type Model2UncheckedUpdateOneWithoutModel1NestedInputFactory<Types extends PGTypes> = {
     create: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model2CreateWithoutModel1InputFactory<Types> | undefined, Types>,
         Model2CreateWithoutModel1Input: () => PGInputFactory<Model2CreateWithoutModel1InputFactory<Types> | undefined, Types>,
@@ -1914,7 +1936,7 @@ type Model2UncheckedUpdateOneWithoutModel1InputFactory<Types extends PGTypes> = 
         Model2UncheckedUpdateWithoutModel1Input: () => PGInputFactory<Model2UncheckedUpdateWithoutModel1InputFactory<Types> | undefined, Types>
     }>;
 };
-type Model3UncheckedUpdateManyWithoutModel1InputFactory<Types extends PGTypes> = {
+type Model3UncheckedUpdateManyWithoutModel1NestedInputFactory<Types extends PGTypes> = {
     create: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model3CreateWithoutModel1InputFactory<Types> | undefined, Types>,
         Model3CreateWithoutModel1Input: () => PGInputFactory<Array<Model3CreateWithoutModel1InputFactory<Types>> | undefined, Types>,
@@ -1978,7 +2000,7 @@ type Model1CreateNestedOneWithoutOneToOneInputFactory<Types extends PGTypes> = {
     connectOrCreate: () => PGInputFactory<Model1CreateOrConnectWithoutOneToOneInputFactory<Types> | undefined, Types>;
     connect: () => PGInputFactory<Model1WhereUniqueInputFactory<Types> | undefined, Types>;
 };
-type Model1UpdateOneRequiredWithoutOneToOneInputFactory<Types extends PGTypes> = {
+type Model1UpdateOneRequiredWithoutOneToOneNestedInputFactory<Types extends PGTypes> = {
     create: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model1CreateWithoutOneToOneInputFactory<Types> | undefined, Types>,
         Model1CreateWithoutOneToOneInput: () => PGInputFactory<Model1CreateWithoutOneToOneInputFactory<Types> | undefined, Types>,
@@ -2002,7 +2024,7 @@ type Model1CreateNestedOneWithoutOneToManyInputFactory<Types extends PGTypes> = 
     connectOrCreate: () => PGInputFactory<Model1CreateOrConnectWithoutOneToManyInputFactory<Types> | undefined, Types>;
     connect: () => PGInputFactory<Model1WhereUniqueInputFactory<Types> | undefined, Types>;
 };
-type Model1UpdateOneRequiredWithoutOneToManyInputFactory<Types extends PGTypes> = {
+type Model1UpdateOneRequiredWithoutOneToManyNestedInputFactory<Types extends PGTypes> = {
     create: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model1CreateWithoutOneToManyInputFactory<Types> | undefined, Types>,
         Model1CreateWithoutOneToManyInput: () => PGInputFactory<Model1CreateWithoutOneToManyInputFactory<Types> | undefined, Types>,
@@ -2206,6 +2228,17 @@ type NestedJsonFilterFactory<Types extends PGTypes> = {
         JsonNullValueFilter: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
         Json: PGInputField<string | undefined, 'json', Types>
     }>;
+    path: PGInputField<string[] | undefined, 'string', Types>;
+    string_contains: PGInputField<string | undefined, 'string', Types>;
+    string_starts_with: PGInputField<string | undefined, 'string', Types>;
+    string_ends_with: PGInputField<string | undefined, 'string', Types>;
+    array_contains: PGInputField<string | null | undefined, 'json', Types>;
+    array_starts_with: PGInputField<string | null | undefined, 'json', Types>;
+    array_ends_with: PGInputField<string | null | undefined, 'json', Types>;
+    lt: PGInputField<string | undefined, 'json', Types>;
+    lte: PGInputField<string | undefined, 'json', Types>;
+    gt: PGInputField<string | undefined, 'json', Types>;
+    gte: PGInputField<string | undefined, 'json', Types>;
     not: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
         JsonNullValueFilter: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
@@ -2631,7 +2664,7 @@ type Model1UpdateWithoutOneToOneInputFactory<Types extends PGTypes> = {
         NullableEnumSomeEnum3FieldUpdateOperationsInput: () => PGInputFactory<NullableEnumSomeEnum3FieldUpdateOperationsInputFactory<Types> | null | undefined, Types>,
         Null: PGInputField<null | null | undefined, 'null', Types>
     }>;
-    oneToMany: () => PGInputFactory<Model3UpdateManyWithoutModel1InputFactory<Types> | undefined, Types>;
+    oneToMany: () => PGInputFactory<Model3UpdateManyWithoutModel1NestedInputFactory<Types> | undefined, Types>;
 };
 type Model1UncheckedUpdateWithoutOneToOneInputFactory<Types extends PGTypes> = {
     id: PGInputFactoryUnion<{
@@ -2713,7 +2746,7 @@ type Model1UncheckedUpdateWithoutOneToOneInputFactory<Types extends PGTypes> = {
         NullableEnumSomeEnum3FieldUpdateOperationsInput: () => PGInputFactory<NullableEnumSomeEnum3FieldUpdateOperationsInputFactory<Types> | null | undefined, Types>,
         Null: PGInputField<null | null | undefined, 'null', Types>
     }>;
-    oneToMany: () => PGInputFactory<Model3UncheckedUpdateManyWithoutModel1InputFactory<Types> | undefined, Types>;
+    oneToMany: () => PGInputFactory<Model3UncheckedUpdateManyWithoutModel1NestedInputFactory<Types> | undefined, Types>;
 };
 type Model1CreateWithoutOneToManyInputFactory<Types extends PGTypes> = {
     string: PGInputField<string, 'string', Types>;
@@ -2873,7 +2906,7 @@ type Model1UpdateWithoutOneToManyInputFactory<Types extends PGTypes> = {
         NullableEnumSomeEnum3FieldUpdateOperationsInput: () => PGInputFactory<NullableEnumSomeEnum3FieldUpdateOperationsInputFactory<Types> | null | undefined, Types>,
         Null: PGInputField<null | null | undefined, 'null', Types>
     }>;
-    oneToOne: () => PGInputFactory<Model2UpdateOneWithoutModel1InputFactory<Types> | undefined, Types>;
+    oneToOne: () => PGInputFactory<Model2UpdateOneWithoutModel1NestedInputFactory<Types> | undefined, Types>;
 };
 type Model1UncheckedUpdateWithoutOneToManyInputFactory<Types extends PGTypes> = {
     id: PGInputFactoryUnion<{
@@ -2955,7 +2988,7 @@ type Model1UncheckedUpdateWithoutOneToManyInputFactory<Types extends PGTypes> = 
         NullableEnumSomeEnum3FieldUpdateOperationsInput: () => PGInputFactory<NullableEnumSomeEnum3FieldUpdateOperationsInputFactory<Types> | null | undefined, Types>,
         Null: PGInputField<null | null | undefined, 'null', Types>
     }>;
-    oneToOne: () => PGInputFactory<Model2UncheckedUpdateOneWithoutModel1InputFactory<Types> | undefined, Types>;
+    oneToOne: () => PGInputFactory<Model2UncheckedUpdateOneWithoutModel1NestedInputFactory<Types> | undefined, Types>;
 };
 type Model3CreateManyModel1InputFactory<Types extends PGTypes> = {
     id: PGInputField<number | undefined, 'int', Types>;

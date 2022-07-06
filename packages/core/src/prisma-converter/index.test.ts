@@ -1,5 +1,5 @@
 import { DMMF } from '@prisma/generator-helper'
-import { getDMMF } from '@prisma/sdk'
+import { getDMMF } from '@prisma/internals'
 import { graphql } from 'graphql'
 import { getPGBuilder } from '..'
 import {
