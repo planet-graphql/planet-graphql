@@ -201,31 +201,31 @@ export function addImports(sourceFile: SourceFile, prismaImportPath: string): vo
     },
     {
       namedImports: ['PGTypes', 'PGBuilder'],
-      moduleSpecifier: '@prismagql/prismagql/lib/types/builder',
+      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/builder',
     },
     {
       namedImports: ['PGEnum', 'RequiredNonNullable'],
-      moduleSpecifier: '@prismagql/prismagql/lib/types/common',
+      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/common',
     },
     {
       namedImports: ['PGObject', 'PGOutputField', 'PGOutputFieldOptionsDefault'],
-      moduleSpecifier: '@prismagql/prismagql/lib/types/output',
+      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/output',
     },
     {
       namedImports: ['PGInputFactory', 'PGInputFactoryUnion'],
-      moduleSpecifier: '@prismagql/prismagql/lib/types/input-factory',
+      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/input-factory',
     },
     {
       namedImports: ['PGInputField'],
-      moduleSpecifier: '@prismagql/prismagql/lib/types/input',
+      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/input',
     },
     {
       namedImports: ['PrismaObject'],
-      moduleSpecifier: '@prismagql/prismagql/lib/types/prisma-converter',
+      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/prisma-converter',
     },
     {
       namedImports: ['getInternalPGPrismaConverter'],
-      moduleSpecifier: '@prismagql/prismagql/lib/prisma-converter/index',
+      moduleSpecifier: '@planet-graphql/planet-graphql/lib/prisma-converter/index',
     },
   ])
 }
@@ -432,7 +432,8 @@ export function getPrismaImportPath(
 generatorHandler({
   onManifest: () => ({
     prettyName: 'PrismaGQL Generator',
-    defaultOutput: 'node_modules/@prismagql/prismagql/lib/generated/generated.d.ts',
+    defaultOutput:
+      'node_modules/@planet-graphql/planet-graphql/lib/generated/generated.d.ts',
   }),
   onGenerate: async (options) => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

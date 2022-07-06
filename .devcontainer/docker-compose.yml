@@ -1,7 +1,7 @@
 version: '3.8'
 
 volumes:
-  prismagql:
+  code:
   db:
 
 services:
@@ -12,12 +12,12 @@ services:
     env_file:
       - .env
     volumes:
-      - prismagql:/prismagql
-    working_dir: /prismagql
+      - code:/code
+    working_dir: /code
     command: /bin/sh
     tty: true
   db:
-    image: postgres:12.6
+    image: postgres:14
     env_file:
       - .env
     volumes:

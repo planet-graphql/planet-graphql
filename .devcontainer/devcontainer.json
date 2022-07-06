@@ -1,8 +1,8 @@
 {
-  "name": "prismagql",
+  "name": "planet-graphql",
   "dockerComposeFile": "docker-compose.yml",
   "service": "dev",
-  "workspaceFolder": "/prismagql",
+  "workspaceFolder": "/code",
   "extensions": [
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
@@ -35,5 +35,5 @@
       "editor.defaultFormatter": "Prisma.prisma"
     }
   },
-  "postCreateCommand": "cd /prismagql && yarn"
+  "postCreateCommand": "cd /code/planet-graphql && yarn && cd /code/examples && yarn"
 }
