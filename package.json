@@ -1,14 +1,14 @@
 {
-  "name": "@prismagql/prismagql",
-  "version": "0.0.0-alpha.9",
-  "description": "prismagql",
+  "name": "@planet-graphql/planet-graphql",
+  "version": "0.1.0",
+  "description": "planet-graphql",
   "main": "./lib/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/prismagql/prismagql.git"
+    "url": "git+https://github.com/planet-graphql/planet-graphql.git"
   },
-  "homepage": "https://github.com/prismagql/prismagql#readme",
-  "author": "PrismaGQL",
+  "homepage": "https://github.com/planet-graphql/planet-graphql#readme",
+  "author": "planet-graphql",
   "license": "MIT",
   "keywords": [
     "prisma",
@@ -21,7 +21,7 @@
     "build": "tsc --build"
   },
   "bin": {
-    "prismagql": "./bin/generator.js"
+    "planet-graphql": "./bin/generator.js"
   },
   "dependencies": {
     "@prisma/client": "^3.12.0",

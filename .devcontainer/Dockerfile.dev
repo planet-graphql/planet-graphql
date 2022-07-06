@@ -22,19 +22,19 @@ RUN apt-get install -y locales && \
 ENV LANG en_US.UTF-8
 
 # Git, Repository Settings
-ARG REPOSITORY_URL=https://github.com/prismagql/prismagql.git
+ARG REPOSITORY_URL=https://github.com/planet-graphql/planet-graphql.git
+ARG EXAMPLES_REPOSITORY_URL=https://github.com/planet-graphql/examples.git
 COPY ./git-credential-github-token /usr/local/bin
 RUN git config --global credential.helper github-token && \
     git config --global user.name `cat /usr/local/bin/git-credential-github-token | grep username | sed -e 's/.*=//'` && \
     git config --global user.email `cat /usr/local/bin/git-credential-github-token | grep email | sed -e 's/.*=//'` && \
-    git clone $REPOSITORY_URL /prismagql/prismagql
-
-ARG REPOSITORY_URL_2=https://github.com/prismagql/prismagql-example.git
-RUN git clone $REPOSITORY_URL_2 /prismagql/prismagql-example
+    git clone $REPOSITORY_URL /code/planet-graphql && \
+    git clone $EXAMPLES_REPOSITORY_URL /code/examples
 
 # Docker
 RUN curl -fsSL https://get.docker.com -o get-docker.sh && \
     sh get-docker.sh
 
 # Other libraries
-RUN brew install jesseduffield/lazygit/lazygit
+RUN brew install jesseduffield/lazygit/lazygit 
+RUN brew install gitui

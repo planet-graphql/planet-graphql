@@ -1,14 +1,14 @@
 # Quickstart
 
-PrismaGQL relies on Prisma, so it is assumed that you understand the basic usage of Prisma.
+PlanetGraphQL relies on Prisma, so it is assumed that you understand the basic usage of Prisma.
 
 ## Install & Setup
 
 ```sh
-npm install @prismagql/prismagql
+npm install @planet-graphql/planet-graphql
 ```
 
-Make sure that strict mode in tsconfig.json is set to true. This is to ensure that PrismaGQL type inference works correctly.
+Make sure that strict mode in tsconfig.json is set to true. This is to ensure that PlanetGraphQL type inference works correctly.
 
 ```json
 {
@@ -18,11 +18,11 @@ Make sure that strict mode in tsconfig.json is set to true. This is to ensure th
 }
 ```
 
-Add a new generator to schema.prisma to generate the type information needed by PrismaGQL.
+Add a new generator to schema.prisma to generate the type information needed by PlanetGraphQL.
 
 ```prisma
-generator PrismaGQL {
-  provider = "prismagql"
+generator PlanetGraphQL {
+  provider = "planet-graphql"
 }
 ```
 
@@ -30,7 +30,7 @@ generator PrismaGQL {
 
 ```ts
 import { Prisma, PrismaClient } from '@prisma/client'
-import { getPGBuilder, PGfyResponse } from '@prismagql/prismagql'
+import { getPGBuilder, PGfyResponse } from '@planet-graphql/planet-graphql'
 
 interface GraphQLContext {
   prisma: PrismaClient
