@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { DMMF } from '@prisma/generator-helper'
-import { getDMMF } from '@prisma/sdk'
+import { getDMMF } from '@prisma/internals'
 import {
   generate,
   getInputFactories,
@@ -40,7 +40,7 @@ model Model1 {
 model Model2 {
   id            Int     @id @default(autoincrement())
   model1        Model1  @relation(fields: [model1Id], references: [id])
-  model1Id      Int
+  model1Id      Int     @unique
 }
 
 model Model3 {

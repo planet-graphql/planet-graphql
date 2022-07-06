@@ -11,7 +11,7 @@ export const authFeature: PGFeature = {
       field.value.authChecker === undefined ||
       (await field.value.authChecker({
         ctx: context,
-        args: args,
+        args,
       }))
     if (hasAuth) {
       return {

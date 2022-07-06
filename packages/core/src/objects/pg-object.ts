@@ -36,7 +36,7 @@ export function createPGObject<
     kind: 'object',
     value: {
       fieldMap: totalFieldMap as T,
-      interfaces: interfaces,
+      interfaces,
       isTypeOf,
     },
     copy: (config) => {

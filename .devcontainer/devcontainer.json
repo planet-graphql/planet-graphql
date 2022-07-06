@@ -2,7 +2,7 @@
   "name": "planet-graphql",
   "dockerComposeFile": "docker-compose.yml",
   "service": "dev",
-  "workspaceFolder": "/code",
+  "workspaceFolder": "/code/planet-graphql",
   "extensions": [
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
@@ -22,7 +22,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "prettier.configPath": "./.prettierrc.json",
     "prettier.prettierPath": "./node_modules/prettier",
-    "eslint.workingDirectories": ["./"],
+    "eslint.workingDirectories": [{ "mode": "auto" }],
     "[typescript]": {
       "editor.codeActionsOnSave": ["source.fixAll.eslint"]
     },
@@ -35,5 +35,5 @@
       "editor.defaultFormatter": "Prisma.prisma"
     }
   },
-  "postCreateCommand": "cd /code/planet-graphql && yarn && cd /code/examples && yarn"
+  "postCreateCommand": "cd /code/planet-graphql && yarn"
 }

@@ -28,8 +28,7 @@ COPY ./git-credential-github-token /usr/local/bin
 RUN git config --global credential.helper github-token && \
     git config --global user.name `cat /usr/local/bin/git-credential-github-token | grep username | sed -e 's/.*=//'` && \
     git config --global user.email `cat /usr/local/bin/git-credential-github-token | grep email | sed -e 's/.*=//'` && \
-    git clone $REPOSITORY_URL /code/planet-graphql && \
-    git clone $EXAMPLES_REPOSITORY_URL /code/examples
+    git clone $REPOSITORY_URL /code/planet-graphql
 
 # Docker
 RUN curl -fsSL https://get.docker.com -o get-docker.sh && \

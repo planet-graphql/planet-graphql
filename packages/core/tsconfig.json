@@ -1,0 +1,7 @@
+{
+  "extends": "@planet-graphql/config/tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  }
+}

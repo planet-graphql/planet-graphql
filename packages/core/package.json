@@ -1,0 +1,43 @@
+{
+  "name": "@planet-graphql/core",
+  "version": "0.1.0",
+  "description": "planet-graphql",
+  "main": "./dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/planet-graphql/planet-graphql.git"
+  },
+  "homepage": "https://github.com/planet-graphql/planet-graphql#readme",
+  "author": "planet-graphql",
+  "license": "MIT",
+  "keywords": [
+    "graphql",
+    "typescript",
+    "prisma"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src/**/*.ts",
+    "test": "jest --runInBand",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+  },
+  "bin": {
+    "planet-graphql": "./bin/generator.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.0.0",
+    "@prisma/generator-helper": "^4.0.0",
+    "dataloader": "^2.1.0",
+    "graphql": "^16.3.0",
+    "graphql-scalars": "^1.17.0",
+    "graphql-subscriptions": "^2.0.0",
+    "lodash": "^4.17.21",
+    "prisma": "^3.12.0",
+    "ts-morph": "^14.0.0",
+    "zod": "^3.14.4"
+  },
+  "devDependencies": {
+    "@planet-graphql/config": "*",
+    "@prisma/internals": "^4.0.0"
+  }
+}

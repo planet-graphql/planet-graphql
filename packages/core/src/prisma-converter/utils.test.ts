@@ -1,5 +1,5 @@
 import { DMMF } from '@prisma/generator-helper'
-import { getDMMF } from '@prisma/sdk'
+import { getDMMF } from '@prisma/internals'
 import { getPGBuilder } from '..'
 import { createPGEnum } from '../objects/pg-enum'
 import { createInputField } from '../objects/pg-input-field'

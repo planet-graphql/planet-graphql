@@ -123,7 +123,7 @@ describe('PGInputFactory', () => {
       }
       const pgInputFactory = createPGInputFactory('SomeInput', fieldMap).list()
       expect(pgInputFactory).toEqual(
-        mergeDefaultInputFactory('SomeInput', { fieldMap: fieldMap, isList: true }),
+        mergeDefaultInputFactory('SomeInput', { fieldMap, isList: true }),
       )
     })
   })
