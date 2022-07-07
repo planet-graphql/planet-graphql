@@ -1,9 +1,10 @@
-import { Decimal } from '@prisma/client/runtime'
-import { expectType, TypeEqual } from 'ts-expect'
-import { JsonValue } from 'type-fest'
-import { PGTypes } from './builder'
-import { PGEnum } from './common'
-import { PGInputFieldBuilder, PGInputField, PGInput } from './input'
+import { expectType } from 'ts-expect'
+import type { PGTypes } from './builder'
+import type { PGEnum } from './common'
+import type { PGInputFieldBuilder, PGInputField, PGInput } from './input'
+import type Decimal from 'decimal.js'
+import type { TypeEqual } from 'ts-expect'
+import type { JsonValue } from 'type-fest/source/basic'
 
 describe('PGInputField', () => {
   describe('list', () => {

@@ -1,7 +1,8 @@
 import { graphql } from 'graphql'
-import { expectType, TypeEqual } from 'ts-expect'
+import { expectType } from 'ts-expect'
 import { getPGBuilder } from '..'
-import { PGEnum } from '../types/common'
+import type { PGEnum } from '../types/common'
+import type { TypeEqual } from 'ts-expect';
 
 describe('EnumBuilder', () => {
   it('Returns a PGEnum & Set it to the Build Cache', () => {

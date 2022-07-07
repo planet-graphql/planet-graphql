@@ -1,17 +1,5 @@
-import {
-  GraphQLEnumType,
-  GraphQLInputObjectType,
-  GraphQLInterfaceType,
-  GraphQLObjectType,
-  GraphQLScalarType,
-  GraphQLSchema,
-  GraphQLUnionType,
-} from 'graphql'
-import { Simplify } from 'type-fest'
-import { IsUnknown } from 'type-fest/source/set-return-type'
-import { z } from 'zod'
-import { DefaultScalars } from '../objects/pg-scalar'
-import {
+import type { DefaultScalars } from '../objects/pg-scalar'
+import type {
   PGEnum,
   PGScalar,
   PGScalarLike,
@@ -20,9 +8,9 @@ import {
   TypeOfPGFieldMap,
   TypeOfPGUnion,
 } from './common'
-import { PGInput, PGInputFieldBuilder, PGInputFieldMap } from './input'
-import { PGInputFactory } from './input-factory'
-import {
+import type { PGInput, PGInputFieldBuilder, PGInputFieldMap } from './input'
+import type { PGInputFactory } from './input-factory'
+import type {
   ConvertPGInterfacesToFieldMap,
   PGInterface,
   PGObject,
@@ -33,6 +21,18 @@ import {
   PGUnion,
   PrismaArgsBase,
 } from './output'
+import type {
+  GraphQLEnumType,
+  GraphQLInputObjectType,
+  GraphQLInterfaceType,
+  GraphQLObjectType,
+  GraphQLScalarType,
+  GraphQLSchema,
+  GraphQLUnionType,
+} from 'graphql'
+import type { Simplify } from 'type-fest'
+import type { IsUnknown } from 'type-fest/source/set-return-type'
+import type { z } from 'zod'
 
 export interface PGConfig {
   scalars: { [name: string]: PGScalarLike }

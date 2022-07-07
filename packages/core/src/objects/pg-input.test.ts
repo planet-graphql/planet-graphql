@@ -1,8 +1,9 @@
-import { expectType, TypeEqual } from 'ts-expect'
+import { expectType } from 'ts-expect'
 import { getPGBuilder } from '..'
 import { mergeDefaultPGInput, mergeDefaultInputField } from '../test-utils'
-import { PGBuilder, PGTypes } from '../types/builder'
-import { PGInput, PGInputField } from '../types/input'
+import type { PGBuilder, PGTypes } from '../types/builder'
+import type { PGInput, PGInputField } from '../types/input'
+import type { TypeEqual } from 'ts-expect';
 
 describe('PGInput', () => {
   let buider: PGBuilder<PGTypes>

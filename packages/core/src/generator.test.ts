@@ -1,5 +1,4 @@
 import fs from 'fs'
-import { DMMF } from '@prisma/generator-helper'
 import { getDMMF } from '@prisma/internals'
 import {
   generate,
@@ -8,6 +7,7 @@ import {
   getPrismaImportPath,
   shapeInputs,
 } from './generator'
+import type { DMMF } from '@prisma/generator-helper'
 
 const datamodel = /* Prisma */ `
 datasource db {
@@ -132,7 +132,6 @@ describe('generate', () => {
       const result = fs.readFileSync(outputPath, 'utf8')
 
       expect(result).toBe(`import { Prisma } from "@prisma/client";
-import { Decimal } from "@prisma/client/runtime";
 import { PGTypes, PGBuilder } from "@planet-graphql/planet-graphql/lib/types/builder";
 import { PGEnum, RequiredNonNullable } from "@planet-graphql/planet-graphql/lib/types/common";
 import { PGObject, PGOutputField, PGOutputFieldOptionsDefault } from "@planet-graphql/planet-graphql/lib/types/output";
@@ -140,6 +139,7 @@ import { PGInputFactory, PGInputFactoryUnion } from "@planet-graphql/planet-grap
 import { PGInputField } from "@planet-graphql/planet-graphql/lib/types/input";
 import { PrismaObject } from "@planet-graphql/planet-graphql/lib/types/prisma-converter";
 import { getInternalPGPrismaConverter } from "@planet-graphql/planet-graphql/lib/prisma-converter/index";
+import { Decimal } from "decimal.js";
 
 type SomeEnumValuesType = ["AAA", "BBB", "CCC"];
 type SomeEnum2ValuesType = ["Aaa", "Bbb", "Ccc"];
@@ -504,7 +504,6 @@ export type PrismaTypes = {
       await generate(dmmf, outputPath, '@prisma/client')
       const result = fs.readFileSync(outputPath, 'utf8')
       expect(result).toEqual(`import { Prisma } from "@prisma/client";
-import { Decimal } from "@prisma/client/runtime";
 import { PGTypes, PGBuilder } from "@planet-graphql/planet-graphql/lib/types/builder";
 import { PGEnum, RequiredNonNullable } from "@planet-graphql/planet-graphql/lib/types/common";
 import { PGObject, PGOutputField, PGOutputFieldOptionsDefault } from "@planet-graphql/planet-graphql/lib/types/output";
@@ -512,6 +511,7 @@ import { PGInputFactory, PGInputFactoryUnion } from "@planet-graphql/planet-grap
 import { PGInputField } from "@planet-graphql/planet-graphql/lib/types/input";
 import { PrismaObject } from "@planet-graphql/planet-graphql/lib/types/prisma-converter";
 import { getInternalPGPrismaConverter } from "@planet-graphql/planet-graphql/lib/prisma-converter/index";
+import { Decimal } from "decimal.js";
 
 type PrismaEnumMap = {};
 type PrismaObjectMap<TObjectRef extends { [key: string]: Function | undefined }, Types extends PGTypes> = {};

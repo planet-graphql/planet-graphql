@@ -1,12 +1,13 @@
 import { graphql } from 'graphql'
-import { expectType, TypeEqual } from 'ts-expect'
+import { expectType } from 'ts-expect'
 import { z } from 'zod'
 import { getPGBuilder } from '..'
 import { createBuilderCache, PGError } from '../builder/utils'
 import { createInputField } from '../objects/pg-input-field'
 import { DefaultScalars } from '../objects/pg-scalar'
-import { SomePGTypes } from '../types/test.util'
 import { modifyArgValueOfNullableOrOptionalField, validateArgs } from './validation'
+import type { SomePGTypes } from '../types/test.util'
+import type { TypeEqual } from 'ts-expect';
 
 describe('optionalArgsFeature', () => {
   it('Modify arg value of Nullable or Optional field', async () => {

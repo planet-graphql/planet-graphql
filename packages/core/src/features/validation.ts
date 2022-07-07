@@ -1,9 +1,9 @@
 import _ from 'lodash'
 import { z } from 'zod'
 import { PGError } from '../builder/utils'
-import { PGCache } from '../types/builder'
-import { PGFeature } from '../types/feature'
-import { PGInput, PGInputFieldMap } from '../types/input'
+import type { PGCache } from '../types/builder'
+import type { PGFeature } from '../types/feature'
+import type { PGInput, PGInputFieldMap } from '../types/input'
 
 export const optionalArgsFeature: PGFeature = {
   name: 'optionalArgs',

@@ -1,11 +1,11 @@
-import { Decimal } from '@prisma/client/runtime'
 import { GraphQLString, GraphQLBoolean, GraphQLInt, GraphQLFloat } from 'graphql'
 import { GraphQLJSON, GraphQLByte, GraphQLBigInt, GraphQLDateTime } from 'graphql-scalars'
-import { JsonValue } from 'type-fest'
 import { z } from 'zod'
 import { PGGraphQLDecimal } from '../lib/pg-decimal-scalar'
 import { PGGraphQLID } from '../lib/pg-id-scalar'
-import { PGScalar } from '../types/common'
+import type { PGScalar } from '../types/common'
+import type { Decimal } from 'decimal.js'
+import type { JsonValue } from 'type-fest/source/basic'
 
 const json: PGScalar<z.ZodAny, JsonValue> = {
   scalar: GraphQLJSON,

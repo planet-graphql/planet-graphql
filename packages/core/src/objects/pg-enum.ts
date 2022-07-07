@@ -1,5 +1,6 @@
-import { GraphQLEnumType, GraphQLEnumValueConfigMap } from 'graphql'
-import { PGEnum } from '../types/common'
+import { GraphQLEnumType } from 'graphql'
+import type { PGEnum } from '../types/common'
+import type { GraphQLEnumValueConfigMap } from 'graphql'
 
 export function createPGEnum<T extends string[]>(name: string, values: T): PGEnum<T> {
   const pgEnum: PGEnum<T> = {

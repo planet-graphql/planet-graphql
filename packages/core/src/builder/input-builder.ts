@@ -1,9 +1,9 @@
 import { createPGInput } from '../objects/pg-input'
 import { createInputField } from '../objects/pg-input-field'
-import { PGBuilder, PGCache, PGTypes } from '../types/builder'
-import { PGEnum, PGScalarLike } from '../types/common'
-import { PGInputField, PGInputFieldBuilder } from '../types/input'
 import { setCache } from './utils'
+import type { PGBuilder, PGCache, PGTypes } from '../types/builder'
+import type { PGEnum, PGScalarLike } from '../types/common'
+import type { PGInputField, PGInputFieldBuilder } from '../types/input'
 
 export const createInputBuilder: <Types extends PGTypes>(
   cache: PGCache,

@@ -1,14 +1,15 @@
 import { graphql } from 'graphql'
-import { expectType, TypeEqual } from 'ts-expect'
+import { expectType } from 'ts-expect'
 import { getPGBuilder } from '..'
 import { mergeDefaultOutputField, mergeDefaultPGObject } from '../test-utils'
-import { SomePGTypes, SomePostPrismaArgs, SomeUserPrismaArgs } from '../types/test.util'
 import {
   createConnectionObject,
   encodeCursor,
   getPageInfo,
   getPrismaRelayArgs,
 } from './prisma'
+import type { SomePGTypes, SomePostPrismaArgs, SomeUserPrismaArgs } from '../types/test.util'
+import type { TypeEqual } from 'ts-expect';
 
 describe('prismaArgsFeature', () => {
   it('Separates received args into prismaArgs and args', async () => {

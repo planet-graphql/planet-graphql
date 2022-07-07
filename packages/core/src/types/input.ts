@@ -1,7 +1,5 @@
-import { Promisable, Simplify } from 'type-fest'
-import { z } from 'zod'
-import { PGConfig, PGTypeConfig, PGTypes } from './builder'
-import {
+import type { PGConfig, PGTypeConfig, PGTypes } from './builder'
+import type {
   ExcludeNullish,
   ExtractNullish,
   PGEnum,
@@ -11,6 +9,8 @@ import {
   TypeOfPGFieldMap,
   TypeOfPGFieldType,
 } from './common'
+import type { Promisable, Simplify } from 'type-fest'
+import type { z } from 'zod'
 
 export interface PGInput<T extends PGInputFieldMap, Types extends PGTypes = any> {
   name: string

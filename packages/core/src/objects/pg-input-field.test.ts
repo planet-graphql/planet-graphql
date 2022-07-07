@@ -1,6 +1,6 @@
 import { mergeDefaultInputField } from '../test-utils'
-import { PGTypes } from '../types/builder'
 import { createInputField } from './pg-input-field'
+import type { PGTypes } from '../types/builder'
 
 describe('PGInputField', () => {
   describe('validation', () => {

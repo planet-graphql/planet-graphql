@@ -10,7 +10,10 @@ import {
   getNamedType,
   isCompositeType,
   GraphQLObjectType,
-  GraphQLUnionType,
+  GraphQLUnionType
+} from 'graphql'
+import { getArgumentValues } from 'graphql/execution/values'
+import type {
   GraphQLResolveInfo,
   GraphQLField,
   GraphQLCompositeType,
@@ -22,9 +25,7 @@ import {
   SelectionNode,
   FragmentSpreadNode,
   InlineFragmentNode,
-  NamedTypeNode,
-} from 'graphql'
-import { getArgumentValues } from 'graphql/execution/values'
+  NamedTypeNode} from 'graphql';
 
 type mixed = Record<string, any> | string | number | boolean | undefined | null
 

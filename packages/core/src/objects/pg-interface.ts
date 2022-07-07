@@ -1,8 +1,8 @@
 import { GraphQLInterfaceType } from 'graphql'
 import _ from 'lodash'
-import { GraphqlTypeRef, PGBuilder } from '../types/builder'
-import { PGInterface, PGOutputFieldMap } from '../types/output'
 import { convertToGraphQLFieldConfig } from './pg-output-field'
+import type { GraphqlTypeRef, PGBuilder } from '../types/builder'
+import type { PGInterface, PGOutputFieldMap } from '../types/output'
 
 export function createPGInterface<T extends PGOutputFieldMap>(
   name: string,

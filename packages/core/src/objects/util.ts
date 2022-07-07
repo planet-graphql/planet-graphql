@@ -1,11 +1,12 @@
-import { GraphQLInputType, GraphQLList, GraphQLNonNull, GraphQLOutputType } from 'graphql'
-import { GraphqlTypeRef, PGBuilder } from '../types/builder'
-import { PGInput, PGInputField } from '../types/input'
-import { PGInterface, PGObject, PGOutputField, PGUnion } from '../types/output'
+import { GraphQLList, GraphQLNonNull } from 'graphql'
 import { convertToGraphQLInputObject } from './pg-input'
 import { convertToGraphQLInterface } from './pg-interface'
 import { convertToGraphQLObject } from './pg-object'
 import { convertToGraphQLUnion } from './pg-union'
+import type { GraphqlTypeRef, PGBuilder } from '../types/builder'
+import type { PGInput, PGInputField } from '../types/input'
+import type { PGInterface, PGObject, PGOutputField, PGUnion } from '../types/output'
+import type { GraphQLInputType, GraphQLOutputType } from 'graphql';
 
 export function getGraphQLFieldConfigType<
   T extends PGInputField<any> | PGOutputField<any>,

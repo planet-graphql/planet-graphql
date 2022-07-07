@@ -1,5 +1,5 @@
 import { inspect } from 'util'
-import { Decimal } from '@prisma/client/runtime'
+import { Decimal } from 'decimal.js'
 import { GraphQLError, GraphQLScalarType, Kind, print } from 'graphql'
 
 export const PGGraphQLDecimal = new GraphQLScalarType<string | number | Decimal, Decimal>(

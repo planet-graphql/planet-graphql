@@ -1,8 +1,9 @@
-import { expectType, TypeEqual } from 'ts-expect'
+import { expectType } from 'ts-expect'
 import { getPGBuilder } from '..'
-import { PGTypes } from './builder'
-import { PGInput, PGInputField } from './input'
-import { PGInputFactory, PGInputFactoryUnion } from './input-factory'
+import type { PGTypes } from './builder'
+import type { PGInput, PGInputField } from './input'
+import type { PGInputFactory, PGInputFactoryUnion } from './input-factory'
+import type { TypeEqual } from 'ts-expect';
 
 describe.skip('PGInputFactory', () => {
   it('Type is evaluated correctly even if it contains circular references', () => {

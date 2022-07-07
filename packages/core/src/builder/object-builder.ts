@@ -1,10 +1,10 @@
 import { createPGObject } from '../objects/pg-object'
 import { createOutputField } from '../objects/pg-output-field'
-import { PGBuilder, PGCache, PGTypes } from '../types/builder'
-import { PGScalarLike, PGEnum } from '../types/common'
-import { PGInputFieldBuilder } from '../types/input'
-import { PGOutputField, PGOutputFieldBuilder } from '../types/output'
 import { setCache } from './utils'
+import type { PGBuilder, PGCache, PGTypes } from '../types/builder'
+import type { PGScalarLike, PGEnum } from '../types/common'
+import type { PGInputFieldBuilder } from '../types/input'
+import type { PGOutputField, PGOutputFieldBuilder } from '../types/output'
 
 export const createObjectBuilder: <Types extends PGTypes>(
   cache: PGCache,

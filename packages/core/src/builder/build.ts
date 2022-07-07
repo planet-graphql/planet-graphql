@@ -6,7 +6,7 @@ import { convertToGraphQLInterface } from '../objects/pg-interface'
 import { convertToGraphQLObject } from '../objects/pg-object'
 import { convertToGraphQLFieldConfig } from '../objects/pg-output-field'
 import { convertToGraphQLUnion } from '../objects/pg-union'
-import { GraphqlTypeRef, PGBuilder, PGTypes } from '../types/builder'
+import type { GraphqlTypeRef, PGBuilder, PGTypes } from '../types/builder'
 
 export const build: <Types extends PGTypes>(
   getBuilder: () => PGBuilder<Types>,

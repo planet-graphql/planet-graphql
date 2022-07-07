@@ -1,6 +1,6 @@
 import { PGError } from '../builder/utils'
-import { PGFeature } from '../types/feature'
-import { PGOutputField } from '../types/output'
+import type { PGFeature } from '../types/feature'
+import type { PGOutputField } from '../types/output'
 
 export const authFeature: PGFeature = {
   name: 'auth',

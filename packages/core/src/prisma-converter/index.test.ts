@@ -1,4 +1,3 @@
-import { DMMF } from '@prisma/generator-helper'
 import { getDMMF } from '@prisma/internals'
 import { graphql } from 'graphql'
 import { getPGBuilder } from '..'
@@ -9,8 +8,9 @@ import {
   mergeDefaultOutputField,
   mergeDefaultPGObject,
 } from '../test-utils'
-import { PGInputFactory, PGInputFactoryUnion } from '../types/input-factory'
 import { getInternalPGPrismaConverter } from '.'
+import type { PGInputFactory, PGInputFactoryUnion } from '../types/input-factory'
+import type { DMMF } from '@prisma/generator-helper'
 
 async function getSampleDMMF(): Promise<DMMF.Document> {
   const datamodel = /* Prisma */ `

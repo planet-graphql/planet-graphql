@@ -1,8 +1,8 @@
 import _ from 'lodash'
-import { PGCache, PGConfig, PGObjectRef, PGRootFieldConfig } from '../types/builder'
-import { PGEnum } from '../types/common'
-import { PGInput } from '../types/input'
-import { PGInterface, PGObject, PGUnion } from '../types/output'
+import type { PGCache, PGConfig, PGObjectRef, PGRootFieldConfig } from '../types/builder'
+import type { PGEnum } from '../types/common'
+import type { PGInput } from '../types/input'
+import type { PGInterface, PGObject, PGUnion } from '../types/output'
 
 export class PGError extends Error {
   constructor(message: string, public code: string, public detail?: any) {

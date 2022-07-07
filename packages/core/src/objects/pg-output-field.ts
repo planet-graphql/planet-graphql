@@ -1,15 +1,16 @@
-import { defaultFieldResolver, GraphQLFieldConfig } from 'graphql'
+import { defaultFieldResolver } from 'graphql'
 import { withFilter } from 'graphql-subscriptions'
 import _ from 'lodash'
 import { getContextCache } from '../builder/utils'
 import { DefaultFeatures } from '../features'
-import { GraphqlTypeRef, PGBuilder, PGTypes } from '../types/builder'
-import { PGFieldKindAndType } from '../types/common'
-import { GraphQLResolveParams, PGFeatureBeforeResolveResponse } from '../types/feature'
-import { PGInputFieldBuilder } from '../types/input'
-import { PGOutputFieldOptionsDefault, PGOutputField } from '../types/output'
 import { convertToGraphQLInputFieldConfig, getRelayInputFieldMap } from './pg-input-field'
 import { getGraphQLFieldConfigType } from './util'
+import type { GraphqlTypeRef, PGBuilder, PGTypes } from '../types/builder'
+import type { PGFieldKindAndType } from '../types/common'
+import type { GraphQLResolveParams, PGFeatureBeforeResolveResponse } from '../types/feature'
+import type { PGInputFieldBuilder } from '../types/input'
+import type { PGOutputFieldOptionsDefault, PGOutputField } from '../types/output'
+import type { GraphQLFieldConfig } from 'graphql';
 
 export function createOutputField<T, Types extends PGTypes>(
   kindAndType: PGFieldKindAndType,

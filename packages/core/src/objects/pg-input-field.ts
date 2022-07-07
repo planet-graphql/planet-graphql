@@ -1,9 +1,9 @@
-import { GraphQLInputFieldConfig } from 'graphql'
 import _ from 'lodash'
-import { GraphqlTypeRef, PGBuilder, PGTypes } from '../types/builder'
-import { PGFieldKindAndType } from '../types/common'
-import { PGInputField, PGRelayInputFieldMap } from '../types/input'
 import { getGraphQLFieldConfigType } from './util'
+import type { GraphqlTypeRef, PGBuilder, PGTypes } from '../types/builder'
+import type { PGFieldKindAndType } from '../types/common'
+import type { PGInputField, PGRelayInputFieldMap } from '../types/input'
+import type { GraphQLInputFieldConfig } from 'graphql'
 
 export function createInputField<T, TypeName extends string, Types extends PGTypes>(
   kindAndType: PGFieldKindAndType,

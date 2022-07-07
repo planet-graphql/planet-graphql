@@ -1,16 +1,16 @@
-import { DMMF } from '@prisma/generator-helper'
 import _ from 'lodash'
 import { setCache } from '../builder/utils'
 import { createPGInputFactory } from '../objects/pg-input-factory'
-import { PGBuilder, PGCache, PGTypes } from '../types/builder'
-import { PGEnum } from '../types/common'
-import { PGInputFactory, PGInputFactoryFieldMap } from '../types/input-factory'
-import { PGObject } from '../types/output'
-import { PGPrismaConverter } from '../types/prisma-converter'
 import {
   convertDMMFArgsToPGInputFactoryFieldMap,
   convertDMMFModelToPGObject,
 } from './utils'
+import type { PGBuilder, PGCache, PGTypes } from '../types/builder'
+import type { PGEnum } from '../types/common'
+import type { PGInputFactory, PGInputFactoryFieldMap } from '../types/input-factory'
+import type { PGObject } from '../types/output'
+import type { PGPrismaConverter } from '../types/prisma-converter'
+import type { DMMF } from '@prisma/generator-helper'
 
 export const getConvertFunction: <Types extends PGTypes>(
   builder: PGBuilder<Types>,

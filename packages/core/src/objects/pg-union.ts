@@ -1,6 +1,6 @@
 import { GraphQLUnionType } from 'graphql'
-import { GraphqlTypeRef } from '../types/builder'
-import { PGObject, PGUnion } from '../types/output'
+import type { GraphqlTypeRef } from '../types/builder'
+import type { PGObject, PGUnion } from '../types/output'
 
 export function createPGUnion<T extends Array<PGObject<any>>>(
   name: string,

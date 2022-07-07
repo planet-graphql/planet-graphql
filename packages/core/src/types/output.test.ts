@@ -1,10 +1,8 @@
-import { Decimal } from '@prisma/client/runtime'
-import { expectType, TypeEqual } from 'ts-expect'
-import { JsonValue } from 'type-fest'
-import { PGTypes } from './builder'
-import { NeverWithNote, PGEnum } from './common'
-import { PGInputField } from './input'
-import {
+import { expectType } from 'ts-expect'
+import type { PGTypes } from './builder'
+import type { NeverWithNote, PGEnum } from './common'
+import type { PGInputField } from './input'
+import type {
   PGOutputFieldOptionsDefault,
   PGOutputField,
   PGOutputFieldBuilder,
@@ -13,7 +11,10 @@ import {
   PGInterface,
   ConvertPGInterfacesToFieldMap,
 } from './output'
-import { SomePGTypes, SomeUserPrismaArgs } from './test.util'
+import type { SomePGTypes, SomeUserPrismaArgs } from './test.util'
+import type Decimal from 'decimal.js'
+import type { TypeEqual } from 'ts-expect'
+import type { JsonValue } from 'type-fest/source/basic'
 
 describe('PGOutputField', () => {
   describe('list', () => {
