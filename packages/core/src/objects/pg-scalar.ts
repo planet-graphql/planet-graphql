@@ -4,8 +4,8 @@ import { z } from 'zod'
 import { PGGraphQLDecimal } from '../lib/pg-decimal-scalar'
 import { PGGraphQLID } from '../lib/pg-id-scalar'
 import type { PGScalar } from '../types/common'
-import type { Decimal } from '@prisma/client/runtime'
-import type { JsonValue } from 'type-fest'
+import type { Decimal } from 'decimal.js'
+import type { JsonValue } from 'type-fest/source/basic'
 
 const json: PGScalar<z.ZodAny, JsonValue> = {
   scalar: GraphQLJSON,

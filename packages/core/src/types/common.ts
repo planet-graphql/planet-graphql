@@ -1,8 +1,9 @@
 import type { PGInput, PGInputField } from './input'
 import type { PGUnion } from './output'
-import type { Decimal } from '@prisma/client/runtime'
+import type { Decimal } from 'decimal.js'
 import type { GraphQLResolveInfo, GraphQLScalarType } from 'graphql'
-import type { JsonValue, PartialDeep, Promisable, RequireAtLeastOne } from 'type-fest'
+import type { PartialDeep, Promisable, RequireAtLeastOne } from 'type-fest'
+import type { JsonValue } from 'type-fest/source/basic'
 import type { IsAny } from 'type-fest/source/set-return-type'
 import type { z } from 'zod'
 

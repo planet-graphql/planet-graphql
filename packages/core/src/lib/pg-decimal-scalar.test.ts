@@ -1,4 +1,4 @@
-import { Decimal } from '@prisma/client/runtime'
+import { Decimal } from 'decimal.js'
 import { parseValue } from 'graphql'
 import { PGGraphQLDecimal } from './pg-decimal-scalar'
 

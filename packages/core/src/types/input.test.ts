@@ -2,9 +2,9 @@ import { expectType } from 'ts-expect'
 import type { PGTypes } from './builder'
 import type { PGEnum } from './common'
 import type { PGInputFieldBuilder, PGInputField, PGInput } from './input'
-import type { Decimal } from '@prisma/client/runtime'
-import type { TypeEqual } from 'ts-expect';
-import type { JsonValue } from 'type-fest'
+import type Decimal from 'decimal.js'
+import type { TypeEqual } from 'ts-expect'
+import type { JsonValue } from 'type-fest/source/basic'
 
 describe('PGInputField', () => {
   describe('list', () => {
