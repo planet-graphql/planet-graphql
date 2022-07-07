@@ -4,13 +4,13 @@ module.exports = {
     'import/order': [
       'error',
       {
-        'groups': ['builtin', 'external', 'parent', 'sibling', 'index'],
+        groups: ['builtin', 'external', 'parent', 'sibling', 'index'],
         'newlines-between': 'never',
-        'alphabetize': {
-          'order': 'asc',
-          'caseInsensitive': true
-        }
-      }
+        alphabetize: {
+          order: 'asc',
+          caseInsensitive: true,
+        },
+      },
     ],
     'import/newline-after-import': 'error',
     'import/no-default-export': 'error',
@@ -18,8 +18,8 @@ module.exports = {
     '@typescript-eslint/consistent-type-imports': [
       'error',
       {
-        'prefer': 'no-type-imports'
-      }
+        prefer: 'no-type-imports',
+      },
     ],
     'unicorn/prevent-abbreviations': 'off',
     'unicorn/prefer-node-protocol': 'off',
@@ -28,6 +28,6 @@ module.exports = {
     'unicorn/no-null': 'off',
     'unicorn/consistent-function-scoping': 'off',
     'unicorn/prefer-module': 'off',
-    'unicorn/no-await-expression-member': 'off'
-  }
+    'unicorn/no-await-expression-member': 'off',
+  },
 }
