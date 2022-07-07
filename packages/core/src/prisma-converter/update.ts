@@ -1,11 +1,11 @@
-import { DMMF } from '@prisma/generator-helper'
 import { PGError } from '../builder/utils'
 import { createPGObject } from '../objects/pg-object'
-import { PGBuilder, PGTypes } from '../types/builder'
-import { PGEnum } from '../types/common'
-import { PGObject } from '../types/output'
-import { PGPrismaConverter } from '../types/prisma-converter'
 import { convertDMMFModelToPGObject } from './utils'
+import type { PGBuilder, PGTypes } from '../types/builder'
+import type { PGEnum } from '../types/common'
+import type { PGObject } from '../types/output'
+import type { PGPrismaConverter } from '../types/prisma-converter'
+import type { DMMF } from '@prisma/generator-helper'
 
 export const getUpdateFunction: <Types extends PGTypes>(
   builder: PGBuilder<Types>,

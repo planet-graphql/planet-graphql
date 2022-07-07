@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader'
-import { GraphQLResolveInfo } from 'graphql'
-import { PGBuilder } from '../types/builder'
 import { getContextCache } from './utils'
+import type { PGBuilder } from '../types/builder'
+import type { GraphQLResolveInfo } from 'graphql'
 
 function getLoaderKey(path: GraphQLResolveInfo['path'], key = ''): string {
   if (path.prev === undefined) return key.slice(0, -1)

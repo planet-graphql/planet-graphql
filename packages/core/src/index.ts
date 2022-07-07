@@ -8,7 +8,7 @@ import { createRootFieldBuilder } from './builder/root-field-builder'
 import { createUnionBuilder } from './builder/union-builder'
 import { createBuilderCache } from './builder/utils'
 import { DefaultScalars } from './objects/pg-scalar'
-import {
+import type {
   InitPGBuilder,
   PGBuilder,
   PGConfig,

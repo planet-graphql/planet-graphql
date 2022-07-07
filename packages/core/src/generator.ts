@@ -1,9 +1,10 @@
 import path from 'path'
-import { DMMF } from '@prisma/client/runtime'
 import { generatorHandler } from '@prisma/generator-helper'
 import _ from 'lodash'
-import { Project, SourceFile, VariableDeclarationKind, Writers } from 'ts-morph'
+import { Project, VariableDeclarationKind, Writers } from 'ts-morph'
 import { PGError } from './builder/utils'
+import type { DMMF } from '@prisma/client/runtime'
+import type { SourceFile } from 'ts-morph'
 
 const { objectType } = Writers
 

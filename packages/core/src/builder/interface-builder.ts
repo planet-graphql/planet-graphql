@@ -1,7 +1,7 @@
 import { createPGInterface } from '../objects/pg-interface'
-import { PGTypes, PGCache, PGBuilder } from '../types/builder'
-import { PGOutputFieldBuilder } from '../types/output'
 import { setCache } from './utils'
+import type { PGTypes, PGCache, PGBuilder } from '../types/builder'
+import type { PGOutputFieldBuilder } from '../types/output'
 
 export const createInterfaceBuilder: <Types extends PGTypes>(
   cache: PGCache,

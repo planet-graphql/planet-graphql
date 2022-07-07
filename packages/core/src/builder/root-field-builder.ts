@@ -1,6 +1,6 @@
-import { PGBuilder, PGCache, PGRootFieldConfig, PGTypes } from '../types/builder'
-import { PGOutputFieldBuilder } from '../types/output'
 import { setCache } from './utils'
+import type { PGBuilder, PGCache, PGRootFieldConfig, PGTypes } from '../types/builder'
+import type { PGOutputFieldBuilder } from '../types/output'
 
 export const createRootFieldBuilder: <Types extends PGTypes>(
   cache: PGCache,

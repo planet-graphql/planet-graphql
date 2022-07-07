@@ -1,8 +1,8 @@
 import { createPGInputFieldBuilder } from '../builder/input-builder'
 import { mergeDefaultOutputField } from '../test-utils'
-import { PGTypes } from '../types/builder'
 import { createOutputField } from './pg-output-field'
 import { DefaultScalars } from './pg-scalar'
+import type { PGTypes } from '../types/builder'
 
 describe('PGOutputField', () => {
   describe('auth', () => {

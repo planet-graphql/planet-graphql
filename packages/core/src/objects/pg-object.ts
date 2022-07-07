@@ -1,9 +1,11 @@
 import { GraphQLObjectType } from 'graphql'
 import _ from 'lodash'
 import { setCache } from '../builder/utils'
-import { PGTypes, PGCache, GraphqlTypeRef, PGBuilder } from '../types/builder'
-import { PGInputFieldBuilder } from '../types/input'
-import {
+import { convertToGraphQLInterface } from './pg-interface'
+import { convertToGraphQLFieldConfig, createOutputField } from './pg-output-field'
+import type { PGTypes, PGCache, GraphqlTypeRef, PGBuilder } from '../types/builder'
+import type { PGInputFieldBuilder } from '../types/input'
+import type {
   PGOutputFieldMap,
   PGOutputFieldBuilder,
   PGObject,
@@ -11,8 +13,6 @@ import {
   PGInterface,
   PGObjectOptionsDefault,
 } from '../types/output'
-import { convertToGraphQLInterface } from './pg-interface'
-import { convertToGraphQLFieldConfig, createOutputField } from './pg-output-field'
 
 export function createPGObject<
   T extends PGOutputFieldMap,

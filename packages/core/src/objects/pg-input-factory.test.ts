@@ -5,9 +5,6 @@ import {
   mergeDefaultPGInput,
   mergeDefaultInputField,
 } from '../test-utils'
-import { PGTypes } from '../types/builder'
-import { PGInput } from '../types/input'
-import { PGInputFactory } from '../types/input-factory'
 import { createPGEnum } from './pg-enum'
 import {
   createPGInputFactoryUnion,
@@ -15,6 +12,9 @@ import {
   convertPGInputFactoryFieldToPGInputField,
 } from './pg-input-factory'
 import { createInputField } from './pg-input-field'
+import type { PGTypes } from '../types/builder'
+import type { PGInput } from '../types/input'
+import type { PGInputFactory } from '../types/input-factory'
 
 describe('createPGInputFactory', () => {
   it('Returns the entity of PGInputFactory', () => {

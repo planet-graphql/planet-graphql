@@ -1,10 +1,7 @@
-import { DMMF } from '@prisma/generator-helper'
-import { Simplify } from 'type-fest'
-import { IsUnknown } from 'type-fest/source/set-return-type'
-import { PGTypes, PGBuilder } from './builder'
-import { PGEnum, TypeOfPGFieldMap } from './common'
-import { PGInputFactory } from './input-factory'
-import {
+import type { PGTypes, PGBuilder } from './builder'
+import type { PGEnum, TypeOfPGFieldMap } from './common'
+import type { PGInputFactory } from './input-factory'
+import type {
   ConvertPGInterfacesToFieldMap,
   PGInterface,
   PGObject,
@@ -12,6 +9,9 @@ import {
   PGOutputFieldBuilder,
   PGOutputFieldMap,
 } from './output'
+import type { DMMF } from '@prisma/generator-helper'
+import type { Simplify } from 'type-fest'
+import type { IsUnknown } from 'type-fest/source/set-return-type'
 
 export type PrismaObject<
   TObjectRef extends { [key: string]: Function | undefined },

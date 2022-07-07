@@ -1,10 +1,10 @@
-import { Decimal } from '@prisma/client/runtime'
-import { GraphQLResolveInfo, GraphQLScalarType } from 'graphql'
-import { JsonValue, PartialDeep, Promisable, RequireAtLeastOne } from 'type-fest'
-import { IsAny } from 'type-fest/source/set-return-type'
-import { z } from 'zod'
-import { PGInput, PGInputField } from './input'
-import { PGUnion } from './output'
+import type { PGInput, PGInputField } from './input'
+import type { PGUnion } from './output'
+import type { Decimal } from '@prisma/client/runtime'
+import type { GraphQLResolveInfo, GraphQLScalarType } from 'graphql'
+import type { JsonValue, PartialDeep, Promisable, RequireAtLeastOne } from 'type-fest'
+import type { IsAny } from 'type-fest/source/set-return-type'
+import type { z } from 'zod'
 
 export type ExcludeNullish<T> = Exclude<T, null | undefined>
 export type ExtractNullish<T> = Extract<T, null | undefined>

@@ -1,9 +1,11 @@
-import { GraphQLID, GraphQLScalarType } from 'graphql'
+import { GraphQLID } from 'graphql'
 import { GraphQLURL } from 'graphql-scalars'
-import { expectType, TypeEqual } from 'ts-expect'
+import { expectType } from 'ts-expect'
 import { z } from 'zod'
-import { PGScalarMap } from './builder'
-import { PGScalar } from './common'
+import type { PGScalarMap } from './builder'
+import type { PGScalar } from './common'
+import type { GraphQLScalarType } from 'graphql';
+import type { TypeEqual } from 'ts-expect';
 
 describe('PGScalarMap', () => {
   it('Convert PGScalar and PGScalarLike to PGScalarMap', () => {

@@ -1,14 +1,14 @@
 import _ from 'lodash'
-import { PGBuilder, PGTypes } from '../types/builder'
-import { PGInput, PGInputField, PGInputFieldMap } from '../types/input'
-import {
+import { createInputField } from './pg-input-field'
+import type { PGBuilder, PGTypes } from '../types/builder'
+import type { PGInput, PGInputField, PGInputFieldMap } from '../types/input'
+import type {
   PGEditInputFactoryFieldMap,
   PGInputFactoryField,
   PGInputFactoryFieldMap,
   PGInputFactoryUnion,
   PGInputFactory,
 } from '../types/input-factory'
-import { createInputField } from './pg-input-field'
 
 export function buildPGInputFactoryInWrap(
   prefix: string,

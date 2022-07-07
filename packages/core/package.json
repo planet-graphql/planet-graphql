@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "lint": "eslint src/**/*.ts",
+    "lint": "eslint 'src/**/*.ts'",
     "test": "jest --runInBand",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },

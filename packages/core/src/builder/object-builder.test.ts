@@ -3,10 +3,10 @@ import { createPGObject } from '../objects/pg-object'
 import { createOutputField } from '../objects/pg-output-field'
 import { DefaultScalars } from '../objects/pg-scalar'
 import { mergeDefaultOutputField, mergeDefaultPGObject } from '../test-utils'
-import { PGTypes } from '../types/builder'
 import { createPGInputFieldBuilder } from './input-builder'
 import { createObjectBuilder, createPGOutputFieldBuilder } from './object-builder'
 import { createBuilderCache } from './utils'
+import type { PGTypes } from '../types/builder'
 
 describe('createObjectBuilder', () => {
   it('Returns a builder that generates PGObjects & sets generated PGObjects in cache', () => {

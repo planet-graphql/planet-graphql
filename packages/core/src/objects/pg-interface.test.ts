@@ -1,7 +1,8 @@
-import { expectType, TypeEqual } from 'ts-expect'
+import { expectType } from 'ts-expect'
 import { getPGBuilder } from '..'
-import { PGTypes } from '../types/builder'
-import { PGOutputField, PGOutputFieldOptionsDefault, PGInterface } from '../types/output'
+import type { PGTypes } from '../types/builder'
+import type { PGOutputField, PGOutputFieldOptionsDefault, PGInterface } from '../types/output'
+import type { TypeEqual } from 'ts-expect';
 
 describe('PGInterface', () => {
   describe('builder', () => {

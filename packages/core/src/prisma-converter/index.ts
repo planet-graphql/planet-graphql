@@ -1,9 +1,9 @@
-import { PGEnum } from '../types/common'
-import { PGObject } from '../types/output'
-import { InitPGPrismaConverter, PGPrismaConverter } from '../types/prisma-converter'
 import { getConvertFunction } from './convert'
 import { getUpdateFunction } from './update'
 import { convertDMMFEnumToPGEnum } from './utils'
+import type { PGEnum } from '../types/common'
+import type { PGObject } from '../types/output'
+import type { InitPGPrismaConverter, PGPrismaConverter } from '../types/prisma-converter'
 
 export const getInternalPGPrismaConverter: InitPGPrismaConverter = (builder, dmmf) => {
   const pgEnums = [

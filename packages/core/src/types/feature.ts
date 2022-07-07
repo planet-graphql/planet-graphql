@@ -1,7 +1,7 @@
-import { GraphQLResolveInfo } from 'graphql'
-import { Promisable } from 'type-fest'
-import { PGBuilder, PGCache, PGTypes } from './builder'
-import { PGOutputField } from './output'
+import type { PGBuilder, PGCache, PGTypes } from './builder'
+import type { PGOutputField } from './output'
+import type { GraphQLResolveInfo } from 'graphql'
+import type { Promisable } from 'type-fest'
 
 export type GraphQLResolveParams<Types extends PGTypes> = {
   source: any

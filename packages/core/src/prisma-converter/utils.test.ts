@@ -1,4 +1,3 @@
-import { DMMF } from '@prisma/generator-helper'
 import { getDMMF } from '@prisma/internals'
 import { getPGBuilder } from '..'
 import { createPGEnum } from '../objects/pg-enum'
@@ -10,12 +9,13 @@ import {
   mergeDefaultOutputField,
   mergeDefaultPGObject,
 } from '../test-utils'
-import { PGInputFactory } from '../types/input-factory'
 import {
   convertDMMFArgInputTypeToPGInputFactoryOrPGInputField,
   convertDMMFArgToPGInputFactoryField,
   convertDMMFModelToPGObject,
 } from './utils'
+import type { PGInputFactory } from '../types/input-factory'
+import type { DMMF } from '@prisma/generator-helper'
 
 async function getSampleDMMF(): Promise<DMMF.Document> {
   const datamodel = /* Prisma */ `

@@ -1,8 +1,5 @@
-import { ResolverFn } from 'graphql-subscriptions'
-import { Simplify, UnionToIntersection } from 'type-fest'
-import { IsAny, IsNever } from 'type-fest/source/set-return-type'
-import { PGConfig, PGTypeConfig, PGTypes } from './builder'
-import {
+import type { PGConfig, PGTypeConfig, PGTypes } from './builder'
+import type {
   ExcludeNullish,
   ExtractNullish,
   NeverWithNote,
@@ -16,12 +13,15 @@ import {
   TypeOfPGFieldMap,
   TypeOfPGFieldType,
 } from './common'
-import {
+import type {
   PGInputField,
   PGInputFieldBuilder,
   PGInputFieldMap,
   PGRelayInputFieldMap,
 } from './input'
+import type { ResolverFn } from 'graphql-subscriptions'
+import type { Simplify, UnionToIntersection } from 'type-fest'
+import type { IsAny, IsNever } from 'type-fest/source/set-return-type'
 
 export interface PGObject<
   T extends PGOutputFieldMap,

@@ -4,7 +4,7 @@ module.exports = {
     'import/order': [
       'error',
       {
-        groups: ['builtin', 'external', 'parent', 'sibling', 'index'],
+        groups: ['builtin', 'external', 'parent', 'sibling', 'index', 'type'],
         'newlines-between': 'never',
         alphabetize: {
           order: 'asc',
@@ -18,7 +18,7 @@ module.exports = {
     '@typescript-eslint/consistent-type-imports': [
       'error',
       {
-        prefer: 'no-type-imports',
+        prefer: 'type-imports',
       },
     ],
     'unicorn/prevent-abbreviations': 'off',

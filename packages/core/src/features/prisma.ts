@@ -1,10 +1,11 @@
 import _ from 'lodash'
 import { PGError } from '../builder/utils'
-import { parseResolveInfo, ResolveTree } from '../lib/graphql-parse-resolve-info'
-import { PGBuilder, PGTypes } from '../types/builder'
-import { PGFeature } from '../types/feature'
-import { PGInputField, PGInputFieldMap } from '../types/input'
-import { PGObject, PGOutputField, PGOutputFieldMap } from '../types/output'
+import { parseResolveInfo } from '../lib/graphql-parse-resolve-info'
+import type { ResolveTree } from '../lib/graphql-parse-resolve-info';
+import type { PGBuilder, PGTypes } from '../types/builder'
+import type { PGFeature } from '../types/feature'
+import type { PGInputField, PGInputFieldMap } from '../types/input'
+import type { PGObject, PGOutputField, PGOutputFieldMap } from '../types/output'
 
 export const prismaArgsFeature: PGFeature = {
   name: 'prismaArgs',

@@ -5,9 +5,9 @@ import { createPGInput } from '../objects/pg-input'
 import { createInputField } from '../objects/pg-input-field'
 import { DefaultScalars } from '../objects/pg-scalar'
 import { mergeDefaultInputField, mergeDefaultPGInput } from '../test-utils'
-import { PGTypes } from '../types/builder'
 import { createPGInputFieldBuilder } from './input-builder'
 import { createBuilderCache } from './utils'
+import type { PGTypes } from '../types/builder'
 
 describe('InputBuilder', () => {
   it('Returns a PGInput & Sets it to the Build Cache', () => {

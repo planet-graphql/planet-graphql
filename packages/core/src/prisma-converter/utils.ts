@@ -1,4 +1,3 @@
-import { DMMF } from '@prisma/generator-helper'
 import _ from 'lodash'
 import { PGError } from '../builder/utils'
 import { createPGEnum } from '../objects/pg-enum'
@@ -9,16 +8,17 @@ import {
 import { createInputField } from '../objects/pg-input-field'
 import { createPGObject } from '../objects/pg-object'
 import { createOutputField } from '../objects/pg-output-field'
-import { PGBuilder } from '../types/builder'
-import { PGEnum, PGFieldKindAndType } from '../types/common'
-import { PGInputField } from '../types/input'
-import {
+import type { PGBuilder } from '../types/builder'
+import type { PGEnum, PGFieldKindAndType } from '../types/common'
+import type { PGInputField } from '../types/input'
+import type {
   PGInputFactory,
   PGInputFactoryField,
   PGInputFactoryFieldMap,
   PGInputFactoryUnion,
 } from '../types/input-factory'
-import { PGObject, PGOutputFieldMap } from '../types/output'
+import type { PGObject, PGOutputFieldMap } from '../types/output'
+import type { DMMF } from '@prisma/generator-helper'
 
 export function convertDMMFModelToPGObject(
   dmmfModel: DMMF.Model,

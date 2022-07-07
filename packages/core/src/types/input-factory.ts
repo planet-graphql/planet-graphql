@@ -1,6 +1,6 @@
-import { PGBuilder, PGTypes } from './builder'
-import { PGFieldValue, TypeOfPGModelBase } from './common'
-import { PGInput, PGInputField } from './input'
+import type { PGBuilder, PGTypes } from './builder'
+import type { PGFieldValue, TypeOfPGModelBase } from './common'
+import type { PGInput, PGInputField } from './input'
 
 export type PGInputFactoryField =
   | (() => PGInputFactory<any>)

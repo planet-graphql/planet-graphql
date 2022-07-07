@@ -1,6 +1,7 @@
-import { expectType, TypeEqual } from 'ts-expect'
+import { expectType } from 'ts-expect'
 import { getPGBuilder } from '..'
-import { ResolveResponse, TypeOfPGModelBase, TypeOfPGUnion } from './common'
+import type { ResolveResponse, TypeOfPGModelBase, TypeOfPGUnion } from './common'
+import type { TypeEqual } from 'ts-expect';
 
 describe('TypeOfPGModelBase', () => {
   it('Type is evaluated correctly even if it contains circular references', () => {

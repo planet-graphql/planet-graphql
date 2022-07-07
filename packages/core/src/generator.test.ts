@@ -1,5 +1,4 @@
 import fs from 'fs'
-import { DMMF } from '@prisma/generator-helper'
 import { getDMMF } from '@prisma/internals'
 import {
   generate,
@@ -8,6 +7,7 @@ import {
   getPrismaImportPath,
   shapeInputs,
 } from './generator'
+import type { DMMF } from '@prisma/generator-helper'
 
 const datamodel = /* Prisma */ `
 datasource db {

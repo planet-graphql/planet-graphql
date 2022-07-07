@@ -1,6 +1,6 @@
 import { createPGUnion } from '../objects/pg-union'
-import { PGTypes, PGCache, PGBuilder } from '../types/builder'
 import { setCache } from './utils'
+import type { PGTypes, PGCache, PGBuilder } from '../types/builder'
 
 export const createUnionBuilder: <Types extends PGTypes>(
   cache: PGCache,

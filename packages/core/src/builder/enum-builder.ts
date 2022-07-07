@@ -1,6 +1,6 @@
 import { createPGEnum } from '../objects/pg-enum'
-import { PGBuilder, PGCache, PGTypes } from '../types/builder'
 import { setCache } from './utils'
+import type { PGBuilder, PGCache, PGTypes } from '../types/builder'
 
 export const createEnumBuilder: <Types extends PGTypes>(
   cache: PGCache,
