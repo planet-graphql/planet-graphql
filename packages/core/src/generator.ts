@@ -341,7 +341,7 @@ export function addInputFactoryTypes(
 export function copyPrismaConverterInterfaces(sourceFile: SourceFile): void {
   const project = new Project()
   const file = project.addSourceFileAtPath(
-    path.join(__dirname, './types/prisma-converter.ts'),
+    path.join(__dirname, '../src/types/prisma-converter.ts'),
   )
   const converterInterface = file.getInterfaceOrThrow('PGPrismaConverter')
   const converterBuilderType = file.getTypeAliasOrThrow('InitPGPrismaConverter')
