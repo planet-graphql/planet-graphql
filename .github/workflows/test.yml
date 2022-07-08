@@ -1,14 +1,43 @@
 name: Test
-on: [push]
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
         with:
-          node-version: '16'
-          cache: 'yarn'
-      - run: yarn install
-      - run: yarn test
-      - run: yarn build
+          node-version: ${{ matrix.node-version }}
+      - name: pnpm cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.4.1
+          run_install: true
+      - name: turbo cache
+        uses: actions/cache@v2
+        with:
+          path: ./node_modules/.cache
+          key: ${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.node-version }}
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm build
