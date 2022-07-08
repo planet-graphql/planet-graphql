@@ -1,16 +1,34 @@
 /**
- * Thanks
- * This project was originally based on
- * - https://github.com/graphile/graphile-engine/tree/v4/packages/graphql-parse-resolve-info
- * - https://github.com/tjmehta/graphql-parse-fields
+ * # The MIT License (MIT)
+ *
+ * Copyright © `2018` Benjie Gillam
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the “Software”), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
  */
-import assert from 'assert'
-import debugFactory from 'debug'
 import {
   getNamedType,
   isCompositeType,
   GraphQLObjectType,
-  GraphQLUnionType
+  GraphQLUnionType,
 } from 'graphql'
 import { getArgumentValues } from 'graphql/execution/values'
 import type {
@@ -25,7 +43,8 @@ import type {
   SelectionNode,
   FragmentSpreadNode,
   InlineFragmentNode,
-  NamedTypeNode} from 'graphql';
+  NamedTypeNode,
+} from 'graphql'
 
 type mixed = Record<string, any> | string | number | boolean | undefined | null
 
@@ -47,10 +66,6 @@ export interface ResolveTree {
     end: number
   }
 }
-
-const debug = debugFactory('graphql-parse-resolve-info')
-
-const DEBUG_ENABLED = debug.enabled
 
 function getArgVal(resolveInfo: GraphQLResolveInfo, argument: any): any {
   if (argument.kind === 'Variable') {
@@ -161,7 +176,6 @@ function getFieldFromAST<TContext>(
   return undefined
 }
 
-let iNum = 1
 function fieldTreeFromAST<T extends SelectionNode>(
   inASTs: readonly T[] | T,
   resolveInfo: GraphQLResolveInfo,
@@ -170,45 +184,21 @@ function fieldTreeFromAST<T extends SelectionNode>(
   parentType: GraphQLCompositeType,
   depth = '',
 ): FieldsByTypeName {
-  const instance = iNum++
-  if (DEBUG_ENABLED)
-    debug(
-      "%s[%d] Entering fieldTreeFromAST with parent type '%s'",
-      depth,
-      instance,
-      parentType,
-    )
   const { variableValues } = resolveInfo
   const fragments = resolveInfo.fragments ?? {}
   const asts: readonly T[] = Array.isArray(inASTs) ? inASTs : [inASTs]
   if (initTree[parentType.name] === undefined) {
     initTree[parentType.name] = {}
   }
-  const outerDepth = depth
   return asts.reduce((tree, selectionVal: SelectionNode, idx) => {
-    const depth = DEBUG_ENABLED ? `${outerDepth}  ` : null
-    if (DEBUG_ENABLED)
-      debug(
-        '%s[%d] Processing AST %d of %d; kind = %s',
-        depth,
-        instance,
-        idx + 1,
-        asts.length,
-        selectionVal.kind,
-      )
     if (skipField(resolveInfo, selectionVal)) {
-      if (DEBUG_ENABLED) debug('%s[%d] IGNORING due to directive', depth, instance)
+      // skip field
     } else if (selectionVal.kind === 'Field') {
       const val: FieldNode = selectionVal
       const name = val.name.value
       const isReserved = name[0] === '_' && name[1] === '_' && name !== '__id'
-      if (isReserved) {
-        if (DEBUG_ENABLED)
-          debug("%s[%d] IGNORING because field '%s' is reserved", depth, instance, name)
-      } else {
+      if (!isReserved) {
         const alias: string = val.alias?.value ?? name
-        if (DEBUG_ENABLED)
-          debug("%s[%d] Field '%s' (alias = '%s')", depth, instance, name, alias)
         const field = getFieldFromAST(val, parentType)
         if (field == null) {
           return tree
@@ -244,7 +234,6 @@ function fieldTreeFromAST<T extends SelectionNode>(
           isCompositeType(fieldGqlType)
         ) {
           const newParentType: GraphQLCompositeType = fieldGqlType
-          if (DEBUG_ENABLED) debug('%s[%d] Recursing into subfields', depth, instance)
           fieldTreeFromAST(
             selectionSet.selections,
             resolveInfo,
@@ -255,15 +244,12 @@ function fieldTreeFromAST<T extends SelectionNode>(
           )
         } else {
           // No fields to add
-          if (DEBUG_ENABLED) debug('%s[%d] Exiting (no fields to add)', depth, instance)
         }
       }
     } else if (selectionVal.kind === 'FragmentSpread' && options.deep === true) {
       const val: FragmentSpreadNode = selectionVal
       const name = val.name.value
-      if (DEBUG_ENABLED) debug("%s[%d] Fragment spread '%s'", depth, instance, name)
       const fragment = fragments[name]
-      assert(fragment, 'unknown fragment "' + name + '"')
       let fragmentType: GraphQLNamedType | null | undefined = parentType
       if (fragment.typeCondition !== undefined) {
         fragmentType = getType(resolveInfo, fragment.typeCondition)
@@ -286,14 +272,6 @@ function fieldTreeFromAST<T extends SelectionNode>(
       if (fragment.typeCondition != null) {
         fragmentType = getType(resolveInfo, fragment.typeCondition)
       }
-      if (DEBUG_ENABLED)
-        debug(
-          "%s[%d] Inline fragment (parent = '%s', type = '%s')",
-          depth,
-          instance,
-          parentType,
-          fragmentType,
-        )
       if (fragmentType != null && isCompositeType(fragmentType)) {
         const newParentType: GraphQLCompositeType = fragmentType
         fieldTreeFromAST(
@@ -305,14 +283,6 @@ function fieldTreeFromAST<T extends SelectionNode>(
           `${depth ?? ''}  `,
         )
       }
-    } else {
-      if (DEBUG_ENABLED)
-        debug(
-          "%s[%d] IGNORING because kind '%s' not understood",
-          depth,
-          instance,
-          selectionVal.kind,
-        )
     }
     // Ref: https://github.com/graphile/postgraphile/pull/342/files#diff-d6702ec9fed755c88b9d70b430fda4d8R148
     return tree

@@ -15,7 +15,7 @@
     "release": "turbo run build --filter=examples^... && changeset publish"
   },
   "devDependencies": {
-    "@planet-graphql/config": "*",
+    "@planet-graphql/config": "workspace:*",
     "@swc-node/jest": "^1.5.2",
     "@swc-node/register": "^1.5.1",
     "@types/jest": "^28.1.4",

@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@graphql-yoga/node": "^2.11.2",
-    "@planet-graphql/core": "*",
+    "@planet-graphql/core": "workspace:*",
     "@prisma/client": "^4.0.0",
     "@prisma/internals": "^4.0.0",
     "graphql": "^16.5.0",

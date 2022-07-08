@@ -35,5 +35,5 @@
       "editor.defaultFormatter": "Prisma.prisma"
     }
   },
-  "postCreateCommand": "cd /code/planet-graphql && yarn"
+  "postCreateCommand": "cd /code/planet-graphql && pnpm install"
 }
