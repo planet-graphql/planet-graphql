@@ -20,7 +20,13 @@ async function setupServer() {
     field: (b) =>
       b
         .object(() => objects('User'))
-        .prismaArgs(() => inputs('findManyUser').build('FindManyUser', pg))
+        .prismaArgs(() =>
+          inputs('findManyUser')
+            .edit((f) => ({
+              where: f.where,
+            }))
+            .build('FindManyUser', pg),
+        )
         .list()
         .resolve(async ({ prismaArgs }) => {
           return await prisma.user.findMany(prismaArgs)

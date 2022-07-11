@@ -32,7 +32,6 @@ export interface PGInputFactoryUnion<
   value: {
     factoryMap: TFactoryMap
   }
-  // NOTE: 実装側でも`T extends () => any ? ReturnType<T> : T`をすれば良さそう。
   select: <TName extends keyof TFactoryMap>(
     name: TName,
   ) => TypeOfPGInputFactoryMapField<TFactoryMap[TName]>
@@ -45,29 +44,13 @@ export type ExtractPGInputFactoryFieldMap<
 > = T extends Array<infer U> ? U : ExcludeNullish<T>
 
 export interface PGInputFactory<
-  T extends PGInputFactoryFieldMap | PGInputFactoryFieldMap[] | null | undefined,
+  out T extends PGInputFactoryFieldMap | PGInputFactoryFieldMap[] | null | undefined,
   Types extends PGTypes = any,
 > {
   name: string
   value: PGFieldValue & {
     fieldMap: ExtractPGInputFactoryFieldMap<T>
-    validator?: (
-      value: Exclude<
-        ConvertPGInputFactoryFieldMapField<PGInputFactory<T, Types>> extends PGInputField<
-          infer U,
-          any
-        >
-          ? U extends Array<infer V>
-            ? V extends PGInput<any>
-              ? TypeOfPGModelBase<V>
-              : V
-            : U extends PGInput<any>
-            ? TypeOfPGModelBase<U>
-            : U
-          : never,
-        undefined
-      >,
-    ) => boolean
+    validator?: (value: any) => boolean
   }
   nullish: <IsNullish extends boolean = true>(
     isNullish?: IsNullish,
@@ -111,8 +94,7 @@ export interface PGInputFactory<
       [P in keyof ExtractPGInputFactoryFieldMap<T>]?: PGInputFactoryField
     },
   >(
-    // NOTE: 実装側でも`T extends () => any ? ReturnType<T> : T`をすれば良さそう。
-    x: (fieldMap: PGEditInputFactoryFieldMap<T>) => TEditedFieldMap,
+    callback: (f: PGEditInputFactoryFieldMap<T>) => TEditedFieldMap,
   ) => {
     [P in keyof TEditedFieldMap]: Exclude<TEditedFieldMap[P], undefined>
   } extends infer U
@@ -137,7 +119,7 @@ export interface PGInputFactory<
 
 type Cast<T, P> = T extends P ? T : P
 
-type ConvertPGInputFactoryFieldMapField<T extends PGInputFactoryField> =
+type ConvertPGInputFactoryFieldMapField<T extends PGInputFactoryField> = (
   T extends PGInputField<any>
     ? T
     : T extends () => any
@@ -148,12 +130,13 @@ type ConvertPGInputFactoryFieldMapField<T extends PGInputFactoryField> =
     ? PGInput<{
         [P in keyof ExtractPGInputFactoryFieldMap<U>]: ConvertPGInputFactoryFieldMapField<
           ExtractPGInputFactoryFieldMap<U>[P]
-        > extends infer R
-          ? Cast<R, PGInputField<any, any, any>>
-          : PGInputField<any, any, any>
+        >
       }> extends PGInput<infer TFieldMap>
       ? ExcludeNullish<U> extends any[]
         ? PGInputField<[PGInput<TFieldMap>] | ExtractNullish<U>, 'input', V>
         : PGInputField<PGInput<TFieldMap> | ExtractNullish<U>, 'input', V>
       : never
     : never
+) extends infer R
+  ? Cast<R, PGInputField<any, any, any>>
+  : PGInputField<any, any, any>
