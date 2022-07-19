@@ -199,5 +199,5 @@ export type ResolveResponse<T> = Promisable<
 >
 
 export type RequiredNonNullable<T> = {
-  [P in keyof T]-?: Exclude<T, null | undefined>
+  [P in keyof T]-?: Exclude<T[P], null | undefined>
 }

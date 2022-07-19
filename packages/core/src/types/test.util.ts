@@ -32,7 +32,6 @@ export type SomePGTypes<Context = any> = {
       User: SomeUserPrismaArgs
       Post: SomePostPrismaArgs
     }
-    PGfy: any
   }
   ScalarMap: PGScalarMap<typeof DefaultScalars>
 }

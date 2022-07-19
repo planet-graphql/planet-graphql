@@ -47,9 +47,9 @@ export type PGfyResponseType<T extends PGBuilder> = T extends PGBuilder<infer U>
   : any
 
 export interface PGTypeConfig {
-  Context: object
-  Prisma: {
-    Args: Record<string, PrismaArgsBase>
+  Context?: object
+  Prisma?: {
+    Args: { [key: string]: PrismaArgsBase }
   }
 }
 
@@ -71,7 +71,7 @@ export type PGTypes<
   ScalarMap: PGScalarMap<typeof DefaultScalars & Config['scalars']>
 }
 
-export type InitPGBuilder = <TypeConfig extends PGTypeConfig>() => <
+export type InitPGBuilder = <TypeConfig extends PGTypeConfig = PGTypeConfig>() => <
   Config extends PGConfig,
 >(
   config?: Config,

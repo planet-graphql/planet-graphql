@@ -4,8 +4,8 @@ import { expectType } from 'ts-expect'
 import { z } from 'zod'
 import type { PGScalarMap } from './builder'
 import type { PGScalar } from './common'
-import type { GraphQLScalarType } from 'graphql';
-import type { TypeEqual } from 'ts-expect';
+import type { GraphQLScalarType } from 'graphql'
+import type { TypeEqual } from 'ts-expect'
 
 describe('PGScalarMap', () => {
   it('Convert PGScalar and PGScalarLike to PGScalarMap', () => {

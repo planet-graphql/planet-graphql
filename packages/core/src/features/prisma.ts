@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import { PGError } from '../builder/utils'
 import { parseResolveInfo } from '../lib/graphql-parse-resolve-info'
-import type { ResolveTree } from '../lib/graphql-parse-resolve-info';
+import type { ResolveTree } from '../lib/graphql-parse-resolve-info'
 import type { PGBuilder, PGTypes } from '../types/builder'
 import type { PGFeature } from '../types/feature'
 import type { PGInputField, PGInputFieldMap } from '../types/input'
@@ -180,7 +180,7 @@ export function createPageInfoObject(builder: PGBuilder<PGTypes>): PGObject<any>
 export function getEdges(
   nodes: any[],
   edgeLength: number | undefined,
-  createCursor: (node: any) => object,
+  createCursor: (node: unknown) => unknown,
 ): Array<{ node: any; cursor: string }> {
   const edges = nodes.map((node) => ({
     node,
@@ -243,7 +243,7 @@ export function getDefaultCursor(
   return (node) => ({ [idFieldName]: node[idFieldName] })
 }
 
-export function encodeCursor(cursorObject: object): string {
+export function encodeCursor(cursorObject: unknown): string {
   return Buffer.from(JSON.stringify(cursorObject)).toString('base64')
 }
 

@@ -3,6 +3,7 @@ import type { PGEnum, TypeOfPGFieldMap } from './common'
 import type { PGInputFactory } from './input-factory'
 import type {
   ConvertPGInterfacesToFieldMap,
+  GetPrismaModelNames,
   PGInterface,
   PGObject,
   PGObjectOptionsDefault,
@@ -86,7 +87,7 @@ export interface PGPrismaConverter<Types extends PGTypes> {
   }) => PGObject<
     Simplify<TFieldMap & ConvertPGInterfacesToFieldMap<TInterfaces>>,
     TInterfaces,
-    TName extends keyof Types['Prisma']['Args']
+    TName extends GetPrismaModelNames<Types>
       ? { PrismaModelName: TName }
       : PGObjectOptionsDefault<Types>,
     Types
