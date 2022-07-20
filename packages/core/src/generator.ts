@@ -408,6 +408,20 @@ export function addPrismaTypes(sourceFile: SourceFile, dmmfModels: DMMF.Model[])
   })
 }
 
+export function addDmmf(sourceFile: SourceFile, dmmf: DMMF.Document): void {
+  sourceFile.addVariableStatement({
+    declarationKind: VariableDeclarationKind.Const,
+    declarations: [
+      {
+        name: 'dmmf',
+        initializer: `JSON.parse('${JSON.stringify(dmmf)}')`,
+        type: 'DMMF.Document',
+      },
+    ],
+    isExported: true,
+  })
+}
+
 export async function generate(
   dmmf: DMMF.Document,
   outputPath: string,
@@ -423,6 +437,7 @@ export async function generate(
   copyPrismaConverterInterfaces(outputFile)
   addConverterFunction(outputFile)
   addPrismaTypes(outputFile, dmmf.datamodel.models)
+  addDmmf(outputFile, dmmf)
 
   outputFile.formatText()
 
