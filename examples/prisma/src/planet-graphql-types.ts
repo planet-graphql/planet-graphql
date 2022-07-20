@@ -4,6 +4,7 @@ import type { DMMF } from './prisma-client/runtime'
 import type { PGTypes, PGBuilder } from '@planet-graphql/core/dist/types/builder'
 import type {
   PGEnum,
+  PGDecimal,
   TypeOfPGFieldMap,
   RequiredNonNullable,
 } from '@planet-graphql/core/dist/types/common'
@@ -21,9 +22,9 @@ import type {
   PGOutputFieldBuilder,
   ConvertPGInterfacesToFieldMap,
   PGObjectOptionsDefault,
+  GetPrismaModelNames,
 } from '@planet-graphql/core/dist/types/output'
 import type { PrismaObject } from '@planet-graphql/core/dist/types/prisma-converter'
-import type { Simplify } from 'type-fest'
 
 type PrismaEnumMap = {}
 type UserFieldMapType<
@@ -1972,9 +1973,9 @@ interface PGPrismaConverter<Types extends PGTypes> {
     ) => boolean
     relations: TObjectRef
   }) => PGObject<
-    Simplify<TFieldMap & ConvertPGInterfacesToFieldMap<TInterfaces>>,
+    TFieldMap & ConvertPGInterfacesToFieldMap<TInterfaces>,
     TInterfaces,
-    TName extends keyof Types['Prisma']['Args']
+    TName extends GetPrismaModelNames<Types>
       ? { PrismaModelName: TName }
       : PGObjectOptionsDefault<Types>,
     Types

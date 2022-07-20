@@ -16,7 +16,7 @@ import type {
   PGTypes,
 } from './types/builder'
 
-export * from './lib/generated'
+export * from './generated'
 
 export const getPGBuilder: InitPGBuilder =
   <TypeConfig extends PGTypeConfig = PGTypeConfig>() =>

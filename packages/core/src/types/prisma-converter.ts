@@ -11,7 +11,6 @@ import type {
   PGOutputFieldMap,
 } from './output'
 import type { DMMF } from '@prisma/generator-helper'
-import type { Simplify } from 'type-fest'
 import type { IsUnknown } from 'type-fest/source/set-return-type'
 
 export type PrismaObject<
@@ -85,7 +84,7 @@ export interface PGPrismaConverter<Types extends PGTypes> {
     ) => boolean
     relations: TObjectRef
   }) => PGObject<
-    Simplify<TFieldMap & ConvertPGInterfacesToFieldMap<TInterfaces>>,
+    TFieldMap & ConvertPGInterfacesToFieldMap<TInterfaces>,
     TInterfaces,
     TName extends GetPrismaModelNames<Types>
       ? { PrismaModelName: TName }

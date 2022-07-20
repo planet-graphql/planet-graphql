@@ -5,15 +5,33 @@ import { getPGBuilder } from '@planet-graphql/core'
 import { getDMMF } from '@prisma/internals'
 import { getPGPrismaConverter } from './planet-graphql-types'
 import { PrismaClient } from './prisma-client'
+import type { PrismaTypes } from './planet-graphql-types'
 
 async function setupServer() {
-  const pg = getPGBuilder()()
+  const pg = getPGBuilder<{ Prisma: PrismaTypes }>()()
   const dmmf = await getDMMF({
     datamodel: fs.readFileSync(path.join(__dirname, '../prisma/schema.prisma'), 'utf8'),
   })
   const pgpc = getPGPrismaConverter(pg, dmmf)
   const prisma = new PrismaClient()
-  const { objects, inputs } = pgpc.convert()
+  const { objects, inputs, relations } = pgpc.convert({
+    User: () => user,
+  })
+
+  const user = pgpc.update({
+    name: 'User',
+    fields: (f, b) => ({
+      ...f,
+      latestPost: b.object(() => objects('Post')),
+    }),
+    relations: relations('User'),
+  })
+
+  user.modify((f) => ({
+    latestPost: f.latestPost.resolve(({ source }) => {
+      return source.posts[0]
+    }),
+  }))
 
   pg.query({
     name: 'users',

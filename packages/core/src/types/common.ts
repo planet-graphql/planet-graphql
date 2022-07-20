@@ -27,6 +27,8 @@ export interface PGScalar<
   schema: () => TSchema
 }
 
+export type PGDecimal = Decimal
+
 export type PGFieldKindAndType =
   | {
       kind: 'scalar'

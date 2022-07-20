@@ -33,7 +33,7 @@ function getTSType(scalarType: string): string {
     case 'Bytes':
       return 'Buffer'
     case 'Decimal':
-      return 'Decimal'
+      return 'PGDecimal'
     default:
       throw new PGError(`"${scalarType}" is not supported yet.`, 'GeneratorError')
   }
@@ -193,40 +193,58 @@ export function getInputFactories(schema: DMMF.Schema): Array<{
 export function addImports(sourceFile: SourceFile, prismaImportPath: string): void {
   sourceFile.addImportDeclarations([
     {
+      namedImports: ['getInternalPGPrismaConverter'],
+      moduleSpecifier: '@planet-graphql/core/dist/prisma-converter',
+    },
+    {
       namedImports: ['Prisma'],
       moduleSpecifier: prismaImportPath,
+      isTypeOnly: true,
+    },
+    {
+      namedImports: ['DMMF'],
+      moduleSpecifier: `${prismaImportPath}/runtime`,
+      isTypeOnly: true,
     },
     {
       namedImports: ['PGTypes', 'PGBuilder'],
-      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/builder',
+      moduleSpecifier: '@planet-graphql/core/dist/types/builder',
+      isTypeOnly: true,
     },
     {
-      namedImports: ['PGEnum', 'RequiredNonNullable'],
-      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/common',
-    },
-    {
-      namedImports: ['PGObject', 'PGOutputField', 'PGOutputFieldOptionsDefault'],
-      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/output',
-    },
-    {
-      namedImports: ['PGInputFactory', 'PGInputFactoryUnion'],
-      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/input-factory',
+      namedImports: ['PGEnum', 'PGDecimal', 'TypeOfPGFieldMap', 'RequiredNonNullable'],
+      moduleSpecifier: '@planet-graphql/core/dist/types/common',
+      isTypeOnly: true,
     },
     {
       namedImports: ['PGInputField'],
-      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/input',
+      moduleSpecifier: '@planet-graphql/core/dist/types/input',
+      isTypeOnly: true,
+    },
+    {
+      namedImports: ['PGInputFactory', 'PGInputFactoryUnion'],
+      moduleSpecifier: '@planet-graphql/core/dist/types/input-factory',
+      isTypeOnly: true,
+    },
+    {
+      namedImports: [
+        'PGOutputField',
+        'PGOutputFieldOptionsDefault',
+        'PGObject',
+        'PGOutputFieldMap',
+        'PGInterface',
+        'PGOutputFieldBuilder',
+        'ConvertPGInterfacesToFieldMap',
+        'PGObjectOptionsDefault',
+        'GetPrismaModelNames',
+      ],
+      moduleSpecifier: '@planet-graphql/core/dist/types/output',
+      isTypeOnly: true,
     },
     {
       namedImports: ['PrismaObject'],
-      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/prisma-converter',
-    },
-    {
-      namedImports: ['getInternalPGPrismaConverter'],
-      moduleSpecifier: '@planet-graphql/planet-graphql/lib/prisma-converter/index',
-    },
-    {
-      namedImports: ['Decimal'],
-      moduleSpecifier: 'decimal.js',
+      moduleSpecifier: '@planet-graphql/core/dist/types/prisma-converter',
+      isTypeOnly: true,
     },
   ])
 }
@@ -356,7 +374,8 @@ export function addConverterFunction(sourceFile: SourceFile): void {
     declarations: [
       {
         name: 'getPGPrismaConverter',
-        initializer: '(builder, dmmf) => getInternalPGPrismaConverter(builder, dmmf)',
+        initializer:
+          '(builder, dmmf) => getInternalPGPrismaConverter(builder, dmmf) as any',
         type: 'InitPGPrismaConverter',
       },
     ],
@@ -427,14 +446,14 @@ export function getPrismaImportPath(
   ) {
     return '@prisma/client'
   }
-  return path.relative(outputPath, prismaClientOutputPath)
+  const relativePath = path.relative(path.dirname(outputPath), prismaClientOutputPath)
+  return relativePath.startsWith('.') ? relativePath : `./${relativePath}`
 }
 
 generatorHandler({
   onManifest: () => ({
     prettyName: 'PrismaGQL Generator',
-    defaultOutput:
-      'node_modules/@planet-graphql/planet-graphql/lib/generated/generated.d.ts',
+    defaultOutput: 'node_modules/@planet-graphql/core/dist/generated/index.ts',
   }),
   onGenerate: async (options) => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
