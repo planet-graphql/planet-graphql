@@ -1,9 +1,7 @@
-import type { PGInput, PGInputField } from './input'
 import type { PGUnion } from './output'
 import type { Decimal } from 'decimal.js'
 import type { GraphQLResolveInfo, GraphQLScalarType } from 'graphql'
-import type { PartialDeep, Promisable, RequireAtLeastOne } from 'type-fest'
-import type { JsonValue } from 'type-fest/source/basic'
+import type { PartialDeep, Promisable } from 'type-fest'
 import type { IsAny } from 'type-fest/source/set-return-type'
 import type { z } from 'zod'
 
@@ -27,7 +25,21 @@ export interface PGScalar<
   schema: () => TSchema
 }
 
-export type PGDecimal = Decimal
+// From Prisma Client
+export type PGInputDecimal = Decimal
+export type PGDecimal = {
+  d: number[]
+  e: number
+  s: number
+}
+
+// From Prisma Client
+type PGJsonObject = { [Key in string]?: PGJson }
+type PGJsonArray = PGJson[]
+export type PGJson = string | number | boolean | PGJsonObject | PGJsonArray | null
+type PGInputJsonObject = { readonly [Key in string]?: PGInputJson | null }
+type PGInputJsonArray = ReadonlyArray<PGInputJson | null>
+export type PGInputJson = string | number | boolean | PGInputJsonObject | PGInputJsonArray
 
 export type PGFieldKindAndType =
   | {
@@ -144,36 +156,6 @@ export type ScalarNameToType<T> = T extends 'String' | 'Json'
   : T extends 'Decimal'
   ? Decimal
   : never
-
-export type PGSelectorType<T> = JsonValue extends T
-  ? Exclude<T, JsonValue> extends never
-    ? 'Json'
-    : 'Json' | PGSelectorType<Exclude<T, JsonValue>>
-  : T extends any[]
-  ? [PGSelectorType<T[0]>]
-  : IsObject<T> extends true
-  ? RequireAtLeastOne<{
-      [P in keyof T]: PGSelectorType<T[P]>
-    }>
-  : TypeToScalarName<T>
-
-export type InnerPGQueryArgsType<T> = T extends Array<infer U>
-  ? U extends string
-    ? PGInputField<Array<ScalarNameToType<U>> | null | undefined>
-    : PGInputField<
-        Array<PGInput<{ [P in keyof U]: InnerPGQueryArgsType<U[P]> }>> | null | undefined
-      >
-  : T extends string
-  ? PGInputField<ScalarNameToType<T> | null | undefined>
-  : PGInputField<
-      PGInput<{ [P in keyof T]: InnerPGQueryArgsType<T[P]> }> | null | undefined
-    >
-
-export type PGQueryArgsType<T> = IsObject<T> extends true
-  ? {
-      [P in keyof T]: InnerPGQueryArgsType<T[P]>
-    }
-  : InnerPGQueryArgsType<T>
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface PGResolveParams<TSource, TArgs, TPrismaArgs, TContext, TResolve> {

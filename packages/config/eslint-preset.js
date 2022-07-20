@@ -29,5 +29,6 @@ module.exports = {
     'unicorn/consistent-function-scoping': 'off',
     'unicorn/prefer-module': 'off',
     'unicorn/no-await-expression-member': 'off',
+    'unicorn/prefer-top-level-await': 'off',
   },
 }

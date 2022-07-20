@@ -5,7 +5,7 @@ exports[`generate the whole dmmf is passed Type definitions (Snapshot) of pgfy r
 import type { Prisma } from \\"@prisma/client\\";
 import type { DMMF } from \\"@prisma/client/runtime\\";
 import type { PGTypes, PGBuilder } from \\"@planet-graphql/core/dist/types/builder\\";
-import type { PGEnum, PGDecimal, TypeOfPGFieldMap, RequiredNonNullable } from \\"@planet-graphql/core/dist/types/common\\";
+import type { PGEnum, PGDecimal, PGInputDecimal, PGJson, PGInputJson, TypeOfPGFieldMap, RequiredNonNullable } from \\"@planet-graphql/core/dist/types/common\\";
 import type { PGInputField } from \\"@planet-graphql/core/dist/types/input\\";
 import type { PGInputFactory, PGInputFactoryUnion } from \\"@planet-graphql/core/dist/types/input-factory\\";
 import type { PGOutputField, PGOutputFieldOptionsDefault, PGObject, PGOutputFieldMap, PGInterface, PGOutputFieldBuilder, ConvertPGInterfacesToFieldMap, PGObjectOptionsDefault, GetPrismaModelNames } from \\"@planet-graphql/core/dist/types/output\\";
@@ -22,7 +22,7 @@ type PrismaEnumMap = {
 type Model1FieldMapType<TObjectRef extends { [key: string]: Function | undefined }, Types extends PGTypes> = {
     id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
     string: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>;
-    json: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>;
+    json: PGOutputField<PGJson, any, PGOutputFieldOptionsDefault, Types>;
     int: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
     float: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
     boolean: PGOutputField<boolean, any, PGOutputFieldOptionsDefault, Types>;
@@ -365,11 +365,11 @@ type DeleteManyModel3Factory<Types extends PGTypes> = {
 };
 type ExecuteRawFactory<Types extends PGTypes> = {
     query: PGInputField<string, 'string', Types>;
-    parameters: PGInputField<string | undefined, 'json', Types>;
+    parameters: PGInputField<PGInputJson | undefined, 'json', Types>;
 };
 type QueryRawFactory<Types extends PGTypes> = {
     query: PGInputField<string, 'string', Types>;
-    parameters: PGInputField<string | undefined, 'json', Types>;
+    parameters: PGInputField<PGInputJson | undefined, 'json', Types>;
 };
 type Model1WhereInputFactory<Types extends PGTypes> = {
     AND: PGInputFactoryUnion<{
@@ -427,7 +427,7 @@ type Model1WhereInputFactory<Types extends PGTypes> = {
     decimal: PGInputFactoryUnion<{
         __default: () => PGInputFactory<DecimalFilterFactory<Types> | undefined, Types>,
         DecimalFilter: () => PGInputFactory<DecimalFilterFactory<Types> | undefined, Types>,
-        Decimal: PGInputField<PGDecimal | undefined, 'decimal', Types>
+        Decimal: PGInputField<PGInputDecimal | undefined, 'decimal', Types>
     }>;
     nullable: PGInputFactoryUnion<{
         __default: () => PGInputFactory<StringNullableFilterFactory<Types> | null | undefined, Types>,
@@ -556,7 +556,7 @@ type Model1ScalarWhereWithAggregatesInputFactory<Types extends PGTypes> = {
     decimal: PGInputFactoryUnion<{
         __default: () => PGInputFactory<DecimalWithAggregatesFilterFactory<Types> | undefined, Types>,
         DecimalWithAggregatesFilter: () => PGInputFactory<DecimalWithAggregatesFilterFactory<Types> | undefined, Types>,
-        Decimal: PGInputField<PGDecimal | undefined, 'decimal', Types>
+        Decimal: PGInputField<PGInputDecimal | undefined, 'decimal', Types>
     }>;
     nullable: PGInputFactoryUnion<{
         __default: () => PGInputFactory<StringNullableWithAggregatesFilterFactory<Types> | null | undefined, Types>,
@@ -720,7 +720,7 @@ type Model1CreateInputFactory<Types extends PGTypes> = {
     json: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueInputFactory, 'enum', Types>,
         JsonNullValueInput: PGInputField<JsonNullValueInputFactory, 'enum', Types>,
-        Json: PGInputField<string, 'json', Types>
+        Json: PGInputField<PGInputJson, 'json', Types>
     }>;
     int: PGInputField<number, 'int', Types>;
     float: PGInputField<number, 'float', Types>;
@@ -728,7 +728,7 @@ type Model1CreateInputFactory<Types extends PGTypes> = {
     bigInt: PGInputField<bigint, 'bigInt', Types>;
     dateTime: PGInputField<Date, 'dateTime', Types>;
     bytes: PGInputField<Buffer, 'bytes', Types>;
-    decimal: PGInputField<PGDecimal, 'decimal', Types>;
+    decimal: PGInputField<PGInputDecimal, 'decimal', Types>;
     nullable: PGInputField<string | null | undefined, 'string', Types>;
     list: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
@@ -753,7 +753,7 @@ type Model1UncheckedCreateInputFactory<Types extends PGTypes> = {
     json: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueInputFactory, 'enum', Types>,
         JsonNullValueInput: PGInputField<JsonNullValueInputFactory, 'enum', Types>,
-        Json: PGInputField<string, 'json', Types>
+        Json: PGInputField<PGInputJson, 'json', Types>
     }>;
     int: PGInputField<number, 'int', Types>;
     float: PGInputField<number, 'float', Types>;
@@ -761,7 +761,7 @@ type Model1UncheckedCreateInputFactory<Types extends PGTypes> = {
     bigInt: PGInputField<bigint, 'bigInt', Types>;
     dateTime: PGInputField<Date, 'dateTime', Types>;
     bytes: PGInputField<Buffer, 'bytes', Types>;
-    decimal: PGInputField<PGDecimal, 'decimal', Types>;
+    decimal: PGInputField<PGInputDecimal, 'decimal', Types>;
     nullable: PGInputField<string | null | undefined, 'string', Types>;
     list: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
@@ -789,7 +789,7 @@ type Model1UpdateInputFactory<Types extends PGTypes> = {
     json: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueInputFactory | undefined, 'enum', Types>,
         JsonNullValueInput: PGInputField<JsonNullValueInputFactory | undefined, 'enum', Types>,
-        Json: PGInputField<string | undefined, 'json', Types>
+        Json: PGInputField<PGInputJson | undefined, 'json', Types>
     }>;
     int: PGInputFactoryUnion<{
         __default: PGInputField<number | undefined, 'int', Types>,
@@ -822,8 +822,8 @@ type Model1UpdateInputFactory<Types extends PGTypes> = {
         BytesFieldUpdateOperationsInput: () => PGInputFactory<BytesFieldUpdateOperationsInputFactory<Types> | undefined, Types>
     }>;
     decimal: PGInputFactoryUnion<{
-        __default: PGInputField<PGDecimal | undefined, 'decimal', Types>,
-        Decimal: PGInputField<PGDecimal | undefined, 'decimal', Types>,
+        __default: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
+        Decimal: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
         DecimalFieldUpdateOperationsInput: () => PGInputFactory<DecimalFieldUpdateOperationsInputFactory<Types> | undefined, Types>
     }>;
     nullable: PGInputFactoryUnion<{
@@ -872,7 +872,7 @@ type Model1UncheckedUpdateInputFactory<Types extends PGTypes> = {
     json: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueInputFactory | undefined, 'enum', Types>,
         JsonNullValueInput: PGInputField<JsonNullValueInputFactory | undefined, 'enum', Types>,
-        Json: PGInputField<string | undefined, 'json', Types>
+        Json: PGInputField<PGInputJson | undefined, 'json', Types>
     }>;
     int: PGInputFactoryUnion<{
         __default: PGInputField<number | undefined, 'int', Types>,
@@ -905,8 +905,8 @@ type Model1UncheckedUpdateInputFactory<Types extends PGTypes> = {
         BytesFieldUpdateOperationsInput: () => PGInputFactory<BytesFieldUpdateOperationsInputFactory<Types> | undefined, Types>
     }>;
     decimal: PGInputFactoryUnion<{
-        __default: PGInputField<PGDecimal | undefined, 'decimal', Types>,
-        Decimal: PGInputField<PGDecimal | undefined, 'decimal', Types>,
+        __default: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
+        Decimal: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
         DecimalFieldUpdateOperationsInput: () => PGInputFactory<DecimalFieldUpdateOperationsInputFactory<Types> | undefined, Types>
     }>;
     nullable: PGInputFactoryUnion<{
@@ -947,7 +947,7 @@ type Model1CreateManyInputFactory<Types extends PGTypes> = {
     json: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueInputFactory, 'enum', Types>,
         JsonNullValueInput: PGInputField<JsonNullValueInputFactory, 'enum', Types>,
-        Json: PGInputField<string, 'json', Types>
+        Json: PGInputField<PGInputJson, 'json', Types>
     }>;
     int: PGInputField<number, 'int', Types>;
     float: PGInputField<number, 'float', Types>;
@@ -955,7 +955,7 @@ type Model1CreateManyInputFactory<Types extends PGTypes> = {
     bigInt: PGInputField<bigint, 'bigInt', Types>;
     dateTime: PGInputField<Date, 'dateTime', Types>;
     bytes: PGInputField<Buffer, 'bytes', Types>;
-    decimal: PGInputField<PGDecimal, 'decimal', Types>;
+    decimal: PGInputField<PGInputDecimal, 'decimal', Types>;
     nullable: PGInputField<string | null | undefined, 'string', Types>;
     list: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
@@ -981,7 +981,7 @@ type Model1UpdateManyMutationInputFactory<Types extends PGTypes> = {
     json: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueInputFactory | undefined, 'enum', Types>,
         JsonNullValueInput: PGInputField<JsonNullValueInputFactory | undefined, 'enum', Types>,
-        Json: PGInputField<string | undefined, 'json', Types>
+        Json: PGInputField<PGInputJson | undefined, 'json', Types>
     }>;
     int: PGInputFactoryUnion<{
         __default: PGInputField<number | undefined, 'int', Types>,
@@ -1014,8 +1014,8 @@ type Model1UpdateManyMutationInputFactory<Types extends PGTypes> = {
         BytesFieldUpdateOperationsInput: () => PGInputFactory<BytesFieldUpdateOperationsInputFactory<Types> | undefined, Types>
     }>;
     decimal: PGInputFactoryUnion<{
-        __default: PGInputField<PGDecimal | undefined, 'decimal', Types>,
-        Decimal: PGInputField<PGDecimal | undefined, 'decimal', Types>,
+        __default: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
+        Decimal: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
         DecimalFieldUpdateOperationsInput: () => PGInputFactory<DecimalFieldUpdateOperationsInputFactory<Types> | undefined, Types>
     }>;
     nullable: PGInputFactoryUnion<{
@@ -1062,7 +1062,7 @@ type Model1UncheckedUpdateManyInputFactory<Types extends PGTypes> = {
     json: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueInputFactory | undefined, 'enum', Types>,
         JsonNullValueInput: PGInputField<JsonNullValueInputFactory | undefined, 'enum', Types>,
-        Json: PGInputField<string | undefined, 'json', Types>
+        Json: PGInputField<PGInputJson | undefined, 'json', Types>
     }>;
     int: PGInputFactoryUnion<{
         __default: PGInputField<number | undefined, 'int', Types>,
@@ -1095,8 +1095,8 @@ type Model1UncheckedUpdateManyInputFactory<Types extends PGTypes> = {
         BytesFieldUpdateOperationsInput: () => PGInputFactory<BytesFieldUpdateOperationsInputFactory<Types> | undefined, Types>
     }>;
     decimal: PGInputFactoryUnion<{
-        __default: PGInputField<PGDecimal | undefined, 'decimal', Types>,
-        Decimal: PGInputField<PGDecimal | undefined, 'decimal', Types>,
+        __default: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
+        Decimal: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
         DecimalFieldUpdateOperationsInput: () => PGInputFactory<DecimalFieldUpdateOperationsInputFactory<Types> | undefined, Types>
     }>;
     nullable: PGInputFactoryUnion<{
@@ -1243,23 +1243,23 @@ type JsonFilterFactory<Types extends PGTypes> = {
     equals: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
         JsonNullValueFilter: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
-        Json: PGInputField<string | undefined, 'json', Types>
+        Json: PGInputField<PGInputJson | undefined, 'json', Types>
     }>;
     path: PGInputField<string[] | undefined, 'string', Types>;
     string_contains: PGInputField<string | undefined, 'string', Types>;
     string_starts_with: PGInputField<string | undefined, 'string', Types>;
     string_ends_with: PGInputField<string | undefined, 'string', Types>;
-    array_contains: PGInputField<string | null | undefined, 'json', Types>;
-    array_starts_with: PGInputField<string | null | undefined, 'json', Types>;
-    array_ends_with: PGInputField<string | null | undefined, 'json', Types>;
-    lt: PGInputField<string | undefined, 'json', Types>;
-    lte: PGInputField<string | undefined, 'json', Types>;
-    gt: PGInputField<string | undefined, 'json', Types>;
-    gte: PGInputField<string | undefined, 'json', Types>;
+    array_contains: PGInputField<PGInputJson | null | undefined, 'json', Types>;
+    array_starts_with: PGInputField<PGInputJson | null | undefined, 'json', Types>;
+    array_ends_with: PGInputField<PGInputJson | null | undefined, 'json', Types>;
+    lt: PGInputField<PGInputJson | undefined, 'json', Types>;
+    lte: PGInputField<PGInputJson | undefined, 'json', Types>;
+    gt: PGInputField<PGInputJson | undefined, 'json', Types>;
+    gte: PGInputField<PGInputJson | undefined, 'json', Types>;
     not: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
         JsonNullValueFilter: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
-        Json: PGInputField<string | undefined, 'json', Types>
+        Json: PGInputField<PGInputJson | undefined, 'json', Types>
     }>;
 };
 type FloatFilterFactory<Types extends PGTypes> = {
@@ -1323,16 +1323,16 @@ type BytesFilterFactory<Types extends PGTypes> = {
     }>;
 };
 type DecimalFilterFactory<Types extends PGTypes> = {
-    equals: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    in: PGInputField<PGDecimal[] | undefined, 'decimal', Types>;
-    notIn: PGInputField<PGDecimal[] | undefined, 'decimal', Types>;
-    lt: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    lte: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    gt: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    gte: PGInputField<PGDecimal | undefined, 'decimal', Types>;
+    equals: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    in: PGInputField<PGInputDecimal[] | undefined, 'decimal', Types>;
+    notIn: PGInputField<PGInputDecimal[] | undefined, 'decimal', Types>;
+    lt: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    lte: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    gt: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    gte: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
     not: PGInputFactoryUnion<{
-        __default: PGInputField<PGDecimal | undefined, 'decimal', Types>,
-        Decimal: PGInputField<PGDecimal | undefined, 'decimal', Types>,
+        __default: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
+        Decimal: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
         NestedDecimalFilter: () => PGInputFactory<NestedDecimalFilterFactory<Types> | undefined, Types>
     }>;
 };
@@ -1505,23 +1505,23 @@ type JsonWithAggregatesFilterFactory<Types extends PGTypes> = {
     equals: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
         JsonNullValueFilter: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
-        Json: PGInputField<string | undefined, 'json', Types>
+        Json: PGInputField<PGInputJson | undefined, 'json', Types>
     }>;
     path: PGInputField<string[] | undefined, 'string', Types>;
     string_contains: PGInputField<string | undefined, 'string', Types>;
     string_starts_with: PGInputField<string | undefined, 'string', Types>;
     string_ends_with: PGInputField<string | undefined, 'string', Types>;
-    array_contains: PGInputField<string | null | undefined, 'json', Types>;
-    array_starts_with: PGInputField<string | null | undefined, 'json', Types>;
-    array_ends_with: PGInputField<string | null | undefined, 'json', Types>;
-    lt: PGInputField<string | undefined, 'json', Types>;
-    lte: PGInputField<string | undefined, 'json', Types>;
-    gt: PGInputField<string | undefined, 'json', Types>;
-    gte: PGInputField<string | undefined, 'json', Types>;
+    array_contains: PGInputField<PGInputJson | null | undefined, 'json', Types>;
+    array_starts_with: PGInputField<PGInputJson | null | undefined, 'json', Types>;
+    array_ends_with: PGInputField<PGInputJson | null | undefined, 'json', Types>;
+    lt: PGInputField<PGInputJson | undefined, 'json', Types>;
+    lte: PGInputField<PGInputJson | undefined, 'json', Types>;
+    gt: PGInputField<PGInputJson | undefined, 'json', Types>;
+    gte: PGInputField<PGInputJson | undefined, 'json', Types>;
     not: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
         JsonNullValueFilter: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
-        Json: PGInputField<string | undefined, 'json', Types>
+        Json: PGInputField<PGInputJson | undefined, 'json', Types>
     }>;
     _count: () => PGInputFactory<NestedIntFilterFactory<Types> | undefined, Types>;
     _min: () => PGInputFactory<NestedJsonFilterFactory<Types> | undefined, Types>;
@@ -1607,16 +1607,16 @@ type BytesWithAggregatesFilterFactory<Types extends PGTypes> = {
     _max: () => PGInputFactory<NestedBytesFilterFactory<Types> | undefined, Types>;
 };
 type DecimalWithAggregatesFilterFactory<Types extends PGTypes> = {
-    equals: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    in: PGInputField<PGDecimal[] | undefined, 'decimal', Types>;
-    notIn: PGInputField<PGDecimal[] | undefined, 'decimal', Types>;
-    lt: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    lte: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    gt: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    gte: PGInputField<PGDecimal | undefined, 'decimal', Types>;
+    equals: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    in: PGInputField<PGInputDecimal[] | undefined, 'decimal', Types>;
+    notIn: PGInputField<PGInputDecimal[] | undefined, 'decimal', Types>;
+    lt: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    lte: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    gt: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    gte: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
     not: PGInputFactoryUnion<{
-        __default: PGInputField<PGDecimal | undefined, 'decimal', Types>,
-        Decimal: PGInputField<PGDecimal | undefined, 'decimal', Types>,
+        __default: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
+        Decimal: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
         NestedDecimalWithAggregatesFilter: () => PGInputFactory<NestedDecimalWithAggregatesFilterFactory<Types> | undefined, Types>
     }>;
     _count: () => PGInputFactory<NestedIntFilterFactory<Types> | undefined, Types>;
@@ -1816,11 +1816,11 @@ type BytesFieldUpdateOperationsInputFactory<Types extends PGTypes> = {
     set: PGInputField<Buffer | undefined, 'bytes', Types>;
 };
 type DecimalFieldUpdateOperationsInputFactory<Types extends PGTypes> = {
-    set: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    increment: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    decrement: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    multiply: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    divide: PGInputField<PGDecimal | undefined, 'decimal', Types>;
+    set: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    increment: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    decrement: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    multiply: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    divide: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
 };
 type NullableStringFieldUpdateOperationsInputFactory<Types extends PGTypes> = {
     set: PGInputField<string | null | undefined, 'string', Types>;
@@ -2131,16 +2131,16 @@ type NestedBytesFilterFactory<Types extends PGTypes> = {
     }>;
 };
 type NestedDecimalFilterFactory<Types extends PGTypes> = {
-    equals: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    in: PGInputField<PGDecimal[] | undefined, 'decimal', Types>;
-    notIn: PGInputField<PGDecimal[] | undefined, 'decimal', Types>;
-    lt: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    lte: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    gt: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    gte: PGInputField<PGDecimal | undefined, 'decimal', Types>;
+    equals: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    in: PGInputField<PGInputDecimal[] | undefined, 'decimal', Types>;
+    notIn: PGInputField<PGInputDecimal[] | undefined, 'decimal', Types>;
+    lt: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    lte: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    gt: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    gte: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
     not: PGInputFactoryUnion<{
-        __default: PGInputField<PGDecimal | undefined, 'decimal', Types>,
-        Decimal: PGInputField<PGDecimal | undefined, 'decimal', Types>,
+        __default: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
+        Decimal: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
         NestedDecimalFilter: () => PGInputFactory<NestedDecimalFilterFactory<Types> | undefined, Types>
     }>;
 };
@@ -2226,23 +2226,23 @@ type NestedJsonFilterFactory<Types extends PGTypes> = {
     equals: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
         JsonNullValueFilter: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
-        Json: PGInputField<string | undefined, 'json', Types>
+        Json: PGInputField<PGInputJson | undefined, 'json', Types>
     }>;
     path: PGInputField<string[] | undefined, 'string', Types>;
     string_contains: PGInputField<string | undefined, 'string', Types>;
     string_starts_with: PGInputField<string | undefined, 'string', Types>;
     string_ends_with: PGInputField<string | undefined, 'string', Types>;
-    array_contains: PGInputField<string | null | undefined, 'json', Types>;
-    array_starts_with: PGInputField<string | null | undefined, 'json', Types>;
-    array_ends_with: PGInputField<string | null | undefined, 'json', Types>;
-    lt: PGInputField<string | undefined, 'json', Types>;
-    lte: PGInputField<string | undefined, 'json', Types>;
-    gt: PGInputField<string | undefined, 'json', Types>;
-    gte: PGInputField<string | undefined, 'json', Types>;
+    array_contains: PGInputField<PGInputJson | null | undefined, 'json', Types>;
+    array_starts_with: PGInputField<PGInputJson | null | undefined, 'json', Types>;
+    array_ends_with: PGInputField<PGInputJson | null | undefined, 'json', Types>;
+    lt: PGInputField<PGInputJson | undefined, 'json', Types>;
+    lte: PGInputField<PGInputJson | undefined, 'json', Types>;
+    gt: PGInputField<PGInputJson | undefined, 'json', Types>;
+    gte: PGInputField<PGInputJson | undefined, 'json', Types>;
     not: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
         JsonNullValueFilter: PGInputField<JsonNullValueFilterFactory | undefined, 'enum', Types>,
-        Json: PGInputField<string | undefined, 'json', Types>
+        Json: PGInputField<PGInputJson | undefined, 'json', Types>
     }>;
 };
 type NestedFloatWithAggregatesFilterFactory<Types extends PGTypes> = {
@@ -2325,16 +2325,16 @@ type NestedBytesWithAggregatesFilterFactory<Types extends PGTypes> = {
     _max: () => PGInputFactory<NestedBytesFilterFactory<Types> | undefined, Types>;
 };
 type NestedDecimalWithAggregatesFilterFactory<Types extends PGTypes> = {
-    equals: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    in: PGInputField<PGDecimal[] | undefined, 'decimal', Types>;
-    notIn: PGInputField<PGDecimal[] | undefined, 'decimal', Types>;
-    lt: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    lte: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    gt: PGInputField<PGDecimal | undefined, 'decimal', Types>;
-    gte: PGInputField<PGDecimal | undefined, 'decimal', Types>;
+    equals: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    in: PGInputField<PGInputDecimal[] | undefined, 'decimal', Types>;
+    notIn: PGInputField<PGInputDecimal[] | undefined, 'decimal', Types>;
+    lt: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    lte: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    gt: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
+    gte: PGInputField<PGInputDecimal | undefined, 'decimal', Types>;
     not: PGInputFactoryUnion<{
-        __default: PGInputField<PGDecimal | undefined, 'decimal', Types>,
-        Decimal: PGInputField<PGDecimal | undefined, 'decimal', Types>,
+        __default: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
+        Decimal: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
         NestedDecimalWithAggregatesFilter: () => PGInputFactory<NestedDecimalWithAggregatesFilterFactory<Types> | undefined, Types>
     }>;
     _count: () => PGInputFactory<NestedIntFilterFactory<Types> | undefined, Types>;
@@ -2511,7 +2511,7 @@ type Model1CreateWithoutOneToOneInputFactory<Types extends PGTypes> = {
     json: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueInputFactory, 'enum', Types>,
         JsonNullValueInput: PGInputField<JsonNullValueInputFactory, 'enum', Types>,
-        Json: PGInputField<string, 'json', Types>
+        Json: PGInputField<PGInputJson, 'json', Types>
     }>;
     int: PGInputField<number, 'int', Types>;
     float: PGInputField<number, 'float', Types>;
@@ -2519,7 +2519,7 @@ type Model1CreateWithoutOneToOneInputFactory<Types extends PGTypes> = {
     bigInt: PGInputField<bigint, 'bigInt', Types>;
     dateTime: PGInputField<Date, 'dateTime', Types>;
     bytes: PGInputField<Buffer, 'bytes', Types>;
-    decimal: PGInputField<PGDecimal, 'decimal', Types>;
+    decimal: PGInputField<PGInputDecimal, 'decimal', Types>;
     nullable: PGInputField<string | null | undefined, 'string', Types>;
     list: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
@@ -2543,7 +2543,7 @@ type Model1UncheckedCreateWithoutOneToOneInputFactory<Types extends PGTypes> = {
     json: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueInputFactory, 'enum', Types>,
         JsonNullValueInput: PGInputField<JsonNullValueInputFactory, 'enum', Types>,
-        Json: PGInputField<string, 'json', Types>
+        Json: PGInputField<PGInputJson, 'json', Types>
     }>;
     int: PGInputField<number, 'int', Types>;
     float: PGInputField<number, 'float', Types>;
@@ -2551,7 +2551,7 @@ type Model1UncheckedCreateWithoutOneToOneInputFactory<Types extends PGTypes> = {
     bigInt: PGInputField<bigint, 'bigInt', Types>;
     dateTime: PGInputField<Date, 'dateTime', Types>;
     bytes: PGInputField<Buffer, 'bytes', Types>;
-    decimal: PGInputField<PGDecimal, 'decimal', Types>;
+    decimal: PGInputField<PGInputDecimal, 'decimal', Types>;
     nullable: PGInputField<string | null | undefined, 'string', Types>;
     list: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
@@ -2598,7 +2598,7 @@ type Model1UpdateWithoutOneToOneInputFactory<Types extends PGTypes> = {
     json: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueInputFactory | undefined, 'enum', Types>,
         JsonNullValueInput: PGInputField<JsonNullValueInputFactory | undefined, 'enum', Types>,
-        Json: PGInputField<string | undefined, 'json', Types>
+        Json: PGInputField<PGInputJson | undefined, 'json', Types>
     }>;
     int: PGInputFactoryUnion<{
         __default: PGInputField<number | undefined, 'int', Types>,
@@ -2631,8 +2631,8 @@ type Model1UpdateWithoutOneToOneInputFactory<Types extends PGTypes> = {
         BytesFieldUpdateOperationsInput: () => PGInputFactory<BytesFieldUpdateOperationsInputFactory<Types> | undefined, Types>
     }>;
     decimal: PGInputFactoryUnion<{
-        __default: PGInputField<PGDecimal | undefined, 'decimal', Types>,
-        Decimal: PGInputField<PGDecimal | undefined, 'decimal', Types>,
+        __default: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
+        Decimal: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
         DecimalFieldUpdateOperationsInput: () => PGInputFactory<DecimalFieldUpdateOperationsInputFactory<Types> | undefined, Types>
     }>;
     nullable: PGInputFactoryUnion<{
@@ -2680,7 +2680,7 @@ type Model1UncheckedUpdateWithoutOneToOneInputFactory<Types extends PGTypes> = {
     json: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueInputFactory | undefined, 'enum', Types>,
         JsonNullValueInput: PGInputField<JsonNullValueInputFactory | undefined, 'enum', Types>,
-        Json: PGInputField<string | undefined, 'json', Types>
+        Json: PGInputField<PGInputJson | undefined, 'json', Types>
     }>;
     int: PGInputFactoryUnion<{
         __default: PGInputField<number | undefined, 'int', Types>,
@@ -2713,8 +2713,8 @@ type Model1UncheckedUpdateWithoutOneToOneInputFactory<Types extends PGTypes> = {
         BytesFieldUpdateOperationsInput: () => PGInputFactory<BytesFieldUpdateOperationsInputFactory<Types> | undefined, Types>
     }>;
     decimal: PGInputFactoryUnion<{
-        __default: PGInputField<PGDecimal | undefined, 'decimal', Types>,
-        Decimal: PGInputField<PGDecimal | undefined, 'decimal', Types>,
+        __default: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
+        Decimal: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
         DecimalFieldUpdateOperationsInput: () => PGInputFactory<DecimalFieldUpdateOperationsInputFactory<Types> | undefined, Types>
     }>;
     nullable: PGInputFactoryUnion<{
@@ -2753,7 +2753,7 @@ type Model1CreateWithoutOneToManyInputFactory<Types extends PGTypes> = {
     json: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueInputFactory, 'enum', Types>,
         JsonNullValueInput: PGInputField<JsonNullValueInputFactory, 'enum', Types>,
-        Json: PGInputField<string, 'json', Types>
+        Json: PGInputField<PGInputJson, 'json', Types>
     }>;
     int: PGInputField<number, 'int', Types>;
     float: PGInputField<number, 'float', Types>;
@@ -2761,7 +2761,7 @@ type Model1CreateWithoutOneToManyInputFactory<Types extends PGTypes> = {
     bigInt: PGInputField<bigint, 'bigInt', Types>;
     dateTime: PGInputField<Date, 'dateTime', Types>;
     bytes: PGInputField<Buffer, 'bytes', Types>;
-    decimal: PGInputField<PGDecimal, 'decimal', Types>;
+    decimal: PGInputField<PGInputDecimal, 'decimal', Types>;
     nullable: PGInputField<string | null | undefined, 'string', Types>;
     list: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
@@ -2785,7 +2785,7 @@ type Model1UncheckedCreateWithoutOneToManyInputFactory<Types extends PGTypes> = 
     json: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueInputFactory, 'enum', Types>,
         JsonNullValueInput: PGInputField<JsonNullValueInputFactory, 'enum', Types>,
-        Json: PGInputField<string, 'json', Types>
+        Json: PGInputField<PGInputJson, 'json', Types>
     }>;
     int: PGInputField<number, 'int', Types>;
     float: PGInputField<number, 'float', Types>;
@@ -2793,7 +2793,7 @@ type Model1UncheckedCreateWithoutOneToManyInputFactory<Types extends PGTypes> = 
     bigInt: PGInputField<bigint, 'bigInt', Types>;
     dateTime: PGInputField<Date, 'dateTime', Types>;
     bytes: PGInputField<Buffer, 'bytes', Types>;
-    decimal: PGInputField<PGDecimal, 'decimal', Types>;
+    decimal: PGInputField<PGInputDecimal, 'decimal', Types>;
     nullable: PGInputField<string | null | undefined, 'string', Types>;
     list: PGInputFactoryUnion<{
         __default: () => PGInputFactory<Model1CreatelistInputFactory<Types> | undefined, Types>,
@@ -2840,7 +2840,7 @@ type Model1UpdateWithoutOneToManyInputFactory<Types extends PGTypes> = {
     json: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueInputFactory | undefined, 'enum', Types>,
         JsonNullValueInput: PGInputField<JsonNullValueInputFactory | undefined, 'enum', Types>,
-        Json: PGInputField<string | undefined, 'json', Types>
+        Json: PGInputField<PGInputJson | undefined, 'json', Types>
     }>;
     int: PGInputFactoryUnion<{
         __default: PGInputField<number | undefined, 'int', Types>,
@@ -2873,8 +2873,8 @@ type Model1UpdateWithoutOneToManyInputFactory<Types extends PGTypes> = {
         BytesFieldUpdateOperationsInput: () => PGInputFactory<BytesFieldUpdateOperationsInputFactory<Types> | undefined, Types>
     }>;
     decimal: PGInputFactoryUnion<{
-        __default: PGInputField<PGDecimal | undefined, 'decimal', Types>,
-        Decimal: PGInputField<PGDecimal | undefined, 'decimal', Types>,
+        __default: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
+        Decimal: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
         DecimalFieldUpdateOperationsInput: () => PGInputFactory<DecimalFieldUpdateOperationsInputFactory<Types> | undefined, Types>
     }>;
     nullable: PGInputFactoryUnion<{
@@ -2922,7 +2922,7 @@ type Model1UncheckedUpdateWithoutOneToManyInputFactory<Types extends PGTypes> = 
     json: PGInputFactoryUnion<{
         __default: PGInputField<JsonNullValueInputFactory | undefined, 'enum', Types>,
         JsonNullValueInput: PGInputField<JsonNullValueInputFactory | undefined, 'enum', Types>,
-        Json: PGInputField<string | undefined, 'json', Types>
+        Json: PGInputField<PGInputJson | undefined, 'json', Types>
     }>;
     int: PGInputFactoryUnion<{
         __default: PGInputField<number | undefined, 'int', Types>,
@@ -2955,8 +2955,8 @@ type Model1UncheckedUpdateWithoutOneToManyInputFactory<Types extends PGTypes> = 
         BytesFieldUpdateOperationsInput: () => PGInputFactory<BytesFieldUpdateOperationsInputFactory<Types> | undefined, Types>
     }>;
     decimal: PGInputFactoryUnion<{
-        __default: PGInputField<PGDecimal | undefined, 'decimal', Types>,
-        Decimal: PGInputField<PGDecimal | undefined, 'decimal', Types>,
+        __default: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
+        Decimal: PGInputField<PGInputDecimal | undefined, 'decimal', Types>,
         DecimalFieldUpdateOperationsInput: () => PGInputFactory<DecimalFieldUpdateOperationsInputFactory<Types> | undefined, Types>
     }>;
     nullable: PGInputFactoryUnion<{

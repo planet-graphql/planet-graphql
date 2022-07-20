@@ -3,11 +3,15 @@ import { GraphQLJSON, GraphQLByte, GraphQLBigInt, GraphQLDateTime } from 'graphq
 import { z } from 'zod'
 import { PGGraphQLDecimal } from '../lib/pg-decimal-scalar'
 import { PGGraphQLID } from '../lib/pg-id-scalar'
-import type { PGScalar } from '../types/common'
-import type { Decimal } from 'decimal.js'
-import type { JsonValue } from 'type-fest/source/basic'
+import type {
+  PGInputDecimal,
+  PGDecimal,
+  PGInputJson,
+  PGJson,
+  PGScalar,
+} from '../types/common'
 
-const json: PGScalar<z.ZodAny, JsonValue> = {
+const json: PGScalar<z.ZodAny, PGInputJson, PGJson> = {
   scalar: GraphQLJSON,
   schema: () => z.any(),
 }
@@ -17,7 +21,7 @@ const bytes: PGScalar<z.ZodAny, Buffer> = {
   schema: () => z.any(),
 }
 
-const decimal: PGScalar<z.ZodAny, Decimal> = {
+const decimal: PGScalar<z.ZodAny, PGInputDecimal, PGDecimal> = {
   scalar: PGGraphQLDecimal,
   schema: () => z.any(),
 }

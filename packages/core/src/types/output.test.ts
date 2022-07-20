@@ -1,6 +1,6 @@
 import { expectType } from 'ts-expect'
 import type { PGTypes } from './builder'
-import type { NeverWithNote, PGEnum } from './common'
+import type { NeverWithNote, PGDecimal, PGEnum, PGJson } from './common'
 import type { PGInputField } from './input'
 import type {
   PGOutputFieldOptionsDefault,
@@ -12,9 +12,7 @@ import type {
   ConvertPGInterfacesToFieldMap,
 } from './output'
 import type { SomePGTypes, SomeUserPrismaArgs } from './test.util'
-import type Decimal from 'decimal.js'
 import type { TypeEqual } from 'ts-expect'
-import type { JsonValue } from 'type-fest/source/basic'
 
 describe('PGOutputField', () => {
   describe('list', () => {
@@ -110,9 +108,14 @@ describe('PGOutputFieldBuilder', () => {
           bigInt: () => PGOutputField<bigint, any, PGOutputFieldOptionsDefault, PGTypes>
           float: () => PGOutputField<number, any, PGOutputFieldOptionsDefault, PGTypes>
           dateTime: () => PGOutputField<Date, any, PGOutputFieldOptionsDefault, PGTypes>
-          json: () => PGOutputField<JsonValue, any, PGOutputFieldOptionsDefault, PGTypes>
+          json: () => PGOutputField<PGJson, any, PGOutputFieldOptionsDefault, PGTypes>
           bytes: () => PGOutputField<Buffer, any, PGOutputFieldOptionsDefault, PGTypes>
-          decimal: () => PGOutputField<Decimal, any, PGOutputFieldOptionsDefault, PGTypes>
+          decimal: () => PGOutputField<
+            PGDecimal,
+            any,
+            PGOutputFieldOptionsDefault,
+            PGTypes
+          >
           object: <T extends Function>(
             type: T,
           ) => PGOutputField<T, any, PGOutputFieldOptionsDefault, PGTypes>

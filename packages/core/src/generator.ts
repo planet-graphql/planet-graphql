@@ -16,11 +16,12 @@ function getModelTypeName(modelName: string): string {
   return `${modelName}FieldMapType`
 }
 
-function getTSType(scalarType: string): string {
+function getTSType(scalarType: string, inputOrOutput: 'input' | 'output'): string {
   switch (scalarType) {
     case 'String':
-    case 'Json':
       return 'string'
+    case 'Json':
+      return inputOrOutput === 'input' ? 'PGInputJson' : 'PGJson'
     case 'Int':
     case 'Float':
       return 'number'
@@ -33,7 +34,7 @@ function getTSType(scalarType: string): string {
     case 'Bytes':
       return 'Buffer'
     case 'Decimal':
-      return 'PGDecimal'
+      return inputOrOutput === 'input' ? 'PGInputDecimal' : 'PGDecimal'
     default:
       throw new PGError(`"${scalarType}" is not supported yet.`, 'GeneratorError')
   }
@@ -49,7 +50,7 @@ function getPGFieldType(dmmf: DMMF.Field): string {
       innerType = `PrismaObjectMap<TObjectRef, Types>['${dmmf.type}']`
       break
     case 'scalar':
-      innerType = `${getTSType(dmmf.type)}`
+      innerType = `${getTSType(dmmf.type, 'output')}`
       break
     default:
       throw new PGError(`"${dmmf.kind}" is not supported.`, 'GeneratorError')
@@ -78,11 +79,13 @@ export function getInputsTypeProperty(arg: DMMF.SchemaArg): string {
       return `PGInputField<${
         inputType.isList
           ? `${
-              inputType.type === 'Null' ? 'null' : getTSType(inputType.type as string)
+              inputType.type === 'Null'
+                ? 'null'
+                : getTSType(inputType.type as string, 'input')
             }[]`
           : inputType.type === 'Null'
           ? 'null'
-          : getTSType(inputType.type as string)
+          : getTSType(inputType.type as string, 'input')
       }${nullishSuffix}, '${_.lowerFirst(inputType.type as string)}', Types>`
     }
     if (inputType.location === 'enumTypes') {
@@ -212,7 +215,15 @@ export function addImports(sourceFile: SourceFile, prismaImportPath: string): vo
       isTypeOnly: true,
     },
     {
-      namedImports: ['PGEnum', 'PGDecimal', 'TypeOfPGFieldMap', 'RequiredNonNullable'],
+      namedImports: [
+        'PGEnum',
+        'PGDecimal',
+        'PGInputDecimal',
+        'PGJson',
+        'PGInputJson',
+        'TypeOfPGFieldMap',
+        'RequiredNonNullable',
+      ],
       moduleSpecifier: '@planet-graphql/core/dist/types/common',
       isTypeOnly: true,
     },
@@ -467,7 +478,7 @@ export function getPrismaImportPath(
 
 generatorHandler({
   onManifest: () => ({
-    prettyName: 'PrismaGQL Generator',
+    prettyName: 'PlanetGraphQL Generator',
     defaultOutput: 'node_modules/@planet-graphql/core/dist/generated/index.ts',
   }),
   onGenerate: async (options) => {
