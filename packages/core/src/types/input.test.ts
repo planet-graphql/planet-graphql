@@ -1,8 +1,7 @@
 import { expectType } from 'ts-expect'
 import type { PGTypes } from './builder'
-import type { PGEnum, PGInputJson } from './common'
+import type { PGEnum, PGInputDecimal, PGInputJson } from './common'
 import type { PGInputFieldBuilder, PGInputField, PGInput } from './input'
-import type Decimal from 'decimal.js'
 import type { TypeEqual } from 'ts-expect'
 
 describe('PGInputField', () => {
@@ -83,7 +82,7 @@ describe('PGInputFieldBuilder', () => {
           dateTime: () => PGInputField<Date, 'dateTime', PGTypes>
           json: () => PGInputField<PGInputJson, 'json', PGTypes>
           bytes: () => PGInputField<Buffer, 'bytes', PGTypes>
-          decimal: () => PGInputField<Decimal, 'decimal', PGTypes>
+          decimal: () => PGInputField<PGInputDecimal, 'decimal', PGTypes>
           input: <T extends Function>(type: T) => PGInputField<T, 'input', PGTypes>
           enum: <T extends PGEnum<any>>(type: T) => PGInputField<T, 'enum', PGTypes>
         }
