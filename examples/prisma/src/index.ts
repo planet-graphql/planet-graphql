@@ -18,12 +18,8 @@ export const { objects, getRelations } = pgpc.convertOutputs({
   Attachment: () => attachment,
 })
 
-// TODO:
-// Fix this. Change interface to accept PGRootFieldConfig by pg.build().
-const a = [usersQuery, postQuery, createPostMutation, createAttachmentMutation]
-
 const server = createServer({
-  schema: pg.build(),
+  schema: pg.build([usersQuery, postQuery, createPostMutation, createAttachmentMutation]),
   maskedErrors: {
     formatError: (e) => {
       const error = e as GraphQLError

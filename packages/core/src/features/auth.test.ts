@@ -6,7 +6,7 @@ describe('authFeature', () => {
     it('Raises an exception so that an error is returned', async () => {
       const pg = getPGBuilder()()
 
-      pg.query({
+      const someQuery = pg.query({
         name: 'someQuery',
         field: (b) =>
           b
@@ -18,7 +18,7 @@ describe('authFeature', () => {
       const query = `query { someQuery }`
 
       const response = await graphql({
-        schema: pg.build(),
+        schema: pg.build([someQuery]),
         source: query,
         contextValue: {},
       })
@@ -35,7 +35,7 @@ describe('authFeature', () => {
       it('Returns a null for user convenience', async () => {
         const pg = getPGBuilder()()
 
-        pg.query({
+        const someQuery = pg.query({
           name: 'someQuery',
           field: (b) =>
             b
@@ -48,7 +48,7 @@ describe('authFeature', () => {
         const query = `query { someQuery }`
 
         const response = await graphql({
-          schema: pg.build(),
+          schema: pg.build([someQuery]),
           source: query,
           contextValue: {},
         })
@@ -63,7 +63,7 @@ describe('authFeature', () => {
       it('Returns an empty array for user convenience', async () => {
         const pg = getPGBuilder()()
 
-        pg.query({
+        const someQuery = pg.query({
           name: 'someQuery',
           field: (b) =>
             b
@@ -76,7 +76,7 @@ describe('authFeature', () => {
         const query = `query { someQuery }`
 
         const response = await graphql({
-          schema: pg.build(),
+          schema: pg.build([someQuery]),
           source: query,
           contextValue: {},
         })
@@ -92,7 +92,7 @@ describe('authFeature', () => {
     it('Do nothing and return a set resolve return value', async () => {
       const pg = getPGBuilder()()
 
-      pg.query({
+      const someQuery = pg.query({
         name: 'someQuery',
         field: (b) =>
           b
@@ -104,7 +104,7 @@ describe('authFeature', () => {
       const query = `query { someQuery }`
 
       const response = await graphql({
-        schema: pg.build(),
+        schema: pg.build([someQuery]),
         source: query,
         contextValue: {},
       })

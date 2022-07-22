@@ -1,3 +1,4 @@
+import fs from 'fs'
 import path from 'path'
 import { generatorHandler } from '@prisma/generator-helper'
 import _ from 'lodash'
@@ -196,15 +197,6 @@ export function getInputFactories(schema: DMMF.Schema): Array<{
 export function addImports(sourceFile: SourceFile, prismaImportPath: string): void {
   sourceFile.addImportDeclarations([
     {
-      namedImports: ['getInternalPGPrismaConverter'],
-      moduleSpecifier: '@planet-graphql/core/dist/prisma-converter',
-    },
-    {
-      namedImports: ['Prisma'],
-      moduleSpecifier: prismaImportPath,
-      isTypeOnly: true,
-    },
-    {
       namedImports: ['DMMF'],
       moduleSpecifier: `${prismaImportPath}/runtime`,
       isTypeOnly: true,
@@ -379,21 +371,6 @@ export function copyPrismaConverterInterfaces(sourceFile: SourceFile): void {
   sourceFile.addTypeAlias({ ...converterBuilderType.getStructure(), isExported: false })
 }
 
-export function addConverterFunction(sourceFile: SourceFile): void {
-  sourceFile.addVariableStatement({
-    declarationKind: VariableDeclarationKind.Const,
-    declarations: [
-      {
-        name: 'getPGPrismaConverter',
-        initializer:
-          '(builder, dmmf) => getInternalPGPrismaConverter(builder, dmmf) as any',
-        type: 'InitPGPrismaConverter',
-      },
-    ],
-    isExported: true,
-  })
-}
-
 export function addPrismaTypes(sourceFile: SourceFile, dmmfModels: DMMF.Model[]): void {
   sourceFile.addTypeAlias({
     name: 'PrismaArgsMap',
@@ -419,18 +396,56 @@ export function addPrismaTypes(sourceFile: SourceFile, dmmfModels: DMMF.Model[])
   })
 }
 
-export function addDmmf(sourceFile: SourceFile, dmmf: DMMF.Document): void {
-  sourceFile.addVariableStatement({
-    declarationKind: VariableDeclarationKind.Const,
-    declarations: [
-      {
-        name: 'dmmf',
-        initializer: `JSON.parse('${JSON.stringify(dmmf)}')`,
-        type: 'DMMF.Document',
-      },
-    ],
-    isExported: true,
-  })
+export function addConsts(sourceFile: SourceFile): void {
+  sourceFile.addVariableStatements([
+    {
+      declarationKind: VariableDeclarationKind.Const,
+      declarations: [
+        {
+          name: 'dmmf',
+          type: 'DMMF.Document',
+        },
+      ],
+      isExported: true,
+    },
+    {
+      declarationKind: VariableDeclarationKind.Const,
+      declarations: [
+        {
+          name: 'getPGPrismaConverter',
+          type: 'InitPGPrismaConverter',
+        },
+      ],
+      isExported: true,
+    },
+  ])
+}
+
+export function createJSFile(outputPath: string, dmmf: DMMF.Document): void {
+  const filePath = `${outputPath}/index.js`
+  const fileContent = `Object.defineProperty(exports, '__esModule', { value: true })
+
+const {
+  getInternalPGPrismaConverter,
+} = require('@planet-graphql/core/dist/prisma-converter')
+
+exports.getPGPrismaConverter = (builder, dmmf) =>
+  getInternalPGPrismaConverter(builder, dmmf)
+
+exports.dmmf = JSON.parse('${JSON.stringify(dmmf)}')
+`
+  fs.writeFileSync(filePath, fileContent, 'utf8')
+}
+
+export function createPackageJsonFile(outputPath: string): void {
+  const filePath = `${outputPath}/package.json`
+  const fileContent = `{
+  "name": ".planet-graphql",
+  "main": "index.js",
+  "types": "index.d.ts"
+}
+`
+  fs.writeFileSync(filePath, fileContent, 'utf8')
 }
 
 export async function generate(
@@ -439,18 +454,17 @@ export async function generate(
   prismaImportPath: string,
 ): Promise<void> {
   const project = new Project()
-  const outputFile = project.createSourceFile(outputPath, undefined, { overwrite: true })
+  const typeFilePath = `${outputPath}/index.d.ts`
+  const typeFile = project.createSourceFile(typeFilePath, undefined, { overwrite: true })
 
-  addImports(outputFile, prismaImportPath)
-  addEnumTypes(outputFile, dmmf.datamodel.enums)
-  addModelTypes(outputFile, dmmf.datamodel.models)
-  addInputFactoryTypes(outputFile, dmmf.schema)
-  copyPrismaConverterInterfaces(outputFile)
-  addConverterFunction(outputFile)
-  addPrismaTypes(outputFile, dmmf.datamodel.models)
-  addDmmf(outputFile, dmmf)
-
-  outputFile.formatText()
+  addImports(typeFile, prismaImportPath)
+  addEnumTypes(typeFile, dmmf.datamodel.enums)
+  addModelTypes(typeFile, dmmf.datamodel.models)
+  addInputFactoryTypes(typeFile, dmmf.schema)
+  copyPrismaConverterInterfaces(typeFile)
+  addPrismaTypes(typeFile, dmmf.datamodel.models)
+  addConsts(typeFile)
+  typeFile.formatText()
 
   // FIXME:
   // I think it would be easier to test if I just do `emitToMemory()` in generate
@@ -460,6 +474,9 @@ export async function generate(
   // await result.saveFiles()
   // ```
   await project.save()
+
+  createJSFile(outputPath, dmmf)
+  createPackageJsonFile(outputPath)
 }
 
 export function getPrismaImportPath(
@@ -472,14 +489,13 @@ export function getPrismaImportPath(
   ) {
     return '@prisma/client'
   }
-  const relativePath = path.relative(path.dirname(outputPath), prismaClientOutputPath)
-  return relativePath.startsWith('.') ? relativePath : `./${relativePath}`
+  return path.relative(outputPath, prismaClientOutputPath)
 }
 
 generatorHandler({
   onManifest: () => ({
     prettyName: 'PlanetGraphQL Generator',
-    defaultOutput: 'node_modules/@planet-graphql/core/dist/generated/index.ts',
+    defaultOutput: 'node_modules/@planet-graphql/core/dist/generated',
   }),
   onGenerate: async (options) => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

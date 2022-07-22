@@ -1,4 +1,3 @@
-import { setCache } from './utils'
 import type { PGBuilder, PGCache, PGRootFieldConfig, PGTypes } from '../types/builder'
 import type { PGOutputFieldBuilder } from '../types/output'
 
@@ -18,7 +17,6 @@ export const createRootFieldBuilder: <Types extends PGTypes>(
       field: pgField,
       kind,
     }
-    setCache(cache, resolver)
     return resolver
   }
 }

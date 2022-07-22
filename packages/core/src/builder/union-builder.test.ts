@@ -54,7 +54,7 @@ describe('UnionBuilder', () => {
       types: [objectA, objectB],
       resolveType: (value) => ('a' in value ? objectA : objectB),
     })
-    pg.query({
+    const someQuery = pg.query({
       name: 'someQuery',
       field: (b) =>
         b
@@ -78,7 +78,7 @@ describe('UnionBuilder', () => {
     `
 
     const response = await graphql({
-      schema: pg.build(),
+      schema: pg.build([someQuery]),
       source: query,
       contextValue: {},
     })

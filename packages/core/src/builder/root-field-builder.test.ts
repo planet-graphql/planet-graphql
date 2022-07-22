@@ -2,10 +2,10 @@ import { parse, subscribe } from 'graphql'
 import { PubSub } from 'graphql-subscriptions'
 import { getPGBuilder } from '..'
 import { mergeDefaultInputField, mergeDefaultOutputField } from '../test-utils'
-import type { ExecutionResult} from 'graphql';
+import type { ExecutionResult } from 'graphql'
 
 describe('rootFieldBuilder', () => {
-  it('Creates a new PGRootFieldConfig & Set it to the Build Cache', () => {
+  it('Creates a new PGRootFieldConfig', () => {
     const pg = getPGBuilder()()
     const someObject = pg.object({
       name: 'SomeObject',
@@ -61,7 +61,6 @@ describe('rootFieldBuilder', () => {
     }
 
     expect(result).toEqual(expectValue)
-    expect(pg.cache().query.someQuery).toEqual(expectValue)
   })
 
   describe('subscription', () => {
@@ -69,8 +68,8 @@ describe('rootFieldBuilder', () => {
       const pubsub = new PubSub()
       const pg = getPGBuilder()()
 
-      pg.query({ name: 'SomeQuery', field: (b) => b.string() })
-      pg.subscription({
+      const someQuery = pg.query({ name: 'SomeQuery', field: (b) => b.string() })
+      const SomeSubscription = pg.subscription({
         name: 'SomeSubscription',
         field: (b) =>
           b
@@ -85,7 +84,7 @@ describe('rootFieldBuilder', () => {
             })),
       })
 
-      const schema = pg.build()
+      const schema = pg.build([someQuery, SomeSubscription])
 
       const subscription = `
         subscription onSomeSubscription {

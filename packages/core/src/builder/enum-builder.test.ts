@@ -2,7 +2,7 @@ import { graphql } from 'graphql'
 import { expectType } from 'ts-expect'
 import { getPGBuilder } from '..'
 import type { PGEnum } from '../types/common'
-import type { TypeEqual } from 'ts-expect';
+import type { TypeEqual } from 'ts-expect'
 
 describe('EnumBuilder', () => {
   it('Returns a PGEnum & Set it to the Build Cache', () => {
@@ -29,7 +29,7 @@ describe('EnumBuilder', () => {
       name: 'SomeEnum',
       values: ['A', 'B'],
     })
-    pg.query({
+    const someQuery = pg.query({
       name: 'someQuery',
       field: (b) =>
         b
@@ -46,7 +46,7 @@ describe('EnumBuilder', () => {
     `
 
     const response = await graphql({
-      schema: pg.build(),
+      schema: pg.build([someQuery]),
       source: query,
       contextValue: {},
     })

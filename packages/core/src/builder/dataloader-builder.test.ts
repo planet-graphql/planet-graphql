@@ -31,7 +31,7 @@ describe('DataloaderBuilder', () => {
         id: f.id(),
       }),
     })
-    pg.query({
+    const usersQuery = pg.query({
       name: 'users',
       field: (b) =>
         b
@@ -60,7 +60,7 @@ describe('DataloaderBuilder', () => {
     `
 
     const response = await graphql({
-      schema: pg.build(),
+      schema: pg.build([usersQuery]),
       source: query,
       contextValue: {},
     })

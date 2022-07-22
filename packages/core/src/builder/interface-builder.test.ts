@@ -44,7 +44,7 @@ describe('InterfaceBuilder', () => {
       }),
       isTypeOf: (value) => value.name !== undefined,
     })
-    pg.query({
+    const someQuery = pg.query({
       name: 'someQuery',
       field: (b) =>
         b
@@ -65,7 +65,7 @@ describe('InterfaceBuilder', () => {
     `
 
     const response = await graphql({
-      schema: pg.build(),
+      schema: pg.build([someQuery]),
       source: query,
       contextValue: {},
     })

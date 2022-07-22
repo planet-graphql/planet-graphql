@@ -43,7 +43,7 @@ describe('InputBuilder', () => {
         arg: b.string(),
       }),
     })
-    pg.query({
+    const someQuery = pg.query({
       name: 'someQuery',
       field: (b) =>
         b
@@ -60,7 +60,7 @@ describe('InputBuilder', () => {
     `
 
     const response = await graphql({
-      schema: pg.build(),
+      schema: pg.build([someQuery]),
       source: query,
       contextValue: {},
     })
