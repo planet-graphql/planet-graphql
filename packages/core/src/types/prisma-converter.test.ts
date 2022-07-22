@@ -2,7 +2,7 @@ import { expectType } from 'ts-expect'
 import type { PGTypes } from './builder'
 import type { PGObject, PGOutputField, PGOutputFieldOptionsDefault } from './output'
 import type { PrismaObject } from './prisma-converter'
-import type { TypeEqual } from 'ts-expect';
+import type { TypeEqual } from 'ts-expect'
 
 type UserFieldMap<
   TObjectRef extends { [key: string]: Function | undefined },

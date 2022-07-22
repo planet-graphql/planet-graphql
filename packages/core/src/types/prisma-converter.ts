@@ -45,24 +45,20 @@ export type InitPGPrismaConverter = <Types extends PGTypes>(
 ) => PGPrismaConverter<Types>
 
 export interface PGPrismaConverter<Types extends PGTypes> {
-  convert: <
+  convertOutputs: <
     TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function } = {},
   >(
     updatedObjectRef?: TObjectRef,
   ) => {
-    objects: <TName extends keyof PrismaObjectMap<TObjectRef, Types>>(
-      name: TName,
-    ) => PrismaObjectMap<TObjectRef, Types>[TName]
-    relations: <TName extends keyof PrismaObjectMap<TObjectRef, Types>>(
+    objects: PrismaObjectMap<TObjectRef, Types>
+    enums: PrismaEnumMap
+    getRelations: <TName extends keyof PrismaObjectMap<TObjectRef, Types>>(
       name: TName,
     ) => Omit<PrismaObjectMap<TObjectRef, Types>, TName> extends infer U
       ? { [P in keyof U]: () => U[P] }
       : never
-    enums: <TName extends keyof PrismaEnumMap>(name: TName) => PrismaEnumMap[TName]
-    inputs: <TName extends keyof PrismaInputFactoryMap<Types>>(
-      name: TName,
-    ) => PrismaInputFactoryMap<Types>[TName]
   }
+  convertInputs: () => PrismaInputFactoryMap<Types>
   update: <
     TName extends Exclude<keyof PrismaObjectMap<{}, Types>, undefined | number>,
     TFieldMap extends PGOutputFieldMap,
@@ -82,7 +78,7 @@ export interface PGPrismaConverter<Types extends PGTypes> {
     isTypeOf?: (
       value: TypeOfPGFieldMap<TFieldMap & ConvertPGInterfacesToFieldMap<TInterfaces>>,
     ) => boolean
-    relations: TObjectRef
+    relations: () => TObjectRef
   }) => PGObject<
     TFieldMap & ConvertPGInterfacesToFieldMap<TInterfaces>,
     TInterfaces,

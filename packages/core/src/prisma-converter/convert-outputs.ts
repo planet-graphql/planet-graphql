@@ -1,23 +1,18 @@
 import _ from 'lodash'
 import { setCache } from '../builder/utils'
-import { createPGInputFactory } from '../objects/pg-input-factory'
-import {
-  convertDMMFArgsToPGInputFactoryFieldMap,
-  convertDMMFModelToPGObject,
-} from './utils'
+import { convertDMMFModelToPGObject } from './utils'
 import type { PGBuilder, PGCache, PGTypes } from '../types/builder'
 import type { PGEnum } from '../types/common'
-import type { PGInputFactory, PGInputFactoryFieldMap } from '../types/input-factory'
 import type { PGObject } from '../types/output'
 import type { PGPrismaConverter } from '../types/prisma-converter'
 import type { DMMF } from '@prisma/generator-helper'
 
-export const getConvertFunction: <Types extends PGTypes>(
+export const getConvertOutputsFunction: <Types extends PGTypes>(
   builder: PGBuilder<Types>,
   dmmf: DMMF.Document,
   pgEnumMap: Record<string, PGEnum<any>>,
   pgObjectRef: Record<string, PGObject<any> | (() => PGObject<any>)>,
-) => PGPrismaConverter<Types>['convert'] =
+) => PGPrismaConverter<Types>['convertOutputs'] =
   (builder, dmmf, pgEnumMap, pgObjectRef) => (updatedObjectRef) => {
     const updatedObjectNames = Object.keys(updatedObjectRef ?? {})
     const pgObjectMapFromDmmf = convertToPGObjectMap(
@@ -34,14 +29,11 @@ export const getConvertFunction: <Types extends PGTypes>(
     )
     setObjectRefIntoCache(builder.cache(), pgObjectRef)
     setPGEnumMapIntoCache(builder.cache(), pgEnumMap)
-    const pgInputFactoryMap = convertToPGInputFactoryMap(dmmf.schema, pgEnumMap)
 
     const getters = {
-      objects: (name: string) => {
-        const ref = pgObjectRef[name]
-        return typeof ref === 'function' ? ref() : ref
-      },
-      relations: (name: string) => {
+      objects: _.mapValues(pgObjectRef, (x) => (typeof x === 'function' ? x() : x)),
+      enums: pgEnumMap,
+      getRelations: (name: string) => {
         const tmap = _.mapValues(pgObjectRef, (ref) =>
           typeof ref === 'function' ? ref : () => ref,
         )
@@ -49,8 +41,6 @@ export const getConvertFunction: <Types extends PGTypes>(
         delete tmap[name]
         return tmap
       },
-      inputs: (name: string) => pgInputFactoryMap[name],
-      enums: (name: string) => pgEnumMap[name],
     }
     return getters as any
   }
@@ -76,39 +66,6 @@ export function convertToPGObjectMap<Types extends PGTypes>(
     return acc
   }, {})
   return objectMap
-}
-
-export function convertToPGInputFactoryMap(
-  dmmfSchema: DMMF.Schema,
-  pgEnumMap: Record<string, PGEnum<any>>,
-): Record<string, PGInputFactory<any>> {
-  const inputFactoryFieldMapRef: Record<string, PGInputFactoryFieldMap> = {}
-  for (const inputType of dmmfSchema.inputObjectTypes.prisma) {
-    const fieldMap = convertDMMFArgsToPGInputFactoryFieldMap(
-      inputType.fields,
-      inputFactoryFieldMapRef,
-      pgEnumMap,
-    )
-    inputFactoryFieldMapRef[inputType.name] = fieldMap
-  }
-  const pgInputFactoryMap = dmmfSchema.outputObjectTypes.prisma
-    .filter((x) => x.name === 'Query' || x.name === 'Mutation')
-    .flatMap((x) => x.fields)
-    .reduce<Record<string, PGInputFactory<any>>>((acc, dmmfSchemaField) => {
-      const fieldMap = convertDMMFArgsToPGInputFactoryFieldMap(
-        dmmfSchemaField.args,
-        inputFactoryFieldMapRef,
-        pgEnumMap,
-      )
-      const inputFactory = createPGInputFactory(
-        _.upperFirst(dmmfSchemaField.name),
-        fieldMap,
-      )
-      acc[dmmfSchemaField.name] = inputFactory
-      return acc
-    }, {})
-
-  return pgInputFactoryMap
 }
 
 export function setPGObjectRef(
