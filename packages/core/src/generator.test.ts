@@ -76,20 +76,24 @@ jest.mock('@prisma/generator-helper')
 
 describe('generate', () => {
   describe('the whole dmmf is passed', () => {
-    const outputPath = '.output.ts'
+    const outputPath = '.output'
 
     afterEach(() => {
       if (fs.existsSync(outputPath)) {
-        fs.rmSync(outputPath)
+        fs.rmSync(outputPath, { recursive: true, force: true })
       }
     })
 
     it("Type definitions (Snapshot) of pgfy return values are generated according to Prisma's Schema", async () => {
       const dmmf = await getDMMF({ datamodel })
       await generate(dmmf, outputPath, '@prisma/client')
-      const result = fs.readFileSync(outputPath, 'utf8')
+      const typeFileResult = fs.readFileSync(`${outputPath}/index.d.ts`, 'utf8')
+      const jsFileResult = fs.readFileSync(`${outputPath}/index.js`, 'utf8')
+      const packageJsonFileResult = fs.readFileSync(`${outputPath}/package.json`, 'utf8')
 
-      expect(result).toMatchSnapshot()
+      expect(typeFileResult).toMatchSnapshot()
+      expect(jsFileResult).toMatchSnapshot()
+      expect(packageJsonFileResult).toMatchSnapshot()
     })
 
     it('File is overwritten even if it exists and no exception is raised', async () => {
@@ -399,7 +403,7 @@ describe('getPrismaImportPath', () => {
   describe('An output path is not set', () => {
     it('Returns "@prisma/client"', () => {
       const result = getPrismaImportPath(
-        '/code/node_modules/@planet-graphql/core/dist/generated/index.ts',
+        '/code/node_modules/@planet-graphql/core/dist/generated',
         '/code/node_modules/@prisma/client',
       )
 
@@ -410,16 +414,11 @@ describe('getPrismaImportPath', () => {
   describe('The Prisma Client output path is set', () => {
     it('Returns a relative path', () => {
       const result = getPrismaImportPath(
-        '/code/src/planet-graphql-types.ts',
-        '/code/src/prisma-client',
-      )
-      const result2 = getPrismaImportPath(
-        '/code/src/pg/types.ts',
+        '/code/src/planet-graphql',
         '/code/src/prisma-client',
       )
 
-      expect(result).toEqual('./prisma-client')
-      expect(result2).toEqual('../prisma-client')
+      expect(result).toEqual('../prisma-client')
     })
   })
 })

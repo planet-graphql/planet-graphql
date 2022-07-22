@@ -10,7 +10,7 @@ generator client {
 
 generator pg {
   provider = "planet-graphql"
-  output   = "../src/planet-graphql-types.ts"
+  output   = "../src/planet-graphql"
 }
 
 model User {

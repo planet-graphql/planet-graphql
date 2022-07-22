@@ -1,5 +1,4 @@
-import type { Prisma } from './prisma-client'
-import type { DMMF } from './prisma-client/runtime'
+import type { DMMF } from '../prisma-client/runtime'
 import type { PGTypes, PGBuilder } from '@planet-graphql/core/dist/types/builder'
 import type {
   PGEnum,
@@ -3838,7 +3837,7 @@ type PostScalarWhereInputFactory<Types extends PGTypes> = {
     StringFilter: () => PGInputFactory<StringFilterFactory<Types> | undefined, Types>
     String: PGInputField<string | undefined, 'string', Types>
   }>
-  isPublic: PGInputFa0toryUnion<{
+  isPublic: PGInputFactoryUnion<{
     __default: () => PGInputFactory<BoolFilterFactory<Types> | undefined, Types>
     BoolFilter: () => PGInputFactory<BoolFilterFactory<Types> | undefined, Types>
     Boolean: PGInputField<boolean | undefined, 'boolean', Types>
@@ -4756,13 +4755,11 @@ type InitPGPrismaConverter = <Types extends PGTypes>(
   builder: PGBuilder<Types>,
   dmmf: DMMF.Document,
 ) => PGPrismaConverter<Types>
-
 type PrismaArgsMap = {
   User: RequiredNonNullable<Prisma.UserFindManyArgs>
   Post: RequiredNonNullable<Prisma.PostFindManyArgs>
   Attachment: RequiredNonNullable<Prisma.AttachmentFindManyArgs>
 }
-
 export type PrismaTypes = {
   Args: PrismaArgsMap
 }
