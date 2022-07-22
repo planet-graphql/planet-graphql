@@ -35,7 +35,7 @@ export interface PGObject<
     fieldMap: T
     interfaces?: TInterfaces
     isTypeOf?: (value: any) => boolean
-    prismaModelName?: keyof Types['Prisma']['Args']
+    prismaModelName?: GetPrismaModelNames<Types>
   }
   copy: <
     TUpdate extends ConvertPGInterfacesToFieldMap<TInterfaces>,
@@ -47,7 +47,7 @@ export interface PGObject<
   modify: (
     callback: (f: PGModifyOutputFieldMap<T>) => Partial<PGModifyOutputFieldMap<T>>,
   ) => this
-  prismaModel: <TSetPrismaModelName extends keyof Types['Prisma']['Args']>(
+  prismaModel: <TSetPrismaModelName extends GetPrismaModelNames<Types>>(
     name: TSetPrismaModelName,
   ) => PGObject<
     T,
@@ -58,7 +58,7 @@ export interface PGObject<
 }
 
 export interface PGObjectOptions<Types extends PGTypes> {
-  PrismaModelName: keyof Types['Prisma']['Args'] | undefined
+  PrismaModelName: GetPrismaModelNames<Types> | undefined
 }
 
 export interface PGObjectOptionsDefault<Types extends PGTypes>
@@ -100,7 +100,7 @@ export interface PGOutputField<
           number
         >,
       ) => ResolveResponse<number>
-      cursor?: (node: any) => object
+      cursor?: (node: unknown) => unknown
       orderBy?: object | object[]
     }
   }
@@ -314,8 +314,16 @@ export type UpdatePGOptions<
 export type GetPrismaModelName<T, Types extends PGTypes> = (
   ExcludeNullish<T> extends Array<infer U> ? U : ExcludeNullish<T>
 ) extends () => PGObject<any, any, infer U, Types>
-  ? U['PrismaModelName']
+  ? U['PrismaModelName'] extends GetPrismaModelNames<Types>
+    ? U['PrismaModelName']
+    : undefined
   : undefined
+
+export type GetPrismaModelNames<Types extends PGTypes> = Types['Prisma'] extends {
+  Args: any
+}
+  ? keyof Types['Prisma']['Args']
+  : string
 
 export type MergerArgs<
   TArgs extends PGInputFieldMap | undefined,
@@ -326,7 +334,7 @@ export type MergerArgs<
 
 export type MergeDefaultPrismaArgs<
   T,
-  TPrismaModelName extends keyof Types['Prisma']['Args'] | undefined,
+  TPrismaModelName extends GetPrismaModelNames<Types> | undefined,
   Types extends PGTypes,
 > = GetPrismaArgType<TPrismaModelName, Types, 'include'> extends infer U
   ? U extends undefined
@@ -338,7 +346,7 @@ export type MergeDefaultPrismaArgs<
 
 export type MergePrismaRelayArgs<
   TPrismaArgs extends PGInputFieldMap | undefined,
-  TPrismaModelName extends keyof Types['Prisma']['Args'] | undefined,
+  TPrismaModelName extends GetPrismaModelNames<Types> | undefined,
   Types extends PGTypes,
 > = {
   take: PGInputField<number | undefined, 'int', Types>
@@ -352,19 +360,21 @@ export type MergePrismaRelayArgs<
     GetPrismaArgType<TPrismaModelName, Types, 'orderBy'>,
     'input',
     Types
-  > extends infer U
-    ? TPrismaArgs extends undefined
-      ? U
-      : Simplify<TPrismaArgs & U>
-    : never
-}
+  >
+} extends infer U
+  ? TPrismaArgs extends undefined
+    ? U
+    : Simplify<TPrismaArgs & U>
+  : never
 
 export type GetPrismaArgType<
-  TPrismaModelName extends keyof Types['Prisma']['Args'] | undefined,
+  TPrismaModelName extends GetPrismaModelNames<Types> | undefined,
   Types extends PGTypes,
   TPrismaArgName extends keyof PrismaArgsBase,
-> = TPrismaModelName extends keyof Types['Prisma']['Args']
-  ? Types['Prisma']['Args'][TPrismaModelName][TPrismaArgName]
+> = TPrismaModelName extends GetPrismaModelNames<Types>
+  ? Types['Prisma'] extends { Args: any }
+    ? Types['Prisma']['Args'][TPrismaModelName][TPrismaArgName]
+    : string
   : undefined
 
 export type MethodGuard<

@@ -1,4 +1,5 @@
-import { getConvertFunction } from './convert'
+import { getConvertInputsFunction } from './convert-inputs'
+import { getConvertOutputsFunction } from './convert-outputs'
 import { getUpdateFunction } from './update'
 import { convertDMMFEnumToPGEnum } from './utils'
 import type { PGEnum } from '../types/common'
@@ -6,7 +7,7 @@ import type { PGObject } from '../types/output'
 import type { InitPGPrismaConverter, PGPrismaConverter } from '../types/prisma-converter'
 
 export const getInternalPGPrismaConverter: InitPGPrismaConverter = (builder, dmmf) => {
-  const pgEnums = [
+  const pgEnumMap = [
     ...dmmf.schema.enumTypes.prisma,
     ...(dmmf.schema.enumTypes.model ?? []),
   ].reduce<Record<string, PGEnum<any>>>((acc, dmmfEnum) => {
@@ -17,8 +18,9 @@ export const getInternalPGPrismaConverter: InitPGPrismaConverter = (builder, dmm
 
   const objectRef: Record<string, PGObject<any>> = {}
   const converter: PGPrismaConverter<any> = {
-    convert: getConvertFunction(builder, dmmf, pgEnums, objectRef) as any,
-    update: getUpdateFunction(builder, dmmf, pgEnums, objectRef),
+    convertOutputs: getConvertOutputsFunction(builder, dmmf, pgEnumMap, objectRef),
+    convertInputs: getConvertInputsFunction(dmmf, pgEnumMap),
+    update: getUpdateFunction(builder, dmmf, pgEnumMap, objectRef),
   }
   return converter as any
 }

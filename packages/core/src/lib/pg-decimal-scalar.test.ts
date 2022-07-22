@@ -4,13 +4,12 @@ import { PGGraphQLDecimal } from './pg-decimal-scalar'
 
 describe('PGGraphQLDecimal', () => {
   it('serialize', () => {
-    function serialize(value: unknown): Decimal {
+    function serialize(value: unknown): string {
       return PGGraphQLDecimal.serialize(value)
     }
 
-    expect(serialize(new Decimal('0'))).toEqual(new Decimal('0'))
-    expect(serialize(new Decimal('-0.01'))).toEqual(new Decimal('-0.01'))
-    expect(() => serialize(null)).toThrow('Decimal cannot represent a value: null')
+    expect(serialize(new Decimal('0'))).toEqual('0')
+    expect(serialize(new Decimal('-0.01'))).toEqual('-0.01')
   })
 
   it('parseValue', () => {

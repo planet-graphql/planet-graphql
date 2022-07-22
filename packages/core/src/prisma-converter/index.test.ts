@@ -43,19 +43,19 @@ describe('PGPrismaConverter', () => {
     const pg = getPGBuilder()()
     const pgpc = getInternalPGPrismaConverter(pg, dmmf)
 
-    const { objects, enums, relations } = pgpc.convert({
-      SomeModel: () => someModel,
-    })
     const someModel = pgpc.update({
       name: 'SomeModel',
       fields: (f, b) => ({
         ...f,
         scalar2: b.boolean(),
       }),
-      relations: relations('SomeModel'),
+      relations: () => getRelations('SomeModel'),
+    })
+    const { objects, enums, getRelations } = pgpc.convertOutputs({
+      SomeModel: () => someModel,
     })
     const relationModelModelFieldType =
-      objects('RelationModel').value.fieldMap.model.value.type()
+      objects.RelationModel.value.fieldMap.model.value.type()
 
     const expectSomeModel = mergeDefaultPGObject({
       name: 'SomeModel',
@@ -72,7 +72,7 @@ describe('PGPrismaConverter', () => {
             kind: 'scalar',
             type: 'boolean',
           }),
-          enum: mergeDefaultOutputField({ kind: 'enum', type: enums('SomeEnum') }),
+          enum: mergeDefaultOutputField({ kind: 'enum', type: enums.SomeEnum }),
           relations: mergeDefaultOutputField({
             kind: 'object',
             type: expect.any(Function),
@@ -101,9 +101,9 @@ describe('PGPrismaConverter', () => {
         prismaModelName: 'RelationModel',
       },
     })
-    expect(objects('SomeModel')).toEqual(expectSomeModel)
-    expect(objects('RelationModel')).toEqual(expectRelationModel)
-    expect(objects('SomeModel')).toEqual(someModel)
+    expect(objects.SomeModel).toEqual(expectSomeModel)
+    expect(objects.RelationModel).toEqual(expectRelationModel)
+    expect(objects.SomeModel).toEqual(someModel)
     expect(relationModelModelFieldType).toEqual(someModel)
     expect(pg.cache().objectRef).toEqual({
       SomeModel: {
@@ -123,7 +123,7 @@ describe('PGPrismaConverter', () => {
     const pg = getPGBuilder()()
     const pgpc = getInternalPGPrismaConverter(pg, dmmf)
 
-    const { enums } = pgpc.convert()
+    const { enums } = pgpc.convertOutputs()
 
     const expectSomeEnum = {
       name: 'SomeEnum',
@@ -150,13 +150,11 @@ describe('PGPrismaConverter', () => {
       kind: 'enum',
       values: ['asc', 'desc'],
     }
-    expect(enums('SomeEnum')).toEqual(expectSomeEnum)
-    expect(enums('QueryMode')).toEqual(expectQueryMode)
-    expect(enums('RelationModelScalarFieldEnum')).toEqual(
-      expectRelationModelScalarFieldEnum,
-    )
-    expect(enums('SomeModelScalarFieldEnum')).toEqual(expectSomeModelScalarFieldEnum)
-    expect(enums('SortOrder')).toEqual(expectSortOrder)
+    expect(enums.SomeEnum).toEqual(expectSomeEnum)
+    expect(enums.QueryMode).toEqual(expectQueryMode)
+    expect(enums.RelationModelScalarFieldEnum).toEqual(expectRelationModelScalarFieldEnum)
+    expect(enums.SomeModelScalarFieldEnum).toEqual(expectSomeModelScalarFieldEnum)
+    expect(enums.SortOrder).toEqual(expectSortOrder)
     expect(pg.cache().enum).toEqual({
       SomeEnum: expectSomeEnum,
       QueryMode: expectQueryMode,
@@ -171,8 +169,9 @@ describe('PGPrismaConverter', () => {
     const pg = getPGBuilder()()
     const pgpc = getInternalPGPrismaConverter(pg, dmmf)
 
-    const { inputs, enums } = pgpc.convert()
-    const findFirstSomeModel = inputs('findFirstSomeModel')
+    const { enums } = pgpc.convertOutputs()
+    const inputs = pgpc.convertInputs()
+    const findFirstSomeModel = inputs.findFirstSomeModel
     const findFirstSomeModelOrderByDefault = (
       findFirstSomeModel.value.fieldMap.orderBy as PGInputFactoryUnion<any>
     ).select('SomeModelOrderByWithRelationInput')
@@ -187,7 +186,7 @@ describe('PGPrismaConverter', () => {
         cursor: expect.any(Function),
         distinct: mergeDefaultInputField({
           kind: 'enum',
-          type: enums('SomeModelScalarFieldEnum'),
+          type: enums.SomeModelScalarFieldEnum,
           isList: true,
           isOptional: true,
         }),
@@ -217,18 +216,18 @@ describe('PGPrismaConverter', () => {
         fieldMap: {
           enum: mergeDefaultInputField({
             kind: 'enum',
-            type: enums('SortOrder'),
+            type: enums.SortOrder,
             isOptional: true,
           }),
           id: mergeDefaultInputField({
             kind: 'enum',
-            type: enums('SortOrder'),
+            type: enums.SortOrder,
             isOptional: true,
           }),
           relations: expect.any(Function),
           scalar: mergeDefaultInputField({
             kind: 'enum',
-            type: enums('SortOrder'),
+            type: enums.SortOrder,
             isOptional: true,
           }),
         },
@@ -260,7 +259,7 @@ describe('PGPrismaConverter', () => {
               EnumSomeEnumFilter: expect.any(Function),
               SomeEnum: mergeDefaultInputField({
                 kind: 'enum',
-                type: enums('SomeEnum'),
+                type: enums.SomeEnum,
                 isOptional: true,
               }),
             },
@@ -306,8 +305,9 @@ describe('PGPrismaConverter', () => {
     const pg = getPGBuilder()()
     const pgpc = getInternalPGPrismaConverter(pg, dmmf)
 
-    const { objects, inputs } = pgpc.convert()
-    const args = inputs('findManySomeModel')
+    const { objects } = pgpc.convertOutputs()
+    const inputs = pgpc.convertInputs()
+    const args = inputs.findManySomeModel
       .edit((f) => ({
         skip: f.skip,
         orderBy: f.orderBy,
@@ -319,7 +319,7 @@ describe('PGPrismaConverter', () => {
       name: 'someModels',
       field: (b) =>
         b
-          .object(() => objects('SomeModel'))
+          .object(() => objects.SomeModel)
           .list()
           .prismaArgs(() => args as any)
           .resolve(() => []),

@@ -16,11 +16,12 @@ function getModelTypeName(modelName: string): string {
   return `${modelName}FieldMapType`
 }
 
-function getTSType(scalarType: string): string {
+function getTSType(scalarType: string, inputOrOutput: 'input' | 'output'): string {
   switch (scalarType) {
     case 'String':
-    case 'Json':
       return 'string'
+    case 'Json':
+      return inputOrOutput === 'input' ? 'PGInputJson' : 'PGJson'
     case 'Int':
     case 'Float':
       return 'number'
@@ -33,7 +34,7 @@ function getTSType(scalarType: string): string {
     case 'Bytes':
       return 'Buffer'
     case 'Decimal':
-      return 'Decimal'
+      return inputOrOutput === 'input' ? 'PGInputDecimal' : 'PGDecimal'
     default:
       throw new PGError(`"${scalarType}" is not supported yet.`, 'GeneratorError')
   }
@@ -49,7 +50,7 @@ function getPGFieldType(dmmf: DMMF.Field): string {
       innerType = `PrismaObjectMap<TObjectRef, Types>['${dmmf.type}']`
       break
     case 'scalar':
-      innerType = `${getTSType(dmmf.type)}`
+      innerType = `${getTSType(dmmf.type, 'output')}`
       break
     default:
       throw new PGError(`"${dmmf.kind}" is not supported.`, 'GeneratorError')
@@ -78,11 +79,13 @@ export function getInputsTypeProperty(arg: DMMF.SchemaArg): string {
       return `PGInputField<${
         inputType.isList
           ? `${
-              inputType.type === 'Null' ? 'null' : getTSType(inputType.type as string)
+              inputType.type === 'Null'
+                ? 'null'
+                : getTSType(inputType.type as string, 'input')
             }[]`
           : inputType.type === 'Null'
           ? 'null'
-          : getTSType(inputType.type as string)
+          : getTSType(inputType.type as string, 'input')
       }${nullishSuffix}, '${_.lowerFirst(inputType.type as string)}', Types>`
     }
     if (inputType.location === 'enumTypes') {
@@ -193,40 +196,66 @@ export function getInputFactories(schema: DMMF.Schema): Array<{
 export function addImports(sourceFile: SourceFile, prismaImportPath: string): void {
   sourceFile.addImportDeclarations([
     {
+      namedImports: ['getInternalPGPrismaConverter'],
+      moduleSpecifier: '@planet-graphql/core/dist/prisma-converter',
+    },
+    {
       namedImports: ['Prisma'],
       moduleSpecifier: prismaImportPath,
+      isTypeOnly: true,
+    },
+    {
+      namedImports: ['DMMF'],
+      moduleSpecifier: `${prismaImportPath}/runtime`,
+      isTypeOnly: true,
     },
     {
       namedImports: ['PGTypes', 'PGBuilder'],
-      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/builder',
+      moduleSpecifier: '@planet-graphql/core/dist/types/builder',
+      isTypeOnly: true,
     },
     {
-      namedImports: ['PGEnum', 'RequiredNonNullable'],
-      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/common',
-    },
-    {
-      namedImports: ['PGObject', 'PGOutputField', 'PGOutputFieldOptionsDefault'],
-      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/output',
-    },
-    {
-      namedImports: ['PGInputFactory', 'PGInputFactoryUnion'],
-      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/input-factory',
+      namedImports: [
+        'PGEnum',
+        'PGDecimal',
+        'PGInputDecimal',
+        'PGJson',
+        'PGInputJson',
+        'TypeOfPGFieldMap',
+        'RequiredNonNullable',
+      ],
+      moduleSpecifier: '@planet-graphql/core/dist/types/common',
+      isTypeOnly: true,
     },
     {
       namedImports: ['PGInputField'],
-      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/input',
+      moduleSpecifier: '@planet-graphql/core/dist/types/input',
+      isTypeOnly: true,
+    },
+    {
+      namedImports: ['PGInputFactory', 'PGInputFactoryUnion'],
+      moduleSpecifier: '@planet-graphql/core/dist/types/input-factory',
+      isTypeOnly: true,
+    },
+    {
+      namedImports: [
+        'PGOutputField',
+        'PGOutputFieldOptionsDefault',
+        'PGObject',
+        'PGOutputFieldMap',
+        'PGInterface',
+        'PGOutputFieldBuilder',
+        'ConvertPGInterfacesToFieldMap',
+        'PGObjectOptionsDefault',
+        'GetPrismaModelNames',
+      ],
+      moduleSpecifier: '@planet-graphql/core/dist/types/output',
+      isTypeOnly: true,
     },
     {
       namedImports: ['PrismaObject'],
-      moduleSpecifier: '@planet-graphql/planet-graphql/lib/types/prisma-converter',
-    },
-    {
-      namedImports: ['getInternalPGPrismaConverter'],
-      moduleSpecifier: '@planet-graphql/planet-graphql/lib/prisma-converter/index',
-    },
-    {
-      namedImports: ['Decimal'],
-      moduleSpecifier: 'decimal.js',
+      moduleSpecifier: '@planet-graphql/core/dist/types/prisma-converter',
+      isTypeOnly: true,
     },
   ])
 }
@@ -356,7 +385,8 @@ export function addConverterFunction(sourceFile: SourceFile): void {
     declarations: [
       {
         name: 'getPGPrismaConverter',
-        initializer: '(builder, dmmf) => getInternalPGPrismaConverter(builder, dmmf)',
+        initializer:
+          '(builder, dmmf) => getInternalPGPrismaConverter(builder, dmmf) as any',
         type: 'InitPGPrismaConverter',
       },
     ],
@@ -389,6 +419,20 @@ export function addPrismaTypes(sourceFile: SourceFile, dmmfModels: DMMF.Model[])
   })
 }
 
+export function addDmmf(sourceFile: SourceFile, dmmf: DMMF.Document): void {
+  sourceFile.addVariableStatement({
+    declarationKind: VariableDeclarationKind.Const,
+    declarations: [
+      {
+        name: 'dmmf',
+        initializer: `JSON.parse('${JSON.stringify(dmmf)}')`,
+        type: 'DMMF.Document',
+      },
+    ],
+    isExported: true,
+  })
+}
+
 export async function generate(
   dmmf: DMMF.Document,
   outputPath: string,
@@ -404,6 +448,7 @@ export async function generate(
   copyPrismaConverterInterfaces(outputFile)
   addConverterFunction(outputFile)
   addPrismaTypes(outputFile, dmmf.datamodel.models)
+  addDmmf(outputFile, dmmf)
 
   outputFile.formatText()
 
@@ -427,14 +472,14 @@ export function getPrismaImportPath(
   ) {
     return '@prisma/client'
   }
-  return path.relative(outputPath, prismaClientOutputPath)
+  const relativePath = path.relative(path.dirname(outputPath), prismaClientOutputPath)
+  return relativePath.startsWith('.') ? relativePath : `./${relativePath}`
 }
 
 generatorHandler({
   onManifest: () => ({
-    prettyName: 'PrismaGQL Generator',
-    defaultOutput:
-      'node_modules/@planet-graphql/planet-graphql/lib/generated/generated.d.ts',
+    prettyName: 'PlanetGraphQL Generator',
+    defaultOutput: 'node_modules/@planet-graphql/core/dist/generated/index.ts',
   }),
   onGenerate: async (options) => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

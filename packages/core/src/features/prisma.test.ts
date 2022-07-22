@@ -8,8 +8,12 @@ import {
   getPageInfo,
   getPrismaRelayArgs,
 } from './prisma'
-import type { SomePGTypes, SomePostPrismaArgs, SomeUserPrismaArgs } from '../types/test.util'
-import type { TypeEqual } from 'ts-expect';
+import type {
+  SomePGTypes,
+  SomePostPrismaArgs,
+  SomeUserPrismaArgs,
+} from '../types/test.util'
+import type { TypeEqual } from 'ts-expect'
 
 describe('prismaArgsFeature', () => {
   it('Separates received args into prismaArgs and args', async () => {
@@ -233,6 +237,84 @@ describe('prismaArgsFeature', () => {
       where: {
         isPublic: true,
       },
+    })
+  })
+
+  describe('With a relay field', () => {
+    it('Generates and returns include args', async () => {
+      let prismaArgs: any
+      const pg = getPGBuilder<SomePGTypes>()()
+      const user = pg
+        .object({
+          name: 'user',
+          fields: (b) => ({
+            id: b.id(),
+            posts: b
+              .relation(() => post)
+              .list()
+              .prismaArgs((b) => ({
+                take: b.int(),
+              })),
+          }),
+        })
+        .prismaModel('User')
+      const post = pg
+        .object({
+          name: 'post',
+          fields: (b) => ({
+            id: b.id(),
+            user: b.object(() => user),
+          }),
+        })
+        .prismaModel('Post')
+      pg.query({
+        name: 'users',
+        field: (b) =>
+          b
+            .object(() => user)
+            .relay()
+            .resolve((params) => {
+              prismaArgs = params.prismaArgs
+              return [
+                {
+                  id: '1',
+                  posts: [],
+                },
+              ]
+            }),
+      })
+      const query = `
+        query {
+          users(first: 10) {
+            edges {
+              node {
+                posts(take: 3) {
+                  id
+                }
+              }
+            }
+          }
+        }
+      `
+
+      const resp = await graphql({
+        schema: pg.build(),
+        source: query,
+        contextValue: {},
+      })
+
+      expect(resp.errors).toBeUndefined()
+      expect(prismaArgs).toEqual({
+        take: 11,
+        orderBy: {
+          id: 'asc',
+        },
+        include: {
+          posts: {
+            take: 3,
+          },
+        },
+      })
     })
   })
 })

@@ -47,7 +47,7 @@ export function modifyArgValueOfNullableOrOptionalField(
         acc[fieldName] = null
         return acc
       }
-      if (_.isPlainObject(arg)) {
+      if (_.isPlainObject(arg) && typeof fieldMap[fieldName].value.type === 'function') {
         const inputType: PGInput<PGInputFieldMap> = (
           fieldMap[fieldName].value.type as Function
         )()

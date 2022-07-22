@@ -1,43 +1,39 @@
-import fs from 'fs'
-import path from 'path'
 import { createServer } from '@graphql-yoga/node'
-import { getPGBuilder } from '@planet-graphql/core'
-import { getDMMF } from '@prisma/internals'
-import { getPGPrismaConverter } from './planet-graphql-types'
+import { pg, pgpc } from './graphql'
+import { attachment } from './models/attachment'
+import { post } from './models/post'
+import { user } from './models/user'
 import { PrismaClient } from './prisma-client'
+import { createAttachmentMutation } from './resolvers/attachment-resolver'
+import { createPostMutation, postQuery } from './resolvers/post-resolvers'
+import { usersQuery } from './resolvers/user-resolvers'
+import type { GraphQLError } from 'graphql'
 
-async function setupServer() {
-  const pg = getPGBuilder()()
-  const dmmf = await getDMMF({
-    datamodel: fs.readFileSync(path.join(__dirname, '../prisma/schema.prisma'), 'utf8'),
-  })
-  const pgpc = getPGPrismaConverter(pg, dmmf)
-  const prisma = new PrismaClient()
-  const { objects, inputs } = pgpc.convert()
+export const prisma = new PrismaClient({
+  log: ['query', 'info', 'warn', 'error'],
+})
+export const { objects, getRelations } = pgpc.convertOutputs({
+  User: () => user,
+  Post: () => post,
+  Attachment: () => attachment,
+})
 
-  pg.query({
-    name: 'users',
-    field: (b) =>
-      b
-        .object(() => objects('User'))
-        .prismaArgs(() =>
-          inputs('findManyUser')
-            .edit((f) => ({
-              where: f.where,
-            }))
-            .build('FindManyUser', pg),
-        )
-        .list()
-        .resolve(async ({ prismaArgs }) => {
-          return await prisma.user.findMany(prismaArgs)
-        }),
-  })
+// TODO:
+// Fix this. Change interface to accept PGRootFieldConfig by pg.build().
+const a = [usersQuery, postQuery, createPostMutation, createAttachmentMutation]
 
-  const server = createServer({
-    schema: pg.build(),
-  })
+const server = createServer({
+  schema: pg.build(),
+  maskedErrors: {
+    formatError: (e) => {
+      const error = e as GraphQLError
+      console.log(error.originalError?.stack)
+      return error
+    },
+  },
+  context: {
+    userId: 1,
+  },
+})
 
-  await server.start()
-}
-
-setupServer()
+server.start().catch((error) => console.log(error))

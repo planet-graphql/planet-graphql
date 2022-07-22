@@ -7,14 +7,18 @@
   "types": "src/index.ts",
   "scripts": {
     "start": "node -r @swc-node/register src/index.ts",
+    "lint": "eslint 'src/**/*.ts'",
     "prisma": "prisma"
   },
   "dependencies": {
     "@graphql-yoga/node": "^2.11.2",
     "@planet-graphql/core": "workspace:*",
     "@prisma/client": "^4.0.0",
-    "@prisma/internals": "^4.0.0",
     "graphql": "^16.5.0",
+    "lodash": "^4.17.21",
     "prisma": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.182"
   }
 }
