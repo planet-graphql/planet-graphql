@@ -315,7 +315,7 @@ describe('PGPrismaConverter', () => {
       }))
       .build('FindManySomeModel', pg)
 
-    pg.query({
+    const someModelsQuery = pg.query({
       name: 'someModels',
       field: (b) =>
         b
@@ -333,7 +333,7 @@ describe('PGPrismaConverter', () => {
     `
 
     const response = await graphql({
-      schema: pg.build(),
+      schema: pg.build([someModelsQuery]),
       source: query,
       contextValue: {},
     })

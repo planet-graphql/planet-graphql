@@ -21,7 +21,7 @@ describe('prismaArgsFeature', () => {
     let prismaArgs: any
     const pg = getPGBuilder()()
 
-    pg.query({
+    const someQuery = pg.query({
       name: 'someQuery',
       field: (b) =>
         b
@@ -48,7 +48,7 @@ describe('prismaArgsFeature', () => {
     `
 
     await graphql({
-      schema: pg.build(),
+      schema: pg.build([someQuery]),
       source: query,
       contextValue: {},
     })
@@ -82,7 +82,7 @@ describe('prismaArgsFeature', () => {
       })
       .prismaModel('Post')
 
-    pg.query({
+    const someQuery = pg.query({
       name: 'users',
       field: (b) =>
         b
@@ -113,7 +113,7 @@ describe('prismaArgsFeature', () => {
       `
 
     await graphql({
-      schema: pg.build(),
+      schema: pg.build([someQuery]),
       source: query,
       contextValue: {},
     })
@@ -176,7 +176,7 @@ describe('prismaArgsFeature', () => {
       })
       .prismaModel('Post')
 
-    pg.query({
+    const usersQuery = pg.query({
       name: 'users',
       field: (b) =>
         b
@@ -216,7 +216,7 @@ describe('prismaArgsFeature', () => {
       `
 
     await graphql({
-      schema: pg.build(),
+      schema: pg.build([usersQuery]),
       source: query,
       contextValue: {},
     })
@@ -267,7 +267,7 @@ describe('prismaArgsFeature', () => {
           }),
         })
         .prismaModel('Post')
-      pg.query({
+      const usersQuery = pg.query({
         name: 'users',
         field: (b) =>
           b
@@ -298,7 +298,7 @@ describe('prismaArgsFeature', () => {
       `
 
       const resp = await graphql({
-        schema: pg.build(),
+        schema: pg.build([usersQuery]),
         source: query,
         contextValue: {},
       })
@@ -330,7 +330,7 @@ describe('prismaRelayFeature', () => {
         }),
       })
       .prismaModel('User')
-    pg.query({
+    const usersQuery = pg.query({
       name: 'users',
       field: (f) =>
         f
@@ -362,7 +362,7 @@ describe('prismaRelayFeature', () => {
       }
     `
     const response = await graphql({
-      schema: pg.build(),
+      schema: pg.build([usersQuery]),
       source: query,
       contextValue: {},
     })
@@ -402,7 +402,7 @@ describe('prismaRelayFeature', () => {
         }),
       })
       .prismaModel('User')
-    pg.query({
+    const usersQuery = pg.query({
       name: 'users',
       field: (f) =>
         f
@@ -449,7 +449,7 @@ describe('prismaRelayFeature', () => {
       }
     `
     await graphql({
-      schema: pg.build(),
+      schema: pg.build([usersQuery]),
       source: query,
       contextValue: {},
     })
@@ -475,7 +475,7 @@ describe('prismaRelayFeature', () => {
           }),
         })
         .prismaModel('User')
-      pg.query({
+      const usersQuery = pg.query({
         name: 'users',
         field: (f) =>
           f
@@ -500,7 +500,7 @@ describe('prismaRelayFeature', () => {
         }
       `
       const response = await graphql({
-        schema: pg.build(),
+        schema: pg.build([usersQuery]),
         source: query,
         contextValue: {},
       })
@@ -524,7 +524,7 @@ describe('prismaRelayFeature', () => {
           }),
         })
         .prismaModel('User')
-      pg.query({
+      const usersQuery = pg.query({
         name: 'users',
         field: (f) =>
           f
@@ -550,7 +550,7 @@ describe('prismaRelayFeature', () => {
         }
       `
       await graphql({
-        schema: pg.build(),
+        schema: pg.build([usersQuery]),
         source: query,
         contextValue: {},
       })
@@ -574,7 +574,7 @@ describe('prismaRelayFeature', () => {
           }),
         })
         .prismaModel('User')
-      pg.query({
+      const usersQuery = pg.query({
         name: 'users',
         field: (f) =>
           f
@@ -608,7 +608,7 @@ describe('prismaRelayFeature', () => {
         }
       `
       await graphql({
-        schema: pg.build(),
+        schema: pg.build([usersQuery]),
         source: query,
         contextValue: {},
       })

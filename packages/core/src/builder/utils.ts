@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import type { PGCache, PGConfig, PGObjectRef, PGRootFieldConfig } from '../types/builder'
+import type { PGCache, PGConfig, PGObjectRef } from '../types/builder'
 import type { PGEnum } from '../types/common'
 import type { PGInput } from '../types/input'
 import type { PGInterface, PGObject, PGUnion } from '../types/output'
@@ -22,9 +22,6 @@ export function createBuilderCache(scalarMap: PGConfig['scalars']): PGCache {
     interface: {},
     input: {},
     enum: {},
-    query: {},
-    mutation: {},
-    subscription: {},
   }
 }
 
@@ -36,8 +33,7 @@ export function setCache(
     | PGUnion<any>
     | PGInterface<any>
     | PGInput<any>
-    | PGEnum<any>
-    | PGRootFieldConfig,
+    | PGEnum<any>,
 ): void {
   cache[value.kind][value.name] = value
 }

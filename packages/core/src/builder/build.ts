@@ -7,10 +7,11 @@ import { convertToGraphQLObject } from '../objects/pg-object'
 import { convertToGraphQLFieldConfig } from '../objects/pg-output-field'
 import { convertToGraphQLUnion } from '../objects/pg-union'
 import type { GraphqlTypeRef, PGBuilder, PGTypes } from '../types/builder'
+import type { GraphQLFieldConfig } from 'graphql'
 
 export const build: <Types extends PGTypes>(
   getBuilder: () => PGBuilder<Types>,
-) => PGBuilder<Types>['build'] = (getBuilder) => () => {
+) => PGBuilder<Types>['build'] = (getBuilder) => (rootFieldConfigs) => {
   const builder = getBuilder()
   const cache = builder.cache()
   const typeRef: GraphqlTypeRef = () => ({
@@ -38,44 +39,56 @@ export const build: <Types extends PGTypes>(
   )
   const query = new GraphQLObjectType({
     name: 'Query',
-    fields: _.mapValues(cache.query, (pgRootFieldConfig) =>
-      convertToGraphQLFieldConfig(
-        pgRootFieldConfig.field,
-        pgRootFieldConfig.name,
-        'Query',
-        builder,
-        typeRef,
-      ),
-    ),
+    fields: rootFieldConfigs
+      .filter((x) => x.kind === 'query')
+      .reduce<{ [key: string]: GraphQLFieldConfig<any, any> }>((acc, x) => {
+        acc[x.name] = convertToGraphQLFieldConfig(
+          x.field,
+          x.name,
+          'Query',
+          builder,
+          typeRef,
+        )
+        return acc
+      }, {}),
   })
+  const mutationConfigs = rootFieldConfigs.filter((x) => x.kind === 'mutation')
   const mutation =
-    Object.keys(cache.mutation).length > 0
+    mutationConfigs.length > 0
       ? new GraphQLObjectType({
           name: 'Mutation',
-          fields: _.mapValues(cache.mutation, (pgRootFieldConfig) =>
-            convertToGraphQLFieldConfig(
-              pgRootFieldConfig.field,
-              pgRootFieldConfig.name,
-              'Mutation',
-              builder,
-              typeRef,
-            ),
+          fields: mutationConfigs.reduce<{ [key: string]: GraphQLFieldConfig<any, any> }>(
+            (acc, x) => {
+              acc[x.name] = convertToGraphQLFieldConfig(
+                x.field,
+                x.name,
+                'Mutation',
+                builder,
+                typeRef,
+              )
+              return acc
+            },
+            {},
           ),
         })
       : undefined
+  const subscriptionConfigs = rootFieldConfigs.filter((x) => x.kind === 'subscription')
   const subscription =
-    Object.keys(cache.subscription).length > 0
+    subscriptionConfigs.length > 0
       ? new GraphQLObjectType({
           name: 'Subscription',
-          fields: _.mapValues(cache.subscription, (pgRootFieldConfig) =>
-            convertToGraphQLFieldConfig(
-              pgRootFieldConfig.field,
-              pgRootFieldConfig.name,
+          fields: subscriptionConfigs.reduce<{
+            [key: string]: GraphQLFieldConfig<any, any>
+          }>((acc, x) => {
+            acc[x.name] = convertToGraphQLFieldConfig(
+              x.field,
+              x.name,
               'Subscription',
               builder,
               typeRef,
-            ),
-          ),
+            )
+            return acc
+          }, {}),
         })
       : undefined
   return new GraphQLSchema({

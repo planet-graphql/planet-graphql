@@ -131,7 +131,7 @@ export interface PGBuilder<
     name: string
     field: (b: PGOutputFieldBuilder<Types>) => TOutput
   }) => PGRootFieldConfig
-  build: () => GraphQLSchema
+  build: (rootFieldConfigs: PGRootFieldConfig[]) => GraphQLSchema
   dataloader: <TResolve, TSource>(
     params: PGResolveParams<TSource, any, any, any, TResolve>,
     batchLoadFn: (sourceList: readonly TSource[]) => ResolveResponse<TResolve[]>,
@@ -157,9 +157,6 @@ export interface PGCache {
   interface: { [name: string]: PGInterface<PGOutputFieldMap> }
   input: { [name: string]: PGInput<PGInputFieldMap> }
   enum: { [name: string]: PGEnum<string[]> }
-  query: { [name: string]: PGRootFieldConfig }
-  mutation: { [name: string]: PGRootFieldConfig }
-  subscription: { [name: string]: PGRootFieldConfig }
 }
 
 export type GraphqlTypeRef = () => {

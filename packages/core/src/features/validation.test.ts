@@ -7,14 +7,14 @@ import { createInputField } from '../objects/pg-input-field'
 import { DefaultScalars } from '../objects/pg-scalar'
 import { modifyArgValueOfNullableOrOptionalField, validateArgs } from './validation'
 import type { SomePGTypes } from '../types/test.util'
-import type { TypeEqual } from 'ts-expect';
+import type { TypeEqual } from 'ts-expect'
 
 describe('optionalArgsFeature', () => {
   it('Modify arg value of Nullable or Optional field', async () => {
     const pg = getPGBuilder()()
 
     let args
-    pg.query({
+    const someQuery = pg.query({
       name: 'someQuery',
       field: (b) =>
         b
@@ -45,7 +45,7 @@ describe('optionalArgsFeature', () => {
     }`
 
     await graphql({
-      schema: pg.build(),
+      schema: pg.build([someQuery]),
       source: query,
       contextValue: {},
     })
@@ -117,7 +117,7 @@ describe('modifyArgValueOfNullableOrOptionalField', () => {
 describe('validationFeature', () => {
   it('Validates args with schema', async () => {
     const pg = getPGBuilder<SomePGTypes<{ role: 'User' | 'Admin' }>>()()
-    pg.query({
+    const someQuery = pg.query({
       name: 'someQuery',
       field: (b) =>
         b
@@ -148,7 +148,7 @@ describe('validationFeature', () => {
     `
 
     const resp = await graphql({
-      schema: pg.build(),
+      schema: pg.build([someQuery]),
       source: query,
       contextValue: {},
     })
