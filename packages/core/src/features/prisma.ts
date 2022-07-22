@@ -33,7 +33,7 @@ export const prismaArgsFeature: PGFeature = {
 export function getPrismaArgs(
   field: PGOutputField<any>,
   resolveTree: ResolveTree,
-  depth = 0,
+  isInner = false,
 ): object | true | undefined {
   const prismaArgs = pickArgs(
     resolveTree.args,
@@ -46,6 +46,17 @@ export function getPrismaArgs(
   if (isSclarOrEnumField) {
     return prismaArgs
   }
+
+  const isRelayField = field.value.relay?.isRelay === true
+  if (isRelayField) {
+    const nodeTree = getRelayNodeResolveTree(resolveTree)
+    if (nodeTree === undefined) {
+      return prismaArgs
+    }
+    const nodeField = getRelayNodeField(field)
+    return _.assign({}, getPrismaArgs(nodeField, nodeTree, true), prismaArgs)
+  }
+
   const fieldTypeObject: PGObject<PGOutputFieldMap> = fieldType()
   const isPrismaObject = fieldTypeObject.value.prismaModelName !== undefined
   if (!isPrismaObject) {
@@ -58,7 +69,7 @@ export function getPrismaArgs(
       const pgOutputField = fieldTypeObject.value.fieldMap[fieldName]
       const isRelationField = pgOutputField.value.isPrismaRelation === true
       if (isRelationField) {
-        acc[fieldName] = getPrismaArgs(pgOutputField, tree, depth + 1)
+        acc[fieldName] = getPrismaArgs(pgOutputField, tree, true)
       }
       return acc
     },
@@ -68,7 +79,7 @@ export function getPrismaArgs(
   const mergedPrismaArgs = _.isEmpty(includeArgs)
     ? prismaArgs
     : { ...prismaArgs, include: includeArgs }
-  return _.isEmpty(mergedPrismaArgs) ? (depth === 0 ? undefined : true) : mergedPrismaArgs
+  return _.isEmpty(mergedPrismaArgs) ? (isInner ? true : undefined) : mergedPrismaArgs
 }
 
 export function pickArgs(
@@ -88,6 +99,17 @@ export function pickArgs(
   }, {})
 }
 
+export function getRelayNodeField(field: PGOutputField<any>): PGOutputField<any> {
+  const originalType = field.value.type as () => PGObject<any>
+  const edgeType = originalType().value.fieldMap.edges.value.type as () => PGObject<any>
+  const nodeField = edgeType().value.fieldMap.node
+  return nodeField
+}
+
+export function getRelayNodeResolveTree(tree: ResolveTree): ResolveTree | undefined {
+  return _.values(_.values(tree.fieldsByTypeName)[0].edges.fieldsByTypeName)[0].node
+}
+
 export const prismaRelayFeature: PGFeature = {
   name: 'prismaRelay',
   beforeConvertToGraphQLFieldConfig: (field, fieldName, sourceTypeName, builder) => {
@@ -95,7 +117,7 @@ export const prismaRelayFeature: PGFeature = {
       return field
     }
 
-    const namePrefix = `${sourceTypeName}${_.upperCase(fieldName)}`
+    const namePrefix = `${sourceTypeName}${_.upperFirst(fieldName)}`
     const typeObject: PGObject<PGOutputFieldMap> = (field.value.type as Function)()
     const createCursorFn = field.value.relay?.cursor ?? getDefaultCursor(typeObject)
     const originalResolve = field.value.resolve
