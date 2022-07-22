@@ -1,47 +1,39 @@
 import { createServer } from '@graphql-yoga/node'
-import { getPGBuilder } from '@planet-graphql/core'
-import { dmmf, getPGPrismaConverter } from './planet-graphql-types'
+import { pg, pgpc } from './graphql'
+import { attachment } from './models/attachment'
+import { post } from './models/post'
+import { user } from './models/user'
 import { PrismaClient } from './prisma-client'
-import type { PrismaTypes } from './planet-graphql-types'
+import { createAttachmentMutation } from './resolvers/attachment-resolver'
+import { createPostMutation, postQuery } from './resolvers/post-resolvers'
+import { usersQuery } from './resolvers/user-resolvers'
+import type { GraphQLError } from 'graphql'
 
-const pg = getPGBuilder<{ Prisma: PrismaTypes }>()()
-const pgpc = getPGPrismaConverter(pg, dmmf)
-const prisma = new PrismaClient()
-const { objects, inputs } = pgpc.convert()
-
-pg.mutation({
-  name: 'createAttachment',
-  field: (b) =>
-    b
-      .object(() => objects('Attachment'))
-      .args(() => ({
-        input: inputs('createOneAttachment').build('CreateOneAttachment', pg, true),
-      }))
-      .resolve(({ args }) => {
-        return prisma.attachment.create(args.input)
-      }),
+export const prisma = new PrismaClient({
+  log: ['query', 'info', 'warn', 'error'],
+})
+export const { objects, getRelations } = pgpc.convertOutputs({
+  User: () => user,
+  Post: () => post,
+  Attachment: () => attachment,
 })
 
-pg.query({
-  name: 'attachments',
-  field: (b) =>
-    b
-      .object(() => objects('Attachment'))
-      .prismaArgs(() =>
-        inputs('findManyAttachment')
-          .edit((f) => ({
-            where: f.where,
-          }))
-          .build('FindManyAttachment', pg),
-      )
-      .list()
-      .resolve(({ prismaArgs }) => {
-        return prisma.attachment.findMany(prismaArgs)
-      }),
-})
+// TODO:
+// Fix this. Change interface to accept PGRootFieldConfig by pg.build().
+const a = [usersQuery, postQuery, createPostMutation, createAttachmentMutation]
 
 const server = createServer({
   schema: pg.build(),
+  maskedErrors: {
+    formatError: (e) => {
+      const error = e as GraphQLError
+      console.log(error.originalError?.stack)
+      return error
+    },
+  },
+  context: {
+    userId: 1,
+  },
 })
 
 server.start().catch((error) => console.log(error))
