@@ -1,9 +1,8 @@
 import { expectType } from 'ts-expect'
-import { getPGBuilder } from '..'
 import type { PGTypes } from './builder'
 import type { PGInput, PGInputField } from './input'
 import type { PGInputFactory, PGInputFactoryUnion } from './input-factory'
-import type { TypeEqual } from 'ts-expect';
+import type { TypeEqual } from 'ts-expect'
 
 describe.skip('PGInputFactory', () => {
   it('Type is evaluated correctly even if it contains circular references', () => {
@@ -47,7 +46,6 @@ describe.skip('PGInputFactory', () => {
       PGTypes
     >
 
-    const pg = getPGBuilder()()
     const userWhere: UserWhereFactory = null as any
     const postWhere: PostWhereFactory = null as any
 
@@ -74,7 +72,7 @@ describe.skip('PGInputFactory', () => {
           })),
         })),
       }))
-      .build('UserWhere', pg, true)
+      .build({ wrap: true })
 
     expectType<
       TypeEqual<
@@ -136,7 +134,7 @@ describe.skip('PGInputFactory', () => {
           in: f.in,
         })),
       }))
-      .build('PostWhere', pg)
+      .build()
 
     expectType<
       TypeEqual<

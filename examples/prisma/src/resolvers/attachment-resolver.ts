@@ -10,7 +10,7 @@ export const createAttachmentMutation = pg.mutation({
       .args(() =>
         inputs.createOneAttachment
           .edit((f) => ({
-            data: f.data.select('AttachmentUncheckedCreateInput').edit((f) => ({
+            input: f.data.select('AttachmentUncheckedCreateInput').edit((f) => ({
               name: f.name,
               buffer: f.buffer,
               // TODO:
@@ -20,14 +20,12 @@ export const createAttachmentMutation = pg.mutation({
               postId: f.postId,
             })),
           }))
-          // TODO:
-          // Prefix names should be changed to be optional.
-          .build('CreateOneAttachment', pg),
+          .build(),
       )
       .resolve(async ({ context, args }) => {
         await prisma.post.findFirstOrThrow({
           where: {
-            id: args.data.postId,
+            id: args.input.postId,
             authorId: context.userId,
           },
         })
@@ -37,8 +35,8 @@ export const createAttachmentMutation = pg.mutation({
         // https://github.com/prisma/prisma/issues/14274
         const created = await prisma.attachment.create({
           data: {
-            ...args.data,
-            size: args.data.buffer.byteLength,
+            ...args.input,
+            size: args.input.buffer.byteLength,
           },
         })
         return created

@@ -28,7 +28,7 @@ export const createPostMutation = pg.mutation({
       .args(() =>
         inputs.createOnePost
           .edit((f) => ({
-            data: f.data
+            input: f.data
               .select('PostUncheckedCreateInput')
               .edit((f) => ({
                 title: f.title.validation((schema) => schema.max(20)),
@@ -39,12 +39,12 @@ export const createPostMutation = pg.mutation({
                 return !(value.title.length === 0 && value.isPublic)
               }),
           }))
-          .build('PostUncheckedCreateInput', pg),
+          .build(),
       )
       .resolve(async ({ context, args }) => {
         const created = await prisma.post.create({
           data: {
-            ...args.data,
+            ...args.input,
             authorId: context.userId,
           },
         })

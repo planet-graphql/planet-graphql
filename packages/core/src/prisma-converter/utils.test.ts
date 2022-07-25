@@ -107,8 +107,9 @@ describe('convertDMMFArgToPGInputFactoryField', () => {
           } as const,
         ],
       }
+      const pg = getPGBuilder()()
 
-      const result = convertDMMFArgToPGInputFactoryField(arg, {}, {})
+      const result = convertDMMFArgToPGInputFactoryField(arg, {}, {}, pg)
 
       expect(result).toEqual(
         mergeDefaultInputFactoryUnion({
@@ -148,8 +149,9 @@ describe('convertDMMFArgToPGInputFactoryField', () => {
           } as const,
         ],
       }
+      const pg = getPGBuilder()()
 
-      const result = convertDMMFArgToPGInputFactoryField(arg, {}, {})
+      const result = convertDMMFArgToPGInputFactoryField(arg, {}, {}, pg)
 
       expect(result).toEqual(
         mergeDefaultInputField({
@@ -169,6 +171,7 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
         location: 'scalar',
         isList: false,
       } as const
+      const pg = getPGBuilder()()
 
       const result = convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
         inputType,
@@ -176,6 +179,7 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
         {},
         false,
         false,
+        pg,
       )
 
       expect(result).toEqual(
@@ -193,6 +197,7 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
           location: 'scalar',
           isList: true,
         } as const
+        const pg = getPGBuilder()()
 
         const result = convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
           inputType,
@@ -200,6 +205,7 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
           {},
           true,
           true,
+          pg,
         )
 
         expect(result).toEqual(
@@ -226,6 +232,7 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
       const pgEnumMap = {
         SomeEnum: createPGEnum('SomeEnum', ['A', 'B']),
       }
+      const pg = getPGBuilder()()
 
       const result = convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
         inputType,
@@ -233,6 +240,7 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
         pgEnumMap,
         false,
         false,
+        pg,
       )
 
       expect(result).toEqual(
@@ -260,6 +268,7 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
           }),
         },
       }
+      const pg = getPGBuilder()()
 
       const result = convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
         inputType,
@@ -267,6 +276,7 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
         {},
         false,
         false,
+        pg,
       ) as () => PGInputFactory<any>
 
       expect(result()).toEqual(
@@ -292,6 +302,7 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
             }),
           },
         }
+        const pg = getPGBuilder()()
 
         const result = convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
           inputType,
@@ -299,6 +310,7 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
           {},
           true,
           true,
+          pg,
         ) as () => PGInputFactory<any>
 
         expect(result()).toEqual(

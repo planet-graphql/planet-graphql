@@ -12,9 +12,9 @@ export const usersQuery = pg.query({
         inputs.findManyUser
           .edit((f) => ({
             where: f.where,
-            orderBy: f.orderBy.select('UserOrderByWithRelationInput'),
+            orderBy: f.orderBy,
           }))
-          .build('FindManyUser', pg),
+          .build(),
       )
       .resolve(async (params) => {
         return await prisma.user.findMany(params.prismaArgs)

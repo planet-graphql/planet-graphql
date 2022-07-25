@@ -49,6 +49,7 @@ export interface PGInputFactory<
 > {
   name: string
   value: PGFieldValue & {
+    builder: PGBuilder<any>
     fieldMap: ExtractPGInputFactoryFieldMap<T>
     validator?: (value: any) => boolean
   }
@@ -90,11 +91,16 @@ export interface PGInputFactory<
     ) => boolean,
   ) => this
   edit: <
-    TEditedFieldMap extends {
-      [P in keyof ExtractPGInputFactoryFieldMap<T>]?: PGInputFactoryField
-    },
+    TEditedFieldMap extends
+      | {
+          [P in keyof ExtractPGInputFactoryFieldMap<T>]?: PGInputFactoryField
+        }
+      | {
+          [name: string]: PGInputFactoryField
+        },
   >(
     callback: (f: PGEditInputFactoryFieldMap<T>) => TEditedFieldMap,
+    name?: string,
   ) => {
     [P in keyof TEditedFieldMap]: Exclude<TEditedFieldMap[P], undefined>
   } extends infer U
@@ -104,11 +110,10 @@ export interface PGInputFactory<
         : PGInputFactory<U | ExtractNullish<T>, Types>
       : never
     : never
-  build: <TWrap extends boolean>(
-    inputNamePrefix: string,
-    builder: PGBuilder<any>,
-    wrap?: TWrap,
-  ) => Exclude<TWrap, undefined> extends true
+  build: <TWrap extends boolean>(config?: {
+    wrap?: TWrap
+    inputNamePrefix?: string
+  }) => Exclude<TWrap, undefined> extends true
     ? ConvertPGInputFactoryFieldMapField<this>
     : {
         [P in keyof ExtractPGInputFactoryFieldMap<T>]: ConvertPGInputFactoryFieldMapField<

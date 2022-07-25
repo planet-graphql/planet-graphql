@@ -1,21 +1,23 @@
 import _ from 'lodash'
 import { createPGInputFactory } from '../objects/pg-input-factory'
 import { convertDMMFArgsToPGInputFactoryFieldMap } from './utils'
-import type { PGTypes } from '../types/builder'
+import type { PGBuilder, PGTypes } from '../types/builder'
 import type { PGEnum } from '../types/common'
 import type { PGInputFactory, PGInputFactoryFieldMap } from '../types/input-factory'
 import type { PGPrismaConverter } from '../types/prisma-converter'
 import type { DMMF } from '@prisma/generator-helper'
 
 export const getConvertInputsFunction: <Types extends PGTypes>(
+  builder: PGBuilder<Types>,
   dmmf: DMMF.Document,
   pgEnumMap: Record<string, PGEnum<any>>,
-) => PGPrismaConverter<Types>['convertInputs'] = (dmmf, pgEnumMap) => () => {
-  const pgInputFactoryMap = convertToPGInputFactoryMap(dmmf.schema, pgEnumMap)
+) => PGPrismaConverter<Types>['convertInputs'] = (builder, dmmf, pgEnumMap) => () => {
+  const pgInputFactoryMap = convertToPGInputFactoryMap(builder, dmmf.schema, pgEnumMap)
   return pgInputFactoryMap
 }
 
 export function convertToPGInputFactoryMap(
+  builder: PGBuilder<any>,
   dmmfSchema: DMMF.Schema,
   pgEnumMap: Record<string, PGEnum<any>>,
 ): Record<string, PGInputFactory<any>> {
@@ -25,6 +27,7 @@ export function convertToPGInputFactoryMap(
       inputType.fields,
       inputFactoryFieldMapRef,
       pgEnumMap,
+      builder,
     )
     inputFactoryFieldMapRef[inputType.name] = fieldMap
   }
@@ -36,10 +39,12 @@ export function convertToPGInputFactoryMap(
         dmmfSchemaField.args,
         inputFactoryFieldMapRef,
         pgEnumMap,
+        builder,
       )
       const inputFactory = createPGInputFactory(
         _.upperFirst(dmmfSchemaField.name),
         fieldMap,
+        builder,
       )
       acc[dmmfSchemaField.name] = inputFactory
       return acc
