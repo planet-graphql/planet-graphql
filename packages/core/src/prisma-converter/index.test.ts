@@ -313,7 +313,7 @@ describe('PGPrismaConverter', () => {
         orderBy: f.orderBy,
         where: f.where,
       }))
-      .build('FindManySomeModel', pg)
+      .build()
 
     const someModelsQuery = pg.query({
       name: 'someModels',

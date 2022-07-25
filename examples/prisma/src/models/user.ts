@@ -10,7 +10,7 @@ export const user = pgpc
       posts: b
         .relation(() => post)
         .list()
-        .prismaArgs(() => inputs.findManyPost.build('FindManyPost', pg)),
+        .prismaArgs(() => inputs.findManyPost.build()),
       fullName: b.string(),
       latestPost: b.object(() => postWithoutRelation).nullable(),
     }),

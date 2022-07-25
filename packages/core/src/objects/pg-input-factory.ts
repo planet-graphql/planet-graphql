@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import { createInputField } from './pg-input-field'
 import type { PGBuilder, PGTypes } from '../types/builder'
 import type { PGInput, PGInputField, PGInputFieldMap } from '../types/input'
@@ -11,13 +10,12 @@ import type {
 } from '../types/input-factory'
 
 export function buildPGInputFactoryInWrap(
-  prefix: string,
   factory: PGInputFactory<any>,
-  builder: PGBuilder,
+  builder: PGBuilder<any>,
   inputRef: Record<string, PGInput<any> | null>,
 ): PGInputField<any> {
   inputRef[factory.name] = null
-  const pgInputFieldMap = buildPGInputFactory(prefix, factory, builder, inputRef)
+  const pgInputFieldMap = buildPGInputFactory(factory, builder, inputRef)
   inputRef[factory.name] = builder.input({
     name: factory.name,
     fields: () => pgInputFieldMap,
@@ -29,41 +27,32 @@ export function buildPGInputFactoryInWrap(
 }
 
 export function buildPGInputFactory(
-  prefix: string,
   factory: PGInputFactory<any>,
-  builder: PGBuilder,
+  builder: PGBuilder<any>,
   inputRef: Record<string, PGInput<any> | null>,
 ): PGInputFieldMap {
   return Object.entries(factory.value.fieldMap as PGInputFactoryFieldMap).reduce<{
     [name: string]: PGInputField<any>
   }>((acc, [key, factory]) => {
-    acc[key] = convertPGInputFactoryFieldToPGInputField(
-      `${prefix}${_.upperFirst(key)}`,
-      factory,
-      builder,
-      inputRef,
-    )
+    acc[key] = convertPGInputFactoryFieldToPGInputField(factory, builder, inputRef)
     return acc
   }, {})
 }
 
 export function convertPGInputFactoryFieldToPGInputField(
-  name: string,
   field: PGInputFactoryField,
-  builder: PGBuilder,
+  builder: PGBuilder<any>,
   inputRef: Record<string, PGInput<any> | null>,
 ): PGInputField<any> {
   if (typeof field === 'function' || 'fieldMap' in field.value) {
     const pgInputFactory = (
       typeof field === 'function' ? field() : field
     ) as PGInputFactory<any>
-    if (pgInputFactory.name === '') pgInputFactory.name = name
     if (inputRef[pgInputFactory.name] === undefined) {
       const newPGInput = builder.input({
         name: pgInputFactory.name,
         fields: () => {
           const pgInputField = buildPGInputFactoryInWrap(
-            pgInputFactory.name,
             pgInputFactory,
             builder,
             inputRef,
@@ -90,7 +79,6 @@ export function convertPGInputFactoryFieldToPGInputField(
   }
   if ('factoryMap' in field.value) {
     return convertPGInputFactoryFieldToPGInputField(
-      name,
       (field as PGInputFactoryUnion<any>).value.factoryMap.__default,
       builder,
       inputRef,
@@ -121,11 +109,12 @@ export function createPGInputFactoryUnion<
 export function createPGInputFactory<
   T extends PGInputFactoryFieldMap,
   Types extends PGTypes,
->(name: string, fieldMap: T): PGInputFactory<T, Types> {
+>(name: string, fieldMap: T, builder: PGBuilder<Types>): PGInputFactory<T, Types> {
   const pgInputFactory: PGInputFactory<any> = {
     name,
     value: {
       fieldMap,
+      builder,
       kind: 'object',
       type: Function,
       isOptional: false,
@@ -157,18 +146,19 @@ export function createPGInputFactory<
       pgInputFactory.value.validator = builder
       return pgInputFactory
     },
-    edit: (e) => {
+    edit: (c, name) => {
       const fieldMap = Object.entries(pgInputFactory.value.fieldMap).reduce<{
         [name: string]: PGInputFactory<any> | PGInputFactoryUnion<any> | PGInputField<any>
       }>((acc, [key, value]) => {
         acc[key] = typeof value === 'function' ? value() : value
         return acc
       }, {})
-      const editedFieldMap = e(fieldMap as PGEditInputFactoryFieldMap<any>)
+      const editedFieldMap = c(fieldMap as PGEditInputFactoryFieldMap<any>)
 
       const editedPGInputFactory: PGInputFactory<any> = createPGInputFactory(
-        '',
+        name ?? pgInputFactory.name,
         editedFieldMap as any,
+        builder,
       )
       if (pgInputFactory.value.isNullable) editedPGInputFactory.nullable()
       if (pgInputFactory.value.isOptional) editedPGInputFactory.optional()
@@ -179,13 +169,12 @@ export function createPGInputFactory<
         editedPGInputFactory.validation(pgInputFactory.value.validator)
       return editedPGInputFactory as any
     },
-    build: (prefix, builder, wrap) => {
-      if (pgInputFactory.name === '') pgInputFactory.name = prefix
+    build: (options) => {
       const inputRef: Record<string, PGInput<any> | null> = {}
       const result =
-        wrap === true
-          ? (buildPGInputFactoryInWrap(prefix, pgInputFactory, builder, inputRef) as any)
-          : buildPGInputFactory(prefix, pgInputFactory, builder, inputRef)
+        options?.wrap === true
+          ? (buildPGInputFactoryInWrap(pgInputFactory, builder, inputRef) as any)
+          : buildPGInputFactory(pgInputFactory, builder, inputRef)
       return result
     },
   }

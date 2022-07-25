@@ -19,7 +19,7 @@ export const getInternalPGPrismaConverter: InitPGPrismaConverter = (builder, dmm
   const objectRef: Record<string, PGObject<any>> = {}
   const converter: PGPrismaConverter<any> = {
     convertOutputs: getConvertOutputsFunction(builder, dmmf, pgEnumMap, objectRef),
-    convertInputs: getConvertInputsFunction(dmmf, pgEnumMap),
+    convertInputs: getConvertInputsFunction(builder, dmmf, pgEnumMap),
     update: getUpdateFunction(builder, dmmf, pgEnumMap, objectRef),
   }
   return converter as any

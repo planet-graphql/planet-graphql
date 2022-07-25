@@ -77,9 +77,15 @@ export function convertDMMFArgsToPGInputFactoryFieldMap(
   args: DMMF.SchemaArg[],
   fieldMapRef: Record<string, PGInputFactoryFieldMap>,
   pgEnumMap: Record<string, PGEnum<any>>,
+  builder: PGBuilder<any>,
 ): PGInputFactoryFieldMap {
   return args.reduce<PGInputFactoryFieldMap>((acc, arg) => {
-    acc[arg.name] = convertDMMFArgToPGInputFactoryField(arg, fieldMapRef, pgEnumMap)
+    acc[arg.name] = convertDMMFArgToPGInputFactoryField(
+      arg,
+      fieldMapRef,
+      pgEnumMap,
+      builder,
+    )
     return acc
   }, {})
 }
@@ -88,6 +94,7 @@ export function convertDMMFArgToPGInputFactoryField(
   arg: DMMF.SchemaArg,
   fieldMapRef: Record<string, PGInputFactoryFieldMap>,
   pgEnumMap: Record<string, PGEnum<any>>,
+  builder: PGBuilder<any>,
 ): PGInputFactoryField {
   const filteredInputTypes = arg.inputTypes.filter((x) => x.type !== 'Null')
   const filteredArg = {
@@ -96,13 +103,14 @@ export function convertDMMFArgToPGInputFactoryField(
   }
   const isUnion = filteredInputTypes.length > 1
   return isUnion
-    ? convertToDMMFArgToPGInputFactoryUnion(filteredArg, fieldMapRef, pgEnumMap)
+    ? convertToDMMFArgToPGInputFactoryUnion(filteredArg, fieldMapRef, pgEnumMap, builder)
     : convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
         arg.inputTypes[0],
         fieldMapRef,
         pgEnumMap,
         !arg.isRequired,
         arg.isNullable,
+        builder,
       )
 }
 
@@ -110,6 +118,7 @@ export function convertToDMMFArgToPGInputFactoryUnion(
   arg: DMMF.SchemaArg,
   fieldMapRef: Record<string, PGInputFactoryFieldMap>,
   pgEnumMap: Record<string, PGEnum<any>>,
+  builder: PGBuilder<any>,
 ): PGInputFactoryUnion<any> {
   const factoryMap = arg.inputTypes.reduce<PGInputFactoryFieldMap>((acc, inputType) => {
     const inputTypeName = inputType.type as string
@@ -120,6 +129,7 @@ export function convertToDMMFArgToPGInputFactoryUnion(
       pgEnumMap,
       !arg.isRequired,
       arg.isNullable,
+      builder,
     )
     return acc
   }, {})
@@ -136,6 +146,7 @@ export function convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
   pgEnumMap: Record<string, PGEnum<any>>,
   isOptional: boolean,
   isNullable: boolean,
+  builder: PGBuilder<any>,
 ): (() => PGInputFactory<any>) | PGInputField<any> {
   const isInputFactory = inputType.location === 'inputObjectTypes'
   if (isInputFactory) {
@@ -143,6 +154,7 @@ export function convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
       const inputFactory = createPGInputFactory<any, any>(
         inputType.type as string,
         fieldMapRef[inputType.type as string],
+        builder,
       )
       if (inputType.isList) inputFactory.list()
       if (isOptional) inputFactory.optional()

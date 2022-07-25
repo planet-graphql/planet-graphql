@@ -125,6 +125,7 @@ export function mergeDefaultInputFactory(
     value: Object.assign(
       {
         fieldMap: {},
+        builder: expect.any(Object),
         kind: 'object',
         type: Function,
         isOptional: false,
