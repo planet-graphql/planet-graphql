@@ -155,7 +155,11 @@ export interface PGOutputField<
   >
   relay: MethodGuard<
     () => PGOutputField<
-      Array<ExcludeNullish<T>> | ExtractNullish<T>,
+      ExcludeNullish<T> extends infer U
+        ? U extends any[]
+          ? U
+          : U[]
+        : never | ExtractNullish<T>,
       TSource,
       UpdatePGOptions<
         UpdatePGOptions<
