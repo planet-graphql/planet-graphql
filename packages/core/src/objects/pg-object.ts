@@ -57,7 +57,7 @@ export function createPGObject<
       setCache(cache, copy)
       return copy
     },
-    modify: (c) => {
+    implement: (c) => {
       c(pgObject.value.fieldMap as PGModifyOutputFieldMap<any>)
       return pgObject
     },

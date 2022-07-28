@@ -189,7 +189,7 @@ describe('PGObject', () => {
     })
   })
 
-  describe('modify', () => {
+  describe('implement', () => {
     it('Returns only value changed object & Changes the object in Builder Cache', () => {
       const builder = getPGBuilder()()
       const original = builder.object({
@@ -200,7 +200,7 @@ describe('PGObject', () => {
         }),
       })
 
-      const modified = original.modify((f) => ({
+      const modified = original.implement((f) => ({
         id: f.id.resolve((params) => `id: ${params.source.id}`),
       }))
 

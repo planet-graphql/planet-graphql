@@ -27,7 +27,7 @@ export function mergeDefaultPGObject(object: Partial<PGObject<any>>): PGObject<a
         fieldMap: {},
       },
       copy: expect.any(Function),
-      modify: expect.any(Function),
+      implement: expect.any(Function),
       prismaModel: expect.any(Function),
     },
     object,

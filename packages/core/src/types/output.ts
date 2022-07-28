@@ -44,7 +44,7 @@ export interface PGObject<
     name: string
     fields: (f: TOriginal, b: PGOutputFieldBuilder<Types>) => TUpdate
   }) => PGObject<TUpdate, TInterfaces, TOptions, Types>
-  modify: (
+  implement: (
     callback: (f: PGModifyOutputFieldMap<T>) => Partial<PGModifyOutputFieldMap<T>>,
   ) => this
   prismaModel: <TSetPrismaModelName extends GetPrismaModelNames<Types>>(
@@ -397,7 +397,7 @@ export type MethodGuard<
 > = IsCallable extends true ? T : NeverWithNote<TNote>
 
 export type TypeChangeMethodNote =
-  'Cannot call because it is not allowed to call a method that changes the PGObject type in the PGObject.modify() method'
+  'Cannot call because it is not allowed to call a method that changes the PGObject type in the PGObject.implement() method'
 
 export type RelayMethodNote = 'relay() method must be called in advance'
 

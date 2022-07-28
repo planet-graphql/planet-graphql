@@ -3,7 +3,7 @@ import { inputs, pg } from '../graphql'
 import { user } from '../models/user'
 import { Prisma } from '../prisma-client'
 
-user.modify((f) => ({
+user.implement((f) => ({
   fullName: f.fullName.resolve(({ source }) => source.firstName + source.lastName),
   latestPost: f.latestPost.resolve((params) => {
     return pg.dataloader(params, async (list) => {
@@ -28,8 +28,8 @@ export const usersQuery = pg.query({
   field: (b) =>
     b
       .object(() => user)
-      .auth(({ context }) => context.isAdmin)
       .relay()
+      .auth(({ context }) => context.isAdmin)
       .prismaArgs(() =>
         inputs.findManyUser
           .edit((f) => ({

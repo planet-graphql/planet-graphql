@@ -14,7 +14,7 @@ describe('DataloaderBuilder', () => {
           latestPost: f.object(() => post).nullable(),
         }),
       })
-      .modify((f) => ({
+      .implement((f) => ({
         latestPost: f.latestPost.resolve((params) => {
           return pg.dataloader(params, (users) => {
             spy()
