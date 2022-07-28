@@ -28,7 +28,7 @@ export interface PrismaObjectMap<
   TObjectRef extends { [key: string]: Function | undefined },
   Types extends PGTypes = PGTypes,
 > {
-  [key: string]: PGObject<any, any, any, Types>
+  [key: string]: () => PGObject<any, any, any, Types>
 }
 
 export interface PrismaEnumMap {
@@ -46,17 +46,19 @@ export type InitPGPrismaConverter = <Types extends PGTypes>(
 
 export interface PGPrismaConverter<Types extends PGTypes> {
   convertOutputs: <
-    TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function } = {},
+    TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function },
   >(
     updatedObjectRef?: TObjectRef,
   ) => {
-    objects: PrismaObjectMap<TObjectRef, Types>
+    objects: {
+      [P in keyof PrismaObjectMap<TObjectRef, Types>]: ReturnType<
+        PrismaObjectMap<TObjectRef, Types>[P]
+      >
+    }
     enums: PrismaEnumMap
-    getRelations: <TName extends keyof PrismaObjectMap<TObjectRef, Types>>(
+    getRelations: <TName extends keyof PrismaObjectMap<{}, Types>>(
       name: TName,
-    ) => Omit<PrismaObjectMap<TObjectRef, Types>, TName> extends infer U
-      ? { [P in keyof U]: () => U[P] }
-      : never
+    ) => Omit<PrismaObjectMap<TObjectRef, Types>, TName>
   }
   convertInputs: () => PrismaInputFactoryMap<Types>
   update: <
@@ -67,7 +69,7 @@ export interface PGPrismaConverter<Types extends PGTypes> {
   >(config: {
     name: TName
     fields: (
-      f: PrismaObjectMap<TObjectRef, Types>[TName] extends infer U
+      f: ReturnType<PrismaObjectMap<TObjectRef, Types>[TName]> extends infer U
         ? U extends PGObject<any>
           ? U['value']['fieldMap']
           : never

@@ -91,7 +91,7 @@ type PrismaObjectMap<
   TObjectRef extends { [key: string]: Function | undefined },
   Types extends PGTypes,
 > = {
-  User: PrismaObject<
+  User: () => PrismaObject<
     TObjectRef,
     'User',
     PGObject<
@@ -101,7 +101,7 @@ type PrismaObjectMap<
       Types
     >
   >
-  Post: PrismaObject<
+  Post: () => PrismaObject<
     TObjectRef,
     'Post',
     PGObject<
@@ -111,7 +111,7 @@ type PrismaObjectMap<
       Types
     >
   >
-  Attachment: PrismaObject<
+  Attachment: () => PrismaObject<
     TObjectRef,
     'Attachment',
     PGObject<
@@ -4708,17 +4708,19 @@ interface PrismaInputFactoryMap<Types extends PGTypes> {
 
 interface PGPrismaConverter<Types extends PGTypes> {
   convertOutputs: <
-    TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function } = {},
+    TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function },
   >(
     updatedObjectRef?: TObjectRef,
   ) => {
-    objects: PrismaObjectMap<TObjectRef, Types>
+    objects: {
+      [P in keyof PrismaObjectMap<TObjectRef, Types>]: ReturnType<
+        PrismaObjectMap<TObjectRef, Types>[P]
+      >
+    }
     enums: PrismaEnumMap
-    getRelations: <TName extends keyof PrismaObjectMap<TObjectRef, Types>>(
+    getRelations: <TName extends keyof PrismaObjectMap<{}, Types>>(
       name: TName,
-    ) => Omit<PrismaObjectMap<TObjectRef, Types>, TName> extends infer U
-      ? { [P in keyof U]: () => U[P] }
-      : never
+    ) => Omit<PrismaObjectMap<TObjectRef, Types>, TName>
   }
   convertInputs: () => PrismaInputFactoryMap<Types>
   update: <
@@ -4729,7 +4731,7 @@ interface PGPrismaConverter<Types extends PGTypes> {
   >(config: {
     name: TName
     fields: (
-      f: PrismaObjectMap<TObjectRef, Types>[TName] extends infer U
+      f: ReturnType<PrismaObjectMap<TObjectRef, Types>[TName]> extends infer U
         ? U extends PGObject<any>
           ? U['value']['fieldMap']
           : never

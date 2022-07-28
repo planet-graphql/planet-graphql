@@ -299,7 +299,7 @@ export function addModelTypes(sourceFile: SourceFile, dmmfModels: DMMF.Model[]):
       type: objectType({
         properties: dmmfModels.map((x) => ({
           name: x.name,
-          type: `PrismaObject<TObjectRef, '${x.name}', PGObject<${getModelTypeName(
+          type: `() => PrismaObject<TObjectRef, '${x.name}', PGObject<${getModelTypeName(
             x.name,
           )}<TObjectRef, Types>, undefined, { PrismaModelName: '${x.name}' }, Types>>`,
         })),

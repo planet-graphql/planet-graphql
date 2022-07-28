@@ -47,9 +47,9 @@ type Model3FieldMapType<TObjectRef extends { [key: string]: Function | undefined
     model1Id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
 };
 type PrismaObjectMap<TObjectRef extends { [key: string]: Function | undefined }, Types extends PGTypes> = {
-    Model1: PrismaObject<TObjectRef, 'Model1', PGObject<Model1FieldMapType<TObjectRef, Types>, undefined, { PrismaModelName: 'Model1' }, Types>>;
-    Model2: PrismaObject<TObjectRef, 'Model2', PGObject<Model2FieldMapType<TObjectRef, Types>, undefined, { PrismaModelName: 'Model2' }, Types>>;
-    Model3: PrismaObject<TObjectRef, 'Model3', PGObject<Model3FieldMapType<TObjectRef, Types>, undefined, { PrismaModelName: 'Model3' }, Types>>;
+    Model1: () => PrismaObject<TObjectRef, 'Model1', PGObject<Model1FieldMapType<TObjectRef, Types>, undefined, { PrismaModelName: 'Model1' }, Types>>;
+    Model2: () => PrismaObject<TObjectRef, 'Model2', PGObject<Model2FieldMapType<TObjectRef, Types>, undefined, { PrismaModelName: 'Model2' }, Types>>;
+    Model3: () => PrismaObject<TObjectRef, 'Model3', PGObject<Model3FieldMapType<TObjectRef, Types>, undefined, { PrismaModelName: 'Model3' }, Types>>;
 };
 type Model1ScalarFieldEnumFactory = PGEnum<['id', 'string', 'json', 'int', 'float', 'boolean', 'bigInt', 'dateTime', 'bytes', 'decimal', 'nullable', 'list', 'enum', 'enumList', 'enumNullable']>;
 type Model2ScalarFieldEnumFactory = PGEnum<['id', 'model1Id']>;
@@ -3050,17 +3050,19 @@ interface PrismaInputFactoryMap<Types extends PGTypes> {
 
 interface PGPrismaConverter<Types extends PGTypes> {
     convertOutputs: <
-        TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function } = {},
+        TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function },
         >(
         updatedObjectRef?: TObjectRef,
     ) => {
-        objects: PrismaObjectMap<TObjectRef, Types>
+        objects: {
+            [P in keyof PrismaObjectMap<TObjectRef, Types>]: ReturnType<
+                PrismaObjectMap<TObjectRef, Types>[P]
+            >
+        }
         enums: PrismaEnumMap
-        getRelations: <TName extends keyof PrismaObjectMap<TObjectRef, Types>>(
+        getRelations: <TName extends keyof PrismaObjectMap<{}, Types>>(
             name: TName,
-        ) => Omit<PrismaObjectMap<TObjectRef, Types>, TName> extends infer U
-            ? { [P in keyof U]: () => U[P] }
-            : never
+        ) => Omit<PrismaObjectMap<TObjectRef, Types>, TName>
     };
     convertInputs: () => PrismaInputFactoryMap<Types>;
     update: <
@@ -3071,7 +3073,7 @@ interface PGPrismaConverter<Types extends PGTypes> {
         >(config: {
             name: TName
             fields: (
-                f: PrismaObjectMap<TObjectRef, Types>[TName] extends infer U
+                f: ReturnType<PrismaObjectMap<TObjectRef, Types>[TName]> extends infer U
                     ? U extends PGObject<any>
                     ? U['value']['fieldMap']
                     : never
