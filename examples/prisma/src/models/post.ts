@@ -13,5 +13,5 @@ export const post = pgpc.update({
 
 export const postWithoutRelation = post.copy({
   name: 'PostWithoutRelation',
-  fields: (f) => _.omit(f, ['author', 'attachments']),
+  fields: (f) => _.omit(f, 'author', 'attachments'),
 })

@@ -9,7 +9,7 @@ import type {
   PGInterface,
   PGObjectOptionsDefault,
 } from '../types/output'
-import type { TypeEqual } from 'ts-expect';
+import type { TypeEqual } from 'ts-expect'
 
 describe('PGObject', () => {
   describe('builder', () => {
@@ -92,13 +92,14 @@ describe('PGObject', () => {
         name: 'Original',
         fields: (b) => ({
           id: b.id(),
+          type: b.string(),
         }),
       })
 
       const copy = original.copy({
         name: 'Copy',
         fields: (f, b) => ({
-          ...f,
+          id: f.id,
           name: b.string(),
         }),
       })
