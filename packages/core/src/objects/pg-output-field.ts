@@ -7,10 +7,13 @@ import { convertToGraphQLInputFieldConfig, getRelayInputFieldMap } from './pg-in
 import { getGraphQLFieldConfigType } from './util'
 import type { GraphqlTypeRef, PGBuilder, PGTypes } from '../types/builder'
 import type { PGFieldKindAndType } from '../types/common'
-import type { GraphQLResolveParams, PGFeatureBeforeResolveResponse } from '../types/feature'
+import type {
+  GraphQLResolveParams,
+  PGFeatureBeforeResolveResponse,
+} from '../types/feature'
 import type { PGInputFieldBuilder } from '../types/input'
 import type { PGOutputFieldOptionsDefault, PGOutputField } from '../types/output'
-import type { GraphQLFieldConfig } from 'graphql';
+import type { GraphQLFieldConfig } from 'graphql'
 
 export function createOutputField<T, Types extends PGTypes>(
   kindAndType: PGFieldKindAndType,
@@ -97,8 +100,8 @@ export function createOutputField<T, Types extends PGTypes>(
       )
       return field
     },
-    auth: (checker) => {
-      field.value.authChecker = checker
+    auth: (x) => {
+      field.value.auth = x
       return field
     },
     __type: undefined as any,

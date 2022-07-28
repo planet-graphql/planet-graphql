@@ -6,13 +6,8 @@ export const authFeature: PGFeature = {
   name: 'auth',
   cacheKey: ({ info }) => `${info.parentType.name}:${info.fieldName}`,
   beforeResolve: async ({ field, resolveParams }) => {
-    const { context, args, info } = resolveParams
     const hasAuth =
-      field.value.authChecker === undefined ||
-      (await field.value.authChecker({
-        ctx: context,
-        args,
-      }))
+      field.value.auth === undefined || (await field.value.auth(resolveParams as any))
     if (hasAuth) {
       return {
         isCallNext: true,
@@ -27,7 +22,7 @@ export const authFeature: PGFeature = {
         unAuthResolveValue !== undefined
           ? undefined
           : new PGError(
-              `GraphQL permission denied. Field: ${info.parentType.name}.${info.fieldName}`,
+              `GraphQL permission denied. Field: ${resolveParams.info.parentType.name}.${resolveParams.info.fieldName}`,
               'AuthError',
             ),
     }

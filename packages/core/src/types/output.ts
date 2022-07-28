@@ -84,10 +84,15 @@ export interface PGOutputField<
       >,
     ) => ResolveResponse<TypeOfPGFieldType<T>>
     subscribe?: ResolverFn
-    authChecker?: (x: {
-      ctx: Types['Context']
-      args: TypeOfPGFieldMap<Exclude<TOptions['Args'], undefined>>
-    }) => boolean | Promise<boolean>
+    auth?: (
+      params: PGResolveParams<
+        TSource,
+        TypeOfPGFieldMap<Exclude<TOptions['Args'], undefined>>,
+        TypeOfPGFieldMap<Exclude<TOptions['PrismaArgs'], undefined>>,
+        Types['Context'],
+        number
+      >,
+    ) => boolean | Promise<boolean>
     isPrismaRelation?: boolean
     relay?: {
       isRelay?: boolean
@@ -254,10 +259,14 @@ export interface PGOutputField<
     },
   ) => this
   auth: (
-    checker: (x: {
-      ctx: Types['Context']
-      args: TypeOfPGFieldMap<Exclude<TOptions['Args'], undefined>>
-    }) => boolean | Promise<boolean>,
+    callback: (
+      params: PGSubscribeParams<
+        TSource,
+        TypeOfPGFieldMap<Exclude<TOptions['Args'], undefined>>,
+        Types['Context'],
+        TypeOfPGFieldType<T>
+      >,
+    ) => boolean | Promise<boolean>,
   ) => this
 }
 
