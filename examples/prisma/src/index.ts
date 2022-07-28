@@ -29,6 +29,7 @@ const server = createServer({
   },
   context: {
     userId: 1,
+    isAdmin: true,
   },
 })
 

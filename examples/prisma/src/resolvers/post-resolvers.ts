@@ -15,6 +15,7 @@ export const postQuery = pg.query({
           ...prismaArgs,
           where: {
             id: args.id,
+            isPublic: true,
           },
         })
       }),

@@ -5,7 +5,7 @@ import { pgpc } from '../graphql'
 export const post = pgpc.update({
   name: 'Post',
   fields: (f, b) => ({
-    ..._.omit(f, 'isPublic'),
+    ...f,
     attachments: f.attachments.relay(),
   }),
   relations: () => getRelations('Post'),
