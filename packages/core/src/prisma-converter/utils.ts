@@ -1,19 +1,19 @@
 import _ from 'lodash'
 import { PGError } from '../builder/utils'
+import { createPGArgBuilder, createPGArgBuilderUnion } from '../objects/pg-arg-builder'
 import { createPGEnum } from '../objects/pg-enum'
-import { createPGArgBuilder, createPGArgBuilderUnion } from '../objects/pg-input-factory'
 import { createInputField } from '../objects/pg-input-field'
 import { createPGObject } from '../objects/pg-object'
 import { createOutputField } from '../objects/pg-output-field'
-import type { PGBuilder } from '../types/builder'
-import type { PGEnum, PGFieldKindAndType } from '../types/common'
-import type { PGInputField } from '../types/input'
 import type {
   PGArgBuilder,
   PGArgBuilderField,
   PGArgBuilderFieldMap,
   PGArgBuilderUnion,
-} from '../types/input-factory'
+} from '../types/arg-builder'
+import type { PGBuilder } from '../types/builder'
+import type { PGEnum, PGFieldKindAndType } from '../types/common'
+import type { PGInputField } from '../types/input'
 import type { PGObject, PGOutputFieldMap } from '../types/output'
 import type { DMMF } from '@prisma/generator-helper'
 

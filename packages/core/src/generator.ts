@@ -213,6 +213,11 @@ export function addImports(sourceFile: SourceFile, prismaImportPath: string): vo
       isTypeOnly: true,
     },
     {
+      namedImports: ['PGArgBuilder', 'PGArgBuilderUnion'],
+      moduleSpecifier: '@planet-graphql/core/dist/types/arg-builder',
+      isTypeOnly: true,
+    },
+    {
       namedImports: ['PGTypes', 'PGBuilder'],
       moduleSpecifier: '@planet-graphql/core/dist/types/builder',
       isTypeOnly: true,
@@ -233,11 +238,6 @@ export function addImports(sourceFile: SourceFile, prismaImportPath: string): vo
     {
       namedImports: ['PGInputField'],
       moduleSpecifier: '@planet-graphql/core/dist/types/input',
-      isTypeOnly: true,
-    },
-    {
-      namedImports: ['PGArgBuilder', 'PGArgBuilderUnion'],
-      moduleSpecifier: '@planet-graphql/core/dist/types/input-factory',
       isTypeOnly: true,
     },
     {

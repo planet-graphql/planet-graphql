@@ -1,9 +1,9 @@
 import _ from 'lodash'
-import { createPGArgBuilder } from '../objects/pg-input-factory'
+import { createPGArgBuilder } from '../objects/pg-arg-builder'
 import { convertDMMFArgsToPGArgBuilderFieldMap } from './utils'
+import type { PGArgBuilder, PGArgBuilderFieldMap } from '../types/arg-builder'
 import type { PGBuilder, PGTypes } from '../types/builder'
 import type { PGEnum } from '../types/common'
-import type { PGArgBuilder, PGArgBuilderFieldMap } from '../types/input-factory'
 import type { PGPrismaConverter } from '../types/prisma-converter'
 import type { DMMF } from '@prisma/generator-helper'
 

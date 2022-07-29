@@ -1,13 +1,13 @@
 import { createInputField } from './pg-input-field'
-import type { PGBuilder, PGTypes } from '../types/builder'
-import type { PGInput, PGInputField, PGInputFieldMap } from '../types/input'
 import type {
   PGEditArgBuilderFieldMap,
   PGArgBuilderField,
   PGArgBuilderFieldMap,
   PGArgBuilderUnion,
   PGArgBuilder,
-} from '../types/input-factory'
+} from '../types/arg-builder'
+import type { PGBuilder, PGTypes } from '../types/builder'
+import type { PGInput, PGInputField, PGInputFieldMap } from '../types/input'
 
 export function buildPGArgBuilderInWrap(
   argBuilder: PGArgBuilder<any>,

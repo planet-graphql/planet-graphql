@@ -1,5 +1,5 @@
+import type { PGArgBuilderUnion, PGArgBuilder } from './types/arg-builder'
 import type { PGInput, PGInputField } from './types/input'
-import type { PGArgBuilderUnion, PGArgBuilder } from './types/input-factory'
 import type { PGInterface, PGObject, PGOutputField, PGUnion } from './types/output'
 
 export function mergeDefaultPGInput(input: Partial<PGInput<any>>): PGInput<any> {

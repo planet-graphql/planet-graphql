@@ -1,6 +1,6 @@
+import type { PGArgBuilder } from './arg-builder'
 import type { PGTypes, PGBuilder } from './builder'
 import type { PGEnum, TypeOfPGFieldMap } from './common'
-import type { PGArgBuilder } from './input-factory'
 import type {
   ConvertPGInterfacesToFieldMap,
   GetPrismaModelNames,

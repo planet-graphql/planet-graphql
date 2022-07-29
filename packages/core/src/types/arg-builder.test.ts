@@ -1,7 +1,7 @@
 import { expectType } from 'ts-expect'
+import type { PGArgBuilder, PGArgBuilderUnion } from './arg-builder'
 import type { PGTypes } from './builder'
 import type { PGInput, PGInputField } from './input'
-import type { PGArgBuilder, PGArgBuilderUnion } from './input-factory'
 import type { TypeEqual } from 'ts-expect'
 
 describe.skip('PGArgBuilder', () => {

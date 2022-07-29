@@ -1,4 +1,5 @@
 import type { DefaultScalars } from '../objects/pg-scalar'
+import type { PGArgBuilder } from './arg-builder'
 import type {
   PGEnum,
   PGScalar,
@@ -9,7 +10,6 @@ import type {
   TypeOfPGUnion,
 } from './common'
 import type { PGInput, PGInputFieldBuilder, PGInputFieldMap } from './input'
-import type { PGArgBuilder } from './input-factory'
 import type {
   ConvertPGInterfacesToFieldMap,
   PGInterface,

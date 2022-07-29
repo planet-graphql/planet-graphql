@@ -5,16 +5,16 @@ import {
   mergeDefaultPGInput,
   mergeDefaultInputField,
 } from '../test-utils'
-import { createPGEnum } from './pg-enum'
 import {
   createPGArgBuilderUnion,
   createPGArgBuilder,
   convertPGArgBuilderFieldToPGInputField,
-} from './pg-input-factory'
+} from './pg-arg-builder'
+import { createPGEnum } from './pg-enum'
 import { createInputField } from './pg-input-field'
+import type { PGArgBuilder } from '../types/arg-builder'
 import type { PGTypes } from '../types/builder'
 import type { PGInput } from '../types/input'
-import type { PGArgBuilder } from '../types/input-factory'
 
 describe('createPGArgBuilder', () => {
   it('Returns the entity of PGArgBuilder', () => {

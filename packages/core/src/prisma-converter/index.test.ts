@@ -9,7 +9,7 @@ import {
   mergeDefaultPGObject,
 } from '../test-utils'
 import { getInternalPGPrismaConverter } from '.'
-import type { PGArgBuilder, PGArgBuilderUnion } from '../types/input-factory'
+import type { PGArgBuilder, PGArgBuilderUnion } from '../types/arg-builder'
 import type { DMMF } from '@prisma/generator-helper'
 
 async function getSampleDMMF(): Promise<DMMF.Document> {

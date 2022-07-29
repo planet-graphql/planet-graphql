@@ -3,10 +3,10 @@
 exports[`generate the whole dmmf is passed Type definitions (Snapshot) of pgfy return values are generated according to Prisma's Schema 1`] = `
 "import type { Prisma } from \\"@prisma/client\\";
 import type { DMMF } from \\"@prisma/client/runtime\\";
+import type { PGArgBuilder, PGArgBuilderUnion } from \\"@planet-graphql/core/dist/types/arg-builder\\";
 import type { PGTypes, PGBuilder } from \\"@planet-graphql/core/dist/types/builder\\";
 import type { PGEnum, PGDecimal, PGInputDecimal, PGJson, PGInputJson, TypeOfPGFieldMap, RequiredNonNullable } from \\"@planet-graphql/core/dist/types/common\\";
 import type { PGInputField } from \\"@planet-graphql/core/dist/types/input\\";
-import type { PGArgBuilder, PGArgBuilderUnion } from \\"@planet-graphql/core/dist/types/input-factory\\";
 import type { PGOutputField, PGOutputFieldOptionsDefault, PGObject, PGOutputFieldMap, PGInterface, PGOutputFieldBuilder, ConvertPGInterfacesToFieldMap, PGObjectOptionsDefault, GetPrismaModelNames } from \\"@planet-graphql/core/dist/types/output\\";
 import type { PrismaObject } from \\"@planet-graphql/core/dist/types/prisma-converter\\";
 

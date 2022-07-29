@@ -14,7 +14,7 @@ import {
   convertDMMFArgToPGArgBuilderField,
   convertDMMFModelToPGObject,
 } from './utils'
-import type { PGArgBuilder } from '../types/input-factory'
+import type { PGArgBuilder } from '../types/arg-builder'
 import type { DMMF } from '@prisma/generator-helper'
 
 async function getSampleDMMF(): Promise<DMMF.Document> {
