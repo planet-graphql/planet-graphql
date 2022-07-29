@@ -1,5 +1,5 @@
 import type { PGInput, PGInputField } from './types/input'
-import type { PGInputFactoryUnion, PGInputFactory } from './types/input-factory'
+import type { PGArgBuilderUnion, PGArgBuilder } from './types/input-factory'
 import type { PGInterface, PGObject, PGOutputField, PGUnion } from './types/output'
 
 export function mergeDefaultPGInput(input: Partial<PGInput<any>>): PGInput<any> {
@@ -116,10 +116,10 @@ export function mergeDefaultOutputField(
   }
 }
 
-export function mergeDefaultInputFactory(
+export function mergeDefaultArgBuilder(
   name: string,
-  value: Partial<PGInputFactory<any>['value']>,
-): PGInputFactory<any> {
+  value: Partial<PGArgBuilder<any>['value']>,
+): PGArgBuilder<any> {
   return {
     name,
     value: Object.assign(
@@ -145,13 +145,13 @@ export function mergeDefaultInputFactory(
   }
 }
 
-export function mergeDefaultInputFactoryUnion(
-  value: Partial<PGInputFactoryUnion<any>['value']>,
-): PGInputFactoryUnion<any> {
+export function mergeDefaultArgBuilderUnion(
+  value: Partial<PGArgBuilderUnion<any>['value']>,
+): PGArgBuilderUnion<any> {
   return {
     value: Object.assign(
       {
-        factoryMap: {},
+        builderMap: {},
       },
       value,
     ),

@@ -1,16 +1,16 @@
 import { expectType } from 'ts-expect'
 import type { PGTypes } from './builder'
 import type { PGInput, PGInputField } from './input'
-import type { PGInputFactory, PGInputFactoryUnion } from './input-factory'
+import type { PGArgBuilder, PGArgBuilderUnion } from './input-factory'
 import type { TypeEqual } from 'ts-expect'
 
-describe.skip('PGInputFactory', () => {
+describe.skip('PGArgBuilder', () => {
   it('Type is evaluated correctly even if it contains circular references', () => {
-    type UserWhereFactory = PGInputFactory<
+    type UserWhereArgBuilder = PGArgBuilder<
       {
-        AND: () => PGInputFactory<[UserWhereFactory['value']['fieldMap']], PGTypes>
-        name: PGInputFactoryUnion<{
-          StringFilter: () => PGInputFactory<
+        AND: () => PGArgBuilder<[UserWhereArgBuilder['value']['fieldMap']], PGTypes>
+        name: PGArgBuilderUnion<{
+          StringFilter: () => PGArgBuilder<
             {
               equals: PGInputField<string, 'string', PGTypes>
               in: PGInputField<string[], 'string', PGTypes>
@@ -21,9 +21,9 @@ describe.skip('PGInputFactory', () => {
           __default: PGInputField<string, 'string', PGTypes>
         }>
         age: PGInputField<number, 'int', PGTypes>
-        posts: () => PGInputFactory<
+        posts: () => PGArgBuilder<
           {
-            every: () => PostWhereFactory
+            every: () => PostWhereArgBuilder
           },
           PGTypes
         >
@@ -31,23 +31,23 @@ describe.skip('PGInputFactory', () => {
       PGTypes
     >
 
-    type PostWhereFactory = PGInputFactory<
+    type PostWhereArgBuilder = PGArgBuilder<
       {
-        AND: () => PGInputFactory<[PostWhereFactory['value']['fieldMap']], PGTypes>
-        title: () => PGInputFactory<
+        AND: () => PGArgBuilder<[PostWhereArgBuilder['value']['fieldMap']], PGTypes>
+        title: () => PGArgBuilder<
           {
             equals: PGInputField<string, 'string', PGTypes>
             in: PGInputField<string[], 'string', PGTypes>
           },
           PGTypes
         >
-        author: () => UserWhereFactory
+        author: () => UserWhereArgBuilder
       },
       PGTypes
     >
 
-    const userWhere: UserWhereFactory = null as any
-    const postWhere: PostWhereFactory = null as any
+    const userWhere: UserWhereArgBuilder = null as any
+    const postWhere: PostWhereArgBuilder = null as any
 
     const userEdited = userWhere
       .edit((f) => ({

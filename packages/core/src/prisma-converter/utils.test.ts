@@ -3,18 +3,18 @@ import { getPGBuilder } from '..'
 import { createPGEnum } from '../objects/pg-enum'
 import { createInputField } from '../objects/pg-input-field'
 import {
-  mergeDefaultInputFactory,
-  mergeDefaultInputFactoryUnion,
+  mergeDefaultArgBuilder,
+  mergeDefaultArgBuilderUnion,
   mergeDefaultInputField,
   mergeDefaultOutputField,
   mergeDefaultPGObject,
 } from '../test-utils'
 import {
-  convertDMMFArgInputTypeToPGInputFactoryOrPGInputField,
-  convertDMMFArgToPGInputFactoryField,
+  convertDMMFArgInputTypeToPGArgBuilderOrPGInputField,
+  convertDMMFArgToPGArgBuilderField,
   convertDMMFModelToPGObject,
 } from './utils'
-import type { PGInputFactory } from '../types/input-factory'
+import type { PGArgBuilder } from '../types/input-factory'
 import type { DMMF } from '@prisma/generator-helper'
 
 async function getSampleDMMF(): Promise<DMMF.Document> {
@@ -87,9 +87,9 @@ describe('convertDMMFModelToPGObject', () => {
   })
 })
 
-describe('convertDMMFArgToPGInputFactoryField', () => {
+describe('convertDMMFArgToPGArgBuilderField', () => {
   describe('The arg has multiple inputTypes', () => {
-    it('Returns a PGInputFactoryUnion', () => {
+    it('Returns a PGArgBuilderUnion', () => {
       const arg = {
         name: 'SomeArg',
         isRequired: true,
@@ -109,11 +109,11 @@ describe('convertDMMFArgToPGInputFactoryField', () => {
       }
       const pg = getPGBuilder()()
 
-      const result = convertDMMFArgToPGInputFactoryField(arg, {}, {}, pg)
+      const result = convertDMMFArgToPGArgBuilderField(arg, {}, {}, pg)
 
       expect(result).toEqual(
-        mergeDefaultInputFactoryUnion({
-          factoryMap: {
+        mergeDefaultArgBuilderUnion({
+          builderMap: {
             __default: mergeDefaultInputField({
               kind: 'scalar',
               type: 'int',
@@ -136,7 +136,7 @@ describe('convertDMMFArgToPGInputFactoryField', () => {
   })
 
   describe('The arg has one inputType', () => {
-    it('Returns a PGInputField or a Function that returns a PGinputFactory', () => {
+    it('Returns a PGInputField or a Function that returns a PGArgBuilder', () => {
       const arg = {
         name: 'SomeArg',
         isRequired: true,
@@ -151,7 +151,7 @@ describe('convertDMMFArgToPGInputFactoryField', () => {
       }
       const pg = getPGBuilder()()
 
-      const result = convertDMMFArgToPGInputFactoryField(arg, {}, {}, pg)
+      const result = convertDMMFArgToPGArgBuilderField(arg, {}, {}, pg)
 
       expect(result).toEqual(
         mergeDefaultInputField({
@@ -163,7 +163,7 @@ describe('convertDMMFArgToPGInputFactoryField', () => {
   })
 })
 
-describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
+describe('convertDMMFArgInputTypeToPGArgBuilderOrPGInputField', () => {
   describe('InputType is a scalar type', () => {
     it('Returns a scalar PGInputField', () => {
       const inputType = {
@@ -173,7 +173,7 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
       } as const
       const pg = getPGBuilder()()
 
-      const result = convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
+      const result = convertDMMFArgInputTypeToPGArgBuilderOrPGInputField(
         inputType,
         {},
         {},
@@ -199,7 +199,7 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
         } as const
         const pg = getPGBuilder()()
 
-        const result = convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
+        const result = convertDMMFArgInputTypeToPGArgBuilderOrPGInputField(
           inputType,
           {},
           {},
@@ -234,7 +234,7 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
       }
       const pg = getPGBuilder()()
 
-      const result = convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
+      const result = convertDMMFArgInputTypeToPGArgBuilderOrPGInputField(
         inputType,
         {},
         pgEnumMap,
@@ -253,7 +253,7 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
   })
 
   describe('InputType is a inputObjectType', () => {
-    it('Returns a function that returns a PGInputFactory', () => {
+    it('Returns a function that returns a PGArgBuilder', () => {
       const inputType = {
         type: 'SomeInput',
         namespace: 'prisma',
@@ -270,24 +270,24 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
       }
       const pg = getPGBuilder()()
 
-      const result = convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
+      const result = convertDMMFArgInputTypeToPGArgBuilderOrPGInputField(
         inputType,
         fieldMap,
         {},
         false,
         false,
         pg,
-      ) as () => PGInputFactory<any>
+      ) as () => PGArgBuilder<any>
 
       expect(result()).toEqual(
-        mergeDefaultInputFactory('SomeInput', {
+        mergeDefaultArgBuilder('SomeInput', {
           fieldMap: fieldMap.SomeInput,
         }),
       )
     })
 
     describe('InputType is list, optional and nullable', () => {
-      it('Returns a function that returns a listed, optional and nullable PGInputFactory', () => {
+      it('Returns a function that returns a listed, optional and nullable PGArgBuilder', () => {
         const inputType = {
           type: 'SomeInput',
           namespace: 'prisma',
@@ -304,17 +304,17 @@ describe('convertDMMFArgInputTypeToPGInputFactoryOrPGInputField', () => {
         }
         const pg = getPGBuilder()()
 
-        const result = convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
+        const result = convertDMMFArgInputTypeToPGArgBuilderOrPGInputField(
           inputType,
           fieldMap,
           {},
           true,
           true,
           pg,
-        ) as () => PGInputFactory<any>
+        ) as () => PGArgBuilder<any>
 
         expect(result()).toEqual(
-          mergeDefaultInputFactory('SomeInput', {
+          mergeDefaultArgBuilder('SomeInput', {
             fieldMap: fieldMap.SomeInput,
             isList: true,
             isOptional: true,

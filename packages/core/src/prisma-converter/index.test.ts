@@ -2,14 +2,14 @@ import { getDMMF } from '@prisma/internals'
 import { graphql } from 'graphql'
 import { getPGBuilder } from '..'
 import {
-  mergeDefaultInputFactory,
-  mergeDefaultInputFactoryUnion,
+  mergeDefaultArgBuilder,
+  mergeDefaultArgBuilderUnion,
   mergeDefaultInputField,
   mergeDefaultOutputField,
   mergeDefaultPGObject,
 } from '../test-utils'
 import { getInternalPGPrismaConverter } from '.'
-import type { PGInputFactory, PGInputFactoryUnion } from '../types/input-factory'
+import type { PGArgBuilder, PGArgBuilderUnion } from '../types/input-factory'
 import type { DMMF } from '@prisma/generator-helper'
 
 async function getSampleDMMF(): Promise<DMMF.Document> {
@@ -173,15 +173,15 @@ describe('PGPrismaConverter', () => {
     const inputs = pgpc.convertInputs()
     const findFirstSomeModel = inputs.findFirstSomeModel
     const findFirstSomeModelOrderByDefault = (
-      findFirstSomeModel.value.fieldMap.orderBy as PGInputFactoryUnion<any>
+      findFirstSomeModel.value.fieldMap.orderBy as PGArgBuilderUnion<any>
     ).select('SomeModelOrderByWithRelationInput')
-    const findFirstSomeModelWhere: PGInputFactory<any> =
+    const findFirstSomeModelWhere: PGArgBuilder<any> =
       findFirstSomeModel.value.fieldMap.where()
-    const findFirstSomeModelWhereAND: PGInputFactory<any> = (
-      findFirstSomeModelWhere.value.fieldMap.AND as PGInputFactoryUnion<any>
+    const findFirstSomeModelWhereAND: PGArgBuilder<any> = (
+      findFirstSomeModelWhere.value.fieldMap.AND as PGArgBuilderUnion<any>
     ).select('SomeModelWhereInput')
 
-    const expectFindFirstSomeModel = mergeDefaultInputFactory('FindFirstSomeModel', {
+    const expectFindFirstSomeModel = mergeDefaultArgBuilder('FindFirstSomeModel', {
       fieldMap: {
         cursor: expect.any(Function),
         distinct: mergeDefaultInputField({
@@ -190,8 +190,8 @@ describe('PGPrismaConverter', () => {
           isList: true,
           isOptional: true,
         }),
-        orderBy: mergeDefaultInputFactoryUnion({
-          factoryMap: {
+        orderBy: mergeDefaultArgBuilderUnion({
+          builderMap: {
             __default: expect.any(Function),
             SomeModelOrderByWithRelationInput: expect.any(Function),
             SomeModelOrderByWithRelationInputList: expect.any(Function),
@@ -210,7 +210,7 @@ describe('PGPrismaConverter', () => {
         where: expect.any(Function),
       },
     })
-    const expectFindFirstSomeModelOrderByDefault = mergeDefaultInputFactory(
+    const expectFindFirstSomeModelOrderByDefault = mergeDefaultArgBuilder(
       'SomeModelOrderByWithRelationInput',
       {
         fieldMap: {
@@ -234,64 +234,61 @@ describe('PGPrismaConverter', () => {
         isOptional: true,
       },
     )
-    const expectFindFirstSomeModelWhere = mergeDefaultInputFactory(
-      'SomeModelWhereInput',
-      {
-        fieldMap: {
-          AND: mergeDefaultInputFactoryUnion({
-            factoryMap: {
-              __default: expect.any(Function),
-              SomeModelWhereInput: expect.any(Function),
-              SomeModelWhereInputList: expect.any(Function),
-            },
-          }),
-          NOT: mergeDefaultInputFactoryUnion({
-            factoryMap: {
-              __default: expect.any(Function),
-              SomeModelWhereInput: expect.any(Function),
-              SomeModelWhereInputList: expect.any(Function),
-            },
-          }),
-          OR: expect.any(Function),
-          enum: mergeDefaultInputFactoryUnion({
-            factoryMap: {
-              __default: expect.any(Function),
-              EnumSomeEnumFilter: expect.any(Function),
-              SomeEnum: mergeDefaultInputField({
-                kind: 'enum',
-                type: enums.SomeEnum,
-                isOptional: true,
-              }),
-            },
-          }),
-          id: mergeDefaultInputFactoryUnion({
-            factoryMap: {
-              __default: expect.any(Function),
-              IntFilter: expect.any(Function),
-              Int: mergeDefaultInputField({
-                kind: 'scalar',
-                type: 'int',
-                isOptional: true,
-              }),
-            },
-          }),
-          relations: expect.any(Function),
-          scalar: mergeDefaultInputFactoryUnion({
-            factoryMap: {
-              __default: expect.any(Function),
-              StringNullableFilter: expect.any(Function),
-              String: mergeDefaultInputField({
-                kind: 'scalar',
-                type: 'string',
-                isOptional: true,
-                isNullable: true,
-              }),
-            },
-          }),
-        },
-        isOptional: true,
+    const expectFindFirstSomeModelWhere = mergeDefaultArgBuilder('SomeModelWhereInput', {
+      fieldMap: {
+        AND: mergeDefaultArgBuilderUnion({
+          builderMap: {
+            __default: expect.any(Function),
+            SomeModelWhereInput: expect.any(Function),
+            SomeModelWhereInputList: expect.any(Function),
+          },
+        }),
+        NOT: mergeDefaultArgBuilderUnion({
+          builderMap: {
+            __default: expect.any(Function),
+            SomeModelWhereInput: expect.any(Function),
+            SomeModelWhereInputList: expect.any(Function),
+          },
+        }),
+        OR: expect.any(Function),
+        enum: mergeDefaultArgBuilderUnion({
+          builderMap: {
+            __default: expect.any(Function),
+            EnumSomeEnumFilter: expect.any(Function),
+            SomeEnum: mergeDefaultInputField({
+              kind: 'enum',
+              type: enums.SomeEnum,
+              isOptional: true,
+            }),
+          },
+        }),
+        id: mergeDefaultArgBuilderUnion({
+          builderMap: {
+            __default: expect.any(Function),
+            IntFilter: expect.any(Function),
+            Int: mergeDefaultInputField({
+              kind: 'scalar',
+              type: 'int',
+              isOptional: true,
+            }),
+          },
+        }),
+        relations: expect.any(Function),
+        scalar: mergeDefaultArgBuilderUnion({
+          builderMap: {
+            __default: expect.any(Function),
+            StringNullableFilter: expect.any(Function),
+            String: mergeDefaultInputField({
+              kind: 'scalar',
+              type: 'string',
+              isOptional: true,
+              isNullable: true,
+            }),
+          },
+        }),
       },
-    )
+      isOptional: true,
+    })
     expect(findFirstSomeModel).toEqual(expectFindFirstSomeModel)
     expect(findFirstSomeModelOrderByDefault).toEqual(
       expectFindFirstSomeModelOrderByDefault,

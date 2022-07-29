@@ -1,6 +1,6 @@
 import type { PGTypes, PGBuilder } from './builder'
 import type { PGEnum, TypeOfPGFieldMap } from './common'
-import type { PGInputFactory } from './input-factory'
+import type { PGArgBuilder } from './input-factory'
 import type {
   ConvertPGInterfacesToFieldMap,
   GetPrismaModelNames,
@@ -34,8 +34,8 @@ export interface PrismaEnumMap {
   [name: string]: PGEnum<any>
 }
 
-export interface PrismaInputFactoryMap<Types extends PGTypes> {
-  [name: string]: PGInputFactory<any, Types>
+export interface PrismaArgBuilderMap<Types extends PGTypes> {
+  [name: string]: PGArgBuilder<any, Types>
 }
 
 export type InitPGPrismaConverter = <Types extends PGTypes>(
@@ -59,7 +59,7 @@ export interface PGPrismaConverter<Types extends PGTypes> {
       name: TName,
     ) => Omit<PrismaObjectMap<TObjectRef, Types>, TName>
   }
-  convertInputs: () => PrismaInputFactoryMap<Types>
+  convertInputs: () => PrismaArgBuilderMap<Types>
   update: <
     TName extends Exclude<keyof PrismaObjectMap<{}, Types>, undefined | number>,
     TFieldMap extends PGOutputFieldMap,

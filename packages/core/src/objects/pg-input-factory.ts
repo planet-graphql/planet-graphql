@@ -2,84 +2,80 @@ import { createInputField } from './pg-input-field'
 import type { PGBuilder, PGTypes } from '../types/builder'
 import type { PGInput, PGInputField, PGInputFieldMap } from '../types/input'
 import type {
-  PGEditInputFactoryFieldMap,
-  PGInputFactoryField,
-  PGInputFactoryFieldMap,
-  PGInputFactoryUnion,
-  PGInputFactory,
+  PGEditArgBuilderFieldMap,
+  PGArgBuilderField,
+  PGArgBuilderFieldMap,
+  PGArgBuilderUnion,
+  PGArgBuilder,
 } from '../types/input-factory'
 
-export function buildPGInputFactoryInWrap(
-  factory: PGInputFactory<any>,
+export function buildPGArgBuilderInWrap(
+  argBuilder: PGArgBuilder<any>,
   builder: PGBuilder<any>,
   inputRef: Record<string, PGInput<any> | null>,
 ): PGInputField<any> {
-  inputRef[factory.name] = null
-  const pgInputFieldMap = buildPGInputFactory(factory, builder, inputRef)
-  inputRef[factory.name] = builder.input({
-    name: factory.name,
+  inputRef[argBuilder.name] = null
+  const pgInputFieldMap = buildPGArgBuilder(argBuilder, builder, inputRef)
+  inputRef[argBuilder.name] = builder.input({
+    name: argBuilder.name,
     fields: () => pgInputFieldMap,
   })
   return createInputField({
     kind: 'object',
-    type: () => inputRef[factory.name],
+    type: () => inputRef[argBuilder.name],
   })
 }
 
-export function buildPGInputFactory(
-  factory: PGInputFactory<any>,
+export function buildPGArgBuilder(
+  argBuilder: PGArgBuilder<any>,
   builder: PGBuilder<any>,
   inputRef: Record<string, PGInput<any> | null>,
 ): PGInputFieldMap {
-  return Object.entries(factory.value.fieldMap as PGInputFactoryFieldMap).reduce<{
+  return Object.entries(argBuilder.value.fieldMap as PGArgBuilderFieldMap).reduce<{
     [name: string]: PGInputField<any>
-  }>((acc, [key, factory]) => {
-    acc[key] = convertPGInputFactoryFieldToPGInputField(factory, builder, inputRef)
+  }>((acc, [key, argBuilder]) => {
+    acc[key] = convertPGArgBuilderFieldToPGInputField(argBuilder, builder, inputRef)
     return acc
   }, {})
 }
 
-export function convertPGInputFactoryFieldToPGInputField(
-  field: PGInputFactoryField,
+export function convertPGArgBuilderFieldToPGInputField(
+  field: PGArgBuilderField,
   builder: PGBuilder<any>,
   inputRef: Record<string, PGInput<any> | null>,
 ): PGInputField<any> {
   if (typeof field === 'function' || 'fieldMap' in field.value) {
-    const pgInputFactory = (
+    const pgArgBuilder = (
       typeof field === 'function' ? field() : field
-    ) as PGInputFactory<any>
-    if (inputRef[pgInputFactory.name] === undefined) {
+    ) as PGArgBuilder<any>
+    if (inputRef[pgArgBuilder.name] === undefined) {
       const newPGInput = builder.input({
-        name: pgInputFactory.name,
+        name: pgArgBuilder.name,
         fields: () => {
-          const pgInputField = buildPGInputFactoryInWrap(
-            pgInputFactory,
-            builder,
-            inputRef,
-          )
+          const pgInputField = buildPGArgBuilderInWrap(pgArgBuilder, builder, inputRef)
           return (pgInputField.value.type as Function)().value.fieldMap
         },
       })
-      if (pgInputFactory.value.validator !== undefined)
-        newPGInput.validation(pgInputFactory.value.validator)
-      inputRef[pgInputFactory.name] = newPGInput
+      if (pgArgBuilder.value.validator !== undefined)
+        newPGInput.validation(pgArgBuilder.value.validator)
+      inputRef[pgArgBuilder.name] = newPGInput
     }
 
     const newPGInputField = createInputField({
       kind: 'object',
-      type: () => inputRef[pgInputFactory.name],
+      type: () => inputRef[pgArgBuilder.name],
     })
-    if (pgInputFactory.value.isOptional) newPGInputField.optional()
-    if (pgInputFactory.value.isNullable) newPGInputField.nullable()
-    if (pgInputFactory.value.isList) newPGInputField.list()
-    if (pgInputFactory.value.default !== undefined)
-      newPGInputField.default(pgInputFactory.value.default)
+    if (pgArgBuilder.value.isOptional) newPGInputField.optional()
+    if (pgArgBuilder.value.isNullable) newPGInputField.nullable()
+    if (pgArgBuilder.value.isList) newPGInputField.list()
+    if (pgArgBuilder.value.default !== undefined)
+      newPGInputField.default(pgArgBuilder.value.default)
 
     return newPGInputField
   }
-  if ('factoryMap' in field.value) {
-    return convertPGInputFactoryFieldToPGInputField(
-      (field as PGInputFactoryUnion<any>).value.factoryMap.__default,
+  if ('builderMap' in field.value) {
+    return convertPGArgBuilderFieldToPGInputField(
+      (field as PGArgBuilderUnion<any>).value.builderMap.__default,
       builder,
       inputRef,
     )
@@ -87,30 +83,31 @@ export function convertPGInputFactoryFieldToPGInputField(
   return field as PGInputField<any>
 }
 
-export function createPGInputFactoryUnion<
-  TFactoryMap extends {
-    __default: PGInputFactoryField
-  } & PGInputFactoryFieldMap,
->(factoryMap: TFactoryMap): PGInputFactoryUnion<TFactoryMap> {
-  const pgInputFactoryUnion: PGInputFactoryUnion<TFactoryMap> = {
+export function createPGArgBuilderUnion<
+  TBuilderMap extends {
+    __default: PGArgBuilderField
+  } & PGArgBuilderFieldMap,
+>(builderMap: TBuilderMap): PGArgBuilderUnion<TBuilderMap> {
+  const pgArgBuilderUnion: PGArgBuilderUnion<TBuilderMap> = {
     value: {
-      factoryMap,
+      builderMap,
     },
     select: (name) => {
-      const selectedField = factoryMap[name]
+      const selectedField = builderMap[name]
       return typeof selectedField === 'function'
         ? selectedField()
         : (selectedField as any)
     },
   }
-  return pgInputFactoryUnion
+  return pgArgBuilderUnion
 }
 
-export function createPGInputFactory<
-  T extends PGInputFactoryFieldMap,
-  Types extends PGTypes,
->(name: string, fieldMap: T, builder: PGBuilder<Types>): PGInputFactory<T, Types> {
-  const pgInputFactory: PGInputFactory<any> = {
+export function createPGArgBuilder<T extends PGArgBuilderFieldMap, Types extends PGTypes>(
+  name: string,
+  fieldMap: T,
+  builder: PGBuilder<Types>,
+): PGArgBuilder<T, Types> {
+  const pgArgBuilder: PGArgBuilder<any> = {
     name,
     value: {
       fieldMap,
@@ -122,61 +119,61 @@ export function createPGInputFactory<
       isList: false,
     },
     nullish: (isNullish) => {
-      pgInputFactory.value.isNullable = isNullish ?? true
-      pgInputFactory.value.isOptional = isNullish ?? true
-      return pgInputFactory
+      pgArgBuilder.value.isNullable = isNullish ?? true
+      pgArgBuilder.value.isOptional = isNullish ?? true
+      return pgArgBuilder
     },
     nullable: (isNullable) => {
-      pgInputFactory.value.isNullable = isNullable ?? true
-      return pgInputFactory
+      pgArgBuilder.value.isNullable = isNullable ?? true
+      return pgArgBuilder
     },
     optional: (isOptional) => {
-      pgInputFactory.value.isOptional = isOptional ?? true
-      return pgInputFactory
+      pgArgBuilder.value.isOptional = isOptional ?? true
+      return pgArgBuilder
     },
     list: () => {
-      pgInputFactory.value.isList = true
-      return pgInputFactory
+      pgArgBuilder.value.isList = true
+      return pgArgBuilder
     },
     default: (value) => {
-      pgInputFactory.value.default = value
-      return pgInputFactory
+      pgArgBuilder.value.default = value
+      return pgArgBuilder
     },
     validation: (builder) => {
-      pgInputFactory.value.validator = builder
-      return pgInputFactory
+      pgArgBuilder.value.validator = builder
+      return pgArgBuilder
     },
     edit: (c, name) => {
-      const fieldMap = Object.entries(pgInputFactory.value.fieldMap).reduce<{
-        [name: string]: PGInputFactory<any> | PGInputFactoryUnion<any> | PGInputField<any>
+      const fieldMap = Object.entries(pgArgBuilder.value.fieldMap).reduce<{
+        [name: string]: PGArgBuilder<any> | PGArgBuilderUnion<any> | PGInputField<any>
       }>((acc, [key, value]) => {
         acc[key] = typeof value === 'function' ? value() : value
         return acc
       }, {})
-      const editedFieldMap = c(fieldMap as PGEditInputFactoryFieldMap<any>)
+      const editedFieldMap = c(fieldMap as PGEditArgBuilderFieldMap<any>)
 
-      const editedPGInputFactory: PGInputFactory<any> = createPGInputFactory(
-        name ?? pgInputFactory.name,
+      const editedPGArgBuilder: PGArgBuilder<any> = createPGArgBuilder(
+        name ?? pgArgBuilder.name,
         editedFieldMap as any,
         builder,
       )
-      if (pgInputFactory.value.isNullable) editedPGInputFactory.nullable()
-      if (pgInputFactory.value.isOptional) editedPGInputFactory.optional()
-      if (pgInputFactory.value.isList) editedPGInputFactory.list()
-      if (pgInputFactory.value.default !== undefined)
-        editedPGInputFactory.default(pgInputFactory.value.default)
-      if (pgInputFactory.value.validator !== undefined)
-        editedPGInputFactory.validation(pgInputFactory.value.validator)
-      return editedPGInputFactory as any
+      if (pgArgBuilder.value.isNullable) editedPGArgBuilder.nullable()
+      if (pgArgBuilder.value.isOptional) editedPGArgBuilder.optional()
+      if (pgArgBuilder.value.isList) editedPGArgBuilder.list()
+      if (pgArgBuilder.value.default !== undefined)
+        editedPGArgBuilder.default(pgArgBuilder.value.default)
+      if (pgArgBuilder.value.validator !== undefined)
+        editedPGArgBuilder.validation(pgArgBuilder.value.validator)
+      return editedPGArgBuilder as any
     },
     build: (options) => {
       const inputRef: Record<string, PGInput<any> | null> = {}
       const result =
         options?.wrap === true
-          ? (buildPGInputFactoryInWrap(pgInputFactory, builder, inputRef) as any)
-          : buildPGInputFactory(pgInputFactory, builder, inputRef)
+          ? (buildPGArgBuilderInWrap(pgArgBuilder, builder, inputRef) as any)
+          : buildPGArgBuilder(pgArgBuilder, builder, inputRef)
       return result
     },
   }
-  return pgInputFactory
+  return pgArgBuilder
 }

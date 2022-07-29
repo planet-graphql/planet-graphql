@@ -1,9 +1,9 @@
 import _ from 'lodash'
-import { createPGInputFactory } from '../objects/pg-input-factory'
-import { convertDMMFArgsToPGInputFactoryFieldMap } from './utils'
+import { createPGArgBuilder } from '../objects/pg-input-factory'
+import { convertDMMFArgsToPGArgBuilderFieldMap } from './utils'
 import type { PGBuilder, PGTypes } from '../types/builder'
 import type { PGEnum } from '../types/common'
-import type { PGInputFactory, PGInputFactoryFieldMap } from '../types/input-factory'
+import type { PGArgBuilder, PGArgBuilderFieldMap } from '../types/input-factory'
 import type { PGPrismaConverter } from '../types/prisma-converter'
 import type { DMMF } from '@prisma/generator-helper'
 
@@ -12,43 +12,43 @@ export const getConvertInputsFunction: <Types extends PGTypes>(
   dmmf: DMMF.Document,
   pgEnumMap: Record<string, PGEnum<any>>,
 ) => PGPrismaConverter<Types>['convertInputs'] = (builder, dmmf, pgEnumMap) => () => {
-  const pgInputFactoryMap = convertToPGInputFactoryMap(builder, dmmf.schema, pgEnumMap)
-  return pgInputFactoryMap
+  const pgArgBuilderMap = convertToPGArgBuilderMap(builder, dmmf.schema, pgEnumMap)
+  return pgArgBuilderMap
 }
 
-export function convertToPGInputFactoryMap(
+export function convertToPGArgBuilderMap(
   builder: PGBuilder<any>,
   dmmfSchema: DMMF.Schema,
   pgEnumMap: Record<string, PGEnum<any>>,
-): Record<string, PGInputFactory<any>> {
-  const inputFactoryFieldMapRef: Record<string, PGInputFactoryFieldMap> = {}
+): Record<string, PGArgBuilder<any>> {
+  const argBuilderFieldMapRef: Record<string, PGArgBuilderFieldMap> = {}
   for (const inputType of dmmfSchema.inputObjectTypes.prisma) {
-    const fieldMap = convertDMMFArgsToPGInputFactoryFieldMap(
+    const fieldMap = convertDMMFArgsToPGArgBuilderFieldMap(
       inputType.fields,
-      inputFactoryFieldMapRef,
+      argBuilderFieldMapRef,
       pgEnumMap,
       builder,
     )
-    inputFactoryFieldMapRef[inputType.name] = fieldMap
+    argBuilderFieldMapRef[inputType.name] = fieldMap
   }
-  const pgInputFactoryMap = dmmfSchema.outputObjectTypes.prisma
+  const pgArgBuilderMap = dmmfSchema.outputObjectTypes.prisma
     .filter((x) => x.name === 'Query' || x.name === 'Mutation')
     .flatMap((x) => x.fields)
-    .reduce<Record<string, PGInputFactory<any>>>((acc, dmmfSchemaField) => {
-      const fieldMap = convertDMMFArgsToPGInputFactoryFieldMap(
+    .reduce<Record<string, PGArgBuilder<any>>>((acc, dmmfSchemaField) => {
+      const fieldMap = convertDMMFArgsToPGArgBuilderFieldMap(
         dmmfSchemaField.args,
-        inputFactoryFieldMapRef,
+        argBuilderFieldMapRef,
         pgEnumMap,
         builder,
       )
-      const inputFactory = createPGInputFactory(
+      const argBuilder = createPGArgBuilder(
         _.upperFirst(dmmfSchemaField.name),
         fieldMap,
         builder,
       )
-      acc[dmmfSchemaField.name] = inputFactory
+      acc[dmmfSchemaField.name] = argBuilder
       return acc
     }, {})
 
-  return pgInputFactoryMap
+  return pgArgBuilderMap
 }

@@ -114,7 +114,7 @@ describe('generate', () => {
 
 describe('getInputsTypeProperty', () => {
   describe('inputObjectTypes', () => {
-    it('returns PGInputFactory of type inputTypes', () => {
+    it('returns PGArgBuilder of type inputTypes', () => {
       const args: DMMF.SchemaArg = {
         name: 'arg',
         isRequired: false,
@@ -130,12 +130,13 @@ describe('getInputsTypeProperty', () => {
       }
       const result = getInputsTypeProperty(args)
       expect(result).toEqual(
-        '() => PGInputFactory<InputFactory<Types> | null | undefined, Types>',
+        '() => PGArgBuilder<InputFieldMap<Types> | null | undefined, Types>',
       )
     })
   })
+
   describe('Array of inputObjectTypes', () => {
-    it('returns PGInputFactoryUnion & PGInputFactory of type inputTypes', () => {
+    it('returns PGArgBuilderUnion & PGArgBuilder of type inputTypes', () => {
       const args: DMMF.SchemaArg = {
         name: 'arg',
         isRequired: true,
@@ -156,15 +157,16 @@ describe('getInputsTypeProperty', () => {
         ],
       }
       const result = getInputsTypeProperty(args)
-      expect(result).toEqual(`PGInputFactoryUnion<{
-__default: () => PGInputFactory<Array<InputFactory<Types>>, Types>,
-InputList: () => PGInputFactory<Array<InputFactory<Types>>, Types>,
-Input: () => PGInputFactory<InputFactory<Types>, Types>
+      expect(result).toEqual(`PGArgBuilderUnion<{
+__default: () => PGArgBuilder<Array<InputFieldMap<Types>>, Types>,
+InputList: () => PGArgBuilder<Array<InputFieldMap<Types>>, Types>,
+Input: () => PGArgBuilder<InputFieldMap<Types>, Types>
 }>`)
     })
   })
+
   describe('scalar', () => {
-    it('returns PGInputFactory of type scalar', () => {
+    it('returns PGArgBuilder of type scalar', () => {
       const args: DMMF.SchemaArg = {
         name: 'arg',
         isRequired: true,
@@ -181,8 +183,9 @@ Input: () => PGInputFactory<InputFactory<Types>, Types>
       expect(result).toEqual(`PGInputField<number | null, 'int', Types>`)
     })
   })
+
   describe('enumTypes', () => {
-    it('returns PGInputFactory of type enum', () => {
+    it('returns PGArgBuilder of type enum', () => {
       const args: DMMF.SchemaArg = {
         name: 'arg',
         isRequired: false,
@@ -197,7 +200,7 @@ Input: () => PGInputFactory<InputFactory<Types>, Types>
         ],
       }
       const result = getInputsTypeProperty(args)
-      expect(result).toEqual(`PGInputField<EnumFactory[] | undefined, 'enum', Types>`)
+      expect(result).toEqual(`PGInputField<EnumValues[] | undefined, 'enum', Types>`)
     })
   })
 })
@@ -253,18 +256,18 @@ describe('shapeInputs', () => {
 
     const result = shapeInputs('findFirstSomeModel', args)
     expect(result).toEqual({
-      name: 'FindFirstSomeModelFactory',
+      name: 'FindFirstSomeModelFieldMap',
       type: [
         {
           name: 'arg1',
-          type: '() => PGInputFactory<Input1Factory<Types> | undefined, Types>',
+          type: '() => PGArgBuilder<Input1FieldMap<Types> | undefined, Types>',
         },
         {
           name: 'arg2',
-          type: `PGInputFactoryUnion<{
-__default: () => PGInputFactory<Array<Input2Factory<Types>> | undefined, Types>,
-Input2List: () => PGInputFactory<Array<Input2Factory<Types>> | undefined, Types>,
-Input2: () => PGInputFactory<Input2Factory<Types> | undefined, Types>
+          type: `PGArgBuilderUnion<{
+__default: () => PGArgBuilder<Array<Input2FieldMap<Types>> | undefined, Types>,
+Input2List: () => PGArgBuilder<Array<Input2FieldMap<Types>> | undefined, Types>,
+Input2: () => PGArgBuilder<Input2FieldMap<Types> | undefined, Types>
 }>`,
         },
         {
@@ -272,7 +275,7 @@ Input2: () => PGInputFactory<Input2Factory<Types> | undefined, Types>
           type: "PGInputField<number | undefined, 'int', Types>",
         },
       ],
-      inputTypes: ['Input1Factory', 'Input2Factory'],
+      inputTypes: ['Input1FieldMap', 'Input2FieldMap'],
     })
   })
 })
@@ -372,25 +375,25 @@ describe('getFactories', () => {
     const result = getInputFactories(schema)
     expect(result).toEqual([
       {
-        name: 'FindFirstSomeModelFactory',
+        name: 'FindFirstSomeModelFieldMap',
         type: [
           {
             name: 'args1',
-            type: '() => PGInputFactory<Input1Factory<Types> | null | undefined, Types>',
+            type: '() => PGArgBuilder<Input1FieldMap<Types> | null | undefined, Types>',
           },
           {
             name: 'args2',
-            type: "PGInputField<Enum2Factory, 'enum', Types>",
+            type: "PGInputField<Enum2Values, 'enum', Types>",
           },
         ],
-        inputTypes: ['Input1Factory'],
+        inputTypes: ['Input1FieldMap'],
       },
       {
-        name: 'Input1Factory',
+        name: 'Input1FieldMap',
         type: [
           {
             name: 'field1',
-            type: "PGInputField<Enum1Factory, 'enum', Types>",
+            type: "PGInputField<Enum1Values, 'enum', Types>",
           },
         ],
         inputTypes: [],

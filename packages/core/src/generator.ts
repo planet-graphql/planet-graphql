@@ -17,6 +17,14 @@ function getModelTypeName(modelName: string): string {
   return `${modelName}FieldMapType`
 }
 
+function getArgsBuilderEnumTypeName(enumName: string): string {
+  return `${_.upperFirst(enumName)}Values`
+}
+
+function getArgsBuilderInputTypeName(inputTypeName: string): string {
+  return `${_.upperFirst(inputTypeName)}FieldMap`
+}
+
 function getTSType(scalarType: string, inputOrOutput: 'input' | 'output'): string {
   switch (scalarType) {
     case 'String':
@@ -72,9 +80,9 @@ export function getInputsTypeProperty(arg: DMMF.SchemaArg): string {
     const listPrefix = inputType.isList ? 'Array<' : ''
     const listSuffix = inputType.isList ? '>' : ''
     if (inputType.location === 'inputObjectTypes') {
-      return `() => PGInputFactory<${listPrefix}${_.upperFirst(
+      return `() => PGArgBuilder<${listPrefix}${getArgsBuilderInputTypeName(
         inputType.type as string,
-      )}Factory<Types>${listSuffix}${nullishSuffix}, Types>`
+      )}<Types>${listSuffix}${nullishSuffix}, Types>`
     }
     if (inputType.location === 'scalar') {
       return `PGInputField<${
@@ -90,10 +98,8 @@ export function getInputsTypeProperty(arg: DMMF.SchemaArg): string {
       }${nullishSuffix}, '${_.lowerFirst(inputType.type as string)}', Types>`
     }
     if (inputType.location === 'enumTypes') {
-      return `PGInputField<${
-        inputType.isList
-          ? `${_.upperFirst(inputType.type as string)}Factory[]`
-          : `${_.upperFirst(inputType.type as string)}Factory`
+      return `PGInputField<${getArgsBuilderEnumTypeName(inputType.type as string)}${
+        inputType.isList ? '[]' : ''
       }${nullishSuffix}, 'enum', Types>`
     }
     return ''
@@ -113,7 +119,7 @@ export function getInputsTypeProperty(arg: DMMF.SchemaArg): string {
       },
       {},
     )
-    return `PGInputFactoryUnion<{\n${Object.entries(unionObject)
+    return `PGArgBuilderUnion<{\n${Object.entries(unionObject)
       .map(([key, value]) => {
         return `${key}: ${value}`
       })
@@ -134,7 +140,7 @@ export function shapeInputs(
   inputTypes: string[]
 } {
   return {
-    name: `${_.upperFirst(name)}Factory`,
+    name: getArgsBuilderInputTypeName(name),
     type: args.map((arg) => ({
       name: arg.name,
       type: getInputsTypeProperty(arg),
@@ -144,7 +150,7 @@ export function shapeInputs(
         args.flatMap((arg) =>
           arg.inputTypes.map((inputType) =>
             inputType.location === 'inputObjectTypes'
-              ? `${inputType.type as string}Factory`
+              ? getArgsBuilderInputTypeName(inputType.type as string)
               : '',
           ),
         ),
@@ -177,7 +183,7 @@ export function getInputFactories(schema: DMMF.Schema): Array<{
     schema: DMMF.Schema,
   ) => DMMF.InputType[] = (names, schema) => {
     return schema.inputObjectTypes.prisma.filter((input) =>
-      names.includes(`${input.name}Factory`),
+      names.includes(getArgsBuilderInputTypeName(input.name)),
     )
   }
 
@@ -230,7 +236,7 @@ export function addImports(sourceFile: SourceFile, prismaImportPath: string): vo
       isTypeOnly: true,
     },
     {
-      namedImports: ['PGInputFactory', 'PGInputFactoryUnion'],
+      namedImports: ['PGArgBuilder', 'PGArgBuilderUnion'],
       moduleSpecifier: '@planet-graphql/core/dist/types/input-factory',
       isTypeOnly: true,
     },
@@ -316,23 +322,23 @@ export function addModelTypes(sourceFile: SourceFile, dmmfModels: DMMF.Model[]):
     ])
 }
 
-export function addInputFactoryTypes(
+export function addArgBuilderTypes(
   sourceFile: SourceFile,
   dmmfSchema: DMMF.Schema,
 ): void {
   sourceFile.addTypeAliases(
     [...dmmfSchema.enumTypes.prisma, ...(dmmfSchema.enumTypes.model ?? [])].map((e) => {
       return {
-        name: `${e.name}Factory`,
+        name: getArgsBuilderEnumTypeName(e.name),
         type: `PGEnum<[${e.values.map((v) => `'${v}'`).join(', ')}]>`,
       }
     }),
   )
 
   sourceFile.addTypeAliases(
-    getInputFactories(dmmfSchema).map((factory) => {
+    getInputFactories(dmmfSchema).map((x) => {
       return {
-        name: factory.name,
+        name: x.name,
         typeParameters: [
           {
             name: 'Types',
@@ -340,7 +346,7 @@ export function addInputFactoryTypes(
           },
         ],
         type: objectType({
-          properties: factory.type,
+          properties: x.type,
         }),
       }
     }),
@@ -348,13 +354,13 @@ export function addInputFactoryTypes(
 
   sourceFile
     .addInterface({
-      name: 'PrismaInputFactoryMap',
+      name: 'PrismaArgBuilderMap',
       properties: dmmfSchema.outputObjectTypes.prisma
         .filter((x) => x.name === 'Query' || x.name === 'Mutation')
         .flatMap((x) =>
           x.fields.map((f) => ({
             name: f.name,
-            type: `PGInputFactory<${_.upperFirst(f.name)}Factory<Types>, Types>`,
+            type: `PGArgBuilder<${getArgsBuilderInputTypeName(f.name)}<Types>, Types>`,
           })),
         ),
     })
@@ -465,7 +471,7 @@ export async function generate(
   addImports(typeFile, prismaImportPath)
   addEnumTypes(typeFile, dmmf.datamodel.enums)
   addModelTypes(typeFile, dmmf.datamodel.models)
-  addInputFactoryTypes(typeFile, dmmf.schema)
+  addArgBuilderTypes(typeFile, dmmf.schema)
   copyPrismaConverterInterfaces(typeFile)
   addPrismaTypes(typeFile, dmmf.datamodel.models)
   addConsts(typeFile)

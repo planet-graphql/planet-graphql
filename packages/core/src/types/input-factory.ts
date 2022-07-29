@@ -2,82 +2,82 @@ import type { PGBuilder, PGTypes } from './builder'
 import type { PGFieldValue, TypeOfPGModelBase } from './common'
 import type { PGInput, PGInputField } from './input'
 
-export type PGInputFactoryField =
-  | (() => PGInputFactory<any>)
-  | PGInputFactory<any>
-  | PGInputFactoryUnion<any>
+export type PGArgBuilderField =
+  | (() => PGArgBuilder<any>)
+  | PGArgBuilder<any>
+  | PGArgBuilderUnion<any>
   | PGInputField<any>
 
-type TypeOfPGInputFactoryMapField<T extends PGInputFactoryField> = T extends () => any
+type TypeOfPGArgBuilderMapField<T extends PGArgBuilderField> = T extends () => any
   ? ReturnType<T>
   : T
 
-export interface PGInputFactoryFieldMap {
-  [name: string]: PGInputFactoryField
+export interface PGArgBuilderFieldMap {
+  [name: string]: PGArgBuilderField
 }
 
-export type PGEditInputFactoryFieldMap<
-  TFieldMap extends PGInputFactoryFieldMap | PGInputFactoryFieldMap[] | null | undefined,
+export type PGEditArgBuilderFieldMap<
+  TFieldMap extends PGArgBuilderFieldMap | PGArgBuilderFieldMap[] | null | undefined,
 > = {
-  [P in keyof ExtractPGInputFactoryFieldMap<TFieldMap>]: TypeOfPGInputFactoryMapField<
-    ExtractPGInputFactoryFieldMap<TFieldMap>[P]
+  [P in keyof ExtractPGArgBuilderFieldMap<TFieldMap>]: TypeOfPGArgBuilderMapField<
+    ExtractPGArgBuilderFieldMap<TFieldMap>[P]
   >
 }
 
-export interface PGInputFactoryUnion<
-  TFactoryMap extends {
-    __default: PGInputFactoryField
-  } & PGInputFactoryFieldMap,
+export interface PGArgBuilderUnion<
+  TBuilderMap extends {
+    __default: PGArgBuilderField
+  } & PGArgBuilderFieldMap,
 > {
   value: {
-    factoryMap: TFactoryMap
+    builderMap: TBuilderMap
   }
-  select: <TName extends keyof TFactoryMap>(
+  select: <TName extends keyof TBuilderMap>(
     name: TName,
-  ) => TypeOfPGInputFactoryMapField<TFactoryMap[TName]>
+  ) => TypeOfPGArgBuilderMapField<TBuilderMap[TName]>
 }
 
 type ExcludeNullish<T> = Exclude<T, null | undefined>
 type ExtractNullish<T> = Extract<T, null | undefined>
-export type ExtractPGInputFactoryFieldMap<
-  T extends PGInputFactoryFieldMap | PGInputFactoryFieldMap[] | null | undefined,
+export type ExtractPGArgBuilderFieldMap<
+  T extends PGArgBuilderFieldMap | PGArgBuilderFieldMap[] | null | undefined,
 > = T extends Array<infer U> ? U : ExcludeNullish<T>
 
-export interface PGInputFactory<
-  out T extends PGInputFactoryFieldMap | PGInputFactoryFieldMap[] | null | undefined,
+export interface PGArgBuilder<
+  out T extends PGArgBuilderFieldMap | PGArgBuilderFieldMap[] | null | undefined,
   Types extends PGTypes = any,
 > {
   name: string
   value: PGFieldValue & {
     builder: PGBuilder<any>
-    fieldMap: ExtractPGInputFactoryFieldMap<T>
+    fieldMap: ExtractPGArgBuilderFieldMap<T>
     validator?: (value: any) => boolean
   }
   nullish: <IsNullish extends boolean = true>(
     isNullish?: IsNullish,
   ) => IsNullish extends false
-    ? PGInputFactory<Exclude<T, null | undefined>, Types>
-    : PGInputFactory<T | null | undefined, Types>
+    ? PGArgBuilder<Exclude<T, null | undefined>, Types>
+    : PGArgBuilder<T | null | undefined, Types>
   nullable: <IsNullable extends boolean = true>(
     isNullable?: IsNullable,
   ) => IsNullable extends false
-    ? PGInputFactory<Exclude<T, null>, Types>
-    : PGInputFactory<T | null, Types>
+    ? PGArgBuilder<Exclude<T, null>, Types>
+    : PGArgBuilder<T | null, Types>
   optional: <IsOptinal extends boolean = true>(
     isOptional?: IsOptinal,
   ) => IsOptinal extends false
-    ? PGInputFactory<Exclude<T, undefined>, Types>
-    : PGInputFactory<T | undefined, Types>
+    ? PGArgBuilder<Exclude<T, undefined>, Types>
+    : PGArgBuilder<T | undefined, Types>
   list: () => ExcludeNullish<T> extends any[]
     ? this
-    : ExcludeNullish<T> extends PGInputFactoryFieldMap
-    ? PGInputFactory<Array<ExcludeNullish<T>> | ExtractNullish<T>, Types>
+    : ExcludeNullish<T> extends PGArgBuilderFieldMap
+    ? PGArgBuilder<Array<ExcludeNullish<T>> | ExtractNullish<T>, Types>
     : never
   default: (value: T extends any[] ? [] : T extends null ? null : never) => this
   validation: (
     builder: (
       value: Exclude<
-        ConvertPGInputFactoryFieldMapField<this> extends PGInputField<infer U, any>
+        ConvertPGArgBuilderFieldMapField<this> extends PGInputField<infer U, any>
           ? U extends Array<infer V>
             ? V extends PGInput<any>
               ? TypeOfPGModelBase<V>
@@ -93,21 +93,21 @@ export interface PGInputFactory<
   edit: <
     TEditedFieldMap extends
       | {
-          [P in keyof ExtractPGInputFactoryFieldMap<T>]?: PGInputFactoryField
+          [P in keyof ExtractPGArgBuilderFieldMap<T>]?: PGArgBuilderField
         }
       | {
-          [name: string]: PGInputFactoryField
+          [name: string]: PGArgBuilderField
         },
   >(
-    callback: (f: PGEditInputFactoryFieldMap<T>) => TEditedFieldMap,
+    callback: (f: PGEditArgBuilderFieldMap<T>) => TEditedFieldMap,
     name?: string,
   ) => {
     [P in keyof TEditedFieldMap]: Exclude<TEditedFieldMap[P], undefined>
   } extends infer U
-    ? U extends PGInputFactoryFieldMap
+    ? U extends PGArgBuilderFieldMap
       ? ExcludeNullish<T> extends any[]
-        ? PGInputFactory<[U] | ExtractNullish<T>, Types>
-        : PGInputFactory<U | ExtractNullish<T>, Types>
+        ? PGArgBuilder<[U] | ExtractNullish<T>, Types>
+        : PGArgBuilder<U | ExtractNullish<T>, Types>
       : never
     : never
   build: <TInfer extends boolean, TWrap extends boolean>(config?: {
@@ -115,31 +115,31 @@ export interface PGInputFactory<
     infer?: TInfer
   }) => Exclude<TWrap, undefined> extends true
     ? Exclude<TInfer, undefined> extends true
-      ? ConvertPGInputFactoryFieldMapField<this>
+      ? ConvertPGArgBuilderFieldMapField<this>
       : any
     : {
-        [P in keyof ExtractPGInputFactoryFieldMap<T>]: Exclude<
+        [P in keyof ExtractPGArgBuilderFieldMap<T>]: Exclude<
           TInfer,
           undefined
         > extends true
-          ? ConvertPGInputFactoryFieldMapField<ExtractPGInputFactoryFieldMap<T>[P]>
+          ? ConvertPGArgBuilderFieldMapField<ExtractPGArgBuilderFieldMap<T>[P]>
           : any
       }
 }
 
 type Cast<T, P> = T extends P ? T : P
 
-type ConvertPGInputFactoryFieldMapField<T extends PGInputFactoryField> = (
+type ConvertPGArgBuilderFieldMapField<T extends PGArgBuilderField> = (
   T extends PGInputField<any>
     ? T
     : T extends () => any
-    ? ConvertPGInputFactoryFieldMapField<ReturnType<T>>
-    : T extends PGInputFactoryUnion<infer U>
-    ? ConvertPGInputFactoryFieldMapField<U['__default']>
-    : T extends PGInputFactory<infer U, infer V>
+    ? ConvertPGArgBuilderFieldMapField<ReturnType<T>>
+    : T extends PGArgBuilderUnion<infer U>
+    ? ConvertPGArgBuilderFieldMapField<U['__default']>
+    : T extends PGArgBuilder<infer U, infer V>
     ? PGInput<{
-        [P in keyof ExtractPGInputFactoryFieldMap<U>]: ConvertPGInputFactoryFieldMapField<
-          ExtractPGInputFactoryFieldMap<U>[P]
+        [P in keyof ExtractPGArgBuilderFieldMap<U>]: ConvertPGArgBuilderFieldMapField<
+          ExtractPGArgBuilderFieldMap<U>[P]
         >
       }> extends PGInput<infer TFieldMap>
       ? ExcludeNullish<U> extends any[]
