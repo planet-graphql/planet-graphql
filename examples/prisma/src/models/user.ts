@@ -1,12 +1,12 @@
 import { getRelations } from '../'
-import { inputs, pgpc } from '../graphql'
+import { args, pgpc } from '../graphql'
 import { postWithoutRelation } from './post'
 
-export const user = pgpc.update({
+export const user = pgpc.redefine({
   name: 'User',
   fields: (f, b) => ({
     ...f,
-    posts: f.posts.prismaArgs(() => inputs.findManyPost.build()),
+    posts: f.posts.prismaArgs(() => args.findManyPost.build()),
     fullName: b.string(),
     latestPost: b.object(() => postWithoutRelation).nullable(),
   }),

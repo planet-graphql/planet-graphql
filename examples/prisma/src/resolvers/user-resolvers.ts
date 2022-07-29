@@ -1,5 +1,5 @@
 import { prisma } from '..'
-import { inputs, pg } from '../graphql'
+import { args, pg } from '../graphql'
 import { user } from '../models/user'
 import { Prisma } from '../prisma-client'
 
@@ -31,7 +31,7 @@ export const usersQuery = pg.query({
       .relay()
       .auth(({ context }) => context.isAdmin)
       .prismaArgs(() =>
-        inputs.findManyUser
+        args.findManyUser
           .edit((f) => ({
             where: f.where,
             orderBy: f.orderBy,

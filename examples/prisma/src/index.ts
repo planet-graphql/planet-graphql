@@ -11,7 +11,7 @@ import type { GraphQLError } from 'graphql'
 export const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
 })
-export const { objects, getRelations } = pgpc.convertOutputs({
+export const { objects, getRelations } = pgpc.convertTypes({
   User: () => user,
   Post: () => post,
 })

@@ -1,5 +1,5 @@
 import { objects, prisma } from '..'
-import { inputs, pg } from '../graphql'
+import { args, pg } from '../graphql'
 
 export const createAttachmentMutation = pg.mutation({
   name: 'createAttachment',
@@ -7,7 +7,7 @@ export const createAttachmentMutation = pg.mutation({
     b
       .object(() => objects.Attachment)
       .args(() =>
-        inputs.createOneAttachment
+        args.createOneAttachment
           .edit((f) => ({
             input: f.data.select('AttachmentUncheckedCreateInput').edit((f) => ({
               name: f.name,

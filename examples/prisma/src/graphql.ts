@@ -8,4 +8,4 @@ export type ContextType = {
 }
 export const pg = getPGBuilder<{ Context: ContextType; Prisma: PrismaTypes }>()()
 export const pgpc = getPGPrismaConverter(pg, dmmf)
-export const inputs = pgpc.convertInputs()
+export const { args } = pgpc.convertBuilders()

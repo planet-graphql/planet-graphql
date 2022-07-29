@@ -1,5 +1,5 @@
 import { prisma } from '..'
-import { inputs, pg } from '../graphql'
+import { args, pg } from '../graphql'
 import { post, postWithoutRelation } from '../models/post'
 
 export const postQuery = pg.query({
@@ -27,7 +27,7 @@ export const createPostMutation = pg.mutation({
     b
       .object(() => postWithoutRelation)
       .args(() =>
-        inputs.createOnePost
+        args.createOnePost
           .edit((f) => ({
             input: f.data
               .select('PostUncheckedCreateInput')

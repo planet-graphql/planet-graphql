@@ -2,7 +2,7 @@ import _ from 'lodash'
 import { getRelations } from '../'
 import { pgpc } from '../graphql'
 
-export const post = pgpc.update({
+export const post = pgpc.redefine({
   name: 'Post',
   fields: (f, b) => ({
     ...f,
