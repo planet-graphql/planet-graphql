@@ -1,3 +1,4 @@
+import type { Prisma } from '../prisma-client'
 import type { DMMF } from '../prisma-client/runtime'
 import type { PGTypes, PGBuilder } from '@planet-graphql/core/dist/types/builder'
 import type {
@@ -91,35 +92,13 @@ type PrismaObjectMap<
   TObjectRef extends { [key: string]: Function | undefined },
   Types extends PGTypes,
 > = {
-  User: () => PrismaObject<
-    TObjectRef,
-    'User',
-    PGObject<
-      UserFieldMapType<TObjectRef, Types>,
-      undefined,
-      { PrismaModelName: 'User' },
-      Types
-    >
-  >
-  Post: () => PrismaObject<
-    TObjectRef,
-    'Post',
-    PGObject<
-      PostFieldMapType<TObjectRef, Types>,
-      undefined,
-      { PrismaModelName: 'Post' },
-      Types
-    >
-  >
-  Attachment: () => PrismaObject<
+  User: PrismaObject<TObjectRef, 'User', UserFieldMapType<TObjectRef, Types>, Types>
+  Post: PrismaObject<TObjectRef, 'Post', PostFieldMapType<TObjectRef, Types>, Types>
+  Attachment: PrismaObject<
     TObjectRef,
     'Attachment',
-    PGObject<
-      AttachmentFieldMapType<TObjectRef, Types>,
-      undefined,
-      { PrismaModelName: 'Attachment' },
-      Types
-    >
+    AttachmentFieldMapType<TObjectRef, Types>,
+    Types
   >
 }
 type UserScalarFieldEnumFactory = PGEnum<
