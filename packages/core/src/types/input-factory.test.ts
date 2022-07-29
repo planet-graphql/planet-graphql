@@ -72,7 +72,7 @@ describe.skip('PGInputFactory', () => {
           })),
         })),
       }))
-      .build({ wrap: true })
+      .build({ infer: true, wrap: true })
 
     expectType<
       TypeEqual<
@@ -134,7 +134,7 @@ describe.skip('PGInputFactory', () => {
           in: f.in,
         })),
       }))
-      .build()
+      .build({ infer: true })
 
     expectType<
       TypeEqual<

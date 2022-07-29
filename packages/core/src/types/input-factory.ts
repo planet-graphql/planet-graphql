@@ -110,15 +110,20 @@ export interface PGInputFactory<
         : PGInputFactory<U | ExtractNullish<T>, Types>
       : never
     : never
-  build: <TWrap extends boolean>(config?: {
+  build: <TInfer extends boolean, TWrap extends boolean>(config?: {
     wrap?: TWrap
-    inputNamePrefix?: string
+    infer?: TInfer
   }) => Exclude<TWrap, undefined> extends true
-    ? ConvertPGInputFactoryFieldMapField<this>
+    ? Exclude<TInfer, undefined> extends true
+      ? ConvertPGInputFactoryFieldMapField<this>
+      : any
     : {
-        [P in keyof ExtractPGInputFactoryFieldMap<T>]: ConvertPGInputFactoryFieldMapField<
-          ExtractPGInputFactoryFieldMap<T>[P]
-        >
+        [P in keyof ExtractPGInputFactoryFieldMap<T>]: Exclude<
+          TInfer,
+          undefined
+        > extends true
+          ? ConvertPGInputFactoryFieldMapField<ExtractPGInputFactoryFieldMap<T>[P]>
+          : any
       }
 }
 
