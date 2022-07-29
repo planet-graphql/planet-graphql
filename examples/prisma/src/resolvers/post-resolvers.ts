@@ -40,7 +40,7 @@ export const createPostMutation = pg.mutation({
                 return !(value.title.length === 0 && value.isPublic)
               }),
           }))
-          .build(),
+          .build({ infer: true }),
       )
       .resolve(async ({ context, args }) => {
         const created = await prisma.post.create({

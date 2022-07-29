@@ -1,12 +1,11 @@
-import { prisma } from '..'
+import { objects, prisma } from '..'
 import { inputs, pg } from '../graphql'
-import { attachment } from '../models/attachment'
 
 export const createAttachmentMutation = pg.mutation({
   name: 'createAttachment',
   field: (b) =>
     b
-      .object(() => attachment)
+      .object(() => objects.Attachment)
       .args(() =>
         inputs.createOneAttachment
           .edit((f) => ({
@@ -20,7 +19,7 @@ export const createAttachmentMutation = pg.mutation({
               postId: f.postId,
             })),
           }))
-          .build(),
+          .build({ infer: true }),
       )
       .resolve(async ({ context, args }) => {
         await prisma.post.findFirstOrThrow({

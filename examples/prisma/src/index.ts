@@ -1,6 +1,5 @@
 import { createServer } from '@graphql-yoga/node'
 import { pg, pgpc } from './graphql'
-import { attachment } from './models/attachment'
 import { post } from './models/post'
 import { user } from './models/user'
 import { PrismaClient } from './prisma-client'
@@ -15,7 +14,6 @@ export const prisma = new PrismaClient({
 export const { objects, getRelations } = pgpc.convertOutputs({
   User: () => user,
   Post: () => post,
-  Attachment: () => attachment,
 })
 
 const server = createServer({
