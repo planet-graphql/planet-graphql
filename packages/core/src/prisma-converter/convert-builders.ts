@@ -7,13 +7,13 @@ import type { PGEnum } from '../types/common'
 import type { PGPrismaConverter } from '../types/prisma-converter'
 import type { DMMF } from '@prisma/generator-helper'
 
-export const getConvertInputsFunction: <Types extends PGTypes>(
+export const getConvertBuildersFunction: <Types extends PGTypes>(
   builder: PGBuilder<Types>,
   dmmf: DMMF.Document,
   pgEnumMap: Record<string, PGEnum<any>>,
-) => PGPrismaConverter<Types>['convertInputs'] = (builder, dmmf, pgEnumMap) => () => {
+) => PGPrismaConverter<Types>['convertBuilders'] = (builder, dmmf, pgEnumMap) => () => {
   const pgArgBuilderMap = convertToPGArgBuilderMap(builder, dmmf.schema, pgEnumMap)
-  return pgArgBuilderMap
+  return { args: pgArgBuilderMap }
 }
 
 export function convertToPGArgBuilderMap(

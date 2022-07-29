@@ -7,12 +7,12 @@ import type { PGObject } from '../types/output'
 import type { PGPrismaConverter } from '../types/prisma-converter'
 import type { DMMF } from '@prisma/generator-helper'
 
-export const getConvertOutputsFunction: <Types extends PGTypes>(
+export const getConvertTypesFunction: <Types extends PGTypes>(
   builder: PGBuilder<Types>,
   dmmf: DMMF.Document,
   pgEnumMap: Record<string, PGEnum<any>>,
   pgObjectRef: Record<string, PGObject<any> | (() => PGObject<any>)>,
-) => PGPrismaConverter<Types>['convertOutputs'] =
+) => PGPrismaConverter<Types>['convertTypes'] =
   (builder, dmmf, pgEnumMap, pgObjectRef) => (updatedObjectRef) => {
     const updatedObjectNames = Object.keys(updatedObjectRef ?? {})
     const pgObjectMapFromDmmf = convertToPGObjectMap(

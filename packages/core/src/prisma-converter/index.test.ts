@@ -43,7 +43,7 @@ describe('PGPrismaConverter', () => {
     const pg = getPGBuilder()()
     const pgpc = getInternalPGPrismaConverter(pg, dmmf)
 
-    const someModel = pgpc.update({
+    const someModel = pgpc.redefine({
       name: 'SomeModel',
       fields: (f, b) => ({
         ...f,
@@ -51,7 +51,7 @@ describe('PGPrismaConverter', () => {
       }),
       relations: () => getRelations('SomeModel'),
     })
-    const { objects, enums, getRelations } = pgpc.convertOutputs({
+    const { objects, enums, getRelations } = pgpc.convertTypes({
       SomeModel: () => someModel,
     })
     const relationModelModelFieldType =
@@ -123,7 +123,7 @@ describe('PGPrismaConverter', () => {
     const pg = getPGBuilder()()
     const pgpc = getInternalPGPrismaConverter(pg, dmmf)
 
-    const { enums } = pgpc.convertOutputs()
+    const { enums } = pgpc.convertTypes()
 
     const expectSomeEnum = {
       name: 'SomeEnum',
@@ -169,9 +169,9 @@ describe('PGPrismaConverter', () => {
     const pg = getPGBuilder()()
     const pgpc = getInternalPGPrismaConverter(pg, dmmf)
 
-    const { enums } = pgpc.convertOutputs()
-    const inputs = pgpc.convertInputs()
-    const findFirstSomeModel = inputs.findFirstSomeModel
+    const { args } = pgpc.convertBuilders()
+    const { enums } = pgpc.convertTypes()
+    const findFirstSomeModel = args.findFirstSomeModel
     const findFirstSomeModelOrderByDefault = (
       findFirstSomeModel.value.fieldMap.orderBy as PGArgBuilderUnion<any>
     ).select('SomeModelOrderByWithRelationInput')
@@ -302,9 +302,9 @@ describe('PGPrismaConverter', () => {
     const pg = getPGBuilder()()
     const pgpc = getInternalPGPrismaConverter(pg, dmmf)
 
-    const { objects } = pgpc.convertOutputs()
-    const inputs = pgpc.convertInputs()
-    const args = inputs.findManySomeModel
+    const { args } = pgpc.convertBuilders()
+    const { objects } = pgpc.convertTypes()
+    const findManySomeModelArgs = args.findManySomeModel
       .edit((f) => ({
         skip: f.skip,
         orderBy: f.orderBy,
@@ -318,7 +318,7 @@ describe('PGPrismaConverter', () => {
         b
           .object(() => objects.SomeModel)
           .list()
-          .prismaArgs(() => args as any)
+          .prismaArgs(() => findManySomeModelArgs as any)
           .resolve(() => []),
     })
     const query = `

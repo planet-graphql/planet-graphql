@@ -44,7 +44,7 @@ export type InitPGPrismaConverter = <Types extends PGTypes>(
 ) => PGPrismaConverter<Types>
 
 export interface PGPrismaConverter<Types extends PGTypes> {
-  convertOutputs: <
+  convertTypes: <
     TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function },
   >(
     updatedObjectRef?: TObjectRef,
@@ -59,8 +59,10 @@ export interface PGPrismaConverter<Types extends PGTypes> {
       name: TName,
     ) => Omit<PrismaObjectMap<TObjectRef, Types>, TName>
   }
-  convertInputs: () => PrismaArgBuilderMap<Types>
-  update: <
+  convertBuilders: () => {
+    args: PrismaArgBuilderMap<Types>
+  }
+  redefine: <
     TName extends Exclude<keyof PrismaObjectMap<{}, Types>, undefined | number>,
     TFieldMap extends PGOutputFieldMap,
     TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function } = {},
