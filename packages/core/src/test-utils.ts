@@ -1,5 +1,5 @@
+import type { PGArgBuilderUnion, PGArgBuilder } from './types/arg-builder'
 import type { PGInput, PGInputField } from './types/input'
-import type { PGInputFactoryUnion, PGInputFactory } from './types/input-factory'
 import type { PGInterface, PGObject, PGOutputField, PGUnion } from './types/output'
 
 export function mergeDefaultPGInput(input: Partial<PGInput<any>>): PGInput<any> {
@@ -27,7 +27,7 @@ export function mergeDefaultPGObject(object: Partial<PGObject<any>>): PGObject<a
         fieldMap: {},
       },
       copy: expect.any(Function),
-      modify: expect.any(Function),
+      implement: expect.any(Function),
       prismaModel: expect.any(Function),
     },
     object,
@@ -116,10 +116,10 @@ export function mergeDefaultOutputField(
   }
 }
 
-export function mergeDefaultInputFactory(
+export function mergeDefaultArgBuilder(
   name: string,
-  value: Partial<PGInputFactory<any>['value']>,
-): PGInputFactory<any> {
+  value: Partial<PGArgBuilder<any>['value']>,
+): PGArgBuilder<any> {
   return {
     name,
     value: Object.assign(
@@ -145,13 +145,13 @@ export function mergeDefaultInputFactory(
   }
 }
 
-export function mergeDefaultInputFactoryUnion(
-  value: Partial<PGInputFactoryUnion<any>['value']>,
-): PGInputFactoryUnion<any> {
+export function mergeDefaultArgBuilderUnion(
+  value: Partial<PGArgBuilderUnion<any>['value']>,
+): PGArgBuilderUnion<any> {
   return {
     value: Object.assign(
       {
-        factoryMap: {},
+        builderMap: {},
       },
       value,
     ),

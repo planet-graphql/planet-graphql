@@ -1,5 +1,5 @@
 import { prisma } from '..'
-import { inputs, pg } from '../graphql'
+import { args, pg } from '../graphql'
 import { post, postWithoutRelation } from '../models/post'
 
 export const postQuery = pg.query({
@@ -15,6 +15,7 @@ export const postQuery = pg.query({
           ...prismaArgs,
           where: {
             id: args.id,
+            isPublic: true,
           },
         })
       }),
@@ -26,7 +27,7 @@ export const createPostMutation = pg.mutation({
     b
       .object(() => postWithoutRelation)
       .args(() =>
-        inputs.createOnePost
+        args.createOnePost
           .edit((f) => ({
             input: f.data
               .select('PostUncheckedCreateInput')
@@ -39,7 +40,7 @@ export const createPostMutation = pg.mutation({
                 return !(value.title.length === 0 && value.isPublic)
               }),
           }))
-          .build(),
+          .build({ infer: true }),
       )
       .resolve(async ({ context, args }) => {
         const created = await prisma.post.create({

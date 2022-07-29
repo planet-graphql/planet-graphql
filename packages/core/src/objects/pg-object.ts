@@ -44,8 +44,7 @@ export function createPGObject<
         pgObject.value.fieldMap,
         inputFieldBuilder,
       )
-      const appendFieldMap = config.fields(orifinalFieldMap as any, outputFieldBuilder)
-      const updatedFieldMap = Object.assign(appendFieldMap, orifinalFieldMap)
+      const updatedFieldMap = config.fields(orifinalFieldMap as any, outputFieldBuilder)
       const copy = createPGObject<any, TInterfaces, Types>(
         config.name,
         updatedFieldMap,
@@ -58,7 +57,7 @@ export function createPGObject<
       setCache(cache, copy)
       return copy
     },
-    modify: (c) => {
+    implement: (c) => {
       c(pgObject.value.fieldMap as PGModifyOutputFieldMap<any>)
       return pgObject
     },

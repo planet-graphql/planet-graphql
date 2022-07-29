@@ -1,6 +1,6 @@
+import type { PGArgBuilder } from './arg-builder'
 import type { PGTypes, PGBuilder } from './builder'
 import type { PGEnum, TypeOfPGFieldMap } from './common'
-import type { PGInputFactory } from './input-factory'
 import type {
   ConvertPGInterfacesToFieldMap,
   GetPrismaModelNames,
@@ -15,28 +15,27 @@ import type { IsUnknown } from 'type-fest/source/set-return-type'
 
 export type PrismaObject<
   TObjectRef extends { [key: string]: Function | undefined },
-  TName extends keyof TObjectRef,
-  TObject extends PGObject<any>,
+  TName extends string,
+  TFieldMap extends PGOutputFieldMap,
+  Types extends PGTypes = PGTypes,
 > = IsUnknown<TObjectRef[TName]> extends true
-  ? TObject
-  : TObjectRef[TName] extends () => any
-  ? ReturnType<TObjectRef[TName]>
-  : never
+  ? () => PGObject<TFieldMap, undefined, { PrismaModelName: TName }, Types>
+  : TObjectRef[TName]
 
 export interface PrismaObjectMap<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   TObjectRef extends { [key: string]: Function | undefined },
   Types extends PGTypes = PGTypes,
 > {
-  [key: string]: PGObject<any, any, any, Types>
+  [key: string]: () => PGObject<any, any, any, Types>
 }
 
 export interface PrismaEnumMap {
   [name: string]: PGEnum<any>
 }
 
-export interface PrismaInputFactoryMap<Types extends PGTypes> {
-  [name: string]: PGInputFactory<any, Types>
+export interface PrismaArgBuilderMap<Types extends PGTypes> {
+  [name: string]: PGArgBuilder<any, Types>
 }
 
 export type InitPGPrismaConverter = <Types extends PGTypes>(
@@ -45,21 +44,25 @@ export type InitPGPrismaConverter = <Types extends PGTypes>(
 ) => PGPrismaConverter<Types>
 
 export interface PGPrismaConverter<Types extends PGTypes> {
-  convertOutputs: <
-    TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function } = {},
+  convertTypes: <
+    TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function },
   >(
     updatedObjectRef?: TObjectRef,
   ) => {
-    objects: PrismaObjectMap<TObjectRef, Types>
+    objects: {
+      [P in keyof PrismaObjectMap<TObjectRef, Types>]: ReturnType<
+        PrismaObjectMap<TObjectRef, Types>[P]
+      >
+    }
     enums: PrismaEnumMap
-    getRelations: <TName extends keyof PrismaObjectMap<TObjectRef, Types>>(
+    getRelations: <TName extends keyof PrismaObjectMap<{}, Types>>(
       name: TName,
-    ) => Omit<PrismaObjectMap<TObjectRef, Types>, TName> extends infer U
-      ? { [P in keyof U]: () => U[P] }
-      : never
+    ) => Omit<PrismaObjectMap<TObjectRef, Types>, TName>
   }
-  convertInputs: () => PrismaInputFactoryMap<Types>
-  update: <
+  convertBuilders: () => {
+    args: PrismaArgBuilderMap<Types>
+  }
+  redefine: <
     TName extends Exclude<keyof PrismaObjectMap<{}, Types>, undefined | number>,
     TFieldMap extends PGOutputFieldMap,
     TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function } = {},
@@ -67,7 +70,7 @@ export interface PGPrismaConverter<Types extends PGTypes> {
   >(config: {
     name: TName
     fields: (
-      f: PrismaObjectMap<TObjectRef, Types>[TName] extends infer U
+      f: ReturnType<PrismaObjectMap<TObjectRef, Types>[TName]> extends infer U
         ? U extends PGObject<any>
           ? U['value']['fieldMap']
           : never

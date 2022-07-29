@@ -1,4 +1,5 @@
 import type { DefaultScalars } from '../objects/pg-scalar'
+import type { PGArgBuilder } from './arg-builder'
 import type {
   PGEnum,
   PGScalar,
@@ -9,7 +10,6 @@ import type {
   TypeOfPGUnion,
 } from './common'
 import type { PGInput, PGInputFieldBuilder, PGInputFieldMap } from './input'
-import type { PGInputFactory } from './input-factory'
 import type {
   ConvertPGInterfacesToFieldMap,
   PGInterface,
@@ -42,7 +42,7 @@ export type PGfyResponseType<T extends PGBuilder> = T extends PGBuilder<infer U>
   ? {
       enums: Record<string, PGEnum<any>>
       objects: Record<string, PGObject<any, any, any, U>>
-      inputs: Record<string, PGInputFactory<any, U>>
+      inputs: Record<string, PGArgBuilder<any, U>>
     }
   : any
 

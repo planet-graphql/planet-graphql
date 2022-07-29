@@ -1,22 +1,19 @@
 import _ from 'lodash'
 import { PGError } from '../builder/utils'
+import { createPGArgBuilder, createPGArgBuilderUnion } from '../objects/pg-arg-builder'
 import { createPGEnum } from '../objects/pg-enum'
-import {
-  createPGInputFactory,
-  createPGInputFactoryUnion,
-} from '../objects/pg-input-factory'
 import { createInputField } from '../objects/pg-input-field'
 import { createPGObject } from '../objects/pg-object'
 import { createOutputField } from '../objects/pg-output-field'
+import type {
+  PGArgBuilder,
+  PGArgBuilderField,
+  PGArgBuilderFieldMap,
+  PGArgBuilderUnion,
+} from '../types/arg-builder'
 import type { PGBuilder } from '../types/builder'
 import type { PGEnum, PGFieldKindAndType } from '../types/common'
 import type { PGInputField } from '../types/input'
-import type {
-  PGInputFactory,
-  PGInputFactoryField,
-  PGInputFactoryFieldMap,
-  PGInputFactoryUnion,
-} from '../types/input-factory'
 import type { PGObject, PGOutputFieldMap } from '../types/output'
 import type { DMMF } from '@prisma/generator-helper'
 
@@ -73,14 +70,14 @@ export function convertDMMFEnumToPGEnum(dmmfEnum: DMMF.SchemaEnum): PGEnum<any> 
   return pgEnum
 }
 
-export function convertDMMFArgsToPGInputFactoryFieldMap(
+export function convertDMMFArgsToPGArgBuilderFieldMap(
   args: DMMF.SchemaArg[],
-  fieldMapRef: Record<string, PGInputFactoryFieldMap>,
+  fieldMapRef: Record<string, PGArgBuilderFieldMap>,
   pgEnumMap: Record<string, PGEnum<any>>,
   builder: PGBuilder<any>,
-): PGInputFactoryFieldMap {
-  return args.reduce<PGInputFactoryFieldMap>((acc, arg) => {
-    acc[arg.name] = convertDMMFArgToPGInputFactoryField(
+): PGArgBuilderFieldMap {
+  return args.reduce<PGArgBuilderFieldMap>((acc, arg) => {
+    acc[arg.name] = convertDMMFArgToPGArgBuilderField(
       arg,
       fieldMapRef,
       pgEnumMap,
@@ -90,12 +87,12 @@ export function convertDMMFArgsToPGInputFactoryFieldMap(
   }, {})
 }
 
-export function convertDMMFArgToPGInputFactoryField(
+export function convertDMMFArgToPGArgBuilderField(
   arg: DMMF.SchemaArg,
-  fieldMapRef: Record<string, PGInputFactoryFieldMap>,
+  fieldMapRef: Record<string, PGArgBuilderFieldMap>,
   pgEnumMap: Record<string, PGEnum<any>>,
   builder: PGBuilder<any>,
-): PGInputFactoryField {
+): PGArgBuilderField {
   const filteredInputTypes = arg.inputTypes.filter((x) => x.type !== 'Null')
   const filteredArg = {
     ...arg,
@@ -103,8 +100,8 @@ export function convertDMMFArgToPGInputFactoryField(
   }
   const isUnion = filteredInputTypes.length > 1
   return isUnion
-    ? convertToDMMFArgToPGInputFactoryUnion(filteredArg, fieldMapRef, pgEnumMap, builder)
-    : convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
+    ? convertToDMMFArgToPGArgBuilderUnion(filteredArg, fieldMapRef, pgEnumMap, builder)
+    : convertDMMFArgInputTypeToPGArgBuilderOrPGInputField(
         arg.inputTypes[0],
         fieldMapRef,
         pgEnumMap,
@@ -114,16 +111,16 @@ export function convertDMMFArgToPGInputFactoryField(
       )
 }
 
-export function convertToDMMFArgToPGInputFactoryUnion(
+export function convertToDMMFArgToPGArgBuilderUnion(
   arg: DMMF.SchemaArg,
-  fieldMapRef: Record<string, PGInputFactoryFieldMap>,
+  fieldMapRef: Record<string, PGArgBuilderFieldMap>,
   pgEnumMap: Record<string, PGEnum<any>>,
   builder: PGBuilder<any>,
-): PGInputFactoryUnion<any> {
-  const factoryMap = arg.inputTypes.reduce<PGInputFactoryFieldMap>((acc, inputType) => {
+): PGArgBuilderUnion<any> {
+  const builderMap = arg.inputTypes.reduce<PGArgBuilderFieldMap>((acc, inputType) => {
     const inputTypeName = inputType.type as string
     const fieldName = inputType.isList ? `${inputTypeName}List` : inputTypeName
-    acc[fieldName] = convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
+    acc[fieldName] = convertDMMFArgInputTypeToPGArgBuilderOrPGInputField(
       inputType,
       fieldMapRef,
       pgEnumMap,
@@ -133,33 +130,33 @@ export function convertToDMMFArgToPGInputFactoryUnion(
     )
     return acc
   }, {})
-  const union = createPGInputFactoryUnion({
-    __default: Object.values(factoryMap)[0],
-    ...factoryMap,
+  const union = createPGArgBuilderUnion({
+    __default: Object.values(builderMap)[0],
+    ...builderMap,
   })
   return union
 }
 
-export function convertDMMFArgInputTypeToPGInputFactoryOrPGInputField(
+export function convertDMMFArgInputTypeToPGArgBuilderOrPGInputField(
   inputType: DMMF.SchemaArgInputType,
-  fieldMapRef: Record<string, PGInputFactoryFieldMap>,
+  fieldMapRef: Record<string, PGArgBuilderFieldMap>,
   pgEnumMap: Record<string, PGEnum<any>>,
   isOptional: boolean,
   isNullable: boolean,
   builder: PGBuilder<any>,
-): (() => PGInputFactory<any>) | PGInputField<any> {
-  const isInputFactory = inputType.location === 'inputObjectTypes'
-  if (isInputFactory) {
+): (() => PGArgBuilder<any>) | PGInputField<any> {
+  const isArgBuilder = inputType.location === 'inputObjectTypes'
+  if (isArgBuilder) {
     return () => {
-      const inputFactory = createPGInputFactory<any, any>(
+      const argBuilder = createPGArgBuilder<any, any>(
         inputType.type as string,
         fieldMapRef[inputType.type as string],
         builder,
       )
-      if (inputType.isList) inputFactory.list()
-      if (isOptional) inputFactory.optional()
-      if (isNullable) inputFactory.nullable()
-      return inputFactory
+      if (inputType.isList) argBuilder.list()
+      if (isOptional) argBuilder.optional()
+      if (isNullable) argBuilder.nullable()
+      return argBuilder
     }
   }
 

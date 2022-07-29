@@ -408,7 +408,7 @@ export type ScalarNameToType<T> = T extends 'String' | 'Json'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface PGResolveParams<TSource, TArgs, TPrismaArgs, TContext, TResolve> {
   source: IsAny<TSource> extends true
-    ? AnyWithNote<'The type is not fixed as it is currently being created & If you need the fixed type, consider using the modify() method of PGObject'>
+    ? AnyWithNote<'The type is not fixed as it is currently being created & If you need the fixed type, consider using the implement() method of PGObject'>
     : TSource
   args: TArgs
   prismaArgs: TPrismaArgs
@@ -419,7 +419,7 @@ export interface PGResolveParams<TSource, TArgs, TPrismaArgs, TContext, TResolve
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface PGSubscribeParams<TSource, TArgs, TContext, TResolve> {
   source: IsAny<TSource> extends true
-    ? AnyWithNote<'The type is not fixed as it is currently being created & If you need the fixed type, consider using the modify() method of PGObject'>
+    ? AnyWithNote<'The type is not fixed as it is currently being created & If you need the fixed type, consider using the implement() method of PGObject'>
     : TSource
   args: TArgs
   context: TContext

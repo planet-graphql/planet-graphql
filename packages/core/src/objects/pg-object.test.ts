@@ -9,7 +9,7 @@ import type {
   PGInterface,
   PGObjectOptionsDefault,
 } from '../types/output'
-import type { TypeEqual } from 'ts-expect';
+import type { TypeEqual } from 'ts-expect'
 
 describe('PGObject', () => {
   describe('builder', () => {
@@ -92,13 +92,14 @@ describe('PGObject', () => {
         name: 'Original',
         fields: (b) => ({
           id: b.id(),
+          type: b.string(),
         }),
       })
 
       const copy = original.copy({
         name: 'Copy',
         fields: (f, b) => ({
-          ...f,
+          id: f.id,
           name: b.string(),
         }),
       })
@@ -188,7 +189,7 @@ describe('PGObject', () => {
     })
   })
 
-  describe('modify', () => {
+  describe('implement', () => {
     it('Returns only value changed object & Changes the object in Builder Cache', () => {
       const builder = getPGBuilder()()
       const original = builder.object({
@@ -199,7 +200,7 @@ describe('PGObject', () => {
         }),
       })
 
-      const modified = original.modify((f) => ({
+      const modified = original.implement((f) => ({
         id: f.id.resolve((params) => `id: ${params.source.id}`),
       }))
 

@@ -10,7 +10,7 @@ type UserFieldMap<
 > = {
   id: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>
   posts: PGOutputField<
-    [() => SamplePrismaObjectMap<TObjectRef, Types>['Post']],
+    [SamplePrismaObjectMap<TObjectRef, Types>['Post']],
     any,
     PGOutputFieldOptionsDefault,
     Types
@@ -23,13 +23,32 @@ type PostFieldMap<
 > = {
   id: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>
   user: PGOutputField<
-    () => SamplePrismaObjectMap<TObjectRef, Types>['User'],
+    SamplePrismaObjectMap<TObjectRef, Types>['User'],
     any,
     PGOutputFieldOptionsDefault,
     Types
   >
   comments: PGOutputField<
-    [() => SamplePrismaObjectMap<TObjectRef, Types>['Comment']],
+    [SamplePrismaObjectMap<TObjectRef, Types>['Comment']],
+    any,
+    PGOutputFieldOptionsDefault,
+    Types
+  >
+}
+
+type CommentFieldMap<
+  TObjectRef extends { [key: string]: Function | undefined },
+  Types extends PGTypes = PGTypes,
+> = {
+  id: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>
+  user: PGOutputField<
+    SamplePrismaObjectMap<TObjectRef, Types>['User'],
+    any,
+    PGOutputFieldOptionsDefault,
+    Types
+  >
+  post: PGOutputField<
+    SamplePrismaObjectMap<TObjectRef, Types>['Post'],
     any,
     PGOutputFieldOptionsDefault,
     Types
@@ -40,73 +59,50 @@ interface SamplePrismaObjectMap<
   TObjectRef extends { [key: string]: Function | undefined },
   Types extends PGTypes = PGTypes,
 > {
-  User: PrismaObject<
-    TObjectRef,
-    'User',
-    PGObject<
-      UserFieldMap<TObjectRef, Types>,
-      undefined,
-      { PrismaModelName: 'User' },
-      Types
-    >
-  >
-  Post: PrismaObject<
-    TObjectRef,
-    'Post',
-    PGObject<
-      PostFieldMap<TObjectRef, Types>,
-      undefined,
-      { PrismaModelName: 'Post' },
-      Types
-    >
-  >
-  Comment: PrismaObject<
-    TObjectRef,
-    'Comment',
-    PGObject<
-      {
-        id: PGOutputField<string, any, PGOutputFieldOptionsDefault, Types>
-        user: PGOutputField<
-          () => SamplePrismaObjectMap<TObjectRef, Types>['User'],
-          any,
-          PGOutputFieldOptionsDefault,
-          Types
-        >
-        post: PGOutputField<
-          () => SamplePrismaObjectMap<TObjectRef, Types>['Post'],
-          any,
-          PGOutputFieldOptionsDefault,
-          Types
-        >
-      },
-      undefined,
-      { PrismaModelName: 'Comment' },
-      Types
-    >
-  >
+  User: PrismaObject<TObjectRef, 'User', UserFieldMap<TObjectRef, Types>, Types>
+  Post: PrismaObject<TObjectRef, 'Post', PostFieldMap<TObjectRef, Types>, Types>
+  Comment: PrismaObject<TObjectRef, 'Comment', CommentFieldMap<TObjectRef, Types>, Types>
 }
 
 describe('PrismaObjectMap', () => {
   it('Returns an object map updated recursively by TMap', () => {
     type UpdatedUser = PGObject<{
       id: PGOutputField<string>
-      posts: PGOutputField<[() => SamplePrismaObjectMap<TMap>['Post']]>
-      latestPost: PGOutputField<() => SamplePrismaObjectMap<TMap>['Post']>
+      posts: PGOutputField<[SamplePrismaObjectMap<TMap>['Post']]>
+      latestPost: PGOutputField<SamplePrismaObjectMap<TMap>['Post']>
+    }>
+    type UpdatedPost = PGObject<{
+      id: PGOutputField<string>
+      user: PGOutputField<SamplePrismaObjectMap<TMap>['User']>
     }>
     type TMap = {
       User: () => UpdatedUser
+      Post: () => UpdatedPost
     }
 
     type TUserInsidePost = ReturnType<
-      SamplePrismaObjectMap<TMap>['Post']['value']['fieldMap']['user']['__type']
+      ReturnType<
+        SamplePrismaObjectMap<TMap>['Post']
+      >['value']['fieldMap']['user']['__type']
+    >
+    type TPostsInsideUser = ReturnType<
+      ReturnType<
+        SamplePrismaObjectMap<TMap>['User']
+      >['value']['fieldMap']['posts']['__type'][number]
     >
     type TUserInsideUserPost = ReturnType<
       ReturnType<
-        SamplePrismaObjectMap<TMap>['User']['value']['fieldMap']['posts']['__type'][0]
+        ReturnType<
+          SamplePrismaObjectMap<TMap>['User']
+        >['value']['fieldMap']['posts']['__type'][0]
       >['value']['fieldMap']['user']['__type']
     >
 
+    type T = ReturnType<SamplePrismaObjectMap<TMap>['Comment']>['value']['fieldMap']
+    expectType<TypeEqual<T, CommentFieldMap<TMap>>>(true)
     expectType<TypeEqual<TUserInsidePost, UpdatedUser>>(true)
+    expectType<TypeEqual<TPostsInsideUser, UpdatedPost>>(true)
+    expectType<TypeEqual<TUserInsideUserPost, UpdatedUser>>(true)
     expectType<TypeEqual<TUserInsideUserPost, UpdatedUser>>(true)
   })
 })

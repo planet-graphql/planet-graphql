@@ -149,6 +149,7 @@ export const prismaRelayFeature: PGFeature = {
         pageInfo,
       }
     }
+    field.value.isList = false
 
     return field
   },

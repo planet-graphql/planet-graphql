@@ -1,6 +1,6 @@
-import { getConvertInputsFunction } from './convert-inputs'
-import { getConvertOutputsFunction } from './convert-outputs'
-import { getUpdateFunction } from './update'
+import { getConvertBuildersFunction } from './convert-builders'
+import { getConvertTypesFunction } from './convert-types'
+import { getRedefineFunction } from './redefine'
 import { convertDMMFEnumToPGEnum } from './utils'
 import type { PGEnum } from '../types/common'
 import type { PGObject } from '../types/output'
@@ -18,9 +18,9 @@ export const getInternalPGPrismaConverter: InitPGPrismaConverter = (builder, dmm
 
   const objectRef: Record<string, PGObject<any>> = {}
   const converter: PGPrismaConverter<any> = {
-    convertOutputs: getConvertOutputsFunction(builder, dmmf, pgEnumMap, objectRef),
-    convertInputs: getConvertInputsFunction(builder, dmmf, pgEnumMap),
-    update: getUpdateFunction(builder, dmmf, pgEnumMap, objectRef),
+    convertTypes: getConvertTypesFunction(builder, dmmf, pgEnumMap, objectRef),
+    convertBuilders: getConvertBuildersFunction(builder, dmmf, pgEnumMap),
+    redefine: getRedefineFunction(builder, dmmf, pgEnumMap, objectRef),
   }
   return converter as any
 }

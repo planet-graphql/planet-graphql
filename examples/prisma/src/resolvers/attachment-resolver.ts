@@ -1,14 +1,13 @@
-import { prisma } from '..'
-import { inputs, pg } from '../graphql'
-import { attachment } from '../models/attachment'
+import { objects, prisma } from '..'
+import { args, pg } from '../graphql'
 
 export const createAttachmentMutation = pg.mutation({
   name: 'createAttachment',
   field: (b) =>
     b
-      .object(() => attachment)
+      .object(() => objects.Attachment)
       .args(() =>
-        inputs.createOneAttachment
+        args.createOneAttachment
           .edit((f) => ({
             input: f.data.select('AttachmentUncheckedCreateInput').edit((f) => ({
               name: f.name,
@@ -20,7 +19,7 @@ export const createAttachmentMutation = pg.mutation({
               postId: f.postId,
             })),
           }))
-          .build(),
+          .build({ infer: true }),
       )
       .resolve(async ({ context, args }) => {
         await prisma.post.findFirstOrThrow({
@@ -30,7 +29,7 @@ export const createAttachmentMutation = pg.mutation({
           },
         })
         // NOTE:
-        // Errors may occur depending on the value of meta.
+        // Errors may occur depending on the value of meta field.
         // This is a Prisma Client issue.
         // https://github.com/prisma/prisma/issues/14274
         const created = await prisma.attachment.create({

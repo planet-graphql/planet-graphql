@@ -12,7 +12,7 @@ import type {
   ConvertPGInterfacesToFieldMap,
 } from './output'
 import type { SomePGTypes, SomeUserPrismaArgs } from './test.util'
-import type { TypeEqual } from 'ts-expect'
+import type { TypeEqual, TypeOf } from 'ts-expect'
 
 describe('PGOutputField', () => {
   describe('list', () => {
@@ -74,6 +74,24 @@ describe('PGOutputField', () => {
           >
         >
       >(true)
+    })
+
+    describe('already arrayed', () => {
+      it('Does not array', () => {
+        type User = PGObject<{}, undefined, { PrismaModelName: 'User' }, SomePGTypes>
+        type OutputField = PGOutputField<
+          Array<() => User>,
+          any,
+          {
+            Args: undefined
+            PrismaArgs: undefined
+            IsRelay: false
+          },
+          SomePGTypes
+        >
+        type T = ReturnType<OutputField['relay']>
+        expectType<TypeOf<T, PGOutputField<Array<() => User>, any, any, any>>>(true)
+      })
     })
 
     describe('already relayed', () => {

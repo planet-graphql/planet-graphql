@@ -44,7 +44,7 @@ export interface PGObject<
     name: string
     fields: (f: TOriginal, b: PGOutputFieldBuilder<Types>) => TUpdate
   }) => PGObject<TUpdate, TInterfaces, TOptions, Types>
-  modify: (
+  implement: (
     callback: (f: PGModifyOutputFieldMap<T>) => Partial<PGModifyOutputFieldMap<T>>,
   ) => this
   prismaModel: <TSetPrismaModelName extends GetPrismaModelNames<Types>>(
@@ -84,10 +84,15 @@ export interface PGOutputField<
       >,
     ) => ResolveResponse<TypeOfPGFieldType<T>>
     subscribe?: ResolverFn
-    authChecker?: (x: {
-      ctx: Types['Context']
-      args: TypeOfPGFieldMap<Exclude<TOptions['Args'], undefined>>
-    }) => boolean | Promise<boolean>
+    auth?: (
+      params: PGResolveParams<
+        TSource,
+        TypeOfPGFieldMap<Exclude<TOptions['Args'], undefined>>,
+        TypeOfPGFieldMap<Exclude<TOptions['PrismaArgs'], undefined>>,
+        Types['Context'],
+        number
+      >,
+    ) => boolean | Promise<boolean>
     isPrismaRelation?: boolean
     relay?: {
       isRelay?: boolean
@@ -155,7 +160,11 @@ export interface PGOutputField<
   >
   relay: MethodGuard<
     () => PGOutputField<
-      Array<ExcludeNullish<T>> | ExtractNullish<T>,
+      ExcludeNullish<T> extends infer U
+        ? U extends any[]
+          ? U
+          : U[]
+        : never | ExtractNullish<T>,
       TSource,
       UpdatePGOptions<
         UpdatePGOptions<
@@ -250,10 +259,14 @@ export interface PGOutputField<
     },
   ) => this
   auth: (
-    checker: (x: {
-      ctx: Types['Context']
-      args: TypeOfPGFieldMap<Exclude<TOptions['Args'], undefined>>
-    }) => boolean | Promise<boolean>,
+    callback: (
+      params: PGSubscribeParams<
+        TSource,
+        TypeOfPGFieldMap<Exclude<TOptions['Args'], undefined>>,
+        Types['Context'],
+        TypeOfPGFieldType<T>
+      >,
+    ) => boolean | Promise<boolean>,
   ) => this
 }
 
@@ -384,7 +397,7 @@ export type MethodGuard<
 > = IsCallable extends true ? T : NeverWithNote<TNote>
 
 export type TypeChangeMethodNote =
-  'Cannot call because it is not allowed to call a method that changes the PGObject type in the PGObject.modify() method'
+  'Cannot call because it is not allowed to call a method that changes the PGObject type in the PGObject.implement() method'
 
 export type RelayMethodNote = 'relay() method must be called in advance'
 
