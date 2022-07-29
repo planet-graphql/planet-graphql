@@ -47,9 +47,9 @@ type Model3FieldMapType<TObjectRef extends { [key: string]: Function | undefined
     model1Id: PGOutputField<number, any, PGOutputFieldOptionsDefault, Types>;
 };
 type PrismaObjectMap<TObjectRef extends { [key: string]: Function | undefined }, Types extends PGTypes> = {
-    Model1: () => PrismaObject<TObjectRef, 'Model1', PGObject<Model1FieldMapType<TObjectRef, Types>, undefined, { PrismaModelName: 'Model1' }, Types>>;
-    Model2: () => PrismaObject<TObjectRef, 'Model2', PGObject<Model2FieldMapType<TObjectRef, Types>, undefined, { PrismaModelName: 'Model2' }, Types>>;
-    Model3: () => PrismaObject<TObjectRef, 'Model3', PGObject<Model3FieldMapType<TObjectRef, Types>, undefined, { PrismaModelName: 'Model3' }, Types>>;
+    Model1: PrismaObject<TObjectRef, 'Model1', Model1FieldMapType<TObjectRef, Types>, Types>;
+    Model2: PrismaObject<TObjectRef, 'Model2', Model2FieldMapType<TObjectRef, Types>, Types>;
+    Model3: PrismaObject<TObjectRef, 'Model3', Model3FieldMapType<TObjectRef, Types>, Types>;
 };
 type Model1ScalarFieldEnumFactory = PGEnum<['id', 'string', 'json', 'int', 'float', 'boolean', 'bigInt', 'dateTime', 'bytes', 'decimal', 'nullable', 'list', 'enum', 'enumList', 'enumNullable']>;
 type Model2ScalarFieldEnumFactory = PGEnum<['id', 'model1Id']>;

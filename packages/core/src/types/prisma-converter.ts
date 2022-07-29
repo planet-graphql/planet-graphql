@@ -15,13 +15,12 @@ import type { IsUnknown } from 'type-fest/source/set-return-type'
 
 export type PrismaObject<
   TObjectRef extends { [key: string]: Function | undefined },
-  TName extends keyof TObjectRef,
-  TObject extends PGObject<any>,
+  TName extends string,
+  TFieldMap extends PGOutputFieldMap,
+  Types extends PGTypes = PGTypes,
 > = IsUnknown<TObjectRef[TName]> extends true
-  ? TObject
-  : TObjectRef[TName] extends () => any
-  ? ReturnType<TObjectRef[TName]>
-  : never
+  ? () => PGObject<TFieldMap, undefined, { PrismaModelName: TName }, Types>
+  : TObjectRef[TName]
 
 export interface PrismaObjectMap<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

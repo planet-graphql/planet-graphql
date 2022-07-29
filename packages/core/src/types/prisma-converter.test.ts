@@ -59,36 +59,9 @@ interface SamplePrismaObjectMap<
   TObjectRef extends { [key: string]: Function | undefined },
   Types extends PGTypes = PGTypes,
 > {
-  User: () => PrismaObject<
-    TObjectRef,
-    'User',
-    PGObject<
-      UserFieldMap<TObjectRef, Types>,
-      undefined,
-      { PrismaModelName: 'User' },
-      Types
-    >
-  >
-  Post: () => PrismaObject<
-    TObjectRef,
-    'Post',
-    PGObject<
-      PostFieldMap<TObjectRef, Types>,
-      undefined,
-      { PrismaModelName: 'Post' },
-      Types
-    >
-  >
-  Comment: () => PrismaObject<
-    TObjectRef,
-    'Comment',
-    PGObject<
-      CommentFieldMap<TObjectRef, Types>,
-      undefined,
-      { PrismaModelName: 'Comment' },
-      Types
-    >
-  >
+  User: PrismaObject<TObjectRef, 'User', UserFieldMap<TObjectRef, Types>, Types>
+  Post: PrismaObject<TObjectRef, 'Post', PostFieldMap<TObjectRef, Types>, Types>
+  Comment: PrismaObject<TObjectRef, 'Comment', CommentFieldMap<TObjectRef, Types>, Types>
 }
 
 describe('PrismaObjectMap', () => {
@@ -125,8 +98,11 @@ describe('PrismaObjectMap', () => {
       >['value']['fieldMap']['user']['__type']
     >
 
+    type T = ReturnType<SamplePrismaObjectMap<TMap>['Comment']>['value']['fieldMap']
+    expectType<TypeEqual<T, CommentFieldMap<TMap>>>(true)
     expectType<TypeEqual<TUserInsidePost, UpdatedUser>>(true)
     expectType<TypeEqual<TPostsInsideUser, UpdatedPost>>(true)
+    expectType<TypeEqual<TUserInsideUserPost, UpdatedUser>>(true)
     expectType<TypeEqual<TUserInsideUserPost, UpdatedUser>>(true)
   })
 })
