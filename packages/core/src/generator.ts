@@ -197,6 +197,11 @@ export function getInputFactories(schema: DMMF.Schema): Array<{
 export function addImports(sourceFile: SourceFile, prismaImportPath: string): void {
   sourceFile.addImportDeclarations([
     {
+      namedImports: ['Prisma'],
+      moduleSpecifier: `${prismaImportPath}`,
+      isTypeOnly: true,
+    },
+    {
       namedImports: ['DMMF'],
       moduleSpecifier: `${prismaImportPath}/runtime`,
       isTypeOnly: true,
