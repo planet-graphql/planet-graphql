@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "private": true,
+  "version": "0.1.0",
+  "name": "@planet-graphql/simple-example",
+  "main": "src/server.ts",
+  "scripts": {
+    "start": "node -r @swc-node/register src/server.ts",
+    "lint": "eslint 'src/**/*.ts'"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^7.3.0",
+    "@graphql-yoga/node": "^2.11.2",
+    "@planet-graphql/core": "workspace:*",
+    "graphql": "^16.5.0",
+    "graphql-scalars": "^1.17.0",
+    "lodash": "^4.17.21",
+    "zod": "^3.14.4"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.182"
+  }
+}
