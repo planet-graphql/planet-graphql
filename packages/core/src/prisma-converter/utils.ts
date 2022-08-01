@@ -117,7 +117,8 @@ export function convertToDMMFArgToPGArgBuilderUnion(
   pgEnumMap: Record<string, PGEnum<any>>,
   builder: PGBuilder<any>,
 ): PGArgBuilderUnion<any> {
-  const builderMap = arg.inputTypes.reduce<PGArgBuilderFieldMap>((acc, inputType) => {
+  const sorted = sortInputTypes(arg.inputTypes)
+  const builderMap = sorted.reduce<PGArgBuilderFieldMap>((acc, inputType) => {
     const inputTypeName = inputType.type as string
     const fieldName = inputType.isList ? `${inputTypeName}List` : inputTypeName
     acc[fieldName] = convertDMMFArgInputTypeToPGArgBuilderOrPGInputField(
@@ -187,4 +188,20 @@ export function convertDMMFArgInputTypeToPGArgBuilderOrPGInputField(
 export function getScalarTypeName(prismaTypeName: string, isPrismaId: boolean): string {
   if (isPrismaId) return 'id'
   return _.lowerFirst(prismaTypeName)
+}
+
+export function sortInputTypes(
+  types: DMMF.SchemaArgInputType[],
+): DMMF.SchemaArgInputType[] {
+  const sorted = _.sortBy(types, (x) => {
+    let score = 0
+    if (x.location === 'inputObjectTypes' && x.isList) {
+      score = score + 100
+    }
+    if ((x.type as string).startsWith('JsonNullValue')) {
+      score = score - 10
+    }
+    return -score
+  })
+  return sorted
 }

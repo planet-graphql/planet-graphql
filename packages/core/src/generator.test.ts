@@ -136,7 +136,7 @@ describe('getInputsTypeProperty', () => {
   })
 
   describe('Array of inputObjectTypes', () => {
-    it('returns PGArgBuilderUnion & PGArgBuilder of type inputTypes', () => {
+    it('returns PGArgBuilderUnion of type inputTypes', () => {
       const args: DMMF.SchemaArg = {
         name: 'arg',
         isRequired: true,
@@ -158,9 +158,9 @@ describe('getInputsTypeProperty', () => {
       }
       const result = getInputsTypeProperty(args)
       expect(result).toEqual(`PGArgBuilderUnion<{
-__default: () => PGArgBuilder<Array<InputFieldMap<Types>>, Types>,
 InputList: () => PGArgBuilder<Array<InputFieldMap<Types>>, Types>,
-Input: () => PGArgBuilder<InputFieldMap<Types>, Types>
+Input: () => PGArgBuilder<InputFieldMap<Types>, Types>,
+__default: () => PGArgBuilder<Array<InputFieldMap<Types>>, Types>
 }>`)
     })
   })
@@ -265,9 +265,9 @@ describe('shapeInputs', () => {
         {
           name: 'arg2',
           type: `PGArgBuilderUnion<{
-__default: () => PGArgBuilder<Array<Input2FieldMap<Types>> | undefined, Types>,
 Input2List: () => PGArgBuilder<Array<Input2FieldMap<Types>> | undefined, Types>,
-Input2: () => PGArgBuilder<Input2FieldMap<Types> | undefined, Types>
+Input2: () => PGArgBuilder<Input2FieldMap<Types> | undefined, Types>,
+__default: () => PGArgBuilder<Array<Input2FieldMap<Types>> | undefined, Types>
 }>`,
         },
         {
