@@ -110,16 +110,16 @@ export interface PGArgBuilder<
         : PGArgBuilder<U | ExtractNullish<T>, Types>
       : never
     : never
-  build: <TInfer extends boolean, TWrap extends boolean>(config?: {
+  build: <TType extends boolean, TWrap extends boolean>(config?: {
     wrap?: TWrap
-    infer?: TInfer
+    type?: TType
   }) => Exclude<TWrap, undefined> extends true
-    ? Exclude<TInfer, undefined> extends true
+    ? Exclude<TType, undefined> extends true
       ? ConvertPGArgBuilderFieldMapField<this>
       : any
     : {
         [P in keyof ExtractPGArgBuilderFieldMap<T>]: Exclude<
-          TInfer,
+          TType,
           undefined
         > extends true
           ? ConvertPGArgBuilderFieldMapField<ExtractPGArgBuilderFieldMap<T>[P]>

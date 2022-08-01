@@ -72,7 +72,7 @@ describe.skip('PGArgBuilder', () => {
           })),
         })),
       }))
-      .build({ infer: true, wrap: true })
+      .build({ type: true, wrap: true })
 
     expectType<
       TypeEqual<
@@ -134,7 +134,7 @@ describe.skip('PGArgBuilder', () => {
           in: f.in,
         })),
       }))
-      .build({ infer: true })
+      .build({ type: true })
 
     expectType<
       TypeEqual<
