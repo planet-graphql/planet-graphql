@@ -4,6 +4,7 @@ import { generatorHandler } from '@prisma/generator-helper'
 import _ from 'lodash'
 import { Project, VariableDeclarationKind, Writers } from 'ts-morph'
 import { PGError } from './builder/utils'
+import { sortInputTypes } from './prisma-converter/utils'
 import type { DMMF } from '@prisma/generator-helper'
 import type { SourceFile } from 'ts-morph'
 
@@ -105,20 +106,20 @@ export function getInputsTypeProperty(arg: DMMF.SchemaArg): string {
     return ''
   }
 
-  const filteredInputTypes = arg.inputTypes.filter((x) => x.type !== 'Null')
+  const filteredInputTypes = sortInputTypes(
+    arg.inputTypes.filter((x) => x.type !== 'Null' && x.type !== 'null'),
+  )
 
   if (filteredInputTypes.length > 1) {
-    const unionObject = arg.inputTypes.reduce<{ [name: string]: string }>(
+    const unionObject = filteredInputTypes.reduce<{ [name: string]: string }>(
       (acc, inputType) => {
-        if (acc.__default === undefined) acc.__default = getProperty(inputType)
-        if (inputType.isList) {
-          acc[(inputType.type as string) + 'List'] = getProperty(inputType)
-        }
-        acc[inputType.type as string] = getProperty(inputType)
+        const typeName = inputType.type as string
+        acc[inputType.isList ? `${typeName}List` : typeName] = getProperty(inputType)
         return acc
       },
       {},
     )
+    unionObject.__default = Object.values(unionObject)[0]
     return `PGArgBuilderUnion<{\n${Object.entries(unionObject)
       .map(([key, value]) => {
         return `${key}: ${value}`
