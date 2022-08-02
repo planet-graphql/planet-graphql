@@ -1,6 +1,6 @@
-import { prisma } from '..'
 import { args, pg } from '../builders'
 import { post, postWithoutRelation } from '../models/post'
+import { prisma } from '../server'
 
 export const postsQuery = pg.query({
   name: 'post',

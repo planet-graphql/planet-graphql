@@ -136,7 +136,7 @@ now you can call query like this:
 
 ```graphql
 query {
-  users(
+  post(
     where: {
       AND: {
         title: { contains: "typescript" }
@@ -155,7 +155,7 @@ query {
 
 [See more details in the example.](https://github.com/planet-graphql/planet-graphql/blob/master/examples/prisma/src/resolvers/post-resolvers.ts)
 
-### Built in tools you will allways need:
+## Built in tools you will allways need
 
 We are aiming to cover the basic tools you will need for GraphQL.
 Please check out the examples to see exactly how they are used.
