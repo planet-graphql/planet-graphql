@@ -1,7 +1,7 @@
-import { prisma } from '..'
 import { pg } from '../builders'
 import { user } from '../models/user'
 import { Prisma } from '../prisma-client'
+import { prisma } from '../server'
 
 user.implement((f) => ({
   fullName: f.fullName.resolve(({ source }) => source.firstName + source.lastName),

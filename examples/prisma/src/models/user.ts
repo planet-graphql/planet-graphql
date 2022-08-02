@@ -1,6 +1,6 @@
 import { omit } from 'lodash'
-import { getRelations } from '../'
 import { args, pgpc } from '../builders'
+import { getRelations } from '../server'
 import { postWithoutRelation } from './post'
 
 // NOTE:

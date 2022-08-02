@@ -1,6 +1,6 @@
-import _ from 'lodash'
-import { getRelations } from '../'
+import { omit } from 'lodash'
 import { pgpc } from '../builders'
+import { getRelations } from '../server'
 
 export const post = pgpc.redefine({
   name: 'Post',
@@ -13,5 +13,5 @@ export const post = pgpc.redefine({
 
 export const postWithoutRelation = post.copy({
   name: 'PostWithoutRelation',
-  fields: (f) => _.omit(f, 'author', 'attachments'),
+  fields: (f) => omit(f, 'author', 'attachments'),
 })

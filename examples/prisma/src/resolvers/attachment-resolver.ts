@@ -1,6 +1,6 @@
-import { prisma } from '..'
 import { args, pg } from '../builders'
 import { attachmentWithoutRelation } from '../models/attachment'
+import { prisma } from '../server'
 
 export const createAttachmentMutation = pg.mutation({
   name: 'createAttachment',
