@@ -53,6 +53,27 @@ importers:
     devDependencies:
       '@types/lodash': 4.14.182
 
+  examples/simple:
+    specifiers:
+      '@faker-js/faker': ^7.3.0
+      '@graphql-yoga/node': ^2.11.2
+      '@planet-graphql/core': workspace:*
+      '@types/lodash': ^4.14.182
+      graphql: ^16.5.0
+      graphql-scalars: ^1.17.0
+      lodash: ^4.17.21
+      zod: ^3.14.4
+    dependencies:
+      '@faker-js/faker': 7.3.0
+      '@graphql-yoga/node': 2.12.0_graphql@16.5.0
+      '@planet-graphql/core': link:../../packages/core
+      graphql: 16.5.0
+      graphql-scalars: 1.17.0_graphql@16.5.0
+      lodash: 4.17.21
+      zod: 3.17.3
+    devDependencies:
+      '@types/lodash': 4.14.182
+
   packages/config:
     specifiers:
       '@typescript-eslint/eslint-plugin': ^5.30.5
@@ -480,6 +501,11 @@ packages:
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
       - supports-color
+
+  /@faker-js/faker/7.3.0:
+    resolution: {integrity: sha512-1W0PZezq2rxlAssoWemi9gFRD8IQxvf0FPL5Km3TOmGHFG7ib0TbFBJ0yC7D/1NsxunjNTK6WjUXV8ao/mKZ5w==}
+    engines: {node: '>=14.0.0', npm: '>=6.0.0'}
+    dev: false
 
   /@graphql-tools/merge/8.3.0_graphql@16.5.0:
     resolution: {integrity: sha512-xRa7RAQok/0DD2YnjuqikMrr7dUAxTpdGtZ7BkvUUGhYs3B3p7reCAfvOVr1DJAqVToP7hdlMk+S5+Ylk+AaqA==}

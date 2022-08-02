@@ -1,10 +1,10 @@
 import _ from 'lodash'
 import { getRelations } from '../'
-import { pgpc } from '../graphql'
+import { pgpc } from '../builders'
 
 export const post = pgpc.redefine({
   name: 'Post',
-  fields: (f, b) => ({
+  fields: (f) => ({
     ...f,
     attachments: f.attachments.relay(),
   }),
