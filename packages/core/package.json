@@ -41,6 +41,7 @@
   "devDependencies": {
     "@planet-graphql/config": "workspace:*",
     "@prisma/internals": "^4.0.0",
-    "graphql": "^16.5.0"
+    "graphql": "^16.5.0",
+    "type-fest": "^2.16.0"
   }
 }

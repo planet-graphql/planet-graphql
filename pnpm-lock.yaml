@@ -110,6 +110,7 @@ importers:
       graphql-subscriptions: ^2.0.0
       lodash: ^4.17.21
       ts-morph: ^14.0.0
+      type-fest: ^2.16.0
       zod: ^3.14.4
     dependencies:
       '@prisma/generator-helper': 4.0.0
@@ -124,6 +125,7 @@ importers:
       '@planet-graphql/config': link:../config
       '@prisma/internals': 4.0.0
       graphql: 16.5.0
+      type-fest: 2.16.0
 
 packages:
 
