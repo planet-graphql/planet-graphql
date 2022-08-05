@@ -45,9 +45,9 @@ export type InitPGPrismaConverter = <Types extends PGTypes>(
 
 export interface PGPrismaConverter<Types extends PGTypes> {
   convertTypes: <
-    TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function },
+    TObjectRef extends { [P in keyof PrismaObjectMap<{}, Types>]?: Function } = {},
   >(
-    updatedObjectRef?: TObjectRef,
+    redefinedObjectRef?: TObjectRef,
   ) => {
     objects: {
       [P in keyof PrismaObjectMap<TObjectRef, Types>]: ReturnType<

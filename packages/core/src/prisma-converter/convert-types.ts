@@ -13,8 +13,8 @@ export const getConvertTypesFunction: <Types extends PGTypes>(
   pgEnumMap: Record<string, PGEnum<any>>,
   pgObjectRef: Record<string, PGObject<any> | (() => PGObject<any>)>,
 ) => PGPrismaConverter<Types>['convertTypes'] =
-  (builder, dmmf, pgEnumMap, pgObjectRef) => (updatedObjectRef) => {
-    const updatedObjectNames = Object.keys(updatedObjectRef ?? {})
+  (builder, dmmf, pgEnumMap, pgObjectRef) => (redefinedObjectRef) => {
+    const updatedObjectNames = Object.keys(redefinedObjectRef ?? {})
     const pgObjectMapFromDmmf = convertToPGObjectMap(
       dmmf.datamodel.models,
       updatedObjectNames,
@@ -25,7 +25,7 @@ export const getConvertTypesFunction: <Types extends PGTypes>(
     setPGObjectRef(
       pgObjectRef,
       pgObjectMapFromDmmf,
-      (updatedObjectRef ?? {}) as Record<string, () => PGObject<any>>,
+      (redefinedObjectRef ?? {}) as Record<string, () => PGObject<any>>,
     )
     setObjectRefIntoCache(builder.cache(), pgObjectRef)
     setPGEnumMapIntoCache(builder.cache(), pgEnumMap)
