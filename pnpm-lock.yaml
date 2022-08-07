@@ -16,7 +16,6 @@ importers:
       prettier: ^2.7.1
       ts-expect: ^1.3.0
       turbo: ^1.3.1
-      type-fest: ^2.16.0
       typescript: ^4.7.4
     devDependencies:
       '@planet-graphql/config': link:packages/config
@@ -31,7 +30,6 @@ importers:
       prettier: 2.7.1
       ts-expect: 1.3.0
       turbo: 1.3.1
-      type-fest: 2.16.0
       typescript: 4.7.4
 
   examples/prisma:
