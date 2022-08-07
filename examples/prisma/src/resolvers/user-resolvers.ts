@@ -35,7 +35,7 @@ export const usersQuery = pg.query({
       .object(() => user)
       // NOTE:
       // Just call "relay()" to change to a Query that supports pagination.
-      // If you want to change the "cursor" or "orderby", you can use "relayCursor()" or "relayOrderBy()" method to adjust them.
+      // If you want to change the "cursor" or "orderby", you can use the "relayCursor()" or "relayOrderBy()" method to adjust them.
       // Also, if you want to add a TotalCount field, you can set it with "relayTotalCount()".
       .relay()
       .relayCursor((node) => ({ id: node.id }))
@@ -43,7 +43,7 @@ export const usersQuery = pg.query({
       .relayTotalCount(async () => await prisma.user.count())
       // NOTE:
       // "auth()" method can be used to control permissions.
-      // In the following example, only the admin user can call the users query.
+      // In the following example, only the admin user can call the "users" query.
       .auth(({ context }) => context.isAdmin)
       .resolve(async ({ prismaArgs }) => {
         return await prisma.user.findMany(prismaArgs)

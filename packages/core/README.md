@@ -48,7 +48,7 @@ export const user = pgpc.redefine({
 ### Automatically generating Prisma args from GraphQL queries (solves N+1 problems)
 
 PlanetGraphQL provides "prismaArgs" argument in addition to the usual GraphQL.js arguments when resolving.
-This "prismaArgs" contains the Prisma's "include" arg automatically generated from the GraphQL query.
+This "prismaArgs" contains the Prisma's "include" arg which is automatically generated from the GraphQL query.
 
 ```ts
 export const usersQuery = pg.query({
@@ -155,12 +155,12 @@ query {
 
 [See more details in the example.](https://github.com/planet-graphql/planet-graphql/blob/master/examples/prisma/src/resolvers/post-resolvers.ts)
 
-## Built in tools you will allways need
+## Built-in tools you will allways need
 
 We are aiming to cover the basic tools you will need for GraphQL.
 Please check out the examples to see exactly how they are used.
 
-- [pagination(relay)](https://github.com/planet-graphql/planet-graphql/blob/master/examples/prisma/src/resolvers/user-resolvers.ts#L36)
+- [pagination (relay)](https://github.com/planet-graphql/planet-graphql/blob/master/examples/prisma/src/resolvers/user-resolvers.ts#L36)
 - [dataloader](https://github.com/planet-graphql/planet-graphql/blob/master/examples/prisma/src/resolvers/user-resolvers.ts#L8)
 - [input validation](https://github.com/planet-graphql/planet-graphql/blob/master/examples/prisma/src/resolvers/post-resolvers.ts#L33)
 - [auth control](https://github.com/planet-graphql/planet-graphql/blob/master/examples/prisma/src/resolvers/user-resolvers.ts#L44)
