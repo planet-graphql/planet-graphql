@@ -7,14 +7,17 @@ export const authFeature: PGFeature = {
   cacheKey: ({ info }) => `${info.parentType.name}:${info.fieldName}`,
   beforeResolve: async ({ field, resolveParams }) => {
     const hasAuth =
-      field.value.auth === undefined || (await field.value.auth(resolveParams as any))
+      field.value.auth === undefined ||
+      (await field.value.auth.callback(resolveParams as any))
     if (hasAuth) {
       return {
         isCallNext: true,
       }
     }
-
-    const unAuthResolveValue = getUnAuthResolveValue(field)
+    const unAuthResolveValue = getUnAuthResolveValue(
+      field.value.auth?.options?.strict,
+      field,
+    )
     return {
       isCallNext: false,
       resolveValue: unAuthResolveValue,
@@ -29,7 +32,14 @@ export const authFeature: PGFeature = {
   },
 }
 
-function getUnAuthResolveValue(field: PGOutputField<unknown>): [] | null | undefined {
+function getUnAuthResolveValue(
+  isStrict: boolean | undefined,
+  field: PGOutputField<unknown>,
+): [] | null | undefined {
+  if (isStrict === true) {
+    return undefined
+  }
+
   if (field.value.isNullable) {
     return null
   }

@@ -100,8 +100,11 @@ export function createOutputField<T, Types extends PGTypes>(
       )
       return field
     },
-    auth: (x) => {
-      field.value.auth = x
+    auth: (x, options) => {
+      field.value.auth = {
+        callback: x,
+        options,
+      }
       return field
     },
     __type: undefined as any,

@@ -86,6 +86,39 @@ describe('authFeature', () => {
         })
       })
     })
+
+    describe('Strict true', () => {
+      it('Raises an exception whatever the return type is', async () => {
+        const pg = getPGBuilder()()
+
+        const someQuery = pg.query({
+          name: 'someQuery',
+          field: (b) =>
+            b
+              .string()
+              .nullable()
+              .auth(() => false, { strict: true })
+              .resolve(() => ''),
+        })
+
+        const query = `query { someQuery }`
+
+        const response = await graphql({
+          schema: pg.build([someQuery]),
+          source: query,
+          contextValue: {},
+        })
+
+        expect(response).toEqual({
+          data: {
+            someQuery: null,
+          },
+          errors: [
+            new GraphQLError('GraphQL permission denied. Field: Query.someQuery', {}),
+          ],
+        })
+      })
+    })
   })
 
   describe('Authorized', () => {
