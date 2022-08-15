@@ -118,12 +118,12 @@ importers:
       graphql-subscriptions: 2.0.0_graphql@16.5.0
       lodash: 4.17.21
       ts-morph: 14.0.0
+      type-fest: 2.16.0
       zod: 3.17.3
     devDependencies:
       '@planet-graphql/config': link:../config
       '@prisma/internals': 4.0.0
       graphql: 16.5.0
-      type-fest: 2.16.0
 
 packages:
 
@@ -4997,7 +4997,7 @@ packages:
   /type-fest/2.16.0:
     resolution: {integrity: sha512-qpaThT2HQkFb83gMOrdKVsfCN7LKxP26Yq+smPzY1FqoHRjqmjqHXA7n5Gkxi8efirtbeEUxzfEdePthQWCuHw==}
     engines: {node: '>=12.20'}
-    dev: true
+    dev: false
 
   /typescript/4.7.4:
     resolution: {integrity: sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==}
