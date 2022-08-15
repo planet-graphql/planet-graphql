@@ -11,7 +11,6 @@ export function mergeDefaultPGInput(input: Partial<PGInput<any>>): PGInput<any> 
         fieldMap: {},
       },
       copy: expect.any(Function),
-      update: expect.any(Function),
       validation: expect.any(Function),
     },
     input,

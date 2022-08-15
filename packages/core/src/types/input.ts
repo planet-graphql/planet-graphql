@@ -22,10 +22,10 @@ export interface PGInput<T extends PGInputFieldMap, Types extends PGTypes = any>
       context: Types['Context'],
     ) => Promisable<boolean>
   }
-  copy: (name: string) => this
-  update: <SetT extends PGEditInputFieldMap<T>>(
-    editFieldMap: (f: T, b: PGInputFieldBuilder<Types>) => SetT,
-  ) => PGInput<{ [P in keyof SetT]: Exclude<SetT[P], undefined> }, Types>
+  copy: <TUpdate extends PGInputFieldMap, TOriginal extends T>(config: {
+    name: string
+    fields: (f: TOriginal, b: PGInputFieldBuilder<Types>) => TUpdate
+  }) => PGInput<TUpdate, Types>
   validation: (
     validator?: (
       value: TypeOfPGFieldMap<T>,
