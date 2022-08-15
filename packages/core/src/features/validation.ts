@@ -138,8 +138,8 @@ export async function validateArgs(
     // NOTE: PGInput validation
     if (typeof field.value.type === 'function') {
       const pgInput: PGInput<PGInputFieldMap> = field.value.type()
+      const listedArg = Array.isArray(arg) ? arg : [arg]
       if (pgInput.value.validator !== undefined) {
-        const listedArg = Array.isArray(arg) ? arg : [arg]
         for (const x of listedArg) {
           const isValid = await pgInput.value.validator(x, context)
           if (!isValid) {
@@ -150,15 +150,19 @@ export async function validateArgs(
           }
         }
       }
-      errors.push(
-        ...(await validateArgs(
-          `${pathPrefix}.${fieldName}`,
-          pgInput.value.fieldMap,
-          arg,
-          cache,
-          context,
-        )),
-      )
+
+      // NOTE: PGInputField validation inside the PGInput
+      for (const x of listedArg) {
+        errors.push(
+          ...(await validateArgs(
+            `${pathPrefix}.${fieldName}`,
+            pgInput.value.fieldMap,
+            x,
+            cache,
+            context,
+          )),
+        )
+      }
     }
   }
   return errors

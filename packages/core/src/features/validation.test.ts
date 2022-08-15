@@ -172,9 +172,18 @@ describe('validateArgs', () => {
       arg: createInputField({ kind: 'scalar', type: 'string' }).validation(() =>
         z.string().max(1),
       ),
+      listArg: createInputField({ kind: 'scalar', type: 'string' })
+        .list()
+        .validation(() => z.array(z.string()).max(1)),
     }
     const cache = createBuilderCache(DefaultScalars)
-    const result = await validateArgs('prefix', fieldMap, { arg: 'xx' }, cache, {})
+    const result = await validateArgs(
+      'prefix',
+      fieldMap,
+      { arg: 'xx', listArg: ['', ''] },
+      cache,
+      {},
+    )
     expect(result).toEqual([
       {
         path: 'prefix.arg',
@@ -186,6 +195,19 @@ describe('validateArgs', () => {
             message: 'String must contain at most 1 character(s)',
             path: [],
             type: 'string',
+          },
+        ],
+      },
+      {
+        path: 'prefix.listArg',
+        issues: [
+          {
+            code: 'too_big',
+            inclusive: true,
+            maximum: 1,
+            message: 'Array must contain at most 1 element(s)',
+            path: [],
+            type: 'array',
           },
         ],
       },
@@ -231,17 +253,31 @@ describe('validateArgs', () => {
     })
     const fieldMap = {
       arg: createInputField({ kind: 'object', type: () => input }),
+      listArg: createInputField({ kind: 'object', type: () => input }).list(),
     }
     const result = await validateArgs(
       'prefix',
       fieldMap,
-      { arg: { a: 'xx' } },
+      { arg: { a: 'xx' }, listArg: [{ a: 'xx' }] },
       pg.cache(),
       {},
     )
     expect(result).toEqual([
       {
         path: 'prefix.arg.a',
+        issues: [
+          {
+            code: 'too_big',
+            inclusive: true,
+            maximum: 1,
+            message: 'String must contain at most 1 character(s)',
+            path: [],
+            type: 'string',
+          },
+        ],
+      },
+      {
+        path: 'prefix.listArg.a',
         issues: [
           {
             code: 'too_big',

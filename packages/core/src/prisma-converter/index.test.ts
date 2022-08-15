@@ -323,7 +323,7 @@ describe('PGPrismaConverter', () => {
     })
     const query = `
       query {
-        someModels(where: { id: { equals: 1 } }, skip: 1) {
+        someModels(where: { id: { equals: 1 } }, orderBy: [{ id: asc }], skip: 1) {
           id
         }
       }
