@@ -2,9 +2,9 @@ name: Test
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   build:
@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-      - name: pnpm cache
+      - name: Create pnpm cache
         uses: actions/cache@v2
         with:
           path: ~/.pnpm-store
@@ -28,7 +28,7 @@ jobs:
             ${{ runner.os }}-
       - uses: pnpm/action-setup@v2
         with:
-          version: 7.4.1
+          version: 7
           run_install: true
       - name: turbo cache
         uses: actions/cache@v2
@@ -39,5 +39,4 @@ jobs:
             ${{ runner.os }}-${{ matrix.node-version }}
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm test
-      - run: pnpm build
+      - run: pnpm run ci
