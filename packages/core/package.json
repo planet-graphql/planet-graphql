@@ -19,8 +19,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint 'src/**/*.ts'",
-    "test": "jest --runInBand",
-    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+    "test": "jest --runInBand"
   },
   "bin": {
     "planet-graphql": "./bin/generator.js"
