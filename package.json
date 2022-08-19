@@ -11,6 +11,7 @@
     "test": "turbo run test",
     "clean": "git clean -xdf",
     "ci": "turbo run ci",
+    "release": "turbo run ci && changeset publish",
     "changeset": "changeset"
   },
   "devDependencies": {
