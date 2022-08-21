@@ -6,7 +6,7 @@
   "main": "src/server.ts",
   "scripts": {
     "start": "pnpm i && prisma generate && node -r @swc-node/register src/server.ts",
-    "lint": "eslint 'src/**/*.ts'",
+    "lint": "prisma generate && eslint 'src/**/*.ts'",
     "prisma": "prisma"
   },
   "dependencies": {

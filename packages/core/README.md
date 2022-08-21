@@ -7,8 +7,8 @@ It aims to be simple, type-safe and customizable for real-world products.
 
 The fastest way to get started with PlanetGraphQL is to check out our examples:
 
-- [With Prisma](https://github.com/planet-graphql/planet-graphql/tree/master/examples/prisma)
-- [Simple (Without Prisma)](https://github.com/planet-graphql/planet-graphql/tree/master/examples/simple)
+- [With Prisma](https://github.com/planet-graphql/planet-graphql/tree/main/examples/prisma)
+- [Simple (Without Prisma)](https://github.com/planet-graphql/planet-graphql/tree/main/examples/simple)
 
 ## Install & Setup
 
