@@ -10,4 +10,5 @@ module.exports = {
   parserOptions: {
     project: './tsconfig.json',
   },
+  ignorePatterns: ['src/planet-graphql/*', 'src/prisma-client/*'],
 }

@@ -1,4 +1,5 @@
 import fs from 'fs'
+import path from 'path'
 import { getDMMF } from '@prisma/internals'
 import {
   generate,
@@ -76,8 +77,7 @@ jest.mock('@prisma/generator-helper')
 
 describe('generate', () => {
   describe('the whole dmmf is passed', () => {
-    const outputPath = '.output'
-
+    const outputPath = path.join(__dirname, '.output')
     afterEach(() => {
       if (fs.existsSync(outputPath)) {
         fs.rmSync(outputPath, { recursive: true, force: true })
@@ -94,7 +94,7 @@ describe('generate', () => {
       expect(typeFileResult).toMatchSnapshot()
       expect(jsFileResult).toMatchSnapshot()
       expect(packageJsonFileResult).toMatchSnapshot()
-    })
+    }, 20_000)
 
     it('File is overwritten even if it exists and no exception is raised', async () => {
       const dmmf: DMMF.Document = {
@@ -108,7 +108,7 @@ describe('generate', () => {
       }
       await generate(dmmf, outputPath, '@prisma/client')
       await generate(dmmf, outputPath, '@prisma/client')
-    })
+    }, 20_000)
   })
 })
 
