@@ -26,9 +26,6 @@ export const createAttachmentMutation = pg.mutation({
             authorId: context.userId,
           },
         })
-        // Errors may occur depending on the value of meta field.
-        // This is a Prisma Client issue.
-        // https://github.com/prisma/prisma/issues/14274
         const created = await prisma.attachment.create({
           data: {
             ...args.input,

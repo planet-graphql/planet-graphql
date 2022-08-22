@@ -37,7 +37,7 @@ const server = createServer({
   },
   // NOTE: Set a fixed value since this is a sample
   context: {
-    userId: 1,
+    userId: 0,
     isAdmin: true,
   },
 })
