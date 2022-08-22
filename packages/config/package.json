@@ -1,4 +1,6 @@
 {
+  "$schema": "https://json.schemastore.org/package.json",
+  "private": true,
   "name": "@planet-graphql/config",
   "version": "0.0.0",
   "files": [
