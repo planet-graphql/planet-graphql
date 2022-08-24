@@ -29,10 +29,10 @@ export const getRedefineFunction: <Types extends PGTypes>(
     )
     const redefinedObject = createPGObject<any, any, any>(
       config.name,
-      config.fields(basePGObject.value.fieldMap, builder.utils.outputFieldBuilder),
+      config.fields(basePGObject.value.fieldMap, builder.fieldBuilders.output),
       builder.cache(),
-      builder.utils.outputFieldBuilder,
-      builder.utils.inputFieldBuilder,
+      builder.fieldBuilders.output,
+      builder.fieldBuilders.input,
       config.interfaces,
       config.isTypeOf,
     )

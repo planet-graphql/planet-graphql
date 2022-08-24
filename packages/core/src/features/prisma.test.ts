@@ -19,7 +19,7 @@ describe('prismaArgsFeature', () => {
   it('Separates received args into prismaArgs and args', async () => {
     let args: any
     let prismaArgs: any
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
 
     const someQuery = pg.query({
       name: 'someQuery',
@@ -60,7 +60,7 @@ describe('prismaArgsFeature', () => {
   it('Generates and returns include args from fields set as relations in Prisma', async () => {
     let args: any
     let prismaArgs: any
-    const pg = getPGBuilder<SomePGTypes>()()
+    const pg = getPGBuilder<SomePGTypes>()
 
     const user = pg
       .object({
@@ -125,7 +125,7 @@ describe('prismaArgsFeature', () => {
   it('Merges and returns generated include clauses and prismaArgs', async () => {
     let prismaArgs: any
     let postsFieldPrismaArgs: any
-    const pg = getPGBuilder<SomePGTypes>()()
+    const pg = getPGBuilder<SomePGTypes>()
 
     const user = pg
       .object({
@@ -243,7 +243,7 @@ describe('prismaArgsFeature', () => {
   describe('With a relay field', () => {
     it('Generates and returns include args', async () => {
       let prismaArgs: any
-      const pg = getPGBuilder<SomePGTypes>()()
+      const pg = getPGBuilder<SomePGTypes>()
       const user = pg
         .object({
           name: 'user',
@@ -321,7 +321,7 @@ describe('prismaArgsFeature', () => {
 
 describe('prismaRelayFeature', () => {
   it('Converts the return value to Relay format', async () => {
-    const pg = getPGBuilder<SomePGTypes>()()
+    const pg = getPGBuilder<SomePGTypes>()
     const user = pg
       .object({
         name: 'User',
@@ -393,7 +393,7 @@ describe('prismaRelayFeature', () => {
   it('Converts relay args to prisma args', async () => {
     let args
     let prismaArgs
-    const pg = getPGBuilder<SomePGTypes>()()
+    const pg = getPGBuilder<SomePGTypes>()
     const user = pg
       .object({
         name: 'User',
@@ -465,7 +465,7 @@ describe('prismaRelayFeature', () => {
 
   describe('Create cursor function is set', () => {
     it('Uses set function to create cursors', async () => {
-      const pg = getPGBuilder<SomePGTypes>()()
+      const pg = getPGBuilder<SomePGTypes>()
       const user = pg
         .object({
           name: 'User',
@@ -514,7 +514,7 @@ describe('prismaRelayFeature', () => {
   describe('Default OrderBy args is set', () => {
     it('Uses set default OrderBy args ', async () => {
       let prismaArgs
-      const pg = getPGBuilder<SomePGTypes>()()
+      const pg = getPGBuilder<SomePGTypes>()
       const user = pg
         .object({
           name: 'User',
@@ -564,7 +564,7 @@ describe('prismaRelayFeature', () => {
   describe('OrderBy args is passed as PrismaArgs', () => {
     it('Uses passed OrderBy args', async () => {
       let prismaArgs
-      const pg = getPGBuilder<SomePGTypes>()()
+      const pg = getPGBuilder<SomePGTypes>()
       const user = pg
         .object({
           name: 'User',
@@ -622,7 +622,7 @@ describe('prismaRelayFeature', () => {
 
 describe('createConnectionObject', () => {
   it('Returns a PGObject that matches the Relay format', () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const nodeObject = pg.object({
       name: 'Node',
       fields: (b) => ({

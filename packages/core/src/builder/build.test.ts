@@ -4,7 +4,7 @@ import { getPGBuilder } from '..'
 describe('build', () => {
   describe('No Mutation is defined', () => {
     it('Builds a GraphQLSchema', async () => {
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
       const someQuery = pg.query({
         name: 'someQuery',
         field: (b) => b.string().resolve(() => 'hi'),
@@ -22,7 +22,7 @@ describe('build', () => {
 
   describe('No Query is defined', () => {
     it('Returns errors because GraphQL.js requires at least one Query', async () => {
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
       const someMutation = pg.mutation({
         name: 'someMutation',
         field: (b) => b.string().resolve(() => 'hi'),

@@ -8,12 +8,12 @@ import type {
   PGOutputFieldOptionsDefault,
   PGObjectOptionsDefault,
 } from '../types/output'
-import type { TypeEqual } from 'ts-expect';
+import type { TypeEqual } from 'ts-expect'
 
 describe('PGUnion', () => {
   describe('builder', () => {
     it('Returns a correctly typed PGUnion', () => {
-      const builder = getPGBuilder()()
+      const builder = getPGBuilder()
       const objectA = builder.object({
         name: 'A',
         fields: (b) => ({

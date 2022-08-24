@@ -45,7 +45,7 @@ async function getSampleDMMF(): Promise<DMMF.Document> {
 describe('convertDMMFModelToPGObject', () => {
   it('Returns a PGObject', async () => {
     const dmmf = await getSampleDMMF()
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const dmmfModel = dmmf.datamodel.models.find((x) => x.name === 'SomeModel')!
@@ -107,7 +107,7 @@ describe('convertDMMFArgToPGArgBuilderField', () => {
           } as const,
         ],
       }
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
 
       const result = convertDMMFArgToPGArgBuilderField(arg, {}, {}, pg)
 
@@ -149,7 +149,7 @@ describe('convertDMMFArgToPGArgBuilderField', () => {
           } as const,
         ],
       }
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
 
       const result = convertDMMFArgToPGArgBuilderField(arg, {}, {}, pg)
 
@@ -171,7 +171,7 @@ describe('convertDMMFArgInputTypeToPGArgBuilderOrPGInputField', () => {
         location: 'scalar',
         isList: false,
       } as const
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
 
       const result = convertDMMFArgInputTypeToPGArgBuilderOrPGInputField(
         inputType,
@@ -197,7 +197,7 @@ describe('convertDMMFArgInputTypeToPGArgBuilderOrPGInputField', () => {
           location: 'scalar',
           isList: true,
         } as const
-        const pg = getPGBuilder()()
+        const pg = getPGBuilder()
 
         const result = convertDMMFArgInputTypeToPGArgBuilderOrPGInputField(
           inputType,
@@ -232,7 +232,7 @@ describe('convertDMMFArgInputTypeToPGArgBuilderOrPGInputField', () => {
       const pgEnumMap = {
         SomeEnum: createPGEnum('SomeEnum', ['A', 'B']),
       }
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
 
       const result = convertDMMFArgInputTypeToPGArgBuilderOrPGInputField(
         inputType,
@@ -268,7 +268,7 @@ describe('convertDMMFArgInputTypeToPGArgBuilderOrPGInputField', () => {
           }),
         },
       }
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
 
       const result = convertDMMFArgInputTypeToPGArgBuilderOrPGInputField(
         inputType,
@@ -302,7 +302,7 @@ describe('convertDMMFArgInputTypeToPGArgBuilderOrPGInputField', () => {
             }),
           },
         }
-        const pg = getPGBuilder()()
+        const pg = getPGBuilder()
 
         const result = convertDMMFArgInputTypeToPGArgBuilderOrPGInputField(
           inputType,

@@ -11,7 +11,7 @@ import type { TypeEqual } from 'ts-expect'
 
 describe('optionalArgsFeature', () => {
   it('Modify arg value of Nullable or Optional field', async () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
 
     let args
     const someQuery = pg.query({
@@ -86,7 +86,7 @@ describe('modifyArgValueOfNullableOrOptionalField', () => {
 
   describe('An arg is object', () => {
     it('Recursively modify arg value', () => {
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
       const input = pg.input({
         name: 'Some',
         fields: (b) => ({
@@ -116,7 +116,7 @@ describe('modifyArgValueOfNullableOrOptionalField', () => {
 
 describe('validationFeature', () => {
   it('Validates args with schema', async () => {
-    const pg = getPGBuilder<SomePGTypes<{ role: 'User' | 'Admin' }>>()()
+    const pg = getPGBuilder<SomePGTypes<{ role: 'User' | 'Admin' }>>()
     const someQuery = pg.query({
       name: 'someQuery',
       field: (b) =>
@@ -215,7 +215,7 @@ describe('validateArgs', () => {
   })
 
   it('Validate args with validator set in PGInput', async () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const input = pg
       .input({
         name: 'SomeInput',
@@ -244,7 +244,7 @@ describe('validateArgs', () => {
   })
 
   it('Validate args with validator set in PGInputField inside PGInput', async () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const input = pg.input({
       name: 'SomeInput',
       fields: (b) => ({

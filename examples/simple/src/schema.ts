@@ -3,7 +3,7 @@ import { GraphQLPositiveInt } from 'graphql-scalars'
 import { z } from 'zod'
 import { posts, users } from './data'
 
-const pg = getPGBuilder()({
+const pg = getPGBuilder().configure({
   scalars: {
     // NOTE: You can set any custom scalars here.
     positiveInt: {

@@ -71,9 +71,13 @@ export type PGTypes<
   ScalarMap: PGScalarMap<typeof DefaultScalars & Config['scalars']>
 }
 
-export type InitPGBuilder = <TypeConfig extends PGTypeConfig = PGTypeConfig>() => <
-  Config extends PGConfig,
->(
+export type InitPGBuilder = <
+  TypeConfig extends PGTypeConfig = PGTypeConfig,
+>() => PGBuilder<PGTypes<TypeConfig>>
+
+export type InitPGBuilderWithConfig = <
+  TypeConfig extends PGTypeConfig = PGTypeConfig,
+>() => <Config extends PGConfig>(
   config?: Config,
 ) => PGBuilder<PGTypes<TypeConfig, Config>>
 
@@ -136,10 +140,17 @@ export interface PGBuilder<
     params: PGResolveParams<TSource, any, any, any, TResolve>,
     batchLoadFn: (sourceList: readonly TSource[]) => ResolveResponse<TResolve[]>,
   ) => ResolveResponse<TResolve>
+  configure: <TConfig extends PGConfig>(
+    config: TConfig,
+  ) => PGBuilder<
+    Types & {
+      ScalarMap: PGScalarMap<typeof DefaultScalars & TConfig['scalars']>
+    }
+  >
   cache: () => PGCache
-  utils: {
-    inputFieldBuilder: PGInputFieldBuilder<Types>
-    outputFieldBuilder: PGOutputFieldBuilder<Types>
+  fieldBuilders: {
+    input: PGInputFieldBuilder<Types>
+    output: PGOutputFieldBuilder<Types>
   }
 }
 

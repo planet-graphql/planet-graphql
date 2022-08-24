@@ -11,7 +11,7 @@ import type { PGTypes } from '../types/builder'
 
 describe('InputBuilder', () => {
   it('Returns a PGInput & Sets it to the Build Cache', () => {
-    const builder = getPGBuilder()()
+    const builder = getPGBuilder()
 
     const result = builder.input({
       name: 'SomeInput',
@@ -36,7 +36,7 @@ describe('InputBuilder', () => {
   })
 
   it('Returns a PGInput that can be used as an input type', async () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const someInput = pg.input({
       name: 'SomeInput',
       fields: (b) => ({

@@ -6,7 +6,7 @@ import type { TypeEqual } from 'ts-expect'
 
 describe('EnumBuilder', () => {
   it('Returns a PGEnum & Set it to the Build Cache', () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
 
     const result = pg.enum({
       name: 'SomeEnum',
@@ -24,7 +24,7 @@ describe('EnumBuilder', () => {
   })
 
   it('Returns a PGEnum that can be used as an Input type and a Output type', async () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const someEnum = pg.enum({
       name: 'SomeEnum',
       values: ['A', 'B'],

@@ -4,7 +4,7 @@ import { getPGBuilder } from '..'
 describe('authFeature', () => {
   describe('Not authorized', () => {
     it('Raises an exception so that an error is returned', async () => {
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
 
       const someQuery = pg.query({
         name: 'someQuery',
@@ -33,7 +33,7 @@ describe('authFeature', () => {
 
     describe('Return type is nullable', () => {
       it('Returns a null for user convenience', async () => {
-        const pg = getPGBuilder()()
+        const pg = getPGBuilder()
 
         const someQuery = pg.query({
           name: 'someQuery',
@@ -61,7 +61,7 @@ describe('authFeature', () => {
 
     describe('Return type is Array', () => {
       it('Returns an empty array for user convenience', async () => {
-        const pg = getPGBuilder()()
+        const pg = getPGBuilder()
 
         const someQuery = pg.query({
           name: 'someQuery',
@@ -89,7 +89,7 @@ describe('authFeature', () => {
 
     describe('Strict true', () => {
       it('Raises an exception whatever the return type is', async () => {
-        const pg = getPGBuilder()()
+        const pg = getPGBuilder()
 
         const someQuery = pg.query({
           name: 'someQuery',
@@ -123,7 +123,7 @@ describe('authFeature', () => {
 
   describe('Authorized', () => {
     it('Do nothing and return a set resolve return value', async () => {
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
 
       const someQuery = pg.query({
         name: 'someQuery',

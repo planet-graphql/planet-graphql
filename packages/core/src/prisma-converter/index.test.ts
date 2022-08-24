@@ -40,7 +40,7 @@ async function getSampleDMMF(): Promise<DMMF.Document> {
 describe('PGPrismaConverter', () => {
   it('Generates PGObjects from the DMMF under the updated definitions & Sets them into the Build Cache', async () => {
     const dmmf = await getSampleDMMF()
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const pgpc = getInternalPGPrismaConverter(pg, dmmf)
 
     const someModel = pgpc.redefine({
@@ -120,7 +120,7 @@ describe('PGPrismaConverter', () => {
 
   it('Generates PGEnums from the DMMF & Sets them into the Build Cache', async () => {
     const dmmf = await getSampleDMMF()
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const pgpc = getInternalPGPrismaConverter(pg, dmmf)
 
     const { enums } = pgpc.convertTypes()
@@ -166,7 +166,7 @@ describe('PGPrismaConverter', () => {
 
   it('Generates PGInputFactories from the DMMF', async () => {
     const dmmf = await getSampleDMMF()
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const pgpc = getInternalPGPrismaConverter(pg, dmmf)
 
     const { args } = pgpc.convertBuilders()
@@ -299,7 +299,7 @@ describe('PGPrismaConverter', () => {
 
   it('Generates instances that can be converted to a GraphQL schema', async () => {
     const dmmf = await getSampleDMMF()
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const pgpc = getInternalPGPrismaConverter(pg, dmmf)
 
     const { args } = pgpc.convertBuilders()
