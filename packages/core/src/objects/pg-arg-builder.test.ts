@@ -28,7 +28,7 @@ describe('createPGArgBuilder', () => {
         type: 'string',
       }),
     }
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const pgArgBuilder = createPGArgBuilder('SomeInput', fieldMap, pg)
     expect(pgArgBuilder).toEqual(mergeDefaultArgBuilder('SomeInput', { fieldMap }))
   })
@@ -64,7 +64,7 @@ describe('PGArgBuilder', () => {
           type: 'string',
         }),
       }
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
       const pgArgBuilder = createPGArgBuilder('SomeInput', fieldMap, pg).nullish()
       expect(pgArgBuilder).toEqual(
         mergeDefaultArgBuilder('SomeInput', {
@@ -87,7 +87,7 @@ describe('PGArgBuilder', () => {
           type: 'string',
         }),
       }
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
       const pgArgBuilder = createPGArgBuilder('SomeInput', fieldMap, pg).nullable()
       expect(pgArgBuilder).toEqual(
         mergeDefaultArgBuilder('SomeInput', { fieldMap, isNullable: true }),
@@ -106,7 +106,7 @@ describe('PGArgBuilder', () => {
           type: 'string',
         }),
       }
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
       const pgArgBuilder = createPGArgBuilder('SomeInput', fieldMap, pg).optional()
       expect(pgArgBuilder).toEqual(
         mergeDefaultArgBuilder('SomeInput', { fieldMap, isOptional: true }),
@@ -125,7 +125,7 @@ describe('PGArgBuilder', () => {
           type: 'string',
         }),
       }
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
       const pgArgBuilder = createPGArgBuilder('SomeInput', fieldMap, pg).list()
       expect(pgArgBuilder).toEqual(
         mergeDefaultArgBuilder('SomeInput', { fieldMap, isList: true }),
@@ -141,7 +141,7 @@ describe('PGArgBuilder', () => {
           type: 'string',
         }),
       }
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
       const pgArgBuilder = createPGArgBuilder('SomeInput', fieldMap, pg)
         .nullable()
         .default(null)
@@ -163,7 +163,7 @@ describe('PGArgBuilder', () => {
           type: 'string',
         }),
       }
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
       const pgArgBuilder = createPGArgBuilder('SomeInput', fieldMap, pg).validation(
         (value) => value.someField !== '',
       )
@@ -188,7 +188,7 @@ describe('PGArgBuilder', () => {
 
   describe('edit', () => {
     it('Returns a new PGArgBuilder after editing each Field of the original', () => {
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
       const original = createPGArgBuilder(
         'SomeInput',
         {
@@ -237,7 +237,7 @@ describe('PGArgBuilder', () => {
   describe('build', () => {
     describe('ScalarType Field', () => {
       it('Returns a scalar type PGInputField', () => {
-        const pg = getPGBuilder()()
+        const pg = getPGBuilder()
         const pgArgBuilder = createPGArgBuilder(
           'SomeInput',
           {
@@ -262,7 +262,7 @@ describe('PGArgBuilder', () => {
 
     describe('EnumType Field', () => {
       it('Returns an enum type PGInputField', () => {
-        const pg = getPGBuilder()()
+        const pg = getPGBuilder()
         const pgArgBuilder = createPGArgBuilder(
           'SomeInput',
           {
@@ -290,7 +290,7 @@ describe('PGArgBuilder', () => {
 
     describe('InputType Field', () => {
       it('Returns an PGInputField with a PGInput & the PGInput is set to the Build Cache', () => {
-        const pg = getPGBuilder()()
+        const pg = getPGBuilder()
         const pgArgBuilder = createPGArgBuilder(
           'SomeInput',
           {
@@ -338,7 +338,7 @@ describe('PGArgBuilder', () => {
 
       describe('PGArgBuilder values are set', () => {
         it('Returns a PGInputField and a PGInput that inherited the PGArgBuilder values', () => {
-          const pg = getPGBuilder()()
+          const pg = getPGBuilder()
           const pgArgBuilder = createPGArgBuilder(
             'SomeInput',
             {
@@ -395,7 +395,7 @@ describe('PGArgBuilder', () => {
 
     describe('UnionType Field', () => {
       it('Returns a PGInputField generated from default of PGArgBuilderUnion', () => {
-        const pg = getPGBuilder()()
+        const pg = getPGBuilder()
         const pgArgBuilder = createPGArgBuilder(
           'SomeInput',
           {
@@ -426,7 +426,7 @@ describe('PGArgBuilder', () => {
 
     describe('Wrap is enabled', () => {
       it('Generated a PGInputField and a PGInput for wrapping & the PGInput is set into the Build Cache', () => {
-        const pg = getPGBuilder()()
+        const pg = getPGBuilder()
         const pgArgBuilder = createPGArgBuilder(
           'SomeInput',
           {
@@ -467,7 +467,7 @@ describe('PGArgBuilder', () => {
 
     describe('Recursive InputType', () => {
       it('Returns a recursive PGArgBuilder', () => {
-        const pg = getPGBuilder()()
+        const pg = getPGBuilder()
         type ArgBuilder = PGArgBuilder<{ field: () => ArgBuilder }, PGTypes>
         const fieldMap = {
           field: () => pgArgBuilder,
@@ -487,7 +487,7 @@ describe('PGArgBuilder', () => {
       it('PReturns a cross-referenced PGArgBuilder', () => {
         type ArgBuilder1 = PGArgBuilder<{ field: () => ArgBuilder2 }, PGTypes>
         type ArgBuilder2 = PGArgBuilder<{ field: () => ArgBuilder1 }, PGTypes>
-        const pg = getPGBuilder()()
+        const pg = getPGBuilder()
         const fieldMap1 = {
           field: () => pgArgBuilder2,
         }
@@ -512,7 +512,7 @@ describe('PGArgBuilder', () => {
 
 describe('convertPGArgBuilderFieldToPGInputField', () => {
   it('Returns PGInputField converted from PGArgBuilder', () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const pgArgBuilder = createPGArgBuilder(
       'SomeInput',
       {
@@ -548,7 +548,7 @@ describe('convertPGArgBuilderFieldToPGInputField', () => {
     })
   })
   it('Returns PGInputField converted from PGArgBuilderUnion', () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const pgArgBuilderUnion = createPGArgBuilderUnion({
       __default: createInputField<string, 'string', any>({
         kind: 'scalar',

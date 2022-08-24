@@ -47,7 +47,7 @@ export function convertDMMFModelToPGObject(
       default:
         throw new PGError(`Unexpected kind '${x.kind}''.`, 'Error')
     }
-    let field = createOutputField<any, any>(kindAndType, builder.utils.inputFieldBuilder)
+    let field = createOutputField<any, any>(kindAndType, builder.fieldBuilders.input)
     if (x.kind === 'object') field.value.isPrismaRelation = true
     if (x.isList) field = field.list()
     if (!x.isRequired) field = field.nullable()
@@ -58,8 +58,8 @@ export function convertDMMFModelToPGObject(
     dmmfModel.name,
     fieldMap,
     builder.cache(),
-    builder.utils.outputFieldBuilder,
-    builder.utils.inputFieldBuilder,
+    builder.fieldBuilders.output,
+    builder.fieldBuilders.input,
   )
   pgObject.prismaModel(dmmfModel.name)
   return pgObject

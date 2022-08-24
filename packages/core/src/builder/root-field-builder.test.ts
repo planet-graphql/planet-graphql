@@ -6,7 +6,7 @@ import type { ExecutionResult } from 'graphql'
 
 describe('rootFieldBuilder', () => {
   it('Creates a new PGRootFieldConfig', () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const someObject = pg.object({
       name: 'SomeObject',
       fields: (f) => ({
@@ -66,7 +66,7 @@ describe('rootFieldBuilder', () => {
   describe('subscription', () => {
     it('Returns a value in response to a publish according to the conditions set in the filter', async () => {
       const pubsub = new PubSub()
-      const pg = getPGBuilder()()
+      const pg = getPGBuilder()
 
       const someQuery = pg.query({ name: 'SomeQuery', field: (b) => b.string() })
       const SomeSubscription = pg.subscription({

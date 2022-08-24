@@ -8,7 +8,7 @@ import type { TypeEqual } from 'ts-expect'
 describe('PGInput', () => {
   describe('copy', () => {
     it('Returns the same input with only the name changed & Set it to Builder Cache', () => {
-      const builder = getPGBuilder()()
+      const builder = getPGBuilder()
       const original = builder.input({
         name: 'Original',
         fields: (b) => ({
@@ -56,7 +56,7 @@ describe('PGInput', () => {
       >(true)
     })
     it('Returns an entirely new input, so changes do not affect the original', () => {
-      const builder = getPGBuilder()()
+      const builder = getPGBuilder()
       const original = builder.input({
         name: 'Original',
         fields: (b) => ({

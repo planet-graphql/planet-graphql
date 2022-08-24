@@ -4,7 +4,7 @@ import { mergeDefaultPGInterface, mergeDefaultOutputField } from '../test-utils'
 
 describe('InterfaceBuilder', () => {
   it('Returns a PGInterface & Sets it to the Build Cache', () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
 
     const result = pg.interface({
       name: 'SomeInterface',
@@ -29,7 +29,7 @@ describe('InterfaceBuilder', () => {
   })
 
   it('Returns a PGInterface that can be used as an output type', async () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const someInterface = pg.interface({
       name: 'SomeInterface',
       fields: (b) => ({

@@ -3,7 +3,7 @@ import { getPGBuilder } from '..'
 
 describe('DataloaderBuilder', () => {
   it('Returns a dataloader batches executions', async () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const spy = jest.fn()
     const user = pg
       .object({

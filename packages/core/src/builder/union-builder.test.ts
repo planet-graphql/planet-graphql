@@ -4,7 +4,7 @@ import { mergeDefaultPGUnion } from '../test-utils'
 
 describe('UnionBuilder', () => {
   it('Returns a PGUnion & Sets it to the Build Cache', () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const objectA = pg.object({
       name: 'A',
       fields: (b) => ({
@@ -36,7 +36,7 @@ describe('UnionBuilder', () => {
   })
 
   it('Returns a PGUnion that can be used as an output type', async () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const objectA = pg.object({
       name: 'A',
       fields: (b) => ({

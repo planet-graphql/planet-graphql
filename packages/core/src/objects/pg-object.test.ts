@@ -15,7 +15,7 @@ describe('PGObject', () => {
   describe('builder', () => {
     describe('Interface is specified', () => {
       it('Returns an object with fields defined in the interfaces', () => {
-        const builder = getPGBuilder()()
+        const builder = getPGBuilder()
         const interfaceA = builder.interface({
           name: 'A',
           fields: (b) => ({
@@ -87,7 +87,7 @@ describe('PGObject', () => {
   })
   describe('copy', () => {
     it('Copies the object and adjust to specified fields & Set it to Builder Cache', () => {
-      const builder = getPGBuilder()()
+      const builder = getPGBuilder()
       const original = builder.object({
         name: 'Original',
         fields: (b) => ({
@@ -138,7 +138,7 @@ describe('PGObject', () => {
     })
 
     it('Returns an entirely new instance, so changes do not affect the original', () => {
-      const builder = getPGBuilder()()
+      const builder = getPGBuilder()
       const original = builder.object({
         name: 'Original',
         fields: (b) => ({
@@ -191,7 +191,7 @@ describe('PGObject', () => {
 
   describe('implement', () => {
     it('Returns only value changed object & Changes the object in Builder Cache', () => {
-      const builder = getPGBuilder()()
+      const builder = getPGBuilder()
       const original = builder.object({
         name: 'Original',
         fields: (f) => ({

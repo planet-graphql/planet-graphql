@@ -1,11 +1,11 @@
 import { expectType } from 'ts-expect'
 import { getPGBuilder } from '..'
 import type { ResolveResponse, TypeOfPGModelBase, TypeOfPGUnion } from './common'
-import type { TypeEqual } from 'ts-expect';
+import type { TypeEqual } from 'ts-expect'
 
 describe('TypeOfPGModelBase', () => {
   it('Type is evaluated correctly even if it contains circular references', () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const user = pg.object({
       name: 'user',
       fields: (b) => ({
@@ -38,7 +38,7 @@ describe('TypeOfPGModelBase', () => {
 
 describe('TypeOfPGUnion', () => {
   it('Converts types correctly', () => {
-    const pg = getPGBuilder()()
+    const pg = getPGBuilder()
     const objectA = pg.object({
       name: 'A',
       fields: (b) => ({
