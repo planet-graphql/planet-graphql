@@ -10,6 +10,11 @@ The fastest way to get started with PlanetGraphQL is to check out our examples:
 - [With Prisma](https://github.com/planet-graphql/planet-graphql/tree/main/examples/prisma)
 - [Simple (Without Prisma)](https://github.com/planet-graphql/planet-graphql/tree/main/examples/simple)
 
+There are also tutorials, so you may want to start there:
+
+- [GraphQL API in 43 minutes with TypeScript, Prisma and PlanetGraphQL](https://dev.to/dekimasoon/rich-and-flexible-graphql-api-in-43-minutes-with-typescript-prisma-and-planetgraphql-1gn3)
+- [TypeScript と Prisma と PlanetGraphQL で作る GraphQL API (Japanese)](https://zenn.dev/dekimasoon/articles/31f4a740f670af)
+
 ## Install & Setup
 
 ```sh
